@@ -34,7 +34,7 @@ class Controller extends BaseController
         if (! empty($this->layout)) {
             $layout = 'Layouts/' .$this->layout;
 
-            $content = View::make($layout)->with('content', $response)->render();
+            $content = View::fetch($layout, array('content' => $response));
         } else {
             $content = $response->render();
         }

@@ -5,6 +5,8 @@ namespace Mini\View;
 use Mini\Support\Contracts\RenderableInterface;
 
 use BadMethodCallException;
+use Closure;
+use Exception;
 
 
 class View implements RenderableInterface
@@ -24,6 +26,7 @@ class View implements RenderableInterface
      */
     protected static $shared = array();
 
+    
     /**
      * Constructor
      *
@@ -59,12 +62,39 @@ class View implements RenderableInterface
     }
 
     /**
+     * Get the rendered string contents of a View.
+     *
+     * @param mixed $view
+     * @param array $data
+     *
+     * @return string
+     */
+    public static function fetch($view, $data = array(), Closure $callback = null)
+    {
+        return View::make($view, $data)->render($callback);
+    }
+
+    /**
      * Get the string contents of the View.
      *
      * @param  \Closure  $callback
      * @return string
      */
-    public function render()
+    public function render(Closure $callback = null)
+    {
+        $contents = $this->renderContents();
+
+        $response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
+
+        return $response ?: $contents;
+    }
+
+    /**
+     * Get the string contents of the View.
+     *
+     * @return string
+     */
+    protected function renderContents()
     {
         $__data = $this->gatherData();
 
@@ -80,7 +110,7 @@ class View implements RenderableInterface
         try {
             include $this->path;
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             ob_get_clean();
 
             throw $e;
@@ -170,7 +200,7 @@ class View implements RenderableInterface
         try {
             return $this->render();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return '';
         }
     }
