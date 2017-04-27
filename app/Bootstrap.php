@@ -21,6 +21,7 @@ $request = Request::createFromGlobals();
 // Dispatch the Request instance via Router.
 $response = $router->dispatch($request);
 
+// Insert the Profiler report into response content.
 if ($response instanceof Response) {
     $requestTime = $request->server('REQUEST_TIME_FLOAT');
 
