@@ -48,7 +48,7 @@ $router->get('test/{id?}/{name?}/{slug?}', array('uses' => function($id, $name =
     return array('id' => $id, 'name' => $name, 'slug' => $slug);
 
 }, 'where' => array(
-        'id' => '[0-9]+',
+        'id' => '([0-9]+)',
     ),
 ));
 
