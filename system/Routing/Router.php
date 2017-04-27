@@ -216,17 +216,18 @@ class Router
 
         $method = $request->method();
 
-        //
+        // Prepare a proper URI path.
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
-        $routes = $this->getRoutesByMethod($method);
+        // Get the routes registered for the current HTTP method.
+        $routes = Arr::get($this->routes, $method, array());
 
         if (array_key_exists($path, $routes)) {
             $action = $routes[$path];
 
-            $regex = '#^' .$path .'$#i';
+            $pattern = '#^' .$path .'$#i';
 
-            return $this->current = new Route($method, $path, $action, $regex);
+            return $this->current = new Route($method, $path, $action, $pattern);
         }
 
         foreach ($routes as $route => $action) {
@@ -238,20 +239,22 @@ class Router
             // Prepare the route patterns.
             $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
-            $regex = Route::compile($route, $patterns);
+            // Prepare the route pattern.
+            $pattern = Route::compile($route, $patterns);
 
-            if (preg_match($regex, $path, $matches) !== 1) {
-                // The route regex does not match this URI path.
+            if (preg_match($pattern, $path, $matches) !== 1) {
+                // The current route pattern does not match the URI path.
                 continue;
             }
 
+            // Filter the route parameters from matches.
             $parameters = array_filter($matches, function($value)
             {
                 return is_string($value);
 
             }, ARRAY_FILTER_USE_KEY);
 
-            return $this->current = new Route($method, $route, $action, $regex, $parameters);
+            return $this->current = new Route($method, $route, $action, $pattern, $parameters);
         }
     }
 
@@ -269,17 +272,6 @@ class Router
         }
 
         return $response->prepare($request);
-    }
-
-    /**
-     * Grab all of the routes for a given request method.
-     *
-     * @param  string  $method
-     * @return array
-     */
-    protected function getRoutesByMethod($method)
-    {
-        return Arr::get($this->routes, $method, array());
     }
 
     /**
