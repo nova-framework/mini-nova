@@ -214,7 +214,7 @@ class Route
             $param = $matches[1];
 
             if (in_array($param, $params)) {
-                $message = sprintf('Route pattern "%s" cannot reference parameter name "%s" more than once.', $path, $param);
+                $message = "Route pattern [$path] cannot reference parameter name [$param] more than once.";
 
                 throw new \LogicException($message);
             }
@@ -229,7 +229,7 @@ class Route
 
                 $optionals++;
             } else if ($optionals > 0) {
-                $message = sprintf('Route pattern "%s" cannot have standard parameter "%s" after optionals.', $path, $param);
+                $message = "Route pattern [$path] cannot reference parameter [$param] after one or more optionals.";
 
                 throw new \LogicException($message);
             } else {
