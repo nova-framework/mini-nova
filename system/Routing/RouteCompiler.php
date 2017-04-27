@@ -13,10 +13,14 @@ class RouteCompiler
     /**
      * The maximum supported length of a PCRE subpattern name
      * http://pcre.org/current/doc/html/pcre2pattern.html#SEC16.
-     *
-     * @internal
      */
     const VARIABLE_MAXIMUM_LENGTH = 32;
+
+    /**
+     * The default variable pattern.
+     *
+     */
+    const DEFAULT_VARIABLE_PATTERN = '([^/]+)';
 
 
     /**
@@ -72,8 +76,8 @@ class RouteCompiler
 
             array_push($params, $param);
 
-            //
-            $regex = Arr::get($parameters, $param, '([^/]+)');
+            // Get the parameter's regex pattern.
+            $regex = Arr::get($parameters, $param, self::DEFAULT_VARIABLE_PATTERN);
 
             return sprintf('%s/(?P<%s>%s)', $prefix, $param, $regex);
 

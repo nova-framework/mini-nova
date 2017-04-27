@@ -229,7 +229,6 @@ class Router
 
         // Of course literal route matches are the quickest to find, so we will check for those first.
         // If the destination key exists in the routes array we can just return that route right now.
-
         if (array_key_exists($uri, $routes)) {
             $action = $routes[$uri];
 
@@ -238,9 +237,7 @@ class Router
 
         // If we can't find a literal match we'll iterate through all of the registered routes to find
         // a matching route based on the regex pattern generated from route's parameters and patterns.
-        if (! is_null($route = $this->matchRoute($method, $uri))) {
-            return $route;
-        }
+        return $this->matchRoute($method, $uri);
     }
 
     /**
@@ -263,15 +260,14 @@ class Router
                 continue;
             }
 
-            // Prepare the route patterns.
+            // Prepare the route wheres.
             $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
             // Prepare the route pattern.
             $pattern = RouteCompiler::compile($route, $patterns);
 
             if (preg_match('#^' .$pattern .'$#i', $uri, $matches) === 1) {
-                // Filter the route parameters from matches.
-                $parameters = array_filter($matches, function($value)
+                $parameters = array_filter($matches, function ($value)
                 {
                     return is_string($value);
 
@@ -319,27 +315,35 @@ class Router
     }
 
     /**
-     * Set a global where pattern on all routes.
+     * Set/get a global where pattern on all routes.
      *
      * @param  string  $key
      * @param  string  $pattern
      * @return void
      */
-    public function pattern($key, $pattern)
+    public function pattern($key, $pattern = null)
     {
+        if (is_null($pattern)) {
+            return Arr::get($this->patterns, $key);
+        }
+
         $this->patterns[$key] = $pattern;
     }
 
     /**
-     * Set a group of global where patterns on all routes.
+     * Set/get a group of global where patterns on all routes.
      *
      * @param  array  $patterns
      * @return void
      */
-    public function patterns(array $patterns)
+    public function patterns($patterns = null)
     {
+        if (is_null($patterns)) {
+            return $this->patterns;
+        }
+
         foreach ($patterns as $key => $pattern) {
-            $this->pattern($key, $pattern);
+            $this->patterns[$key] = $pattern;
         }
     }
 
