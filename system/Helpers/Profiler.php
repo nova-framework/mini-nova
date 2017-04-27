@@ -2,20 +2,13 @@
 
 namespace Mini\Helpers;
 
-use Mini\Http\Request;
-
 
 class Profiler
 {
 
-    public static function report(Request $request)
+    public static function getReport($requestTime)
     {
-        $timestamp = microtime(true);
-
-        //
-        $requestTime = $request->server('REQUEST_TIME_FLOAT');
-
-        $elapsedTime = $timestamp - $requestTime;
+        $elapsedTime = microtime(true) - $requestTime;
 
         $elapsedStr = sprintf("%01.4f", $elapsedTime);
 

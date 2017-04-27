@@ -22,12 +22,13 @@ $request = Request::createFromGlobals();
 $response = $router->dispatch($request);
 
 if ($response instanceof Response) {
+    $requestTime = $request->server('REQUEST_TIME_FLOAT');
+
     $content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
-        Profiler::report($request),
+        Profiler::getReport($requestTime),
         $response->getContent()
     );
 
-    //
     $response->setContent($content);
 }
 
