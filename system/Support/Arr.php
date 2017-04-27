@@ -21,8 +21,7 @@ class Arr
      */
     public static function add($array, $key, $value)
     {
-        if (is_null(static::get($array, $key)))
-        {
+        if (is_null(static::get($array, $key))) {
             static::set($array, $key, $value);
         }
 
@@ -72,14 +71,10 @@ class Arr
     {
         $results = array();
 
-        foreach ($array as $key => $value)
-        {
-            if (is_array($value))
-            {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
                 $results = array_merge($results, static::dot($value, $prepend.$key.'.'));
-            }
-            else
-            {
+            } else {
                 $results[$prepend.$key] = $value;
             }
         }
@@ -112,10 +107,8 @@ class Arr
         {
             $results = array();
 
-            foreach ($array as $value)
-            {
-                if (array_key_exists($segment, $value = (array) $value))
-                {
+            foreach ($array as $value) {
+                if (array_key_exists($segment, $value = (array) $value)) {
                     $results[] = $value[$segment];
                 }
             }
@@ -141,7 +134,7 @@ class Arr
             if (call_user_func($callback, $key, $value)) return $value;
         }
 
-        return value($default);
+        return ($default instanceof Closure) ? $default() : $default;
     }
 
     /**
@@ -218,11 +211,9 @@ class Arr
 
         if (isset($array[$key])) return $array[$key];
 
-        foreach (explode('.', $key) as $segment)
-        {
-            if (! is_array($array) || ! array_key_exists($segment, $array))
-            {
-                return value($default);
+        foreach (explode('.', $key) as $segment) {
+            if (! is_array($array) || ! array_key_exists($segment, $array)) {
+                return ($default instanceof Closure) ? $default() : $default;
             }
 
             $array = $array[$segment];

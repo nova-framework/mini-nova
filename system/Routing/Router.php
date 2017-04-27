@@ -5,11 +5,13 @@ namespace Mini\Routing;
 use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Route;
+use Mini\Support\Arr;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
+use BadMethodCallException;
 use Closure;
 
 
@@ -61,7 +63,7 @@ class Router
      *
      * @var array
      */
-    public static $methods = array('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS');
+    public static $methods = array('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS');
 
 
     /**
@@ -122,7 +124,11 @@ class Router
      */
     protected function addRoute($method, $uri, $action)
     {
-        $this->routes[$method][$uri] = $this->parseAction($action);
+        if (is_array($action)) {
+            $this->routes[$method][$uri] = $action;
+        } else {
+            $this->routes[$method][$uri] = $this->parseAction($action);
+        }
 
         if (! is_null($this->group)) {
             $this->routes[$method][$uri] += $this->group;
@@ -198,7 +204,7 @@ class Router
         //
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
-        $routes = $this->routesByMethod($method);
+        $routes = $this->getRoutesByMethod($method);
 
         if (array_key_exists($path, $routes)) {
             $action = $routes[$path];
@@ -215,7 +221,7 @@ class Router
 
             $wheres = array_merge(
                 $this->patterns,
-                isset($action['where']) ? $action['where'] : array()
+                Arr::get($action, 'where', array())
             );
 
             $regex = static::compileRoute($route, $wheres);
@@ -265,7 +271,7 @@ class Router
             array_push($params, $param);
 
             //
-            $pattern = isset($wheres[$param]) ? $wheres[$param] : '[^/]+';
+            $pattern = Arr::get($wheres, $param, '[^/]+');
 
             if (isset($match[2]) && ($match[2] === '?')) {
                 $prefix = '(?:';
@@ -312,9 +318,9 @@ class Router
      * @param  string  $method
      * @return array
      */
-    protected function routesByMethod($method)
+    protected function getRoutesByMethod($method)
     {
-        return isset($this->routes[$method]) ? $this->routes[$method] : array();
+        return Arr::get($this->routes, $method, array());
     }
 
     /**
@@ -358,12 +364,8 @@ class Router
      */
     public function __call($method, $parameters)
     {
-        $method = strtoupper($method);
+        array_unshift($parameters, $method);
 
-        if (($method === 'ANY') || in_array($method, static::$methods)) {
-            array_unshift($parameters, $method);
-
-            return call_user_func_array(array($this, 'register'), $parameters);
-        }
+        return call_user_func_array(array($this, 'register'), $parameters);
     }
 }
