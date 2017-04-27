@@ -231,7 +231,7 @@ class Router
 
         foreach ($routes as $route => $action) {
             if (strpos($route, '{') === false) {
-                // A route with no parameters was already checked for direct match.
+                // The routes with no parameters was already checked for direct match.
                 continue;
             }
 
@@ -240,15 +240,18 @@ class Router
 
             $regex = Route::compile($route, $patterns);
 
-            if (preg_match($regex, $path, $matches) === 1) {
-                $parameters = array_filter($matches, function ($key)
-                {
-                    return is_string($key);
-
-                }, ARRAY_FILTER_USE_KEY);
-
-                return $this->current = new Route($method, $route, $action, $regex, $parameters);
+            if (preg_match($regex, $path, $matches) !== 1) {
+                // The route regex does not match this URI path.
+                continue;
             }
+
+            $parameters = array_filter($matches, function($value)
+            {
+                return is_string($value);
+
+            }, ARRAY_FILTER_USE_KEY);
+
+            return $this->current = new Route($method, $route, $action, $regex, $parameters);
         }
     }
 
