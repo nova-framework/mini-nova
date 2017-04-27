@@ -35,7 +35,6 @@ class View implements RenderableInterface
         $this->path = $path;
 
         $this->data = (array) $data;
-
     }
 
     /**

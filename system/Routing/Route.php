@@ -4,6 +4,7 @@ namespace Mini\Routing;
 
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
+use Mini\Support\Arr;
 
 
 class Route
@@ -13,35 +14,35 @@ class Route
      *
      * @var string
      */
-    public $uri;
+    protected $uri;
 
     /**
      * The request method the route responds to.
      *
      * @var string
      */
-    public $method;
+    protected $method;
 
     /**
      * The action that is assigned to the route.
      *
      * @var mixed
      */
-    public $action;
+    protected $action;
 
     /**
      * The parameters that will be passed to the route callback.
      *
      * @var array
      */
-    public $parameters;
+    protected $parameters;
 
     /**
      * The regex the route responds to.
      *
      * @var string
      */
-    public $regex;
+    protected $regex;
 
 
     /**
@@ -94,6 +95,7 @@ class Route
     {
         $parameters = $this->parameters();
 
+        //
         $callable = $this->action['uses'];
 
         return call_user_func_array($callable, $parameters);
@@ -122,11 +124,53 @@ class Route
     }
 
     /**
+     * Get the uri for the route.
+     *
+     * @return string
+     */
+    public function uri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Get the method for the route.
+     *
+     * @return string
+     */
+    public function method()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Get the action array for the route.
+     *
+     * @return array
+     */
+    public function action()
+    {
+        return $this->action;
+    }
+
+    /**
+     * Get a given parameter from the route.
+     *
+     * @param  string  $name
+     * @param  mixed   $default
+     * @return string
+     */
+    public function parameter($name, $default = null)
+    {
+        $parameters = $this->parameters();
+
+        return Arr::get($parameters, $name, $default);
+    }
+
+    /**
      * Get the key / value list of parameters for the route.
      *
      * @return array
-     *
-     * @throws \LogicException
      */
     public function parameters()
     {
@@ -136,4 +180,26 @@ class Route
 
         }, $this->parameters);
     }
+
+    /**
+     * Get the regex for the route.
+     *
+     * @return string
+     */
+    public function regex()
+    {
+        return $this->regex;
+    }
+
+    /**
+     * Dynamically access route parameters.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->parameter($key);
+    }
+    
 }
