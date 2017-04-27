@@ -22,4 +22,41 @@ require BASEPATH .'vendor/autoload.php';
 // Run the Application
 //--------------------------------------------------------------------------
 
-echo 'Hello, mini me!';
+use Mini\Http\Request;
+use Mini\Routing\Router;
+
+
+// Create the Router instance.
+$router = new Router();
+
+// Additional patterns for routes.
+$router->pattern('slug', '(.*)');
+
+// The routes definition.
+$router->any('/', function()
+{
+    return "Homepage";
+});
+
+$router->get('sample/{name?}/{slug?}', 'App\Controllers\Sample@index');
+
+$router->post('sample', 'App\Controllers\Sample@store');
+
+
+$router->get('test/{id?}/{name?}/{slug?}', array('uses' => function($id, $name = null, $slug = null)
+{
+    return array('id' => $id, 'name' => $name, 'slug' => $slug);
+
+}, 'where' => array(
+        'id' => '[0-9]+',
+    ),
+));
+
+// Create the Request instance.
+$request = Request::createFromGlobals();
+
+// Dispatch the Request instance via Router.
+$response = $router->dispatch($request);
+
+// Send the Response instance returned by dispatching.
+$response->send();

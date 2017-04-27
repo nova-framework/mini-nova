@@ -2,8 +2,12 @@
 
 namespace Mini\View;
 
+use Mini\Support\Contracts\RenderableInterface;
 
-class View
+use BadMethodCallException;
+
+
+class View implements RenderableInterface
 {
     /**
      * @var string The path to the View file on disk.
@@ -22,17 +26,12 @@ class View
 
     /**
      * Constructor
+     *
      * @param mixed $path
      * @param array $data
-     *
-     * @throws \BadMethodCallException
      */
     protected function __construct($path, $data = array())
     {
-        if (! is_readable($path)) {
-            throw new \BadMethodCallException("File path [$path] does not exist");
-        }
-
         $this->path = $path;
 
         $this->data = (array) $data;
@@ -46,10 +45,16 @@ class View
      * @param array $data
      *
      * @return \Core\View
+     *
+     * @throws \BadMethodCallException
      */
     public static function make($view, $data = array())
     {
-        $path = APPDIR .str_replace('/', DS, "Views/" .$view);
+        $path = APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
+
+        if (! is_readable($path)) {
+            throw new BadMethodCallException("File path [$path] does not exist");
+        }
 
         return new static($path, $data);
     }

@@ -2,40 +2,106 @@
 
 namespace Mini\Routing;
 
-use Mini\View\View;
+use Mini\Http\Response;
+
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use BadMethodCallException;
 
 
 abstract class Controller
 {
     /**
-     * The currently used Layout.
+     * The currently called Method.
      *
-     * @var string
+     * @var mixed
      */
-    protected $layout = 'Default';
+    private $method;
 
 
-    public function __construct()
-    {
+    /**
+     * Method executed before any action.
+     *
+     * @return void
+     */
+    protected function before() {
         //
     }
 
-    public function callAction($method, array $params = array())
+    /**
+     * Method executed after any action.
+     *
+     * @param mixed $response
+     *
+     * @return mixed
+     */
+    protected function after($response)
     {
-        if (! method_exists($this, $method)) {
-            throw new \BadMethodCallException("Method [$method] does not exist");
+        if (! $response instanceof SymfonyResponse) {
+            $response = new Response($response);
         }
 
-        $response = call_user_func_array(array($this, $method), $params);
+        return $response;
+    }
 
-        if ($response instanceof View) {
-            $layout = 'Layouts/' .$this->layout;
+    /**
+     * Execute an action on the controller.
+     *
+     * @param string  $method
+     * @param array   $params
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function callAction($method, array $parameters = array())
+    {
+        $this->method = $method;
 
-            $view = View::make($layout, array(
-                'content' => $response->render()
-            ));
+        // Execute the Before method.
+        $response = $this->before();
 
-            echo $view->render();
+        // If no response is given by the Before stage, execute the requested action.
+        if (is_null($response)) {
+            $response = call_user_func_array(array($this, $method), $parameters);
         }
+
+        // Execute the After method and return the result.
+        return $this->after($response);
+    }
+
+    /**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  array   $parameters
+     * @return mixed
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function missingMethod($parameters = array())
+    {
+        throw new NotFoundHttpException("Controller method not found.");
+    }
+
+    /**
+     * Returns the currently called Method.
+     *
+     * @return string|null
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  string  $method
+     * @param  array   $parameters
+     * @return mixed
+     *
+     * @throws \BadMethodCallException
+     */
+    public function __call($method, $parameters)
+    {
+        throw new BadMethodCallException("Method [$method] does not exist.");
     }
 }
