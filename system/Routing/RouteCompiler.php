@@ -73,7 +73,7 @@ class RouteCompiler
             array_push($params, $param);
 
             //
-            $regex = Arr::get($parameters, $param, '[^/]+');
+            $regex = Arr::get($parameters, $param, '([^/]+)');
 
             return sprintf('%s/(?P<%s>%s)', $prefix, $param, $regex);
 

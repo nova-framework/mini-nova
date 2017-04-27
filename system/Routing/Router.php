@@ -199,13 +199,13 @@ class Router
     {
         $route = $this->findRoute($request);
 
-        if (! is_null($route)) {
-            $response = $route->run($request);
-
-            return $this->prepareResponse($request, $response);
+        if (is_null($route)) {
+            throw new NotFoundHttpException();
         }
 
-        throw new NotFoundHttpException();
+        $response = $route->run($request);
+
+        return $this->prepareResponse($request, $response);
     }
 
     /**
@@ -225,15 +225,15 @@ class Router
         // Prepare a qualified URI path, which starts always with '/'.
         $uri = $request->path();
 
-        $path = ($uri === '/') ? '/' : '/' .$uri;
+        $uri = ($uri === '/') ? '/' : '/' .$uri;
 
         // Of course literal route matches are the quickest to find, so we will check for those first.
         // If the destination key exists in the routes array we can just return that route right now.
 
-        if (array_key_exists($path, $routes)) {
-            $action = $routes[$path];
+        if (array_key_exists($uri, $routes)) {
+            $action = $routes[$uri];
 
-            return $this->current = new Route($method, $path, $action);
+            return $this->current = new Route($method, $uri, $action);
         }
 
         // If we can't find a literal match we'll iterate through all of the registered routes to find
@@ -257,9 +257,8 @@ class Router
         $routes = Arr::get($this->routes, $method, array());
 
         foreach ($routes as $route => $action) {
-            // We only need to check routes with regular expression since all others would have been able
+            // We only need to check routes which have parameters since all others would have been able
             // to be matched by the search for literal matches we just did before we started searching.
-
             if (! Str::contains($route, '{')) {
                 continue;
             }
@@ -270,7 +269,7 @@ class Router
             // Prepare the route pattern.
             $pattern = RouteCompiler::compile($route, $patterns);
 
-            if (preg_match('#^' .$pattern .'$#i', $uri, $matches) !== 1) {
+            if (preg_match('#^' .$pattern .'$#i', $uri, $matches) === 1) {
                 // Filter the route parameters from matches.
                 $parameters = array_filter($matches, function($value)
                 {

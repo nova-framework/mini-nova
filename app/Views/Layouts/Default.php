@@ -24,7 +24,7 @@
             </div>
             <div class="col-lg-8">
                 <p class="text-muted pull-right">
-                    <small><!-- DO NOT DELETE! - Statistics --></small>
+                    <small><!-- DO NOT DELETE! - Profiler --></small>
                 </p>
             </div>
         </div>
@@ -33,8 +33,6 @@
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-<!-- DO NOT DELETE! - Profiler -->
 
 </body>
 </html>
