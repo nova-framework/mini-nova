@@ -1,6 +1,8 @@
 <?php
 
+use Mini\Helpers\Profiler;
 use Mini\Http\Request;
+use Mini\Http\Response;
 use Mini\Routing\Router;
 
 
@@ -18,6 +20,16 @@ $request = Request::createFromGlobals();
 
 // Dispatch the Request instance via Router.
 $response = $router->dispatch($request);
+
+if ($response instanceof Response) {
+    $content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
+        Profiler::report($request),
+        $response->getContent()
+    );
+
+    //
+    $response->setContent($content);
+}
 
 // Send the Response.
 $response->send();
