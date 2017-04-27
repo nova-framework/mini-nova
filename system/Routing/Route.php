@@ -61,7 +61,7 @@ class Route
         $this->action     = $action;
         $this->parameters = $parameters;
 
-        // If no regex value is given, because the route is a direct match, we fallback to URI.
+        // If no regex value is given, because the route is a direct match, fallback to URI.
         $this->regex = $regex ?: $uri;
 
     }
@@ -118,7 +118,7 @@ class Route
         list($controller, $method) = explode('@', $this->action['uses']);
 
         if (! method_exists($instance = new $controller(), $method)) {
-            throw new NotFoundHttpException;
+            throw new NotFoundHttpException();
         }
 
         return $instance->callAction($method, $parameters);
