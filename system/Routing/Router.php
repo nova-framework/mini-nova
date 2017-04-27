@@ -124,11 +124,7 @@ class Router
      */
     protected function addRoute($method, $uri, $action)
     {
-        if (is_array($action)) {
-            $this->routes[$method][$uri] = $action;
-        } else {
-            $this->routes[$method][$uri] = $this->parseAction($action);
-        }
+        $this->routes[$method][$uri] = $this->parseAction($action);
 
         if (! is_null($this->group)) {
             $this->routes[$method][$uri] += $this->group;
@@ -143,11 +139,30 @@ class Router
      */
     protected function parseAction($action)
     {
-        if (($action instanceof Closure) || is_string($action)) {
-            $action = array('uses' => $action);
+        if (is_callable($action) || is_string($action)) {
+            return array('uses' => $action);
         }
 
-        return (array) $action;
+        // Dig through the array to find a Closure instance.
+        else if (! isset($action['uses'])) {
+            $action['uses'] = $this->findClosure($action);
+        }
+
+        return $action;
+    }
+
+    /**
+     * Find the Closure in an action array.
+     *
+     * @param  array  $action
+     * @return \Closure
+     */
+    protected function findClosure(array $action)
+    {
+        return Arr::first($action, function($key, $value)
+        {
+            return is_callable($value);
+        });
     }
 
     /**
@@ -224,7 +239,7 @@ class Router
                 Arr::get($action, 'where', array())
             );
 
-            $regex = static::compileRoute($route, $wheres);
+            $regex = static::compileRegex($route, $wheres);
 
             if (preg_match($regex, $path, $matches) === 1) {
                 $parameters = array_filter($matches, function ($key)
@@ -247,7 +262,7 @@ class Router
      *
      * @throw \LogicException
      */
-    protected static function compileRoute($route, $wheres)
+    protected static function compileRegex($route, $wheres)
     {
         $path = '/' .ltrim($route, '/');
 
