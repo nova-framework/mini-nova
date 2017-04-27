@@ -36,7 +36,7 @@ class RouteCompiler
     {
         $pattern = '/' .ltrim($pattern, '/');
 
-        //
+        // Replace the parameters with their associated patterns.
         $params = array();
 
         $optionals = 0;
@@ -83,6 +83,7 @@ class RouteCompiler
 
         }, $pattern);
 
+        // Adjust the compiled pattern when one or more optionals are present.
         if ($optionals > 0) {
             $result .= str_repeat(')?', $optionals);
         }
