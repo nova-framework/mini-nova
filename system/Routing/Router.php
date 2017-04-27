@@ -248,7 +248,7 @@ class Router
      *
      * @return \Mini\Routing\Route|null
      */
-    public function matchRoute($method, $uri)
+    protected function matchRoute($method, $uri)
     {
         // Get the routes registered for the current HTTP method.
         $routes = Arr::get($this->routes, $method, array());
