@@ -229,7 +229,7 @@ class Route
 
                 $optionals++;
             } else if ($optionals > 0) {
-                $message = sprintf('Route pattern "%s" has standard parameter "%s" after one or more optionals.', $path, $param);
+                $message = sprintf('Route pattern "%s" cannot have standard parameter "%s" after optionals.', $path, $param);
 
                 throw new \LogicException($message);
             } else {
