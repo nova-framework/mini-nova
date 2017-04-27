@@ -205,13 +205,11 @@ class Route
         $path = '/' .ltrim($uri, '/');
 
         //
-        $regex = '#/{(\w+)(?:(\?))?}#i';
-
         $params = array();
 
         $optionals = 0;
 
-        $result = preg_replace_callback($regex, function ($matches) use ($path, $patterns, &$params, &$optionals)
+        $result = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($path, $patterns, &$params, &$optionals)
         {
             $param = $matches[1];
 
