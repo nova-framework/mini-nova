@@ -19,23 +19,7 @@ define('APPPATH', BASEPATH .'app' .DS);
 require BASEPATH .'vendor/autoload.php';
 
 //--------------------------------------------------------------------------
-// Run the Application
+// Load the Application Bootstrap
 //--------------------------------------------------------------------------
 
-use Mini\Http\Request;
-use Mini\Routing\Router;
-
-
-// Create the Router instance.
-$router = new Router();
-
-require APPPATH .'Routes.php';
-
-// Create the Request instance.
-$request = Request::createFromGlobals();
-
-// Dispatch the Request instance via Router.
-$response = $router->dispatch($request);
-
-// Send the Response.
-$response->send();
+require APPPATH .'Bootstrap.php';
