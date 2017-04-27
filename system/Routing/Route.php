@@ -192,7 +192,7 @@ class Route
     }
 
     /**
-     * Compile the route's URI pattern to a valid regex.
+     * Compile an URI pattern to a valid regex.
      *
      * @param  string   $uri
      * @param  array    $patterns
