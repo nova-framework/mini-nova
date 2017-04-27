@@ -32,9 +32,11 @@ class Controller extends BaseController
         }
 
         if (! empty($this->layout)) {
-            $layout = 'Layouts/' .$this->layout;
+            $view = 'Layouts/' .$this->layout;
 
-            $content = View::fetch($layout, array('content' => $response));
+            $content = View::fetch($view, array(
+                'content' => $response->render()
+            ));
         } else {
             $content = $response->render();
         }
