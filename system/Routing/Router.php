@@ -5,7 +5,9 @@ namespace Mini\Routing;
 use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Route;
+use Mini\Routing\RouteCompiler;
 use Mini\Support\Arr;
+use Mini\Support\Str;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -169,6 +171,7 @@ class Router
      * Dispatch the request and return the response.
      *
      * @param  \Mini\Http\Request  $request
+     *
      * @return mixed
      */
     public function dispatch(Request $request)
@@ -189,6 +192,7 @@ class Router
      * Dispatch the request to a route and return the response.
      *
      * @param  \Mini\Http\Request  $request
+     *
      * @return mixed
      */
     public function dispatchToRoute(Request $request)
@@ -208,31 +212,55 @@ class Router
      * Search the routes for the route matching a request.
      *
      * @param  \Mini\Http\Request  $request
-     * @return Route
+     *
+     * @return \Mini\Routing\Route|null
      */
     protected function findRoute(Request $request)
     {
-        $uri = $request->path();
-
         $method = $request->method();
-
-        // Prepare a proper URI path.
-        $path = ($uri === '/') ? '/' : '/' .$uri;
 
         // Get the routes registered for the current HTTP method.
         $routes = Arr::get($this->routes, $method, array());
 
+        // Prepare a qualified URI path, which starts always with '/'.
+        $uri = $request->path();
+
+        $path = ($uri === '/') ? '/' : '/' .$uri;
+
+        // Of course literal route matches are the quickest to find, so we will check for those first.
+        // If the destination key exists in the routes array we can just return that route right now.
+
         if (array_key_exists($path, $routes)) {
             $action = $routes[$path];
 
-            $pattern = '#^' .$path .'$#i';
-
-            return $this->current = new Route($method, $path, $action, $pattern);
+            return $this->current = new Route($method, $path, $action);
         }
 
+        // If we can't find a literal match we'll iterate through all of the registered routes to find
+        // a matching route based on the regex pattern generated from route's parameters and patterns.
+        if (! is_null($route = $this->matchRoute($method, $uri))) {
+            return $route;
+        }
+    }
+
+    /**
+     * Iterate through every route to find a matching route.
+     *
+     * @param  string  $method
+     * @param  string  $uri
+     *
+     * @return \Mini\Routing\Route|null
+     */
+    protected function matchRoute($method, $uri)
+    {
+        // Get the routes registered for the current HTTP method.
+        $routes = Arr::get($this->routes, $method, array());
+
         foreach ($routes as $route => $action) {
-            if (strpos($route, '{') === false) {
-                // The routes with no parameters was already checked for direct match.
+            // We only need to check routes with regular expression since all others would have been able
+            // to be matched by the search for literal matches we just did before we started searching.
+
+            if (! Str::contains($route, '{')) {
                 continue;
             }
 
@@ -240,21 +268,18 @@ class Router
             $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
             // Prepare the route pattern.
-            $pattern = Route::compile($route, $patterns);
+            $pattern = RouteCompiler::compile($route, $patterns);
 
-            if (preg_match($pattern, $path, $matches) !== 1) {
-                // The current route pattern does not match the URI path.
-                continue;
+            if (preg_match('#^' .$pattern .'$#i', $uri, $matches) !== 1) {
+                // Filter the route parameters from matches.
+                $parameters = array_filter($matches, function($value)
+                {
+                    return is_string($value);
+
+                }, ARRAY_FILTER_USE_KEY);
+
+                return $this->current = new Route($method, $route, $action, $parameters, $pattern);
             }
-
-            // Filter the route parameters from matches.
-            $parameters = array_filter($matches, function($value)
-            {
-                return is_string($value);
-
-            }, ARRAY_FILTER_USE_KEY);
-
-            return $this->current = new Route($method, $route, $action, $pattern, $parameters);
         }
     }
 
@@ -295,7 +320,7 @@ class Router
     }
 
     /**
-     * Set a global where pattern on all routes
+     * Set a global where pattern on all routes.
      *
      * @param  string  $key
      * @param  string  $pattern
@@ -304,6 +329,19 @@ class Router
     public function pattern($key, $pattern)
     {
         $this->patterns[$key] = $pattern;
+    }
+
+    /**
+     * Set a group of global where patterns on all routes.
+     *
+     * @param  array  $patterns
+     * @return void
+     */
+    public function patterns(array $patterns)
+    {
+        foreach ($patterns as $key => $pattern) {
+            $this->pattern($key, $pattern);
+        }
     }
 
     /**

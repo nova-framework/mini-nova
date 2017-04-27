@@ -10,7 +10,7 @@ use Mini\Support\Arr;
 class Route
 {
     /**
-     * The URI the route responds to.
+     * The URI pattern the route responds to.
      *
      * @var string
      */
@@ -38,7 +38,7 @@ class Route
     protected $parameters;
 
     /**
-     * The regex the route responds to.
+     * The regex pattern the route responds to.
      *
      * @var string
      */
@@ -48,21 +48,22 @@ class Route
     /**
      * Create a new Route instance.
      *
-     * @param  string  $method
-     * @param  string  $uri
-     * @param  array   $action
-     * @param  array   $regex
-     * @param  array   $parameters
+     * @param  string        $method
+     * @param  string        $uri
+     * @param  array         $action
+     * @param  string|null   $regex
+     * @param  array         $parameters
      */
-    public function __construct($method, $uri, $action, $regex, $parameters = array())
+    public function __construct($method, $uri, $action, $parameters = array(), $regex = null)
     {
-        $this->uri = $uri;
-        $this->method = $method;
-        $this->action = $action;
-        $this->regex  = $regex;
-
-        //
+        $this->uri        = $uri;
+        $this->method     = $method;
+        $this->action     = $action;
         $this->parameters = $parameters;
+
+        // If no regex value is given, because the route is a direct match, we fallback to URI.
+        $this->regex = $regex ?: $uri;
+
     }
 
     /**
@@ -189,62 +190,6 @@ class Route
     public function regex()
     {
         return $this->regex;
-    }
-
-    /**
-     * Compile an URI pattern to a valid regex.
-     *
-     * @param  string   $uri
-     * @param  array    $patterns
-     * @return string
-     *
-     * @throw \LogicException
-     */
-    public static function compile($uri, $patterns = array())
-    {
-        $path = '/' .ltrim($uri, '/');
-
-        //
-        $params = array();
-
-        $optionals = 0;
-
-        $result = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($path, $patterns, &$params, &$optionals)
-        {
-            $param = $matches[1];
-
-            if (in_array($param, $params)) {
-                $message = "Route pattern [$path] cannot reference parameter name [$param] more than once.";
-
-                throw new \LogicException($message);
-            }
-
-            array_push($params, $param);
-
-            //
-            $pattern = Arr::get($patterns, $param, '[^/]+');
-
-            if (isset($matches[2]) && ($matches[2] === '?')) {
-                $prefix = '(?:';
-
-                $optionals++;
-            } else if ($optionals > 0) {
-                $message = "Route pattern [$path] cannot reference parameter [$param] after one or more optionals.";
-
-                throw new \LogicException($message);
-            } else {
-                $prefix = '';
-            }
-
-            return sprintf('%s/(?P<%s>%s)', $prefix, $param, $pattern);
-
-        }, $path);
-
-        if ($optionals > 0) {
-            $result .= str_repeat(')?', $optionals);
-        }
-
-        return '#^' .$result .'$#i';
     }
 
     /**
