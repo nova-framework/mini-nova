@@ -39,8 +39,7 @@ class Arr
     {
         $results = array();
 
-        foreach ($array as $key => $value)
-        {
+        foreach ($array as $key => $value) {
             list($innerKey, $innerValue) = call_user_func($callback, $key, $value);
 
             $results[$innerKey] = $innerValue;
@@ -103,8 +102,7 @@ class Arr
      */
     public static function fetch($array, $key)
     {
-        foreach (explode('.', $key) as $segment)
-        {
+        foreach (explode('.', $key) as $segment) {
             $results = array();
 
             foreach ($array as $value) {
@@ -129,9 +127,10 @@ class Arr
      */
     public static function first($array, $callback, $default = null)
     {
-        foreach ($array as $key => $value)
-        {
-            if (call_user_func($callback, $key, $value)) return $value;
+        foreach ($array as $key => $value) {
+            if (call_user_func($callback, $key, $value)) {
+                return $value;
+            }
         }
 
         return ($default instanceof Closure) ? $default() : $default;
@@ -158,11 +157,14 @@ class Arr
      */
     public static function flatten($array)
     {
-        $return = array();
+        $result = array();
 
-        array_walk_recursive($array, function($x) use (&$return) { $return[] = $x; });
+        array_walk_recursive($array, function($value) use (&$result)
+        {
+            $result[] = $value;
+        });
 
-        return $return;
+        return $result;
     }
 
     /**
@@ -176,16 +178,13 @@ class Arr
     {
         $original =& $array;
 
-        foreach ((array) $keys as $key)
-        {
+        foreach ((array) $keys as $key) {
             $parts = explode('.', $key);
 
-            while (count($parts) > 1)
-            {
+            while (count($parts) > 1) {
                 $part = array_shift($parts);
 
-                if (isset($array[$part]) && is_array($array[$part]))
-                {
+                if (isset($array[$part]) && is_array($array[$part])) {
                     $array =& $array[$part];
                 }
             }
@@ -235,10 +234,8 @@ class Arr
 
         if (array_key_exists($key, $array)) return true;
 
-        foreach (explode('.', $key) as $segment)
-        {
-            if (! is_array($array) || ! array_key_exists($segment, $array))
-            {
+        foreach (explode('.', $key) as $segment) {
+            if (! is_array($array) || ! array_key_exists($segment, $array)) {
                 return false;
             }
 
@@ -272,19 +269,15 @@ class Arr
     {
         $results = array();
 
-        foreach ($array as $item)
-        {
+        foreach ($array as $item) {
             $itemValue = is_object($item) ? $item->{$value} : $item[$value];
 
             // If the key is "null", we will just append the value to the array and keep
             // looping. Otherwise we will key the array using the value of the key we
             // received from the developer. Then we'll return the final array form.
-            if (is_null($key))
-            {
+            if (is_null($key)) {
                 $results[] = $itemValue;
-            }
-            else
-            {
+            } else {
                 $itemKey = is_object($item) ? $item->{$key} : $item[$key];
 
                 $results[$itemKey] = $itemValue;
@@ -327,15 +320,13 @@ class Arr
 
         $keys = explode('.', $key);
 
-        while (count($keys) > 1)
-        {
+        while (count($keys) > 1) {
             $key = array_shift($keys);
 
             // If the key doesn't exist at this depth, we will just create an empty array
             // to hold the next value, allowing us to create the arrays to hold final
             // values at the correct depth. Then we'll keep digging into the array.
-            if (! isset($array[$key]) || ! is_array($array[$key]))
-            {
+            if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = array();
             }
 
@@ -370,9 +361,10 @@ class Arr
     {
         $filtered = array();
 
-        foreach ($array as $key => $value)
-        {
-            if (call_user_func($callback, $key, $value)) $filtered[$key] = $value;
+        foreach ($array as $key => $value) {
+            if (call_user_func($callback, $key, $value)) {
+                $filtered[$key] = $value;
+            }
         }
 
         return $filtered;

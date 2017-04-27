@@ -192,6 +192,64 @@ class Route
     }
 
     /**
+     * Compile the route's URI pattern to a valid regex.
+     *
+     * @param  string   $uri
+     * @param  array    $patterns
+     * @return string
+     *
+     * @throw \LogicException
+     */
+    public static function compile($uri, $patterns = array())
+    {
+        $path = '/' .ltrim($uri, '/');
+
+        //
+        $regex = '#/{(\w+)(?:(\?))?}#i';
+
+        $params = array();
+
+        $optionals = 0;
+
+        $result = preg_replace_callback($regex, function ($matches) use ($path, $patterns, &$params, &$optionals)
+        {
+            $param = $matches[1];
+
+            if (in_array($param, $params)) {
+                $message = sprintf('Route pattern "%s" cannot reference parameter name "%s" more than once.', $path, $param);
+
+                throw new \LogicException($message);
+            }
+
+            array_push($params, $param);
+
+            //
+            $pattern = Arr::get($patterns, $param, '[^/]+');
+
+            if (isset($matches[2]) && ($matches[2] === '?')) {
+                $prefix = '(?:';
+
+                $optionals++;
+            } else if ($optionals > 0) {
+                $message = sprintf('Route pattern "%s" has standard parameter "%s" after one or more optionals.', $path, $param);
+
+                throw new \LogicException($message);
+            } else {
+                $prefix = '';
+            }
+
+            return sprintf('%s/(?P<%s>%s)', $prefix, $param, $pattern);
+
+        }, $path);
+
+        if ($optionals > 0) {
+            $result .= str_repeat(')?', $optionals);
+        }
+
+        return '#^' .$result .'$#i';
+    }
+
+    /**
      * Dynamically access route parameters.
      *
      * @param  string  $key
@@ -201,5 +259,5 @@ class Route
     {
         return $this->parameter($key);
     }
-    
+
 }

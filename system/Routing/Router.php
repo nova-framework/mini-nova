@@ -201,7 +201,7 @@ class Router
             return $this->prepareResponse($request, $response);
         }
 
-        throw new NotFoundHttpException;
+        throw new NotFoundHttpException();
     }
 
     /**
@@ -231,15 +231,14 @@ class Router
 
         foreach ($routes as $route => $action) {
             if (strpos($route, '{') === false) {
+                // A route with no parameters was already checked for direct match.
                 continue;
             }
 
-            $wheres = array_merge(
-                $this->patterns,
-                Arr::get($action, 'where', array())
-            );
+            // Prepare the route patterns.
+            $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
-            $regex = static::compileRegex($route, $wheres);
+            $regex = Route::compile($route, $patterns);
 
             if (preg_match($regex, $path, $matches) === 1) {
                 $parameters = array_filter($matches, function ($key)
@@ -251,64 +250,6 @@ class Router
                 return $this->current = new Route($method, $route, $action, $regex, $parameters);
             }
         }
-    }
-
-    /**
-     * Compile the route's URI pattern to a valid regex.
-     *
-     * @param  string   $route
-     * @param  array    $wheres
-     * @return string
-     *
-     * @throw \LogicException
-     */
-    protected static function compileRegex($route, $wheres)
-    {
-        $path = '/' .ltrim($route, '/');
-
-        //
-        $regex = '#/{([a-z0-9\_\-]+)(?:(\?))?}#i';
-
-        $params = array();
-
-        $optionals = 0;
-
-        $result = preg_replace_callback($regex, function ($matches) use ($path, $wheres, &$params, &$optionals)
-        {
-            $param = $matches[1];
-
-            if (in_array($param, $params)) {
-                $message = sprintf('Route pattern "%s" cannot reference parameter name "%s" more than once.', $path, $param);
-
-                throw new \LogicException($message);
-            }
-
-            array_push($params, $param);
-
-            //
-            $pattern = Arr::get($wheres, $param, '[^/]+');
-
-            if (isset($matches[2]) && ($matches[2] === '?')) {
-                $prefix = '(?:';
-
-                $optionals++;
-            } else if ($optionals > 0) {
-                $message = sprintf('Route pattern "%s" has standard parameter "%s" after one or more optionals.', $path, $param);
-
-                throw new \LogicException($message);
-            } else {
-                $prefix = '';
-            }
-
-            return sprintf('%s/(?P<%s>%s)', $prefix, $param, $pattern);
-
-        }, $path);
-
-        if ($optionals > 0) {
-            $result .= str_repeat(')?', $optionals);
-        }
-
-        return '#^' .$result .'$#i';
     }
 
     /**
