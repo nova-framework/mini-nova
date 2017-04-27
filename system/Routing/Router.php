@@ -258,9 +258,9 @@ class Router
 
         $optionals = 0;
 
-        $result = preg_replace_callback($regex, function ($match) use ($path, $wheres, &$params, &$optionals)
+        $result = preg_replace_callback($regex, function ($matches) use ($path, $wheres, &$params, &$optionals)
         {
-            $param = $match[1];
+            $param = $matches[1];
 
             if (in_array($param, $params)) {
                 $message = sprintf('Route pattern "%s" cannot reference parameter name "%s" more than once.', $path, $param);
@@ -273,7 +273,7 @@ class Router
             //
             $pattern = Arr::get($wheres, $param, '[^/]+');
 
-            if (isset($match[2]) && ($match[2] === '?')) {
+            if (isset($matches[2]) && ($matches[2] === '?')) {
                 $prefix = '(?:';
 
                 $optionals++;
