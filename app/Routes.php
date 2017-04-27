@@ -1,6 +1,6 @@
 <?php
 
-// Additional patterns for routes.
+// General patterns for the route parameters.
 $router->pattern('slug', '(.*)');
 
 
@@ -15,11 +15,8 @@ $router->get('sample/{name?}/{slug?}', 'App\Controllers\Sample@index');
 $router->post('sample', 'App\Controllers\Sample@store');
 
 
-$router->get('test/{id?}/{name?}/{slug?}', array('uses' => function($id, $name = null, $slug = null)
+$router->get('test/{id?}/{name?}/{slug?}', array(function ($id, $name = null, $slug = null)
 {
     return array('id' => $id, 'name' => $name, 'slug' => $slug);
 
-}, 'where' => array(
-        'id' => '([0-9]+)',
-    ),
-));
+}, 'where' => array('id' => '([0-9]+)')));
