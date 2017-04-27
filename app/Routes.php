@@ -3,6 +3,7 @@
 // Additional patterns for routes.
 $router->pattern('slug', '(.*)');
 
+
 // The routes definition.
 $router->any('/', function()
 {

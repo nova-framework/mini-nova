@@ -18,4 +18,9 @@ class Sample extends Controller
             ->with('slug', $slug);
     }
 
+    public function store()
+    {
+        //
+    }
+
 }
