@@ -4,6 +4,7 @@ namespace Mini\Routing;
 
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
+use Mini\Routing\RouteCompiler;
 use Mini\Support\Arr;
 
 
@@ -56,14 +57,15 @@ class Route
      */
     public function __construct($method, $uri, $action, $parameters = array(), $regex = null)
     {
-        $this->uri        = $uri;
-        $this->method     = $method;
-        $this->action     = $action;
+        $this->uri    = $uri;
+        $this->method = $method;
+        $this->action = $action;
+
+        //
         $this->parameters = $parameters;
 
-        // If no regex value is given, because the route is a direct match, fallback to URI.
-        $this->regex = $regex ?: $uri;
-
+        // When the given regex is null, we fallback to one computed from URI.
+        $this->regex = $regex ?: RouteCompiler::computeRegexp($uri);
     }
 
     /**

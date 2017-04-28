@@ -5,7 +5,7 @@ use Mini\View\View;
 //
 // General patterns for the route parameters.
 
-$router->pattern('slug', '(.*)');
+$router->pattern('slug', '.*');
 
 //
 // The routes definition.
@@ -19,7 +19,7 @@ $router->any('/', function()
     return View::make('Layouts/Default')->with('content', $view);
 });
 
-$router->get('sample/{name?}/{slug?}', 'App\Controllers\Sample@index');
+$router->get('sample/{name}/{slug?}', 'App\Controllers\Sample@index');
 
 $router->post('sample', 'App\Controllers\Sample@store');
 
@@ -28,7 +28,7 @@ $router->get('test/{id}/{name?}/{slug?}', array(function ($id, $name = null, $sl
 {
     return array('id' => $id, 'name' => $name, 'slug' => $slug);
 
-}, 'where' => array('id' => '([0-9]+)')));
+}, 'where' => array('id' => '[0-9]+')));
 
 // A Catch-All route.
 $router->any('{slug}', function($slug)

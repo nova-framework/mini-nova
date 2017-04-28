@@ -5,6 +5,8 @@ use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Router;
 
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 // Create the Router instance.
 $router = new Router();
@@ -19,7 +21,12 @@ require APPPATH .'Routes.php';
 $request = Request::createFromGlobals();
 
 // Dispatch the Request instance via Router.
-$response = $router->dispatch($request);
+try {
+    $response = $router->dispatch($request);
+}
+catch (NotFoundHttpException $e) {
+    $response = new Response('Page not found', 404);
+}
 
 // Insert the Profiler report into response content.
 if ($response instanceof Response) {

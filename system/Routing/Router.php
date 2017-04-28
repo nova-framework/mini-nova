@@ -5,11 +5,9 @@ namespace Mini\Routing;
 use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Route;
-use Mini\Routing\RouteCompiler;
+use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
-use Mini\Support\Str;
 
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -34,19 +32,11 @@ class Router
     protected $currentRequest;
 
     /**
-     * All of the routes that have been registered.
+     * The instance of RouteCollection.
      *
-     * @var array
+     * @var \Nova\Routing\RouteCollection;
      */
-    protected $routes = array(
-        'GET'    => array(),
-        'POST'   => array(),
-        'PUT'    => array(),
-        'DELETE' => array(),
-        'PATCH'  => array(),
-        'HEAD'   => array(),
-        'OPTIONS'=> array(),
-    );
+    protected $routes;
 
     /**
      * The current attributes being shared by routes.
@@ -65,8 +55,17 @@ class Router
      *
      * @var array
      */
-    public static $methods = array('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS');
+    public static $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
 
+    /**
+     * Construct a new Router instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->routes = new RouteCollection($this);
+    }
 
     /**
      * Register a group of routes that share attributes.
@@ -89,68 +88,68 @@ class Router
      *
      * <code>
      *      // Register a Route with the Router
-     *      Router::register('GET', '/', function() { return 'Home!'; });
+     *      Router::match('GET', '/', function() { return 'Home!'; });
      * </code>
      *
-     * @param  string|array  $method
+     * @param  string|array  $methods
      * @param  string        $route
      * @param  mixed         $action
      * @return void
      */
-    public function register($method, $route, $action)
+    public function match($methods, $route, $action)
     {
-        $uri = ($route == '/') ? '/' : '/' .ltrim($route, '/');
-
-        if (is_string($method) && (strtoupper($method) === 'ANY')) {
-            $methods = static::$methods;
-        } else {
-            $methods = array_map('strtoupper', (array) $method);
-        }
-
-        if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
-            array_push($methods, 'HEAD');
-        }
-
-        foreach ($methods as $method) {
-            $this->addRoute($method, $uri, $action);
-        }
+        $this->addRoute($methods, $uri, $action);
     }
 
     /**
      * Add a route to the router.
      *
-     * @param  string  $method
-     * @param  string  $uri
-     * @param  mixed   $action
+     * @param  string|array  $method
+     * @param  string        $uri
+     * @param  mixed         $action
      * @return void
      */
     protected function addRoute($method, $uri, $action)
     {
-        $this->routes[$method][$uri] = $this->parseAction($action);
+        $uri = '/' .ltrim($uri, '/');
 
-        if (! is_null($this->group)) {
-            $this->routes[$method][$uri] += $this->group;
-        }
-    }
-
-    /**
-     * Convert a route action to a valid action array.
-     *
-     * @param  mixed  $action
-     * @return array
-     */
-    protected function parseAction($action)
-    {
-        if (is_callable($action) || is_string($action)) {
-            return array('uses' => $action);
+        if (is_string($method) && (strtoupper($method) === 'ANY')) {
+            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+        } else {
+            $methods = array_map('strtoupper', (array) $method);
         }
 
-        // Dig through the array to find a Closure instance.
+        // When the Action references a Controller, convert it on a Controller Action.
+        if ($this->actionReferencesController($action)) {
+            $action = $this->convertToControllerAction($action);
+        }
+        // When the Action given is a Closure, convert it on a proper Closure Action.
+        else if ($action instanceof Closure) {
+            $action = array('uses' => $action);
+        }
+        // When the 'uses' is not defined into Action, find the Closure in the array.
         else if (! isset($action['uses'])) {
             $action['uses'] = $this->findClosure($action);
         }
 
-        return $action;
+        // If a group is being registered, we'll merge all of the group options into the action,
+        // giving preference to the action for options that are specified in both.
+
+        if (! is_null($this->group)) {
+            $group = (array) $this->group;
+
+            if (isset($group['prefix'])) {
+                $uri = trim($group['prefix'], '/') .'/' .trim($uri, '/');
+            }
+
+            if (isset($group['namespace'])) {
+                $action['uses'] = $group['namespace'] .'\\' .$action['uses'];
+            }
+
+            $action = array_merge_recursive(array_except($group, array('namespace', 'prefix')), $action);
+        }
+
+        $this->routes->addRoute($methods, $uri, $action);
     }
 
     /**
@@ -168,6 +167,38 @@ class Router
     }
 
     /**
+     * Determine if the action is routing to a controller.
+     *
+     * @param  array  $action
+     * @return bool
+     */
+    protected function actionReferencesController($action)
+    {
+        if ($action instanceof Closure) {
+            return false;
+        }
+
+        return is_string($action) || (isset($action['uses']) && is_string($action['uses']));
+    }
+
+    /**
+     * Add a controller based route action to the action array.
+     *
+     * @param  array|string  $action
+     * @return array
+     */
+    protected function convertToControllerAction($action)
+    {
+        if (is_string($action)) {
+            $action = array('uses' => $action);
+        }
+
+        $action['controller'] = $action['uses'];
+
+        return $action;
+    }
+
+    /**
      * Dispatch the request and return the response.
      *
      * @param  \Mini\Http\Request  $request
@@ -178,12 +209,7 @@ class Router
     {
         $this->currentRequest = $request;
 
-        try {
-            $response = $this->dispatchToRoute($request);
-        }
-        catch (NotFoundHttpException $e) {
-            $response = new Response('Page not found', 404);
-        }
+        $response = $this->dispatchToRoute($request);
 
         return $this->prepareResponse($request, $response);
     }
@@ -199,10 +225,6 @@ class Router
     {
         $route = $this->findRoute($request);
 
-        if (is_null($route)) {
-            throw new NotFoundHttpException();
-        }
-
         $response = $route->run($request);
 
         return $this->prepareResponse($request, $response);
@@ -217,65 +239,7 @@ class Router
      */
     protected function findRoute(Request $request)
     {
-        $method = $request->method();
-
-        // Get the routes registered for the current HTTP method.
-        $routes = Arr::get($this->routes, $method, array());
-
-        // Prepare a qualified URI path, which starts always with '/'.
-        $uri = $request->path();
-
-        $uri = ($uri === '/') ? '/' : '/' .$uri;
-
-        // Of course literal route matches are the quickest to find, so we will check for those first.
-        // If the destination key exists in the routes array we can just return that route right now.
-        if (array_key_exists($uri, $routes)) {
-            $action = $routes[$uri];
-
-            return $this->current = new Route($method, $uri, $action);
-        }
-
-        // If we can't find a literal match we'll iterate through all of the registered routes to find
-        // a matching route based on the regex pattern generated from route's parameters and patterns.
-        return $this->matchRoute($method, $uri);
-    }
-
-    /**
-     * Iterate through every route to find a matching route.
-     *
-     * @param  string  $method
-     * @param  string  $uri
-     *
-     * @return \Mini\Routing\Route|null
-     */
-    protected function matchRoute($method, $uri)
-    {
-        // Get the routes registered for the current HTTP method.
-        $routes = Arr::get($this->routes, $method, array());
-
-        foreach ($routes as $route => $action) {
-            // We only need to check routes which have parameters since all others would have been able
-            // to be matched by the search for literal matches we just did before we started searching.
-            if (! Str::contains($route, '{')) {
-                continue;
-            }
-
-            // Prepare the route wheres.
-            $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
-
-            // Prepare the route pattern.
-            $pattern = RouteCompiler::compile($route, $patterns);
-
-            if (preg_match('#^' .$pattern .'$#i', $uri, $matches) === 1) {
-                $parameters = array_filter($matches, function ($value)
-                {
-                    return is_string($value);
-
-                }, ARRAY_FILTER_USE_KEY);
-
-                return $this->current = new Route($method, $route, $action, $parameters, $pattern);
-            }
-        }
+        return $this->current = $this->routes->match($request);
     }
 
     /**
@@ -301,7 +265,7 @@ class Router
      */
     public function routes()
     {
-        return $this->routes;
+        return $this->routes->getRoutes();
     }
 
     /**
@@ -312,6 +276,18 @@ class Router
     public function current()
     {
         return $this->current;
+    }
+
+    /**
+     * Get a route parameter for the current route.
+     *
+     * @param  string  $key
+     * @param  string  $default
+     * @return mixed
+     */
+    public function input($key, $default = null)
+    {
+        return $this->current()->parameter($key, $default);
     }
 
     /**
@@ -348,6 +324,16 @@ class Router
     }
 
     /**
+     * Determine if the router currently has a group defined.
+     *
+     * @return bool
+     */
+    public function hasGroup()
+    {
+        return ! is_null($this->group);
+    }
+
+    /**
      * Dynamically handle calls into the query instance.
      *
      * @param  string  $method
@@ -358,6 +344,6 @@ class Router
     {
         array_unshift($parameters, $method);
 
-        return call_user_func_array(array($this, 'register'), $parameters);
+        return call_user_func_array(array($this, 'addRoute'), $parameters);
     }
 }
