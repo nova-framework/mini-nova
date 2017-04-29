@@ -257,10 +257,7 @@ class Router
      */
     protected function runRouteWithinStack(Route $route, Request $request)
     {
-        $shouldSkipMiddleware = $this->container->bound('middleware.disable') &&
-                                ($this->container->make('middleware.disable') === true);
-
-        $middleware = $shouldSkipMiddleware ? array() : $this->gatherRouteMiddlewares($route);
+        $middleware = $this->gatherRouteMiddlewares($route);
 
         // Create a Pipeline instance.
         $pipeline = new Pipeline($this->container);

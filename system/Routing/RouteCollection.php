@@ -61,52 +61,6 @@ class RouteCollection
     }
 
     /**
-     * Find a route by the route's assigned name.
-     *
-     * @param  string  $name
-     * @return array
-     */
-    public function find($name)
-    {
-        if (isset($this->names[$name])) {
-            return $this->names[$name];
-        }
-
-        // To find a named route, we will iterate through every route defined for the application.
-        // We will cache the routes by name so we can load them very quickly the next time.
-        foreach ($this->routes as $method => $routes) {
-            foreach ($routes as $route => $options) {
-                if (isset($options['as']) && ($options['as'] === $name)) {
-                     return $this->names[$name] = array($route => $options);
-                }
-            }
-        }
-    }
-
-    /**
-     * Find the route that uses the given action.
-     *
-     * @param  string  $action
-     * @return array
-     */
-    public function uses($action)
-    {
-        if (isset($this->uses[$action])) {
-            return $this->uses[$action];
-        }
-
-        // To find the route, we'll simply spin through the routes looking/ for a route with a
-        // "uses" key matching the action, and if we find one, we cache and return it.
-         foreach ($this->routes as $method => $routes)  {
-            foreach ($routes as $route => $options) {
-                if (isset($options['controller']) && ($options['controller'] === $action)) {
-                     return $this->uses[$action] = array($route => $options);
-                }
-            }
-        }
-    }
-
-    /**
      * Add a route to the router.
      *
      * @param  string|array  $method
@@ -121,7 +75,7 @@ class RouteCollection
         if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
             array_push($methods, 'HEAD');
         }
-        
+
         foreach ($methods as $method) {
             $this->routes[$method][$uri] = $action;
         }
@@ -188,6 +142,52 @@ class RouteCollection
         }
 
         throw new NotFoundHttpException();
+    }
+
+    /**
+     * Find a route by the route's assigned name.
+     *
+     * @param  string  $name
+     * @return array
+     */
+    public function getByName($name)
+    {
+        if (isset($this->names[$name])) {
+            return $this->names[$name];
+        }
+
+        // To find a named route, we will iterate through every route defined for the application.
+        // We will cache the routes by name so we can load them very quickly the next time.
+        foreach ($this->routes as $method => $routes) {
+            foreach ($routes as $route => $options) {
+                if (isset($options['as']) && ($options['as'] === $name)) {
+                     return $this->names[$name] = array($route => $options);
+                }
+            }
+        }
+    }
+
+    /**
+     * Find the route that uses the given action.
+     *
+     * @param  string  $action
+     * @return array
+     */
+    public function getByAction($action)
+    {
+        if (isset($this->uses[$action])) {
+            return $this->uses[$action];
+        }
+
+        // To find the route, we'll simply spin through the routes looking/ for a route with a
+        // "uses" key matching the action, and if we find one, we cache and return it.
+         foreach ($this->routes as $method => $routes)  {
+            foreach ($routes as $route => $options) {
+                if (isset($options['controller']) && ($options['controller'] === $action)) {
+                     return $this->uses[$action] = array($route => $options);
+                }
+            }
+        }
     }
 
     /**

@@ -1,10 +1,13 @@
 <?php
 
-use Mini\Container\Container;
+use Mini\Config\Repository as ConfigRepository;
+use Mini\Foundation\AliasLoader;
+use Mini\Foundation\Application;
 use Mini\Helpers\Profiler;
 use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Router;
+use Mini\Support\Facades\Facade;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,55 +19,139 @@ ini_set('display_startup_errors', 1);
 
 error_reporting(E_ALL);
 
-// Create the Container instance.
-$app = new Container();
+//--------------------------------------------------------------------------
+// Set The System Path
+//--------------------------------------------------------------------------
 
-$app['app'] = $app;
+define('SYSPATH', BASEPATH .'system');
 
-// Create the Router instance.
-$router = new Router($app);
+//--------------------------------------------------------------------------
+// Set The Storage Path
+//--------------------------------------------------------------------------
 
-$app['router'] = $router;
+defined('STORAGE_PATH') || define('STORAGE_PATH', BASEPATH .'storage' .DS);
 
-// Sample Middleware.
-$router->middleware('test', function($request, Closure $next)
+//--------------------------------------------------------------------------
+// Create New Application
+//--------------------------------------------------------------------------
+
+$app = new Application();
+
+//--------------------------------------------------------------------------
+// Bind Paths
+//--------------------------------------------------------------------------
+
+$paths = array(
+    'base'    => BASEPATH,
+    'app'     => APPPATH,
+    'public'  => WEBPATH,
+    'storage' => STORAGE_PATH,
+);
+
+$app->bindInstallPaths($paths);
+
+//--------------------------------------------------------------------------
+// Bind The Application In The Container
+//--------------------------------------------------------------------------
+
+$app->instance('app', $app);
+
+//--------------------------------------------------------------------------
+// Load The Framework Facades
+//--------------------------------------------------------------------------
+
+Facade::setFacadeApplication($app);
+
+//--------------------------------------------------------------------------
+// Register The Config Manager
+//--------------------------------------------------------------------------
+
+$app->instance('config', $config = new ConfigRepository(
+    $app->getConfigLoader()
+));
+
+//--------------------------------------------------------------------------
+// Set The Default Timezone From Configuration
+//--------------------------------------------------------------------------
+
+$config = $app['config']['app'];
+
+date_default_timezone_set($config['timezone']);
+
+//--------------------------------------------------------------------------
+// Register The Alias Loader
+//--------------------------------------------------------------------------
+
+$aliases = $config['aliases'];
+
+AliasLoader::getInstance($aliases)->register();
+
+//--------------------------------------------------------------------------
+// Register The Core Service Providers
+//--------------------------------------------------------------------------
+
+$app->getProviderRepository()->load($app, $config['providers']);
+
+//--------------------------------------------------------------------------
+// Load The Application Start Script
+//--------------------------------------------------------------------------
+
+/*
+$app->error(function(Exception $exception, $code)
 {
-    //echo '<pre>' .var_export($request, true) .'</pre>';
-    echo '<pre style="margin: 10px;">Hello from the Routing Middleware!</pre>';
+    //Log::error($exception);
+});
+*/
 
-    return $next($request);
+$app->booted( function() use ($app)
+{
+    // Get the Router instance.
+    $router = $app['router'];
+
+    // Sample Middleware.
+    $router->middleware('test', function($request, Closure $next)
+    {
+        //echo '<pre>' .var_export($request, true) .'</pre>';
+        echo '<pre style="margin: 10px;">Hello from the Routing Middleware!</pre>';
+
+        return $next($request);
+    });
+
+    // Load the Events.
+    require APPPATH .'Events.php';
+
+    // Load the Routes.
+    require APPPATH .'Routes.php';
+
+    /*
+    // Dispatch the Request instance via Router.
+    try {
+        $response = $router->dispatch($request);
+    }
+    catch (NotFoundHttpException $e) {
+        $response = new Response('Page not found', 404);
+    }
+
+    // Insert the Profiler report into response content.
+    if ($response instanceof Response) {
+        $requestTime = $request->server('REQUEST_TIME_FLOAT');
+
+        $content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
+            Profiler::getReport($requestTime),
+            $response->getContent()
+        );
+
+        $response->setContent($content);
+    }
+
+    // Send the Response.
+    $response->send();
+    */
 });
 
-// Load the Events.
-require APPPATH .'Events.php';
+//--------------------------------------------------------------------------
+// Run The Application
+//--------------------------------------------------------------------------
 
-// Load the Routes.
-require APPPATH .'Routes.php';
+$app->run();
 
-// Create the Request instance.
-$request = Request::createFromGlobals();
-
-$app['request'] = $request;
-
-// Dispatch the Request instance via Router.
-try {
-    $response = $router->dispatch($request);
-}
-catch (NotFoundHttpException $e) {
-    $response = new Response('Page not found', 404);
-}
-
-// Insert the Profiler report into response content.
-if ($response instanceof Response) {
-    $requestTime = $request->server('REQUEST_TIME_FLOAT');
-
-    $content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
-        Profiler::getReport($requestTime),
-        $response->getContent()
-    );
-
-    $response->setContent($content);
-}
-
-// Send the Response.
-$response->send();

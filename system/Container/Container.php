@@ -172,10 +172,10 @@ class Container implements ArrayAccess
      * @param  array   $parameters
      * @return mixed
      */
-    protected static function build($concrete)
+    protected function build($concrete)
     {
         if ($concrete instanceof Closure) {
-            return call_user_func($concrete);
+            return call_user_func($concrete, $this);
         }
 
         $reflector = new ReflectionClass($concrete);
@@ -203,7 +203,7 @@ class Container implements ArrayAccess
      * @param  array  $parameters
      * @return array
      */
-    protected static function getDependencies($parameters)
+    protected function getDependencies($parameters)
     {
         $dependencies = array();
 
@@ -224,7 +224,7 @@ class Container implements ArrayAccess
      * @param ReflectionParameter
      * @return default value
      */
-    protected static function resolveNonClass(ReflectionParameter $parameter)
+    protected function resolveNonClass(ReflectionParameter $parameter)
     {
         if ($parameter->isDefaultValueAvailable()) {
             return $parameter->getDefaultValue();
