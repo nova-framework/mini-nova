@@ -30,27 +30,12 @@ class HandleStatistics
         $debug = Config::get('app.debug', false);
 
         if ($debug && $this->canPatchContent($response)) {
-            $content = str_replace('<!-- DO NOT DELETE! - Profiler -->', $this->getReport($request), $response->getContent());
+            $content = str_replace('<!-- DO NOT DELETE! - Profiler -->', $this->getStatistics($request), $response->getContent());
 
             $response->setContent($content);
         }
 
         return $response;
-    }
-
-    protected function getReport($request)
-    {
-        $elapsedTime = microtime(true) - $request->server('REQUEST_TIME_FLOAT');
-
-        $elapsedStr = sprintf("%01.4f", $elapsedTime);
-
-        //
-        $memoryUsage = static::humanSize(memory_get_usage());
-
-        //
-        $umax = sprintf("%0d", intval(25 / $elapsedTime));
-
-        return sprintf('Elapsed Time: <b>%s</b> sec | Memory Usage: <b>%s</b> | UMAX: <b>%s</b>', $elapsedStr, $memoryUsage, $umax);
     }
 
     protected function canPatchContent(SymfonyResponse $response)
@@ -62,6 +47,21 @@ class HandleStatistics
         $contentType = $response->headers->get('Content-Type');
 
         return Str::is('text/html*', $contentType);
+    }
+
+    protected function getStatistics($request)
+    {
+        $requestTime = $request->server('REQUEST_TIME_FLOAT');
+
+        $elapsedTime = sprintf("%01.4f", (microtime(true) - $requestTime));
+
+        //
+        $memoryUsage = static::humanSize(memory_get_usage());
+
+        //
+        $umax = sprintf("%0d", intval(25 / $elapsedTime));
+
+        return sprintf('Elapsed Time: <b>%s</b> sec | Memory Usage: <b>%s</b> | UMAX: <b>%s</b>', $elapsedTime, $memoryUsage, $umax);
     }
 
     protected static function humanSize($bytes, $decimals = 2)
