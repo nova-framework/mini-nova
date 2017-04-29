@@ -18,6 +18,7 @@ class Handler extends ExceptionHandler
         'Symfony\Component\HttpKernel\Exception\HttpException',
     );
 
+    
     /**
      * Report or log an exception.
      *

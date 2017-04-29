@@ -224,6 +224,8 @@ class Container implements ArrayAccess
      */
     public function make($abstract)
     {
+        $abstract = $this->getAlias($abstract);
+
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }

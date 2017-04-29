@@ -11,6 +11,7 @@ use Mini\Support\Facades\Facade;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 use Closure;
+use Exception;
 
 
 class Kernel implements KernelInterface
@@ -108,12 +109,10 @@ class Kernel implements KernelInterface
         $this->bootstrap();
 
         //
-        $middleware = $shouldSkipMiddleware ? array() : $this->middleware;
-
         $pipeline = new Pipeline($this->app);
 
         return $pipeline->send($request)
-            ->through($middleware)
+            ->through($this->middleware)
             ->then($this->dispatchToRouter());
     }
 
@@ -126,10 +125,7 @@ class Kernel implements KernelInterface
      */
     public function terminate($request, $response)
     {
-        $shouldSkipMiddleware = $this->app->shouldSkipMiddleware();
-
-        //
-        $middlewares = $shouldSkipMiddleware ? array() : array_merge(
+        $middlewares = array_merge(
             $this->gatherRouteMiddlewares($request),
             $this->middleware
         );
@@ -146,7 +142,7 @@ class Kernel implements KernelInterface
             }
         }
 
-        $this->app->terminate($request, $response);
+        //$this->app->terminate($request, $response);
     }
 
     /**
@@ -157,6 +153,8 @@ class Kernel implements KernelInterface
      */
     protected function gatherRouteMiddlewares($request)
     {
+        return array();
+
         if (is_null($route = $request->route())) {
             return array();
         }

@@ -2,18 +2,23 @@
 
 namespace Mini\Foundation\Exceptions;
 
-use Mini\Http\Response;
+use Mini\Http\Response as HttpResponse;
 use Mini\Foundation\Contracts\ExceptionHandlerInterface;
+use Mini\Support\Facades\Config;
+use Mini\Support\Facades\Response;
+use Mini\View\View;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Debug\ExceptionHandler as SymfonyDisplayer;
+use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\Debug\ExceptionHandler as SymfonyExceptionHandler;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 use Psr\Log\LoggerInterface;
 
 use Exception;
 
 
-class Handler implements ExceptionHandlerInterface;
+class Handler implements ExceptionHandlerInterface
 {
     /**
      * The log implementation.
@@ -95,7 +100,7 @@ class Handler implements ExceptionHandlerInterface;
      */
     protected function createResponse($response, Exception $e)
     {
-        $response = new Response($response->getContent(), $response->getStatusCode(), $response->headers->all());
+        $response = new HttpResponse($response->getContent(), $response->getStatusCode(), $response->headers->all());
 
         $response->exception = $e;
 
@@ -131,7 +136,15 @@ class Handler implements ExceptionHandlerInterface;
      */
     protected function convertExceptionToResponse(Exception $e)
     {
-        return (new SymfonyDisplayer(config('app.debug')))->createResponse($e);
+        $debug = Config::get('app.debug');
+
+        //return (new SymfonyDisplayer($debug))->createResponse($e);
+
+        $e = FlattenException::create($e);
+
+        $handler = new SymfonyExceptionHandler($debug);
+
+        return SymfonyResponse::create($handler->getHtml($e), $e->getStatusCode(), $e->getHeaders());
     }
 
 }

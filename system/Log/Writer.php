@@ -2,20 +2,25 @@
 
 namespace Mini\Log;
 
-use Mini\Events\Dispatcher;
-use Mini\Support\Contracts\JsonableInterface;
-use Mini\Support\Contracts\ArrayableInterface;
+use Mini\Events\DispatcherInterface;
+use Mini\Support\Contracts\JsonableInterface as Jsonable;
+use Mini\Support\Contracts\ArrayableInterface as Arrayable;
 
+use Monolog\Handler\SyslogHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger as MonologLogger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\RotatingFileHandler;
 
+use Psr\Log\LoggerInterface as PsrLoggerInterface;
+
 use Closure;
+use RuntimeException;
+use InvalidArgumentException;
 
 
-class Writer
+class Writer implements PsrLoggerInterface
 {
     /**
      * The Monolog logger instance.
@@ -25,59 +30,180 @@ class Writer
     protected $monolog;
 
     /**
-     * All of the error levels.
+     * The event dispatcher instance.
+     *
+     * @var \Mini\Events\DispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
+     * The Log levels.
      *
      * @var array
      */
-    protected $levels = array(
-        'debug',
-        'info',
-        'notice',
-        'warning',
-        'error',
-        'critical',
-        'alert',
-        'emergency',
-    );
+    protected $levels = [
+        'debug'     => MonologLogger::DEBUG,
+        'info'      => MonologLogger::INFO,
+        'notice'    => MonologLogger::NOTICE,
+        'warning'   => MonologLogger::WARNING,
+        'error'     => MonologLogger::ERROR,
+        'critical'  => MonologLogger::CRITICAL,
+        'alert'     => MonologLogger::ALERT,
+        'emergency' => MonologLogger::EMERGENCY,
+    ];
 
-    /**
-     * The event dispatcher instance.
-     *
-     * @var \Mini\Events\Dispatcher
-     */
-    protected $dispatcher;
 
     /**
      * Create a new log writer instance.
      *
      * @param  \Monolog\Logger  $monolog
-     * @param  \Mini\Events\Dispatcher  $dispatcher
+     * @param  \Mini\Events\Contracts\Dispatcher  $dispatcher
      * @return void
      */
-    public function __construct(MonologLogger $monolog, Dispatcher $dispatcher = null)
+    public function __construct(MonologLogger $monolog, DispatcherInterface $dispatcher = null)
     {
         $this->monolog = $monolog;
 
-        if (isset($dispatcher))
-        {
+        if (isset($dispatcher)) {
             $this->dispatcher = $dispatcher;
         }
     }
 
     /**
-     * Call Monolog with the given method and parameters.
+     * Log an emergency message to the logs.
      *
-     * @param  string  $method
-     * @param  mixed   $parameters
-     * @return mixed
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
      */
-    protected function callMonolog($method, $parameters)
+    public function emergency($message, array $context = array())
     {
-        if (is_array($parameters[0])) {
-            $parameters[0] = json_encode($parameters[0]);
-        }
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
 
-        return call_user_func_array(array($this->monolog, $method), $parameters);
+    /**
+     * Log an alert message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function alert($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log a critical message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function critical($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log an error message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function error($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log a warning message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function warning($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log a notice to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function notice($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log an informational message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function info($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log a debug message to the logs.
+     *
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function debug($message, array $context = array())
+    {
+        return $this->writeLog(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * Log a message to the logs.
+     *
+     * @param  string  $level
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function log($level, $message, array $context = array())
+    {
+        return $this->writeLog($level, $message, $context);
+    }
+
+    /**
+     * Dynamically pass log calls into the writer.
+     *
+     * @param  string  $level
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    public function write($level, $message, array $context = array())
+    {
+        return $this->writeLog($level, $message, $context);
+    }
+
+    /**
+     * Write a message to Monolog.
+     *
+     * @param  string  $level
+     * @param  string  $message
+     * @param  array  $context
+     * @return void
+     */
+    protected function writeLog($level, $message, $context)
+    {
+        $this->fireLogEvent($level, $message = $this->formatMessage($message), $context);
+
+        $this->monolog->{$level}($message, $context);
     }
 
     /**
@@ -89,9 +215,7 @@ class Writer
      */
     public function useFiles($path, $level = 'debug')
     {
-        $level = $this->parseLevel($level);
-
-        $this->monolog->pushHandler($handler = new StreamHandler($path, $level));
+        $this->monolog->pushHandler($handler = new StreamHandler($path, $this->parseLevel($level)));
 
         $handler->setFormatter($this->getDefaultFormatter());
     }
@@ -106,82 +230,43 @@ class Writer
      */
     public function useDailyFiles($path, $days = 0, $level = 'debug')
     {
-        $level = $this->parseLevel($level);
-
-        $this->monolog->pushHandler($handler = new RotatingFileHandler($path, $days, $level));
+        $this->monolog->pushHandler(
+            $handler = new RotatingFileHandler($path, $days, $this->parseLevel($level))
+        );
 
         $handler->setFormatter($this->getDefaultFormatter());
+    }
+
+    /**
+     * Register a Syslog handler.
+     *
+     * @param  string  $name
+     * @param  string  $level
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function useSyslog($name = 'mini-me', $level = 'debug')
+    {
+        return $this->monolog->pushHandler(new SyslogHandler($name, LOG_USER, $level));
     }
 
     /**
      * Register an error_log handler.
      *
      * @param  string  $level
-     * @param  int     $messageType
+     * @param  int  $messageType
      * @return void
      */
     public function useErrorLog($level = 'debug', $messageType = ErrorLogHandler::OPERATING_SYSTEM)
     {
-        $level = $this->parseLevel($level);
-
-        $this->monolog->pushHandler($handler = new ErrorLogHandler($messageType, $level));
+        $this->monolog->pushHandler(
+            $handler = new ErrorLogHandler($messageType, $this->parseLevel($level))
+        );
 
         $handler->setFormatter($this->getDefaultFormatter());
     }
 
     /**
-     * Get a default Monolog formatter instance.
-     *
-     * @return \Monolog\Formatter\LineFormatter
-     */
-    protected function getDefaultFormatter()
-    {
-        return new LineFormatter(null, null, true);
-    }
-
-    /**
-     * Parse the string level into a Monolog constant.
-     *
-     * @param  string  $level
-     * @return int
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function parseLevel($level)
-    {
-        switch ($level) {
-            case 'debug':
-                return MonologLogger::DEBUG;
-
-            case 'info':
-                return MonologLogger::INFO;
-
-            case 'notice':
-                return MonologLogger::NOTICE;
-
-            case 'warning':
-                return MonologLogger::WARNING;
-
-            case 'error':
-                return MonologLogger::ERROR;
-
-            case 'critical':
-                return MonologLogger::CRITICAL;
-
-            case 'alert':
-                return MonologLogger::ALERT;
-
-            case 'emergency':
-                return MonologLogger::EMERGENCY;
-
-            default:
-                throw new \InvalidArgumentException("Invalid log level.");
-        }
-    }
-
-    /**
-     * Register a new callback handler for when
-     * a log event is triggered.
+     * Register a new callback handler for when a log event is triggered.
      *
      * @param  \Closure  $callback
      * @return void
@@ -191,41 +276,10 @@ class Writer
     public function listen(Closure $callback)
     {
         if (! isset($this->dispatcher)) {
-            throw new \RuntimeException("Events dispatcher has not been set.");
+            throw new RuntimeException('Events dispatcher has not been set.');
         }
 
-        $this->dispatcher->listen('nova.log', $callback);
-    }
-
-    /**
-     * Get the underlying Monolog instance.
-     *
-     * @return \Monolog\Logger
-     */
-    public function getMonolog()
-    {
-        return $this->monolog;
-    }
-
-    /**
-     * Get the event dispatcher instance.
-     *
-     * @return \Mini\Events\Dispatcher
-     */
-    public function getEventDispatcher()
-    {
-        return $this->dispatcher;
-    }
-
-    /**
-     * Set the event dispatcher instance.
-     *
-     * @param  \Mini\Events\Dispatcher
-     * @return void
-     */
-    public function setEventDispatcher(Dispatcher $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
+        $this->dispatcher->listen('mini-me.log', $callback);
     }
 
     /**
@@ -244,60 +298,79 @@ class Writer
     }
 
     /**
-     * Dynamically pass log calls into the writer.
-     *
-     * @param  mixed (level, param, param)
-     * @return mixed
-     */
-    public function write()
-    {
-        $level = head(func_get_args());
-
-        return call_user_func_array(array($this, $level), array_slice(func_get_args(), 1));
-    }
-
-    /**
-     * Dynamically handle error additions.
-     *
-     * @param  string  $method
-     * @param  mixed   $parameters
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public function __call($method, $parameters)
-    {
-        if (in_array($method, $this->levels))
-        {
-            $this->formatParameters($parameters);
-
-            call_user_func_array(array($this, 'fireLogEvent'), array_merge(array($method), $parameters));
-
-            $method = 'add'.ucfirst($method);
-
-            return $this->callMonolog($method, $parameters);
-        }
-
-        throw new \BadMethodCallException("Method [$method] does not exist.");
-    }
-
-    /**
      * Format the parameters for the logger.
      *
-     * @param  mixed  $parameters
-     * @return void
+     * @param  mixed  $message
+     * @return mixed
      */
-    protected function formatParameters(&$parameters)
+    protected function formatMessage($message)
     {
-        if (isset($parameters[0])) {
-            if (is_array($parameters[0])) {
-                $parameters[0] = var_export($parameters[0], true);
-            } else if ($parameters[0] instanceof JsonableInterface) {
-                $parameters[0] = $parameters[0]->toJson();
-            } else if ($parameters[0] instanceof ArrayableInterface) {
-                $parameters[0] = var_export($parameters[0]->toArray(), true);
-            }
+        if (is_array($message)) {
+            return var_export($message, true);
+        } elseif ($message instanceof Jsonable) {
+            return $message->toJson();
+        } elseif ($message instanceof Arrayable) {
+            return var_export($message->toArray(), true);
         }
+
+        return $message;
     }
 
+    /**
+     * Parse the string level into a Monolog constant.
+     *
+     * @param  string  $level
+     * @return int
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function parseLevel($level)
+    {
+        if (isset($this->levels[$level])) {
+            return $this->levels[$level];
+        }
+
+        throw new InvalidArgumentException('Invalid log level.');
+    }
+
+    /**
+     * Get the underlying Monolog instance.
+     *
+     * @return \Monolog\Logger
+     */
+    public function getMonolog()
+    {
+        return $this->monolog;
+    }
+
+    /**
+     * Get a defaut Monolog formatter instance.
+     *
+     * @return \Monolog\Formatter\LineFormatter
+     */
+    protected function getDefaultFormatter()
+    {
+        return new LineFormatter(null, null, true, true);
+    }
+
+    /**
+     * Get the event dispatcher instance.
+     *
+     * @return \Mini\Events\DispatcherInterface
+     */
+    public function getEventDispatcher()
+    {
+        return $this->dispatcher;
+    }
+
+    /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Mini\Events\DispatcherInterface  $dispatcher
+     * @return void
+     */
+    public function setEventDispatcher(DispatcherInterface $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
 }

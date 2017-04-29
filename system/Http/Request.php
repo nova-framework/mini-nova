@@ -30,6 +30,20 @@ class Request extends SymfonyRequest implements ArrayAccess
 
 
     /**
+     * Create a new Illuminate HTTP request from server variables.
+     *
+     * @return static
+     */
+    public static function capture()
+    {
+        static::enableHttpMethodParameterOverride();
+
+        $request = SymfonyRequest::createFromGlobals();
+
+        return static::createFromBase($request);
+    }
+
+    /**
      * Return the Request instance.
      *
      * @return $this

@@ -26,7 +26,7 @@ class View implements RenderableInterface
      */
     protected static $shared = array();
 
-    
+
     /**
      * Constructor
      *
@@ -59,6 +59,13 @@ class View implements RenderableInterface
         }
 
         return new static($path, $data);
+    }
+
+    public static function exists($view)
+    {
+        $path = APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
+
+        return is_readable($path);
     }
 
     /**

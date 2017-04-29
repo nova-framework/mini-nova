@@ -17,7 +17,7 @@ abstract class Facade
      *
      * @var array
      */
-    protected static $instances;
+    protected static $resolvedInstance;
 
 
     /**
@@ -41,11 +41,11 @@ abstract class Facade
     {
         if (is_object($name)) return $name;
 
-        if (isset(static::$instances[$name])) {
-            return static::$instances[$name];
+        if (isset(static::$resolvedInstance[$name])) {
+            return static::$resolvedInstance[$name];
         }
 
-        return static::$instances[$name] = static::$app[$name];
+        return static::$resolvedInstance[$name] = static::$app[$name];
     }
 
     /**
@@ -67,6 +67,17 @@ abstract class Facade
     public static function getFacadeApplication()
     {
         return static::$app;
+    }
+
+    /**
+     * Clear a resolved facade instance.
+     *
+     * @param  string  $name
+     * @return void
+     */
+    public static function clearResolvedInstance($name)
+    {
+        unset(static::$resolvedInstance[$name]);
     }
 
     /**

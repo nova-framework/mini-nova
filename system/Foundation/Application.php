@@ -123,7 +123,6 @@ class Application extends Container
         foreach (array('Event', 'Routing') as $name) {
             $this->{"register{$name}Provider"}();
         }
-
     }
 
     /**
@@ -444,6 +443,26 @@ class Application extends Container
     public function setDeferredServices(array $services)
     {
         $this->deferredServices = $services;
+    }
+
+    /**
+     * Register the core class aliases in the container.
+     *
+     * @return void
+     */
+    public function registerCoreContainerAliases()
+    {
+        $aliases = array(
+            'app' => array('Mini\Foundation\Application', 'Mini\Container\Container'),
+            'log' => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+
+        );
+
+        foreach ($aliases as $key => $aliases) {
+            foreach ((array) $aliases as $alias) {
+                $this->alias($key, $alias);
+            }
+        }
     }
 
     /**

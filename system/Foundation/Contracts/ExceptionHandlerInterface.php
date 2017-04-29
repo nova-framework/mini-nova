@@ -5,7 +5,7 @@ namespace Mini\Foundation\Contracts;
 use Exception;
 
 
-interface ExceptionHandler
+interface ExceptionHandlerInterface
 {
 
     /**

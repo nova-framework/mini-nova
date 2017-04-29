@@ -1,6 +1,6 @@
 <?php
 
-namespace Nova\Http\Contracts;
+namespace Mini\Http\Contracts;
 
 
 interface KernelInterface

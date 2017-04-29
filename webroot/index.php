@@ -22,4 +22,18 @@ require BASEPATH .'vendor/autoload.php';
 // Load the Application Bootstrap
 //--------------------------------------------------------------------------
 
-require APPPATH .'Bootstrap.php';
+$app = require_once APPPATH .'Bootstrap.php';
+
+//--------------------------------------------------------------------------
+// Run the Application
+//--------------------------------------------------------------------------
+
+$kernel = $app->make('Mini\Http\Contracts\KernelInterface');
+
+$response = $kernel->handle(
+    $request = Mini\Http\Request::capture()
+);
+
+$response->send();
+
+$kernel->terminate($request, $response);

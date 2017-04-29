@@ -14,6 +14,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Closure;
 
 
+define('MINIME_START', microtime(true));
+
+//--------------------------------------------------------------------------
+// Set PHP Error Reporting Options
+//--------------------------------------------------------------------------
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
@@ -57,8 +63,13 @@ $app->bindInstallPaths($paths);
 $app->instance('app', $app);
 
 //--------------------------------------------------------------------------
-// Register The Exception Handler
+// Bind Important Interfaces
 //--------------------------------------------------------------------------
+
+$app->singleton(
+    'Mini\Http\Contracts\KernelInterface',
+    'App\Kernel'
+);
 
 $app->singleton(
     'Mini\Foundation\Contracts\ExceptionHandlerInterface',
@@ -70,6 +81,12 @@ $app->singleton(
 //--------------------------------------------------------------------------
 
 Facade::setFacadeApplication($app);
+
+//--------------------------------------------------------------------------
+// Register Facade Aliases To Full Classes
+//--------------------------------------------------------------------------
+
+$app->registerCoreContainerAliases();
 
 //--------------------------------------------------------------------------
 // Register The Config Manager
@@ -102,55 +119,32 @@ AliasLoader::getInstance($aliases)->register();
 $app->getProviderRepository()->load($app, $config['providers']);
 
 //--------------------------------------------------------------------------
-// Application Error Logger
-//--------------------------------------------------------------------------
-
-Log::useFiles(STORAGE_PATH .'logs' .DS .'error.log');
-
-//--------------------------------------------------------------------------
 // Load The Application Start Script
 //--------------------------------------------------------------------------
 
 $app->booted( function() use ($app)
 {
-    // Get the Router instance.
-    $router = $app['router'];
 
-    // Load the Events.
-    require APPPATH .'Events.php';
+//--------------------------------------------------------------------------
+// Load The Application Events Script
+//--------------------------------------------------------------------------
 
-    // Load the Routes.
-    require APPPATH .'Routes.php';
+require APPPATH .'Events.php';
 
-    /*
-    // Dispatch the Request instance via Router.
-    try {
-        $response = $router->dispatch($request);
-    }
-    catch (NotFoundHttpException $e) {
-        $response = new Response('Page not found', 404);
-    }
+//--------------------------------------------------------------------------
+// Load The Application Routes Script
+//--------------------------------------------------------------------------
 
-    // Insert the Profiler report into response content.
-    if ($response instanceof Response) {
-        $requestTime = $request->server('REQUEST_TIME_FLOAT');
+// Get the Router instance.
+$router = $app['router'];
 
-        $content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
-            Profiler::getReport($requestTime),
-            $response->getContent()
-        );
+// Load the Routes.
+require APPPATH .'Routes.php';
 
-        $response->setContent($content);
-    }
-
-    // Send the Response.
-    $response->send();
-    */
 });
 
 //--------------------------------------------------------------------------
-// Run The Application
+// Return The Application
 //--------------------------------------------------------------------------
 
-$app->run();
-
+return $app;
