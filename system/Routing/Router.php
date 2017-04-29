@@ -2,8 +2,10 @@
 
 namespace Mini\Routing;
 
+use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Http\Response;
+use Mini\Pipeline\Pipeline;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
@@ -18,6 +20,13 @@ use Closure;
 class Router
 {
     /**
+     * The IoC container instance.
+     *
+     * @var \Mini\Container\Container
+     */
+    protected $container;
+
+    /**
      * The currently dispatched Route instance.
      *
      * @var \Mini\Routing\Route
@@ -30,6 +39,13 @@ class Router
      * @var \Nova\Http\Request
      */
     protected $currentRequest;
+
+    /**
+     * All of the short-hand keys for middlewares.
+     *
+     * @var array
+     */
+    protected $middleware = array();
 
     /**
      * The instance of RouteCollection.
@@ -62,8 +78,10 @@ class Router
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Container $container = null)
     {
+        $this->container = $container?: new Container();
+
         $this->routes = new RouteCollection($this);
     }
 
@@ -225,9 +243,77 @@ class Router
     {
         $route = $this->findRoute($request);
 
-        $response = $route->run($request);
+        $response = $this->runRouteWithinStack($route, $request);
 
         return $this->prepareResponse($request, $response);
+    }
+
+    /**
+     * Run the given route within a Stack "onion" instance.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  \Illuminate\Http\Request  $request
+     * @return mixed
+     */
+    protected function runRouteWithinStack(Route $route, Request $request)
+    {
+        $shouldSkipMiddleware = $this->container->bound('middleware.disable') &&
+                                ($this->container->make('middleware.disable') === true);
+
+        $middleware = $shouldSkipMiddleware ? array() : $this->gatherRouteMiddlewares($route);
+
+        // Create a Pipeline instance.
+        $pipeline = new Pipeline($this->container);
+
+        return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
+        {
+            $response = $route->run($request);
+
+            return $this->prepareResponse($request, $response);
+        });
+    }
+
+    /**
+     * Gather the middleware for the given route.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @return array
+     */
+    public function gatherRouteMiddlewares(Route $route)
+    {
+        return array_map(function ($name)
+        {
+            $middleware = $this->resolveMiddleware($name);
+
+            return (array) $middleware;
+
+        }, $route->middleware());
+    }
+
+    /**
+     * Resolve the middleware name to a class name preserving passed parameters.
+     *
+     * @param  string  $name
+     * @return string
+     */
+    public function resolveMiddleware($name)
+    {
+        $map = $this->middleware;
+
+        list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
+
+        // Adjust the name and the parameters.
+        if (isset($map[$name])) {
+            $name = $map[$name];
+        }
+
+        if ($name instanceof Closure) {
+            return array('callback' => $name, 'parameters' => $parameters);
+        }
+
+        $parameters = ! is_null($parameters) ? ':' .$parameters : '';
+
+        return $name .$parameters;
     }
 
     /**
@@ -239,7 +325,9 @@ class Router
      */
     protected function findRoute(Request $request)
     {
-        return $this->current = $this->routes->match($request);
+        $this->current = $route = $this->routes->match($request);
+
+        return $route->setContainer($this->container);
     }
 
     /**
@@ -256,6 +344,30 @@ class Router
         }
 
         return $response->prepare($request);
+    }
+
+    /**
+     * Get all of the defined middleware short-hand names.
+     *
+     * @return array
+     */
+    public function getMiddleware()
+    {
+        return $this->middleware;
+    }
+
+    /**
+     * Register a short-hand name for a middleware.
+     *
+     * @param  string  $name
+     * @param  string|\Closure  $middleware
+     * @return $this
+     */
+    public function middleware($name, $middleware)
+    {
+        $this->middleware[$name] = $middleware;
+
+        return $this;
     }
 
     /**

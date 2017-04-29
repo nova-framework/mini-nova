@@ -152,9 +152,7 @@ class Container implements ArrayAccess
             $concrete = $this->bindings[$abstract]['concrete'];
         }
 
-        if ($concrete instanceof Closure) {
-            $instance = call_user_func($concrete);
-        } else if ($concrete === $abstract) {
+        if (($concrete === $abstract) || ($concrete instanceof Closure)) {
             $instance = $this->build($concrete);
         } else {
             $instance = $this->make($concrete);
@@ -176,6 +174,10 @@ class Container implements ArrayAccess
      */
     protected static function build($concrete)
     {
+        if ($concrete instanceof Closure) {
+            return call_user_func($concrete);
+        }
+
         $reflector = new ReflectionClass($concrete);
 
         if (! $reflector->isInstantiable()) {

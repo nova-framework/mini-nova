@@ -19,7 +19,7 @@ $router->any('/', function()
     return View::make('Layouts/Default')->with('content', $view);
 });
 
-$router->get('sample/{name}/{slug?}', 'App\Controllers\Sample@index');
+$router->get('sample/{name}/{slug?}', array('middleware' => 'test', 'uses' => 'App\Controllers\Sample@index'));
 
 $router->post('sample', 'App\Controllers\Sample@store');
 

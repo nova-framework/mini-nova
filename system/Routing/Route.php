@@ -2,6 +2,7 @@
 
 namespace Mini\Routing;
 
+use Mini\Container\Container;
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
 use Mini\Routing\RouteCompiler;
@@ -45,6 +46,13 @@ class Route
      */
     protected $regex;
 
+    /**
+     * The container instance used by the route.
+     *
+     * @var \Mini\Container\Container
+     */
+    protected $container;
+
 
     /**
      * Create a new Route instance.
@@ -76,6 +84,8 @@ class Route
      */
     public function run(Request $request)
     {
+        $this->container = $this->container ?: new Container();
+
         try {
             if (! is_string($this->action['uses'])) {
                 return $this->runCallable($request);
@@ -119,11 +129,55 @@ class Route
         //
         list($controller, $method) = explode('@', $this->action['uses']);
 
-        if (! method_exists($instance = new $controller(), $method)) {
+        if (! method_exists($instance = $this->container->make($controller), $method)) {
             throw new NotFoundHttpException();
         }
 
         return $instance->callAction($method, $parameters);
+    }
+
+    /**
+     * Get or set the middlewares attached to the route.
+     *
+     * @param  array|string|null $middleware
+     * @return $this|array
+     */
+    public function middleware($middleware = null)
+    {
+        if (is_null($middleware)) {
+            return $this->getMiddleware();
+        }
+
+        if (is_string($middleware)) {
+            $middleware = array($middleware);
+        }
+
+        $this->action['middleware'] = array_merge(
+            (array) Arr::get($this->action, 'middleware', array()), $middleware
+        );
+
+        return $this;
+    }
+
+    protected function getMiddleware()
+    {
+        $middleware = Arr::get($this->action, 'middleware');
+
+        if (is_null($middleware)) {
+            return array();
+        } else if (is_array($middleware)) {
+            return $middleware;
+        }
+
+        return explode('|', $middleware);
+
+        $middleware = Arr::get($this->action, 'middleware', array());
+
+        if (! is_array($middleware)) {
+            return explode('|', $middleware);
+        }
+
+        return $middleware;
     }
 
     /**
@@ -192,6 +246,19 @@ class Route
     public function regex()
     {
         return $this->regex;
+    }
+
+    /**
+     * Set the container instance on the route.
+     *
+     * @param  \Mini\Container\Container  $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+
+        return $this;
     }
 
     /**
