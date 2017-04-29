@@ -385,43 +385,6 @@ class Application extends Container
     }
 
     /**
-     * Run the application and send the response.
-     *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @return void
-     */
-    public function run(SymfonyRequest $request = null)
-    {
-        $request = $request ?: $this['request'];
-
-        $this->boot();
-
-        //$response = with($kernel = $this->getKernel())->handle($request);
-        $response = $this['router']->dispatch($request);
-
-        //
-        $response = $this->prepareResponse($response, $request);
-
-        $response->send();
-    }
-
-    /**
-     * Prepare the given value as a Response object.
-     *
-     * @param  mixed  $response
-     * @param \Symfony\Component\HttpFoundation\Request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function prepareResponse($response, $request)
-    {
-        if (! $response instanceof SymfonyResponse) {
-            $response = new Response($response);
-        }
-
-        return $response->prepare($request);
-    }
-
-    /**
      * Call the booting callbacks for the application.
      *
      * @param  array  $callbacks
@@ -453,8 +416,9 @@ class Application extends Container
     public function registerCoreContainerAliases()
     {
         $aliases = array(
-            'app' => array('Mini\Foundation\Application', 'Mini\Container\Container'),
-            'log' => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+            'app'    => array('Mini\Foundation\Application', 'Mini\Container\Container'),
+            'log'    => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+            'router' => array('Mini\Routing\Router'),
 
         );
 

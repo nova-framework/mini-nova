@@ -2,7 +2,6 @@
 
 namespace App\Middleware;
 
-use Mini\Helpers\Profiler;
 use Mini\Http\Response;
 use Mini\Support\Facades\Config;
 use Mini\Support\Str;
@@ -31,14 +30,27 @@ class HandleStatistics
         $debug = Config::get('app.debug', false);
 
         if ($debug && $this->canPatchContent($response)) {
-            $statistics = Profiler::getReport($request);
-
-            $content = str_replace('<!-- DO NOT DELETE! - Profiler -->', $statistics, $response->getContent());
+            $content = str_replace('<!-- DO NOT DELETE! - Profiler -->', $this->getReport($request), $response->getContent());
 
             $response->setContent($content);
         }
 
         return $response;
+    }
+
+    protected function getReport($request)
+    {
+        $elapsedTime = microtime(true) - $request->server('REQUEST_TIME_FLOAT');
+
+        $elapsedStr = sprintf("%01.4f", $elapsedTime);
+
+        //
+        $memoryUsage = static::humanSize(memory_get_usage());
+
+        //
+        $umax = sprintf("%0d", intval(25 / $elapsedTime));
+
+        return sprintf('Elapsed Time: <b>%s</b> sec | Memory Usage: <b>%s</b> | UMAX: <b>%s</b>', $elapsedStr, $memoryUsage, $umax);
     }
 
     protected function canPatchContent(SymfonyResponse $response)
@@ -50,5 +62,14 @@ class HandleStatistics
         $contentType = $response->headers->get('Content-Type');
 
         return Str::is('text/html*', $contentType);
+    }
+
+    protected static function humanSize($bytes, $decimals = 2)
+    {
+        $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
+
+        $factor = floor((strlen($bytes) - 1) / 3);
+
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 }

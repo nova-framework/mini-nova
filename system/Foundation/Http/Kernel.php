@@ -4,7 +4,7 @@ namespace Mini\Foundation\Http;
 
 use Mini\Http\Contracts\KernelInterface;
 use Mini\Foundation\Application;
-use Mini\Pipeline\Pipeline;
+use Mini\Foundation\Pipeline;
 use Mini\Routing\Router;
 use Mini\Support\Facades\Facade;
 
@@ -126,7 +126,7 @@ class Kernel implements KernelInterface
     public function terminate($request, $response)
     {
         $middlewares = array_merge(
-            $this->gatherRouteMiddlewares($request),
+            $this->gatherRouteMiddlewares(),
             $this->middleware
         );
 
@@ -141,8 +141,6 @@ class Kernel implements KernelInterface
                 $instance->terminate($request, $response);
             }
         }
-
-        //$this->app->terminate($request, $response);
     }
 
     /**
@@ -151,11 +149,9 @@ class Kernel implements KernelInterface
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    protected function gatherRouteMiddlewares($request)
+    protected function gatherRouteMiddlewares()
     {
-        return array();
-
-        if (is_null($route = $request->route())) {
+        if (is_null($route = $this->router->current())) {
             return array();
         }
 
@@ -207,36 +203,6 @@ class Kernel implements KernelInterface
 
             return $this->router->dispatch($request);
         };
-    }
-
-    /**
-     * Add a new middleware to beginning of the stack if it does not already exist.
-     *
-     * @param  string  $middleware
-     * @return $this
-     */
-    public function prependMiddleware($middleware)
-    {
-        if (array_search($middleware, $this->middleware) === false) {
-            array_unshift($this->middleware, $middleware);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a new middleware to end of the stack if it does not already exist.
-     *
-     * @param  string|\Closure  $middleware
-     * @return \Mini\Foundation\Http\Kernel
-     */
-    public function pushMiddleware($middleware)
-    {
-        if (array_search($middleware, $this->middleware) === false) {
-            array_push($this->middleware, $middleware);
-        }
-
-        return $this;
     }
 
     /**

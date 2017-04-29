@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Pipeline\Contracts;
+namespace Mini\Foundation\Contracts;
 
 use Closure;
 

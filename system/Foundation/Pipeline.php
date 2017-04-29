@@ -1,9 +1,9 @@
 <?php
 
-namespace Mini\Pipeline;
+namespace Mini\Foundation;
 
 use Mini\Container\Container;
-use Mini\Pipeline\Contracts\PipelineInterface;
+use Mini\Foundation\Contracts\PipelineInterface;
 
 use Closure;
 

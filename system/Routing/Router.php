@@ -3,9 +3,9 @@
 namespace Mini\Routing;
 
 use Mini\Container\Container;
+use Mini\Foundation\Pipeline;
 use Mini\Http\Request;
 use Mini\Http\Response;
-use Mini\Pipeline\Pipeline;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
