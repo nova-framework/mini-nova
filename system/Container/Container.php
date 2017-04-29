@@ -13,6 +13,13 @@ class BindingResolutionException extends \Exception {}
 class Container implements ArrayAccess
 {
     /**
+     * An array of the types that have been resolved.
+     *
+     * @var array
+     */
+    protected $resolved = array();
+
+    /**
      * The container's bindings.
      *
      * @var array
@@ -26,6 +33,24 @@ class Container implements ArrayAccess
      */
     protected $instances = array();
 
+    /**
+     * The registered type aliases.
+     *
+     * @var array
+     */
+    protected $aliases = array();
+
+
+    /**
+     * Determine if a given string is resolvable.
+     *
+     * @param  string  $abstract
+     * @return bool
+     */
+    protected function resolvable($abstract)
+    {
+        return $this->bound($abstract) || $this->isAlias($abstract);
+    }
 
     /**
      * Determine if the given abstract type has been bound.
@@ -39,6 +64,28 @@ class Container implements ArrayAccess
     }
 
     /**
+     * Determine if the given abstract type has been resolved.
+     *
+     * @param  string  $abstract
+     * @return bool
+     */
+    public function resolved($abstract)
+    {
+        return isset($this->resolved[$abstract]) || isset($this->instances[$abstract]);
+    }
+
+    /**
+     * Determine if a given string is an alias.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function isAlias($name)
+    {
+        return isset($this->aliases[$name]);
+    }
+
+    /**
      * Register a binding with the container.
      *
      * @param  string   $abstract
@@ -48,6 +95,12 @@ class Container implements ArrayAccess
      */
     public function bind($abstract, $concrete = null, $shared = false)
     {
+        if (is_array($abstract)) {
+            list($abstract, $alias) = $this->extractAlias($abstract);
+
+            $this->alias($abstract, $alias);
+        }
+
         $this->dropStaleInstances($abstract);
 
         if (is_null($concrete)) {
@@ -131,7 +184,36 @@ class Container implements ArrayAccess
      */
     public function instance($abstract, $instance)
     {
+        if (is_array($abstract)) {
+            list($abstract, $alias) = $this->extractAlias($abstract);
+
+            $this->alias($abstract, $alias);
+        }
+
         $this->instances[$abstract] = $instance;
+    }
+
+    /**
+     * Alias a type to a shorter name.
+     *
+     * @param  string  $abstract
+     * @param  string  $alias
+     * @return void
+     */
+    public function alias($abstract, $alias)
+    {
+        $this->aliases[$alias] = $abstract;
+    }
+
+    /**
+     * Extract the type and alias from a given definition.
+     *
+     * @param  array  $definition
+     * @return array
+     */
+    protected function extractAlias(array $definition)
+    {
+        return array(key($definition), current($definition));
     }
 
     /**
@@ -146,13 +228,9 @@ class Container implements ArrayAccess
             return $this->instances[$abstract];
         }
 
-        if (! isset($this->bindings[$abstract])) {
-            $concrete = $abstract;
-        } else {
-            $concrete = $this->bindings[$abstract]['concrete'];
-        }
+        $concrete = $this->getConcrete($abstract);
 
-        if (($concrete === $abstract) || ($concrete instanceof Closure)) {
+        if ($this->isBuildable($concrete, $abstract)) {
             $instance = $this->build($concrete);
         } else {
             $instance = $this->make($concrete);
@@ -162,7 +240,24 @@ class Container implements ArrayAccess
             $this->instances[$abstract] = $instance;
         }
 
+        $this->resolved[$abstract] = true;
+
         return $instance;
+    }
+
+    /**
+     * Get the concrete type for a given abstract.
+     *
+     * @param  string  $abstract
+     * @return mixed   $concrete
+     */
+    protected function getConcrete($abstract)
+    {
+        if (! isset($this->bindings[$abstract])) {
+            return $abstract;
+        }
+
+        return $this->bindings[$abstract]['concrete'];
     }
 
     /**
@@ -272,6 +367,39 @@ class Container implements ArrayAccess
         }
 
         return isset($this->instances[$abstract]) || ($shared === true);
+    }
+
+    /**
+     * Determine if the given concrete is buildable.
+     *
+     * @param  mixed   $concrete
+     * @param  string  $abstract
+     * @return bool
+     */
+    protected function isBuildable($concrete, $abstract)
+    {
+        return ($concrete === $abstract) || ($concrete instanceof Closure);
+    }
+
+    /**
+     * Get the alias for an abstract if available.
+     *
+     * @param  string  $abstract
+     * @return string
+     */
+    protected function getAlias($abstract)
+    {
+        return isset($this->aliases[$abstract]) ? $this->aliases[$abstract] : $abstract;
+    }
+
+    /**
+     * Get the container's bindings.
+     *
+     * @return array
+     */
+    public function getBindings()
+    {
+        return $this->bindings;
     }
 
     /**

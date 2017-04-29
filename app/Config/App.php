@@ -128,6 +128,7 @@ return array(
     'providers' => array(
         // The Framework Providers.
         'Mini\Routing\RoutingServiceProvider',
+        'Mini\Log\LogServiceProvider',
 
         // The Application Providers.
     ),
@@ -163,6 +164,7 @@ return array(
 
         // The Support Facades.
         'App'           => 'Mini\Support\Facades\App',
+        'Log'           => 'Mini\Support\Facades\Log',
         'Response'      => 'Mini\Support\Facades\Response',
         'Route'         => 'Mini\Support\Facades\Route',
     ),

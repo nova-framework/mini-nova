@@ -57,6 +57,15 @@ $app->bindInstallPaths($paths);
 $app->instance('app', $app);
 
 //--------------------------------------------------------------------------
+// Register The Exception Handler
+//--------------------------------------------------------------------------
+
+$app->singleton(
+    'Mini\Foundation\Contracts\ExceptionHandlerInterface',
+    'App\Exceptions\Handler'
+);
+
+//--------------------------------------------------------------------------
 // Load The Framework Facades
 //--------------------------------------------------------------------------
 
@@ -93,29 +102,19 @@ AliasLoader::getInstance($aliases)->register();
 $app->getProviderRepository()->load($app, $config['providers']);
 
 //--------------------------------------------------------------------------
-// Load The Application Start Script
+// Application Error Logger
 //--------------------------------------------------------------------------
 
-/*
-$app->error(function(Exception $exception, $code)
-{
-    //Log::error($exception);
-});
-*/
+Log::useFiles(STORAGE_PATH .'logs' .DS .'error.log');
+
+//--------------------------------------------------------------------------
+// Load The Application Start Script
+//--------------------------------------------------------------------------
 
 $app->booted( function() use ($app)
 {
     // Get the Router instance.
     $router = $app['router'];
-
-    // Sample Middleware.
-    $router->middleware('test', function($request, Closure $next)
-    {
-        //echo '<pre>' .var_export($request, true) .'</pre>';
-        echo '<pre style="margin: 10px;">Hello from the Routing Middleware!</pre>';
-
-        return $next($request);
-    });
 
     // Load the Events.
     require APPPATH .'Events.php';

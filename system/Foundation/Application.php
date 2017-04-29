@@ -120,7 +120,6 @@ class Application extends Container
      */
     protected function registerBaseServiceProviders()
     {
-        //foreach (array('Event', 'Exception', 'Routing') as $name) {
         foreach (array('Event', 'Routing') as $name) {
             $this->{"register{$name}Provider"}();
         }
