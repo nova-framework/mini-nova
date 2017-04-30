@@ -306,24 +306,22 @@ class Router
         //
         $callback = Arr::get($this->middleware, $name, $name);
 
-        if (! $callback instanceof Closure) {
-            if (is_string($parameters) && ! empty($parameters)) {
+        if (is_string($callback)) {
+            if (! is_null($parameters)) {
                 $callback .= ':' .$parameters;
             }
 
             return $callback;
         }
-
-        if (! is_null($parameters)) {
-            $parameters = explode(',', $parameters);
-        } else {
-            // A closure with no parameters do not need addditional processing.
+        
+        // A closure with no parameters do not need addditional processing.
+        else if (is_null($parameters)) {
             return $callback;
         }
 
         return function ($passable, $stack) use ($callback, $parameters)
         {
-            $parameters = array_merge(array($passable, $stack), $parameters);
+            $parameters = array_merge(array($passable, $stack), explode(',', $parameters));
 
             return call_user_func_array($callback, $parameters);
         };
