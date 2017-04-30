@@ -115,16 +115,6 @@ class Handler implements ExceptionHandlerInterface
      */
     protected function renderHttpException(HttpException $e)
     {
-        $status = $e->getStatusCode();
-
-        /*
-        if (View::exists("Errors/{$status}")) {
-            return response()->view("errors.{$status}", ['exception' => $e], $status);
-        } else {
-            return $this->convertExceptionToResponse($e);
-        }
-        */
-
         return $this->convertExceptionToResponse($e);
     }
 
@@ -138,8 +128,7 @@ class Handler implements ExceptionHandlerInterface
     {
         $debug = Config::get('app.debug');
 
-        //return (new SymfonyDisplayer($debug))->createResponse($e);
-
+        //
         $e = FlattenException::create($e);
 
         $handler = new SymfonyExceptionHandler($debug);
