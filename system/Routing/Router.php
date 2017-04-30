@@ -301,21 +301,24 @@ class Router
      */
     public function resolveMiddleware($name)
     {
-        list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
+        list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
         //
         $callback = Arr::get($this->middleware, $name, $name);
 
         if (! $callback instanceof Closure) {
-            if (is_string($parameters)) {
+            if (is_string($parameters) && ! empty($parameters)) {
                 $callback .= ':' .$parameters;
             }
 
             return $callback;
         }
 
-        if (is_string($parameters)) {
+        if (! is_null($parameters)) {
             $parameters = explode(',', $parameters);
+        } else {
+            // A closure with no parameters do not need addditional processing.
+            return $callback;
         }
 
         return function ($passable, $stack) use ($callback, $parameters)

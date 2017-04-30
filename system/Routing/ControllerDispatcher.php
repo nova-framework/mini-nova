@@ -64,20 +64,20 @@ class ControllerDispatcher
             return $this->call($instance, $request, $method, $parameters);
         }
 
-        return $this->callWithinStack($instance, $middleware, $request, $method, $parameters);
+        return $this->callWithinStack($instance, $request, $middleware, $method, $parameters);
     }
 
     /**
      * Call the given controller instance method.
      *
      * @param  \Mini\Routing\Controller $instance
-     * @param  array                    $middleware
-     * @param  \Mini\Routing\Route      $route
      * @param  \Mini\Http\Request       $request
+     * @param  array                    $middleware
      * @param  string                   $method
+     * @param  array                    $parameters
      * @return mixed
      */
-    protected function callWithinStack($instance, $middleware, $request, $method, $parameters)
+    protected function callWithinStack($instance, $request, $middleware, $method, $parameters)
     {
         $pipeline = new Pipeline($this->container);
 
