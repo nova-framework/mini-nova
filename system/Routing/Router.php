@@ -129,25 +129,28 @@ class Router
      */
     protected function addRoute($method, $uri, $action)
     {
-        $uri = '/' .ltrim($uri, '/');
-
         if (is_string($method) && (strtoupper($method) === 'ANY')) {
             $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
         } else {
             $methods = array_map('strtoupper', (array) $method);
         }
 
-        // When the Action references a Controller, convert it on a Controller Action.
+        // When the Action references a Controller, convert it to a Controller Action.
         if ($this->actionReferencesController($action)) {
             $action = $this->convertToControllerAction($action);
         }
-        // When the Action given is a Closure, convert it on a proper Closure Action.
+
+        // When the Action is given as a Closure, transform it on valid Closure Action.
         else if ($action instanceof Closure) {
             $action = array('uses' => $action);
         }
+
         // When the 'uses' is not defined into Action, find the Closure in the array.
         else if (! isset($action['uses'])) {
-            $action['uses'] = $this->findClosure($action);
+            $action['uses'] = Arr::first($action, function($key, $value)
+            {
+                return is_callable($value);
+            });
         }
 
         // If a group is being registered, we'll merge all of the group options into the action,
@@ -167,21 +170,9 @@ class Router
             $action = array_merge_recursive(array_except($group, array('namespace', 'prefix')), $action);
         }
 
-        $this->routes->addRoute($methods, $uri, $action);
-    }
+        $uri = '/' .trim($uri, '/');
 
-    /**
-     * Find the Closure in an action array.
-     *
-     * @param  array  $action
-     * @return \Closure
-     */
-    protected function findClosure(array $action)
-    {
-        return Arr::first($action, function($key, $value)
-        {
-            return is_callable($value);
-        });
+        $this->routes->addRoute($methods, $uri, $action);
     }
 
     /**

@@ -161,7 +161,9 @@ class RouteCollection
         foreach ($this->routes as $method => $routes) {
             foreach ($routes as $route => $options) {
                 if (isset($options['as']) && ($options['as'] === $name)) {
-                     return $this->names[$name] = array($route => $options);
+                    $options['method'] = $method;
+
+                    return $this->names[$name] = array($route => $options);
                 }
             }
         }
@@ -179,12 +181,14 @@ class RouteCollection
             return $this->uses[$action];
         }
 
-        // To find the route, we'll simply spin through the routes looking/ for a route with a
+        // To find the route, we'll simply spin through the routes looking for a route with a
         // "uses" key matching the action, and if we find one, we cache and return it.
          foreach ($this->routes as $method => $routes)  {
             foreach ($routes as $route => $options) {
                 if (isset($options['controller']) && ($options['controller'] === $action)) {
-                     return $this->uses[$action] = array($route => $options);
+                    $options['method'] = $method;
+
+                    return $this->uses[$action] = array($route => $options);
                 }
             }
         }

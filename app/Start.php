@@ -125,18 +125,18 @@ $app->getProviderRepository()->load($app, $config['providers']);
 $app->booted( function() use ($app)
 {
 
+// Get the Router instance.
+$router = $app['router'];
+
 //--------------------------------------------------------------------------
-// Load The Application Events Script
+// Load The Application Global Script
 //--------------------------------------------------------------------------
 
-require APPPATH .'Events.php';
+require APPPATH .'Global.php';
 
 //--------------------------------------------------------------------------
 // Load The Application Routes Script
 //--------------------------------------------------------------------------
-
-// Get the Router instance.
-$router = $app['router'];
 
 // Load the Routes.
 require APPPATH .'Routes.php';

@@ -2,15 +2,6 @@
 
 use Mini\View\View;
 
-// Sample Middleware.
-$router->middleware('test', function($request, Closure $next)
-{
-    //echo '<pre>' .var_export($request, true) .'</pre>';
-    echo '<pre style="margin: 10px;">Hello from the Routing Middleware!</pre>';
-
-    return $next($request);
-});
-
 //
 // General patterns for the route parameters.
 
@@ -39,6 +30,7 @@ $router->get('test/{id}/{name?}/{slug?}', array(function ($id, $name = null, $sl
 
 }, 'where' => array('id' => '[0-9]+')));
 
+/*
 // A Catch-All route.
 $router->any('{slug}', function($slug)
 {
@@ -48,3 +40,4 @@ $router->any('{slug}', function($slug)
 
     return View::make('Layouts/Default')->with('content', $view);
 });
+*/
