@@ -14,12 +14,14 @@ class Sample extends Controller
 
     public function __construct()
     {
-        $this->middleware('@testing');
+        $this->middleware('@testing', array(
+            'only' => 'index'
+        ));
     }
 
     public function testing($request, Closure $next)
     {
-        echo '<pre style="margin: 10px;">Hello from the Controller Middleware!</pre>';
+        echo sprintf('<pre style="margin: 10px;">BEFORE, on the [%s] Middleware!</pre>', str_replace('::', '@', __METHOD__));
 
         return $next($request);
     }

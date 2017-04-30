@@ -301,29 +301,29 @@ class Router
      */
     public function resolveMiddleware($name)
     {
-        list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
+        list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
 
-        $middleware = Arr::get($this->middleware, $name, $name);
+        //
+        $callback = Arr::get($this->middleware, $name, $name);
 
-        if ($middleware instanceof Closure) {
+        if (! $callback instanceof Closure) {
             if (is_string($parameters)) {
-                $parameters = explode(',', $parameters);
+                $callback .= ':' .$parameters;
             }
 
-            return function ($passable, $stack) use ($middleware, $parameters)
-            {
-                return call_user_func_array(
-                    $middleware,
-                    array_merge(array($passable, $stack), (array) $parameters)
-                );
-            };
+            return $callback;
         }
 
-        if (! is_null($parameters)) {
-            $middleware .= ':' .$parameters;
+        if (is_string($parameters)) {
+            $parameters = explode(',', $parameters);
         }
 
-        return $middleware;
+        return function ($passable, $stack) use ($callback, $parameters)
+        {
+            $parameters = array_merge(array($passable, $stack), $parameters);
+
+            return call_user_func_array($callback, $parameters);
+        };
     }
 
     /**

@@ -13,13 +13,6 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 class Controller extends BaseController
 {
     /**
-     * The currently called Method.
-     *
-     * @var mixed
-     */
-    protected $method;
-
-    /**
      * The currently used Layout.
      *
      * @var string
@@ -28,12 +21,17 @@ class Controller extends BaseController
 
 
     /**
-     * Method executed before any action.
+     * Execute an action on the controller.
      *
-     * @return void
+     * @param string  $method
+     * @param array   $params
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function before() {
-        //
+    public function callAction($method, array $parameters = array())
+    {
+        $response = parent::callAction($method, $parameters);
+
+        return $this->processResponse($response);
     }
 
     /**
@@ -43,7 +41,7 @@ class Controller extends BaseController
      *
      * @return mixed
      */
-    protected function after($response)
+    protected function processResponse($response)
     {
         if ($response instanceof RenderableInterface) {
             if (! empty($this->layout)) {
@@ -62,34 +60,4 @@ class Controller extends BaseController
         return $response;
     }
 
-    /**
-     * Execute an action on the controller.
-     *
-     * @param string  $method
-     * @param array   $params
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function callAction($method, array $parameters = array())
-    {
-        $this->method = $method;
-
-        // Execute the Before method.
-        $this->before();
-
-        // Execute the requested Action.
-        $response = call_user_func_array(array($this, $method), $parameters);
-
-        // Execute the After method and return the result.
-        return $this->after($response);
-    }
-
-    /**
-     * Returns the currently called Method.
-     *
-     * @return string|null
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
 }
