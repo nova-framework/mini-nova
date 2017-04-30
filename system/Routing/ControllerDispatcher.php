@@ -6,6 +6,7 @@ use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Pipeline\Pipeline;
 use Mini\Routing\Router;
+use Mini\Support\Str;
 
 use Closure;
 
@@ -56,33 +57,50 @@ class ControllerDispatcher
         // Create a Controller instance using the IoC container.
         $instance = $this->container->make($controller);
 
-        return $this->callWithinStack($instance, $request, $method, $parameters);
+        // Gather the controller's middleware.
+        $middleware = $this->getMiddleware($instance, $method);
+
+        if (empty($middleware)) {
+            return $this->call($instance, $request, $method, $parameters);
+        }
+
+        return $this->callWithinStack($instance, $middleware, $request, $method, $parameters);
     }
 
     /**
      * Call the given controller instance method.
      *
-     * @param  \Mini\Routing\Controller  $instance
-     * @param  \Mini\Routing\Route  $route
-     * @param  \Mini\Http\Request  $request
-     * @param  string  $method
+     * @param  \Mini\Routing\Controller $instance
+     * @param  array                    $middleware
+     * @param  \Mini\Routing\Route      $route
+     * @param  \Mini\Http\Request       $request
+     * @param  string                   $method
      * @return mixed
      */
-    protected function callWithinStack($instance, $request, $method, $parameters)
+    protected function callWithinStack($instance, $middleware, $request, $method, $parameters)
     {
-        $middleware = $this->getMiddleware($instance, $method);
-
-        //
         $pipeline = new Pipeline($this->container);
 
-        $response = $pipeline->send($request)->through($middleware)->then(function ($request) use ($instance, $method, $parameters)
+        return $pipeline->send($request)->through($middleware)->then(function ($request) use ($instance, $method, $parameters)
         {
-            return $this->router->prepareResponse(
-                $request, $instance->callAction($method, $parameters)
-            );
+            return $this->call($instance, $request, $method, $parameters);
         });
+    }
 
-        return $response;
+    /**
+     * Call the given controller instance method.
+     *
+     * @param  \Nova\Routing\Controller $instance
+     * @param  \Nova\Routing\Route      $route
+     * @param  string                   $method
+     * @param  array                    $parameters
+     * @return mixed
+     */
+    protected function call($instance, $request, $method, $parameters)
+    {
+        $response = $instance->callAction($method, $parameters);
+
+        return $this->router->prepareResponse($request, $response);
     }
 
     /**
@@ -97,12 +115,37 @@ class ControllerDispatcher
         $results = array();
 
         foreach ($instance->getMiddleware() as $name => $options) {
-            if (! $this->methodExcludedByOptions($method, $options)) {
+            if ($this->methodExcludedByOptions($method, $options)) {
+                continue;
+            }
+
+            if (Str::startsWith($name, '@')) {
+                $results[] = $this->resolveInstanceMiddleware($instance, $name);
+            } else {
                 $results[] = $this->router->resolveMiddleware($name);
             }
         }
 
         return $results;
+    }
+
+    /**
+     * Resolve the middleware whithin controller instance.
+     *
+     * @param  \Mini\Routing\Controller  $instance
+     * @param  string  $name
+     * @return \Closure
+     */
+    protected function resolveInstanceMiddleware($instance, $name)
+    {
+        if (! method_exists($instance, $method = substr($name, 1))) {
+            throw new \InvalidArgumentException("Middleware method [$name] does not exist.");
+        }
+
+        return function ($passable, $stack) use ($instance, $method)
+        {
+            return call_user_func(array($instance, $method), $passable, $stack);
+        };
     }
 
     /**
@@ -115,7 +158,7 @@ class ControllerDispatcher
     public function methodExcludedByOptions($method, array $options)
     {
         return (isset($options['only']) && ! in_array($method, (array) $options['only'])) ||
-            (! empty($options['except']) && in_array($method, (array) $options['except']));
+               (! empty($options['except']) && in_array($method, (array) $options['except']));
     }
 
 }

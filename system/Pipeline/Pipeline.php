@@ -99,14 +99,11 @@ class Pipeline implements PipelineInterface
     {
         $pipes = array_reverse($this->pipes);
 
-        //
-        $initialSlice = $this->getInitialSlice($destination);
-
         $slice = array_reduce($pipes, function ($stack, $pipe)
         {
             return $this->getSlice($stack, $pipe);
 
-        }, $initialSlice);
+        }, $this->getInitialSlice($destination));
 
         return call_user_func($slice, $this->passable);
     }
@@ -138,14 +135,14 @@ class Pipeline implements PipelineInterface
     /**
      * Get the initial slice to begin the stack call.
      *
-     * @param  \Closure  $destination
+     * @param  \Closure  $callable
      * @return \Closure
      */
-    protected function getInitialSlice(Closure $destination)
+    protected function getInitialSlice(Closure $callable)
     {
-        return function ($passable) use ($destination)
+        return function ($passable) use ($callable)
         {
-            return call_user_func($destination, $passable);
+            return call_user_func($callable, $passable);
         };
     }
 

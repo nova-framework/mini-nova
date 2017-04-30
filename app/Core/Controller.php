@@ -49,9 +49,7 @@ class Controller extends BaseController
             if (! empty($this->layout)) {
                 $view = 'Layouts/' .$this->layout;
 
-                $content = View::fetch($view, array(
-                    'content' => $response->render()
-                ));
+                $content = View::fetch($view, array('content' => $response->render()));
             } else {
                 $content = $response->render();
             }
@@ -76,12 +74,10 @@ class Controller extends BaseController
         $this->method = $method;
 
         // Execute the Before method.
-        $response = $this->before();
+        $this->before();
 
-        // If no response is given by the Before stage, execute the requested action.
-        if (is_null($response)) {
-            $response = call_user_func_array(array($this, $method), $parameters);
-        }
+        // Execute the requested Action.
+        $response = call_user_func_array(array($this, $method), $parameters);
 
         // Execute the After method and return the result.
         return $this->after($response);

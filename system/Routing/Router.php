@@ -246,7 +246,14 @@ class Router
 
         $this->events->fire('router.matched', array($route, $request));
 
-        $response = $this->runRouteWithinStack($route, $request);
+        // Gather the route middleware.
+        $middleware = $this->gatherRouteMiddlewares($route);
+
+        if (empty($middleware)) {
+            $response = $route->run($request);
+        } else {
+            $response = $this->runRouteWithinStack($route, $request, $middleware);
+        }
 
         return $this->prepareResponse($request, $response);
     }
@@ -254,15 +261,13 @@ class Router
     /**
      * Run the given route within a Stack "onion" instance.
      *
-     * @param  \Illuminate\Routing\Route  $route
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Routing\Route    $route
+     * @param  \Illuminate\Http\Request     $request
+     * @param  array                        $middleware
      * @return mixed
      */
-    protected function runRouteWithinStack(Route $route, Request $request)
+    protected function runRouteWithinStack(Route $route, Request $request, array $middleware)
     {
-        $middleware = $this->gatherRouteMiddlewares($route);
-
-        // Create a Pipeline instance.
         $pipeline = new Pipeline($this->container);
 
         return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
@@ -298,26 +303,27 @@ class Router
     {
         list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
-        $callable = Arr::get($this->middleware, $name, $name);
+        $middleware = Arr::get($this->middleware, $name, $name);
 
-        if ($callable instanceof Closure) {
+        if ($middleware instanceof Closure) {
             if (is_string($parameters)) {
                 $parameters = explode(',', $parameters);
             }
 
-            return function ($passable, $stack) use ($callable, $parameters)
+            return function ($passable, $stack) use ($middleware, $parameters)
             {
-                $parameters = array_merge(array($passable, $stack), (array) $parameters);
-
-                return call_user_func_array($callable, $parameters);
+                return call_user_func_array(
+                    $middleware,
+                    array_merge(array($passable, $stack), (array) $parameters)
+                );
             };
         }
 
         if (! is_null($parameters)) {
-            $callable .= ':' .$parameters;
+            $middleware .= ':' .$parameters;
         }
 
-        return $callable;
+        return $middleware;
     }
 
     /**

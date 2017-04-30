@@ -69,7 +69,7 @@ return array(
     |
     */
 
-    'name' => 'Mini-me!',
+    'name' => 'Mini-me 1.0',
 
     /*
     |--------------------------------------------------------------------------
@@ -164,7 +164,11 @@ return array(
 
         // The Support Facades.
         'App'           => 'Mini\Support\Facades\App',
+        'Config'        => 'Mini\Support\Facades\Config',
+        'Event'         => 'Mini\Support\Facades\Event',
+        'Input'         => 'Mini\Support\Facades\Input',
         'Log'           => 'Mini\Support\Facades\Log',
+        'Request'       => 'Mini\Support\Facades\Request',
         'Response'      => 'Mini\Support\Facades\Response',
         'Route'         => 'Mini\Support\Facades\Route',
     ),
