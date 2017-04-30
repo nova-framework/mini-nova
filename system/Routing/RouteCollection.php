@@ -70,7 +70,11 @@ class RouteCollection
      */
     public function addRoute($method, $uri, $action)
     {
-        $methods = is_array($method) ? $method : array($method);
+        if (is_string($method) && (strtoupper($method) === 'ANY')) {
+            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+        } else {
+            $methods = array_map('strtoupper', (array) $method);
+        }
 
         if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
             array_push($methods, 'HEAD');
@@ -144,6 +148,17 @@ class RouteCollection
         throw new NotFoundHttpException();
     }
 
+    /**
+     * Determine if the route collection contains a given named route.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function hasNamedRoute($name)
+    {
+        return ! is_null($this->getByName($name));
+    }
+    
     /**
      * Find a route by the route's assigned name.
      *

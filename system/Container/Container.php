@@ -2,13 +2,14 @@
 
 namespace Mini\Container;
 
+use Mini\Container\BindingResolutionException;
+
 use ArrayAccess;
 use Closure;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionParameter;
 
-
-class BindingResolutionException extends \Exception {}
 
 class Container implements ArrayAccess
 {
@@ -39,6 +40,13 @@ class Container implements ArrayAccess
      * @var array
      */
     protected $aliases = array();
+
+    /**
+     * All of the registered rebound callbacks.
+     *
+     * @var array
+     */
+    protected $reboundCallbacks = array();
 
 
     /**
@@ -111,7 +119,13 @@ class Container implements ArrayAccess
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
+        $bound = $this->bound($abstract);
+
         $this->bindings[$abstract] = compact('concrete', 'shared');
+
+        if ($bound) {
+            $this->rebound($abstract);
+        }
     }
 
     /**
@@ -176,6 +190,49 @@ class Container implements ArrayAccess
     }
 
     /**
+     * "Extend" an abstract type in the container.
+     *
+     * @param  string    $abstract
+     * @param  \Closure  $closure
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function extend($abstract, Closure $closure)
+    {
+        if (! isset($this->bindings[$abstract])) {
+            throw new InvalidArgumentException("Type {$abstract} is not bound.");
+        }
+
+        if (isset($this->instances[$abstract])) {
+            $this->instances[$abstract] = $closure($this->instances[$abstract], $this);
+
+            $this->rebound($abstract);
+        } else {
+            $extender = $this->getExtender($abstract, $closure);
+
+            $this->bind($abstract, $extender, $this->isShared($abstract));
+        }
+    }
+
+    /**
+     * Get an extender Closure for resolving a type.
+     *
+     * @param  string    $abstract
+     * @param  \Closure  $closure
+     * @return \Closure
+     */
+    protected function getExtender($abstract, Closure $closure)
+    {
+        $resolver = $this->bindings[$abstract]['concrete'];
+
+        return function($container) use ($resolver, $closure)
+        {
+            return $closure($resolver($container), $container);
+        };
+    }
+
+    /**
      * Register an existing instance as a singleton.
      *
      * @param  string  $abstract
@@ -214,6 +271,66 @@ class Container implements ArrayAccess
     protected function extractAlias(array $definition)
     {
         return array(key($definition), current($definition));
+    }
+
+    /**
+     * Bind a new callback to an abstract's rebind event.
+     *
+     * @param  string    $abstract
+     * @param  \Closure  $callback
+     * @return mixed
+     */
+    public function rebinding($abstract, Closure $callback)
+    {
+        $this->reboundCallbacks[$abstract][] = $callback;
+
+        if ($this->bound($abstract)) return $this->make($abstract);
+    }
+
+    /**
+     * Refresh an instance on the given target and method.
+     *
+     * @param  string  $abstract
+     * @param  mixed   $target
+     * @param  string  $method
+     * @return mixed
+     */
+    public function refresh($abstract, $target, $method)
+    {
+        return $this->rebinding($abstract, function($app, $instance) use ($target, $method)
+        {
+            call_user_func(array($target, $method), $instance);
+        });
+    }
+
+    /**
+     * Fire the "rebound" callbacks for the given abstract type.
+     *
+     * @param  string  $abstract
+     * @return void
+     */
+    protected function rebound($abstract)
+    {
+        $instance = $this->make($abstract);
+
+        foreach ($this->getReboundCallbacks($abstract) as $callback) {
+            call_user_func($callback, $this, $instance);
+        }
+    }
+
+    /**
+     * Get the rebound callbacks for a given type.
+     *
+     * @param  string  $abstract
+     * @return array
+     */
+    protected function getReboundCallbacks($abstract)
+    {
+        if (isset($this->reboundCallbacks[$abstract])) {
+            return $this->reboundCallbacks[$abstract];
+        }
+
+        return array();
     }
 
     /**

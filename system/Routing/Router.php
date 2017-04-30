@@ -3,7 +3,8 @@
 namespace Mini\Routing;
 
 use Mini\Container\Container;
-use Mini\Foundation\Pipeline;
+use Mini\Events\DispatcherInterface;
+use Mini\Pipeline\Pipeline;
 use Mini\Http\Request;
 use Mini\Http\Response;
 use Mini\Routing\Route;
@@ -19,6 +20,13 @@ use Closure;
 
 class Router
 {
+    /**
+     * The event dispatcher instance.
+     *
+     * @var \Mini\Events\Dispatcher
+     */
+    protected $events;
+
     /**
      * The IoC container instance.
      *
@@ -78,8 +86,10 @@ class Router
      *
      * @return void
      */
-    public function __construct(Container $container = null)
+    public function __construct(DispatcherInterface $events = null, Container $container = null)
     {
+        $this->events = $events;
+
         $this->container = $container?: new Container();
 
         $this->routes = new RouteCollection($this);
@@ -129,12 +139,6 @@ class Router
      */
     protected function addRoute($method, $uri, $action)
     {
-        if (is_string($method) && (strtoupper($method) === 'ANY')) {
-            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
-        } else {
-            $methods = array_map('strtoupper', (array) $method);
-        }
-
         // When the Action references a Controller, convert it to a Controller Action.
         if ($this->actionReferencesController($action)) {
             $action = $this->convertToControllerAction($action);
@@ -170,9 +174,10 @@ class Router
             $action = array_merge_recursive(array_except($group, array('namespace', 'prefix')), $action);
         }
 
+        // Properly format the URI pattern.
         $uri = '/' .trim($uri, '/');
 
-        $this->routes->addRoute($methods, $uri, $action);
+        $this->routes->addRoute($method, $uri, $action);
     }
 
     /**
@@ -234,6 +239,13 @@ class Router
     {
         $route = $this->findRoute($request);
 
+        $request->setRouteResolver(function() use ($route)
+        {
+            return $route;
+        });
+
+        $this->events->fire('router.matched', array($route, $request));
+
         $response = $this->runRouteWithinStack($route, $request);
 
         return $this->prepareResponse($request, $response);
@@ -271,9 +283,7 @@ class Router
     {
         return array_map(function ($name)
         {
-            $middleware = $this->resolveMiddleware($name);
-
-            return (array) $middleware;
+            return $this->resolveMiddleware($name);
 
         }, $route->middleware());
     }
@@ -286,22 +296,33 @@ class Router
      */
     public function resolveMiddleware($name)
     {
-        $map = $this->middleware;
-
         list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
-        // Adjust the name and the parameters.
-        if (isset($map[$name])) {
-            $name = $map[$name];
+        $middleware = Arr::get($this->middleware, $name, $name);
+
+        if ($middleware instanceof Closure) {
+            return $this->convertToPipeClosure($middleware, $parameters);
         }
 
-        if ($name instanceof Closure) {
-            return array('callback' => $name, 'parameters' => $parameters);
+        if (! is_null($parameters)) {
+            $middleware .= ':' .$parameters;
         }
 
-        $parameters = ! is_null($parameters) ? ':' .$parameters : '';
+        return $middleware;
+    }
 
-        return $name .$parameters;
+    protected function convertToPipeClosure($callable, $parameters)
+    {
+        if (is_string($parameters)) {
+            $parameters = explode(',', $parameters);
+        }
+
+        return function ($passable, $stack) use ($callable, $parameters)
+        {
+            $parameters = array_merge(array($passable, $stack), (array) $parameters);
+
+            return call_user_func_array($callable, $parameters);
+        };
     }
 
     /**
@@ -359,13 +380,13 @@ class Router
     }
 
     /**
-     * Get all of the registered routes.
+     * Return the current Matched Route, if there are any.
      *
-     * @return array
+     * @return null|Route
      */
-    public function routes()
+    public function getCurrentRoute()
     {
-        return $this->routes->getRoutes();
+        return $this->current();
     }
 
     /**
@@ -376,6 +397,29 @@ class Router
     public function current()
     {
         return $this->current;
+    }
+
+    /**
+     * Check if a Route with the given name exists.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->routes->hasNamedRoute($name);
+    }
+
+    /**
+     * Get the current route name.
+     *
+     * @return string|null
+     */
+    public function currentRouteName()
+    {
+        if (! is_null($route = $this->current())) {
+            return $route->getName();
+        }
     }
 
     /**
@@ -431,6 +475,26 @@ class Router
     public function hasGroup()
     {
         return ! is_null($this->group);
+    }
+
+    /**
+     * Get the request currently being dispatched.
+     *
+     * @return \Nova\Http\Request
+     */
+    public function getCurrentRequest()
+    {
+        return $this->currentRequest;
+    }
+
+    /**
+     * Return the available Routes.
+     *
+     * @return \Nova\Routing\RouteCollection
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
     }
 
     /**

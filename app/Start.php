@@ -129,13 +129,13 @@ $app->booted( function() use ($app)
 $router = $app['router'];
 
 //--------------------------------------------------------------------------
-// Load The Application Global Script
+// Load The Global Application Script
 //--------------------------------------------------------------------------
 
 require APPPATH .'Global.php';
 
 //--------------------------------------------------------------------------
-// Load The Application Routes Script
+// Load The Application Routes
 //--------------------------------------------------------------------------
 
 // Load the Routes.

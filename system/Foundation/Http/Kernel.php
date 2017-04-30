@@ -4,7 +4,7 @@ namespace Mini\Foundation\Http;
 
 use Mini\Http\Contracts\KernelInterface;
 use Mini\Foundation\Application;
-use Mini\Foundation\Pipeline;
+use Mini\Pipeline\Pipeline;
 use Mini\Routing\Router;
 use Mini\Support\Facades\Facade;
 
@@ -126,7 +126,7 @@ class Kernel implements KernelInterface
     public function terminate($request, $response)
     {
         $middlewares = array_merge(
-            $this->gatherRouteMiddlewares(),
+            $this->gatherRouteMiddlewares($request),
             $this->middleware
         );
 
@@ -149,9 +149,9 @@ class Kernel implements KernelInterface
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    protected function gatherRouteMiddlewares()
+    protected function gatherRouteMiddlewares($request)
     {
-        if (is_null($route = $this->router->current())) {
+        if (is_null($route = $request->route())) {
             return array();
         }
 

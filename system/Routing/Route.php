@@ -201,16 +201,6 @@ class Route
     }
 
     /**
-     * Get the action array for the route.
-     *
-     * @return array
-     */
-    public function action()
-    {
-        return $this->action;
-    }
-
-    /**
      * Get a given parameter from the route.
      *
      * @param  string  $name
@@ -246,6 +236,56 @@ class Route
     public function regex()
     {
         return $this->regex;
+    }
+
+    /**
+     * Get the URI associated with the route.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->uri();
+    }
+
+    /**
+     * Get the uri of the route instance.
+     *
+     * @return string|null
+     */
+    public function getUri()
+    {
+        return $this->uri();
+    }
+
+    /**
+     * Get the name of the route instance.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return Arr::get($this->action, 'as');
+    }
+
+    /**
+     * Get the action name for the route.
+     *
+     * @return string
+     */
+    public function getActionName()
+    {
+        return Arr::get($this->action, 'controller', 'Closure');
+    }
+
+    /**
+     * Return the Action array.
+     *
+     * @return array
+     */
+    public function getAction()
+    {
+        return $this->action;
     }
 
     /**

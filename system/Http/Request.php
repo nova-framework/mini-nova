@@ -28,6 +28,13 @@ class Request extends SymfonyRequest implements ArrayAccess
      */
     protected $convertedFiles;
 
+    /**
+     * The route resolver callback.
+     *
+     * @var \Closure
+     */
+    protected $routeResolver;
+
 
     /**
      * Create a new Illuminate HTTP request from server variables.
@@ -571,6 +578,50 @@ class Request extends SymfonyRequest implements ArrayAccess
         if (Str::startsWith($header, 'Bearer ')) {
             return Str::substr($header, 7);
         }
+    }
+    
+    /**
+     * Get the route handling the request.
+     *
+     * @param string|null $param
+     *
+     * @return \Nova\Routing\Route|object|string
+     */
+    public function route($param = null)
+    {
+        $route = call_user_func($this->getRouteResolver());
+
+        if (is_null($route) || is_null($param)) {
+            return $route;
+        } else {
+            return $route->parameter($param);
+        }
+    }
+
+    /**
+     * Get the route resolver callback.
+     *
+     * @return \Closure
+     */
+    public function getRouteResolver()
+    {
+        return $this->routeResolver ?: function()
+        {
+            //
+        };
+    }
+
+    /**
+     * Set the route resolver callback.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function setRouteResolver(Closure $callback)
+    {
+        $this->routeResolver = $callback;
+
+        return $this;
     }
 
     /**
