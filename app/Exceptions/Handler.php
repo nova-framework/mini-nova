@@ -51,7 +51,9 @@ class Handler extends ExceptionHandler
                     ->shares('title', "Error {$status}")
                     ->with('exception', $e);
 
-                $content = View::fetch('Layouts/Default', array('content' => $view->render()));
+                $content = View::fetch('Layouts/Default', array(
+                    'content' => $view->render()
+                ));
 
                 return new Response($content, $status, $e->getHeaders());
             }
