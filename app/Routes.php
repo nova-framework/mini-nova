@@ -13,7 +13,7 @@ $router->pattern('slug', '.*');
 $router->any('/', function()
 {
     $view = View::make('Default')
-        ->shares('title', 'Mini-me!')
+        ->shares('title', 'Welcome')
         ->with('content', 'Yep! It works.');
 
     return View::make('Layouts/Default')->with('content', $view);
