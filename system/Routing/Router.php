@@ -304,26 +304,24 @@ class Router
         list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
         //
-        $callback = Arr::get($this->middleware, $name, $name);
+        $callable = Arr::get($this->middleware, $name, $name);
 
-        if (is_string($callback)) {
-            if (! is_null($parameters)) {
-                $callback .= ':' .$parameters;
-            }
+        if (is_string($callable)) {
+            $parameters = ! empty($parameters) ? ':' .$parameters : '';
 
-            return $callback;
+            return $callable .$parameters;
         }
-        
+
         // A closure with no parameters do not need addditional processing.
-        else if (is_null($parameters)) {
-            return $callback;
+        else if (empty($parameters)) {
+            return $callable;
         }
 
-        return function ($passable, $stack) use ($callback, $parameters)
+        return function ($passable, $stack) use ($callable, $parameters)
         {
             $parameters = array_merge(array($passable, $stack), explode(',', $parameters));
 
-            return call_user_func_array($callback, $parameters);
+            return call_user_func_array($callable, $parameters);
         };
     }
 
