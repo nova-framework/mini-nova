@@ -2,8 +2,8 @@
 
 namespace App\Exceptions;
 
-use Mini\Http\Response;
 use Mini\Foundation\Exceptions\Handler as ExceptionHandler;
+use Mini\Support\Facades\Response;
 use Mini\View\View;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -51,7 +51,7 @@ class Handler extends ExceptionHandler
                 ->nest('content', "Errors/{$status}", array('exception' => $e))
                 ->render();
 
-            return new Response($content, $status, $e->getHeaders());
+            return Response::make($content, $status, $e->getHeaders());
         }
 
         return parent::render($request, $e);
