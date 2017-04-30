@@ -146,6 +146,19 @@ class View implements RenderableInterface
     }
 
     /**
+     * Add a view instance to the view data.
+     *
+     * @param  string  $key
+     * @param  string  $view
+     * @param  array   $data
+     * @return View
+     */
+    public function nest($key, $view, array $data = array())
+    {
+        return $this->with($key, static::make($view, $data));
+    }
+
+    /**
      * Add a key / value pair to the shared view data.
      *
      * @param  string  $key

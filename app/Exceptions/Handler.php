@@ -43,20 +43,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        if ($e instanceof HttpException) {
-            $status = $e->getStatusCode();
+        $status = $e->getStatusCode();
 
-            if (View::exists("Errors/{$status}")) {
-                $view = View::make("Errors/{$status}")
-                    ->shares('title', "Error {$status}")
-                    ->with('exception', $e);
+        if (($e instanceof HttpException) && View::exists("Errors/{$status}")) {
+            $content = View::make('Layouts/Default')
+                ->shares('title', "Error {$status}")
+                ->nest('content', "Errors/{$status}", array('exception' => $e))
+                ->render();
 
-                $content = View::fetch('Layouts/Default', array(
-                    'content' => $view->render()
-                ));
-
-                return new Response($content, $status, $e->getHeaders());
-            }
+            return new Response($content, $status, $e->getHeaders());
         }
 
         return parent::render($request, $e);
