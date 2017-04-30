@@ -97,13 +97,18 @@ class Pipeline implements PipelineInterface
      */
     public function then(Closure $destination)
     {
-        $firstSlice = $this->getInitialSlice($destination);
-
         $pipes = array_reverse($this->pipes);
 
-        return call_user_func(
-            array_reduce($pipes, $this->getSlice(), $firstSlice), $this->passable
-        );
+        //
+        $initialSlice = $this->getInitialSlice($destination);
+
+        $slice = array_reduce($pipes, function ($stack, $pipe)
+        {
+            return $this->getSlice($stack, $pipe);
+
+        }, $initialSlice);
+
+        return call_user_func($slice, $this->passable);
     }
 
     /**
@@ -111,24 +116,22 @@ class Pipeline implements PipelineInterface
      *
      * @return \Closure
      */
-    protected function getSlice()
+    protected function getSlice($stack, $pipe)
     {
-        return function ($stack, $pipe)
+        return function ($passable) use ($stack, $pipe)
         {
-            return function ($passable) use ($stack, $pipe)
-            {
-                if ($pipe instanceof Closure) {
-                    return call_user_func($pipe, $passable, $stack);
-                }
+            if ($pipe instanceof Closure) {
+                return call_user_func($pipe, $passable, $stack);
+            }
 
-                list($name, $parameters) = $this->parsePipeString($pipe);
+            list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, array());
 
-                $parameters = array_merge(array($passable, $stack), $parameters);
+            if (is_string($parameters)) {
+                $parameters = explode(',', $parameters);
+            }
 
-                return call_user_func_array(
-                    array($this->container->make($name), $this->method), $parameters
-                );
-            };
+            return call_user_func_array(array($this->container->make($name), $this->method),
+                                        array_merge(array($passable, $stack), $parameters));
         };
     }
 
@@ -146,20 +149,4 @@ class Pipeline implements PipelineInterface
         };
     }
 
-    /**
-     * Parse full pipe string to get name and parameters.
-     *
-     * @param  string $pipe
-     * @return array
-     */
-    protected function parsePipeString($pipe)
-    {
-        list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, array());
-
-        if (is_string($parameters)) {
-            $parameters = explode(',', $parameters);
-        }
-
-        return array($name, $parameters);
-    }
 }

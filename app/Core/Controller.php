@@ -45,7 +45,7 @@ class Controller extends BaseController
      */
     protected function after($response)
     {
-        if (! $response instanceof RenderableInterface) {
+        if ($response instanceof RenderableInterface) {
             if (! empty($this->layout)) {
                 $view = 'Layouts/' .$this->layout;
 

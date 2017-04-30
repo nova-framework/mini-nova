@@ -51,9 +51,12 @@ class ControllerDispatcher
      */
     public function dispatch(Route $route, Request $request, $controller, $method)
     {
+        $parameters = $route->parameters();
+
+        // Create a Controller instance using the IoC container.
         $instance = $this->container->make($controller);
 
-        return $this->callWithinStack($instance, $route, $request, $method);
+        return $this->callWithinStack($instance, $request, $method, $parameters);
     }
 
     /**
@@ -65,10 +68,8 @@ class ControllerDispatcher
      * @param  string  $method
      * @return mixed
      */
-    protected function callWithinStack($instance, $route, $request, $method)
+    protected function callWithinStack($instance, $request, $method, $parameters)
     {
-        $parameters = $route->parameters();
-
         $middleware = $this->getMiddleware($instance, $method);
 
         //
