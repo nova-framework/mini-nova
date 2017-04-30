@@ -13,8 +13,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = array(
-        //'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
         'App\Middleware\HandleStatistics',
+        //'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
     );
 
     /**
