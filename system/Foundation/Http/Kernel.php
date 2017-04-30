@@ -101,7 +101,6 @@ class Kernel implements KernelInterface
      */
     protected function sendRequestThroughRouter($request)
     {
-        // Refresh the Request and boot the Application.
         $this->app->instance('request', $request);
 
         Facade::clearResolvedInstance('request');
@@ -111,9 +110,12 @@ class Kernel implements KernelInterface
         //
         $pipeline = new Pipeline($this->app);
 
-        return $pipeline->send($request)
-            ->through($this->middleware)
-            ->then($this->dispatchToRouter());
+        return $pipeline->send($request)->through($this->middleware)->then(function ($request)
+        {
+            $this->app->instance('request', $request);
+
+            return $this->router->dispatch($request);
+        });
     }
 
     /**
@@ -131,7 +133,9 @@ class Kernel implements KernelInterface
         );
 
         foreach ($middlewares as $middleware) {
-            if ($middleware instanceof Closure) continue;
+            if (! is_string($middleware)) {
+                continue;
+            }
 
             list($name, $parameters) = $this->parseMiddleware($middleware);
 
@@ -151,16 +155,11 @@ class Kernel implements KernelInterface
      */
     protected function gatherRouteMiddlewares($request)
     {
-        if (is_null($route = $request->route())) {
-            return array();
+        if (! is_null($route = $request->route())) {
+            return $this->router->gatherRouteMiddlewares($route);
         }
 
-        $middlewares = $this->router->gatherRouteMiddlewares($route);
-
-        return array_filter($middlewares, function ($middleware)
-        {
-            return is_string($middleware);
-        });
+        return array();
     }
 
     /**
@@ -188,21 +187,6 @@ class Kernel implements KernelInterface
     public function bootstrap()
     {
         $this->app->boot();
-    }
-
-    /**
-     * Get the route dispatcher callback.
-     *
-     * @return \Closure
-     */
-    protected function dispatchToRouter()
-    {
-        return function ($request)
-        {
-            $this->app->instance('request', $request);
-
-            return $this->router->dispatch($request);
-        };
     }
 
     /**

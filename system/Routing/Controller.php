@@ -4,7 +4,6 @@ namespace Mini\Routing;
 
 use Mini\Http\Response;
 
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use BadMethodCallException;
@@ -13,36 +12,33 @@ use BadMethodCallException;
 abstract class Controller
 {
     /**
-     * The currently called Method.
+     * The middleware registered on the controller.
      *
-     * @var mixed
+     * @var array
      */
-    private $method;
+    protected $middleware = array();
 
 
     /**
-     * Method executed before any action.
+     * Register middleware on the controller.
      *
+     * @param  string  $middleware
+     * @param  array   $options
      * @return void
      */
-    protected function before() {
-        //
+    public function middleware($middleware, array $options = array())
+    {
+        $this->middleware[$middleware] = $options;
     }
 
     /**
-     * Method executed after any action.
+     * Get the middleware assigned to the controller.
      *
-     * @param mixed $response
-     *
-     * @return mixed
+     * @return array
      */
-    protected function after($response)
+    public function getMiddleware()
     {
-        if (! $response instanceof SymfonyResponse) {
-            $response = new Response($response);
-        }
-
-        return $response;
+        return $this->middleware;
     }
 
     /**
@@ -54,18 +50,7 @@ abstract class Controller
      */
     public function callAction($method, array $parameters = array())
     {
-        $this->method = $method;
-
-        // Execute the Before method.
-        $response = $this->before();
-
-        // If no response is given by the Before stage, execute the requested action.
-        if (is_null($response)) {
-            $response = call_user_func_array(array($this, $method), $parameters);
-        }
-
-        // Execute the After method and return the result.
-        return $this->after($response);
+        return call_user_func_array(array($this, $method), $parameters);
     }
 
     /**
@@ -79,16 +64,6 @@ abstract class Controller
     public function missingMethod($parameters = array())
     {
         throw new NotFoundHttpException("Controller method not found.");
-    }
-
-    /**
-     * Returns the currently called Method.
-     *
-     * @return string|null
-     */
-    public function getMethod()
-    {
-        return $this->method;
     }
 
     /**

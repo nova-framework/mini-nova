@@ -2,6 +2,7 @@
 
 namespace Mini\Routing;
 
+use Mini\Routing\ControllerDispatcher;
 use Mini\Routing\Router;
 use Mini\Support\ServiceProvider;
 
@@ -17,6 +18,8 @@ class RoutingServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerRouter();
+
+        $this->registerCustomDispatcher();
     }
 
     /**
@@ -32,4 +35,17 @@ class RoutingServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Register the URL generator service.
+     *
+     * @return void
+     */
+    protected function registerCustomDispatcher()
+    {
+        $this->app->singleton('framework.route.dispatcher', function ($app)
+        {
+            return new ControllerDispatcher($app['router'], $app);
+        });
+    }
+    
 }

@@ -90,7 +90,7 @@ class Router
     {
         $this->events = $events;
 
-        $this->container = $container?: new Container();
+        $this->container = $container ?: new Container();
 
         $this->routes = new RouteCollection($this);
     }
@@ -298,31 +298,26 @@ class Router
     {
         list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
-        $middleware = Arr::get($this->middleware, $name, $name);
+        $callable = Arr::get($this->middleware, $name, $name);
 
-        if ($middleware instanceof Closure) {
-            return $this->convertToPipeClosure($middleware, $parameters);
+        if ($callable instanceof Closure) {
+            if (is_string($parameters)) {
+                $parameters = explode(',', $parameters);
+            }
+
+            return function ($passable, $stack) use ($callable, $parameters)
+            {
+                $parameters = array_merge(array($passable, $stack), (array) $parameters);
+
+                return call_user_func_array($callable, $parameters);
+            };
         }
 
         if (! is_null($parameters)) {
-            $middleware .= ':' .$parameters;
+            $callable .= ':' .$parameters;
         }
 
-        return $middleware;
-    }
-
-    protected function convertToPipeClosure($callable, $parameters)
-    {
-        if (is_string($parameters)) {
-            $parameters = explode(',', $parameters);
-        }
-
-        return function ($passable, $stack) use ($callable, $parameters)
-        {
-            $parameters = array_merge(array($passable, $stack), (array) $parameters);
-
-            return call_user_func_array($callable, $parameters);
-        };
+        return $callable;
     }
 
     /**

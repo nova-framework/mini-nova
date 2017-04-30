@@ -91,6 +91,10 @@ class Route
                 return $this->runCallable($request);
             }
 
+            if ($this->customDispatcherIsBound()) {
+                return $this->runWithCustomDispatcher($request);
+            }
+
             return $this->runController($request);
         }
         catch (HttpResponseException $e) {
@@ -134,6 +138,31 @@ class Route
         }
 
         return $instance->callAction($method, $parameters);
+    }
+
+    /**
+     * Determine if a custom route dispatcher is bound in the container.
+     *
+     * @return bool
+     */
+    protected function customDispatcherIsBound()
+    {
+        return $this->container->bound('framework.route.dispatcher');
+    }
+
+    /**
+     * Send the request and route to a custom dispatcher for handling.
+     *
+     * @param  \Nova\Http\Request  $request
+     * @return mixed
+     */
+    protected function runWithCustomDispatcher(Request $request)
+    {
+        list($controller, $method) = explode('@', $this->action['uses']);
+
+        $dispatcher = $this->container->make('framework.route.dispatcher');
+
+        return $dispatcher->dispatch($this, $request, $controller, $method);
     }
 
     /**
