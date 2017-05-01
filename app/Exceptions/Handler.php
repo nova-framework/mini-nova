@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use Mini\Foundation\Exceptions\Handler as ExceptionHandler;
 use Mini\Support\Facades\Response;
-use Mini\View\View;
+use Mini\Support\Facades\View;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

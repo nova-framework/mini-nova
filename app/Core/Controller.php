@@ -5,7 +5,7 @@ namespace App\Core;
 use Mini\Http\Response;
 use Mini\Routing\Controller as BaseController;
 use Mini\Support\Contracts\RenderableInterface;
-use Mini\View\View;
+use Mini\Support\Facades\View;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 

@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 
-use Mini\View\View;
+use Mini\Support\Facades\View;
 
 use Closure;
 

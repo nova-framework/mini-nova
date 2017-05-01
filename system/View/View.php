@@ -2,15 +2,30 @@
 
 namespace Mini\View;
 
+use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\RenderableInterface;
+use Mini\View\Factory;
 
+use ArrayAccess;
 use BadMethodCallException;
 use Closure;
 use Exception;
 
 
-class View implements RenderableInterface
+class View implements ArrayAccess, RenderableInterface
 {
+    /**
+     * The View Factory instance.
+     *
+     * @var \Nova\View\Factory
+     */
+    protected $factory;
+
+    /**
+     * @var string The given View name.
+     */
+    protected $view = null;
+
     /**
      * @var string The path to the View file on disk.
      */
@@ -33,57 +48,14 @@ class View implements RenderableInterface
      * @param mixed $path
      * @param array $data
      */
-    protected function __construct($path, $data = array())
+    public function __construct(Factory $factory, $view, $path, $data = array())
     {
+        $this->factory = $factory;
+
+        $this->view = $view;
         $this->path = $path;
 
-        $this->data = (array) $data;
-    }
-
-    /**
-     * Get a View instance.
-     *
-     * @param mixed $view
-     * @param array $data
-     *
-     * @return \Core\View
-     *
-     * @throws \BadMethodCallException
-     */
-    public static function make($view, $data = array())
-    {
-        $path = static::getViewPath($view);
-
-        if (! is_readable($path)) {
-            throw new BadMethodCallException("File path [$path] does not exist");
-        }
-
-        return new static($path, $data);
-    }
-
-    public static function exists($view)
-    {
-        $path = static::getViewPath($view);
-
-        return is_readable($path);
-    }
-
-    protected static function getViewPath($view)
-    {
-        return APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
-    }
-
-    /**
-     * Get the rendered string contents of a View.
-     *
-     * @param mixed $view
-     * @param array $data
-     *
-     * @return string
-     */
-    public static function fetch($view, $data = array(), Closure $callback = null)
-    {
-        return static::make($view, $data)->render($callback);
+        $this->data = ($data instanceof ArrayableInterface) ? $data->toArray() : (array) $data;
     }
 
     /**
@@ -160,7 +132,7 @@ class View implements RenderableInterface
      */
     public function nest($key, $view, $data = array())
     {
-        return $this->with($key, static::make($view, $data));
+        return $this->with($key, $this->factory->make($view, $data));
     }
 
     /**
@@ -215,6 +187,62 @@ class View implements RenderableInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Implementation of the ArrayAccess offsetExists method.
+     */
+    public function offsetExists($offset)
+    {
+        return array_key_exists($offset, $this->data);
+    }
+
+    /**
+     * Implementation of the ArrayAccess offsetGet method.
+     */
+    public function offsetGet($offset)
+    {
+        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+    }
+
+    /**
+      * Implementation of the ArrayAccess offsetSet method.
+      */
+    public function offsetSet($offset, $value)
+    {
+        $this->data[$offset] = $value;
+    }
+
+    /**
+     * Implementation of the ArrayAccess offsetUnset method.
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
+    }
+
+    /**
+     * Magic Method for handling dynamic data access.
+     */
+    public function __get($key)
+    {
+        return isset($this->data[$key]) ? $this->data[$key] : null;
+    }
+
+    /**
+     * Magic Method for handling the dynamic setting of data.
+     */
+    public function __set($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * Magic Method for checking dynamically set data.
+     */
+    public function __isset($key)
+    {
+        return isset($this->data[$key]);
     }
 
     /**

@@ -1,7 +1,5 @@
 <?php
 
-use Mini\View\View;
-
 //
 // General patterns for the route parameters.
 
