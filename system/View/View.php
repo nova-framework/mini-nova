@@ -190,6 +190,47 @@ class View implements ArrayAccess, RenderableInterface
     }
 
     /**
+     * Get the name of the view.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->view;
+    }
+
+    /**
+     * Get the array of view data.
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * Get the path to the view file.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set the path to the view.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+    
+    /**
      * Implementation of the ArrayAccess offsetExists method.
      */
     public function offsetExists($offset)
