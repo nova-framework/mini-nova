@@ -3,8 +3,6 @@
 namespace Mini\Mail;
 
 use Mini\Mail\Transport\LogTransport;
-use Mini\Mail\Transport\MailgunTransport;
-use Mini\Mail\Transport\MandrillTransport;
 use Mini\Support\ServiceProvider;
 
 use Swift_Mailer;
