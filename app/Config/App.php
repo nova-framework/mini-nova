@@ -166,6 +166,7 @@ return array(
 
         // The Support Facades.
         'App'           => 'Mini\Support\Facades\App',
+        'Cookie'        => 'Mini\Support\Facades\Cookie',
         'Config'        => 'Mini\Support\Facades\Config',
         'Event'         => 'Mini\Support\Facades\Event',
         'Input'         => 'Mini\Support\Facades\Input',
