@@ -3,7 +3,6 @@
  * EncryptionServiceProvider - Implements a Service Provider for Encryption.
  *
  * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
  */
 
 namespace Mini\Encryption;

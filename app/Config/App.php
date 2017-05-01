@@ -132,6 +132,7 @@ return array(
         'Mini\View\ViewServiceProvider',
         'Mini\Encryption\EncryptionServiceProvider',
         'Mini\Hashing\HashServiceProvider',
+        'Mini\Mail\MailServiceProvider',
 
 
         // The Application Providers.
@@ -175,6 +176,7 @@ return array(
         'Hash'          => 'Mini\Support\Facades\Hash',
         'Input'         => 'Mini\Support\Facades\Input',
         'Log'           => 'Mini\Support\Facades\Log',
+        'Mail'          => 'Mini\Support\Facades\Mail',
         'Request'       => 'Mini\Support\Facades\Request',
         'Response'      => 'Mini\Support\Facades\Response',
         'Route'         => 'Mini\Support\Facades\Route',
