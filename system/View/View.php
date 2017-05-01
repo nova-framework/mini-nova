@@ -52,7 +52,7 @@ class View implements RenderableInterface
      */
     public static function make($view, $data = array())
     {
-        $path = APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
+        $path = static::getViewPath($view);
 
         if (! is_readable($path)) {
             throw new BadMethodCallException("File path [$path] does not exist");
@@ -63,9 +63,14 @@ class View implements RenderableInterface
 
     public static function exists($view)
     {
-        $path = APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
+        $path = static::getViewPath($view);
 
         return is_readable($path);
+    }
+
+    protected static function getViewPath($view)
+    {
+        return APPPATH .str_replace('/', DS, 'Views/' .$view .'.php');
     }
 
     /**
@@ -78,7 +83,7 @@ class View implements RenderableInterface
      */
     public static function fetch($view, $data = array(), Closure $callback = null)
     {
-        return View::make($view, $data)->render($callback);
+        return static::make($view, $data)->render($callback);
     }
 
     /**
@@ -153,7 +158,7 @@ class View implements RenderableInterface
      * @param  array   $data
      * @return View
      */
-    public function nest($key, $view, array $data = array())
+    public function nest($key, $view, $data = array())
     {
         return $this->with($key, static::make($view, $data));
     }
@@ -168,11 +173,13 @@ class View implements RenderableInterface
     public static function share($key, $value)
     {
         if (! is_array($key)) {
-            return static::$shared[$key] = $value;
+            static::$shared[$key] = $value;
+
+            return;
         }
 
         foreach ($key as $innerKey => $innerValue) {
-            static::shares($innerKey, $innerValue);
+            static::share($innerKey, $innerValue);
         }
     }
 
@@ -243,7 +250,7 @@ class View implements RenderableInterface
             return $this->with($name, array_shift($params));
         }
 
-        throw new \BadMethodCallException("Method [$method] does not exist on " .get_class($this));
+        throw new BadMethodCallException("Method [$method] does not exist.");
     }
 }
 
