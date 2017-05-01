@@ -4,6 +4,7 @@ namespace Mini\Events;
 
 use Mini\Container\Container;
 use Mini\Events\DispatcherInterface;
+use Mini\Support\Str;
 
 
 class Dispatcher implements DispatcherInterface
@@ -51,7 +52,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function __construct(Container $container = null)
     {
-        $this->container = $container ?: new Container;
+        $this->container = $container ?: new Container();
     }
 
     /**
@@ -65,7 +66,7 @@ class Dispatcher implements DispatcherInterface
     public function listen($events, $listener, $priority = 0)
     {
         foreach ((array) $events as $event) {
-            if (str_contains($event, '*')) {
+            if (Str::contains($event, '*')) {
                 $this->setupWildcardListen($event, $listener);
             } else {
                 $this->listeners[$event][$priority][] = $this->makeListener($listener);
@@ -107,7 +108,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function queue($event, $payload = array())
     {
-        $this->listen($event.'_queue', function() use ($event, $payload)
+        $this->listen($event .'_queue', function() use ($event, $payload)
         {
             $this->fire($event, $payload);
         });
@@ -161,7 +162,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function flush($event)
     {
-        $this->fire($event.'_queue');
+        $this->fire($event .'_queue');
     }
 
     /**
@@ -186,17 +187,9 @@ class Dispatcher implements DispatcherInterface
     {
         $responses = array();
 
-        // When the given "event" is actually an object we will assume it is an event
-        // object and use the class as the event name and this event itself as the
-        // payload to the handler, which makes object based events quite simple.
         if (is_object($event)) {
             list($payload, $event) = array(array($event), get_class($event));
-        }
-
-        // If an array is not given to us as the payload, we will turn it into one so
-        // we can easily use call_user_func_array on the listeners, passing in the
-        // payload to each of them so that they receive each of these arguments.
-        else if (! is_array($payload)) {
+        } else if (! is_array($payload)) {
             $payload = array($payload);
         }
 
@@ -205,18 +198,12 @@ class Dispatcher implements DispatcherInterface
         foreach ($this->getListeners($event) as $listener) {
             $response = call_user_func_array($listener, $payload);
 
-            // If a response is returned from the listener and event halting is enabled
-            // we will just return this response, and not call the rest of the event
-            // listeners. Otherwise we will add the response on the response list.
             if (! is_null($response) && $halt) {
                 array_pop($this->firing);
 
                 return $response;
             }
 
-            // If a boolean false is returned from a listener, we will stop propagating
-            // the event to any further listeners down in the chain, else we keep on
-            // looping through the listeners and firing every one in our sequence.
             if ($response === false) {
                 break;
             }
@@ -257,7 +244,7 @@ class Dispatcher implements DispatcherInterface
         $wildcards = array();
 
         foreach ($this->wildcards as $key => $listeners) {
-            if (str_is($key, $eventName)) $wildcards = array_merge($wildcards, $listeners);
+            if (Str::is($key, $eventName)) $wildcards = array_merge($wildcards, $listeners);
         }
 
         return $wildcards;
@@ -273,9 +260,6 @@ class Dispatcher implements DispatcherInterface
     {
         $this->sorted[$eventName] = array();
 
-        // If listeners exist for the given event, we will sort them by the priority
-        // so that we can call them in the correct order. We will cache off these
-        // sorted event listeners so we do not have to re-sort on every events.
         if (isset($this->listeners[$eventName])) {
             krsort($this->listeners[$eventName]);
 
@@ -306,15 +290,10 @@ class Dispatcher implements DispatcherInterface
      */
     public function createClassListener($listener)
     {
-        $container = $this->container;
-
-        return function() use ($listener, $container)
+        return function() use ($listener)
         {
-            $callable = $this->createClassCallable($listener, $container);
+            $callable = $this->createClassCallable($listener);
 
-            // We will make a callable of the listener instance and a method that should
-            // be called on that instance, then we will pass in the arguments that we
-            // received in this method into this listener class instance's methods.
             $data = func_get_args();
 
             return call_user_func_array($callable, $data);
@@ -328,12 +307,12 @@ class Dispatcher implements DispatcherInterface
      * @param  \Illuminate\Container\Container  $container
      * @return callable
      */
-    protected function createClassCallable($listener, $container)
+    protected function createClassCallable($listener)
     {
-        list($class, $method) = $this->parseClassCallable($listener);
+        list($className, $method) = $this->parseClassCallable($listener);
 
         // Create a specified class instance.
-        $instance = $container->make($class);
+        $instance = $this->container->make($className);
 
         return array($instance, $method);
     }
@@ -346,14 +325,7 @@ class Dispatcher implements DispatcherInterface
      */
     protected function parseClassCallable($listener)
     {
-        // If the listener has an @ sign, we will assume it is being used to delimit
-        // the class name from the handle method name. This allows for handlers
-        // to run multiple handler methods in a single class for convenience.
-        $segments = explode('@', $listener);
-
-        $method = (count($segments) == 2) ? $segments[1] : 'handle';
-
-        return [$segments[0], $method];
+        return array_pad(explode('@', $listener, 2), 2, 'handle');
     }
 
     /**
@@ -375,7 +347,9 @@ class Dispatcher implements DispatcherInterface
     public function forgetQueued()
     {
         foreach ($this->listeners as $key => $value) {
-            if (ends_with($key, '_queue')) $this->forget($key);
+            if (Str::endsWith($key, '_queue')) {
+                $this->forget($key);
+            }
         }
     }
 
