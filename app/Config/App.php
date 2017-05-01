@@ -3,7 +3,6 @@
  * Application Configuration.
  *
  * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 4.0
  */
 
 
@@ -129,7 +128,9 @@ return array(
         // The Framework Providers.
         'Mini\Routing\RoutingServiceProvider',
         'Mini\Log\LogServiceProvider',
+        'Mini\Cookie\CookieServiceProvider',
         'Mini\View\ViewServiceProvider',
+
 
         // The Application Providers.
     ),

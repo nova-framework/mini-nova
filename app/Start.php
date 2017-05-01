@@ -14,7 +14,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Closure;
 
 
+//--------------------------------------------------------------------------
+// Global Constants
+//--------------------------------------------------------------------------
+
 define('MINIME_START', microtime(true));
+
+/**
+ * PREFER to be used in Database calls or storing Session data, default is 'mini_'
+ */
+define('PREFIX', 'mini_');
 
 //--------------------------------------------------------------------------
 // Set PHP Error Reporting Options

@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = array(
         'App\Middleware\HandleStatistics',
-        //'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
+        'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
     );
 
     /**
