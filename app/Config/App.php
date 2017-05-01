@@ -130,6 +130,8 @@ return array(
         'Mini\Log\LogServiceProvider',
         'Mini\Cookie\CookieServiceProvider',
         'Mini\View\ViewServiceProvider',
+        'Mini\Encryption\EncryptionServiceProvider',
+        'Mini\Hashing\HashServiceProvider',
 
 
         // The Application Providers.
@@ -168,7 +170,9 @@ return array(
         'App'           => 'Mini\Support\Facades\App',
         'Cookie'        => 'Mini\Support\Facades\Cookie',
         'Config'        => 'Mini\Support\Facades\Config',
+        'Crypt'         => 'Mini\Support\Facades\Crypt',
         'Event'         => 'Mini\Support\Facades\Event',
+        'Hash'          => 'Mini\Support\Facades\Hash',
         'Input'         => 'Mini\Support\Facades\Input',
         'Log'           => 'Mini\Support\Facades\Log',
         'Request'       => 'Mini\Support\Facades\Request',
