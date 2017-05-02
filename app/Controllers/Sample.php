@@ -70,21 +70,25 @@ class Sample extends Controller
                 $methods = array($method);
 
                 if (array_key_exists($hash, $results)) {
-                    $methods = array_merge(Arr::get($results[$hash], 'methods', array()), $methods);
+                    $result = $results[$hash];
+
+                    $methods = array_merge(Arr::get($result, 'methods', array()), $methods);
                 }
 
                 $options['methods'] = $methods;
 
                 //
-                $wheres = Arr::get($action, 'where', array());
-
-                $patterns = array_merge(Route::patterns(), $wheres);
+                $patterns = array_merge(Route::patterns(), Arr::get($options, 'where', array()));
 
                 if (preg_match('/\{([\w\?]+?)\}/', $route) === 1) {
                     $options['regex'] = RouteCompiler::compile($route, $patterns);
                 } else {
                     $options['regex'] = RouteCompiler::computeRegexp($route);
                 }
+
+                $options['where'] = $patterns;
+
+                ksort($options);
 
                 $results[$hash] = $options;
             }
