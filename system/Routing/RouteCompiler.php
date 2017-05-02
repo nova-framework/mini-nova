@@ -16,13 +16,7 @@ class RouteCompiler
      * The default regex pattern used for the named parameters.
      *
      */
-    const REGEX_PATTERN = '[^/]+';
-
-    /**
-     * The maximum supported length of a PCRE subpattern name
-     * http://pcre.org/current/doc/html/pcre2pattern.html#SEC16.
-     */
-    const VARIABLE_MAXIMUM_LENGTH = 32;
+    const DEFAULT_PATTERN = '[^/]+';
 
 
     /**
@@ -42,88 +36,68 @@ class RouteCompiler
     /**
      * Compile an URI pattern to a valid regexp.
      *
-     * @param  string   $pattern
+     * @param  string   $uri
      * @param  array    $patterns
      * @return string
      *
      * @throw \LogicException
      */
-    protected static function compilePattern($pattern, $patterns)
+    protected static function compilePattern($uri, $patterns)
     {
-        $optionals = 0;
+        $optionals = array();
 
-        // Replace the named parameters with their associated patterns.
-        $variables = array();
+        //
+        $parameters = array();
 
-        $regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($pattern, $patterns, &$optionals, &$variables)
+        $regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $patterns, &$optionals, &$parameters)
         {
-            @list(, $varName, $optional) = $matches;
+            $prefix = '';
 
-            // A PCRE subpattern name must start with a non-digit. Also a PHP variable cannot start
-            // with a digit so the variable would not be usable as a Controller action argument.
+            @list(, $parameter, $optional) = $matches;
 
-            //if (preg_match('/^\d/', $varName) === 1) {
-            if (ctype_digit(substr($varName, 0, 1))) {
-                $message = sprintf('Variable name [%s] cannot start with a digit in route pattern [%s].', $varName, $pattern);
-
-                throw new DomainException($message);
-            }
-
-            if (in_array($varName, $variables)) {
-                $message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $pattern, $varName);
+            if (in_array($parameter, $parameters)) {
+                $message = sprintf('Route pattern [%s] cannot reference parameter name [%s] more than once.', $uri, $parameter);
 
                 throw new LogicException($message);
             }
 
-            if (strlen($varName) > self::VARIABLE_MAXIMUM_LENGTH) {
-                $message = sprintf('Variable name [%s] cannot be longer than %d characters in route pattern [%s].',
-                    $varName,
-                    self::VARIABLE_MAXIMUM_LENGTH,
-                    $pattern
-                );
-
-                throw new DomainException($message);
-            }
-
-            // Add the variable name to already used variables list.
-            array_push($variables, $varName);
-
-            // Process for the optional parameters.
-            $prefix = '';
-
+            // Handle the optional parameters.
             if ($optional === '?') {
                 $prefix = '(?:';
 
-                $optionals++;
+                array_push($optionals, $parameter);
             } else if ($optionals > 0) {
-                $message = sprintf('Route pattern [%s] cannot reference standard parameter [%s] after optional parameters.', $pattern, $varName);
+                $message = sprintf('Route pattern [%s] cannot reference standard parameter [%s] after optionals.', $uri, $parameter);
 
                 throw new LogicException($message);
             }
 
-            // Get the regex pattern associated with the variable name.
-            $regexp = Arr::get($patterns, $varName, self::REGEX_PATTERN);
+            $pattern = Arr::get($patterns, $parameter, self::DEFAULT_PATTERN);
 
-            return sprintf('%s/(?P<%s>%s)', $prefix, $varName, $regexp);
+            //
+            array_push($parameters, $parameter);
 
-        }, $pattern);
+            return sprintf('%s/(?P<%s>%s)', $prefix, $parameter, $pattern);
 
-        // When the optional parameters are present, adjust the regex pattern for proper ending.
-        if ($optionals > 0) {
-            $regexp .= str_repeat(')?', $optionals);
-        }
+        }, $uri);
 
-        return static::computeRegexp($regexp);
+        return static::computeRegexp($regexp, $optionals);
     }
 
     /**
      * Computes the regexp used to match a specific route pattern.
      *
      * @param  string   $pattern
+     * @param  array    $optionals
      * @return string
      */
-    public static function computeRegexp($pattern)
+    public static function computeRegexp($pattern, $optionals = array())
     {
+        if (! empty($optionals)) {
+            // When the optionals are present, we need to adjust the pattern.
+            $pattern .= str_repeat(')?', count($optionals));
+        }
+
         return self::REGEX_DELIMITER .'^' .$pattern .'$' .self::REGEX_DELIMITER .'s';
     }
 }

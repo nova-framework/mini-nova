@@ -158,7 +158,7 @@ class RouteCollection
     {
         return ! is_null($this->getByName($name));
     }
-    
+
     /**
      * Find a route by the route's assigned name.
      *
@@ -171,8 +171,6 @@ class RouteCollection
             return $this->names[$name];
         }
 
-        // To find a named route, we will iterate through every route defined for the application.
-        // We will cache the routes by name so we can load them very quickly the next time.
         foreach ($this->routes as $method => $routes) {
             foreach ($routes as $route => $options) {
                 if (isset($options['as']) && ($options['as'] === $name)) {
@@ -196,8 +194,6 @@ class RouteCollection
             return $this->uses[$action];
         }
 
-        // To find the route, we'll simply spin through the routes looking for a route with a
-        // "uses" key matching the action, and if we find one, we cache and return it.
          foreach ($this->routes as $method => $routes)  {
             foreach ($routes as $route => $options) {
                 if (isset($options['controller']) && ($options['controller'] === $action)) {

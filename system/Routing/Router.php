@@ -163,6 +163,11 @@ class Router
         if (! is_null($this->group)) {
             $group = (array) $this->group;
 
+            $action['where'] = array_merge(
+                isset($group['where'])  ? $group['where']  : array(),
+                isset($action['where']) ? $action['where'] : array()
+            );
+
             if (isset($group['prefix'])) {
                 $uri = trim($group['prefix'], '/') .'/' .trim($uri, '/');
             }
@@ -171,7 +176,7 @@ class Router
                 $action['uses'] = $group['namespace'] .'\\' .$action['uses'];
             }
 
-            $action = array_merge_recursive(array_except($group, array('namespace', 'prefix')), $action);
+            $action = array_merge_recursive(array_except($group, array('namespace', 'prefix', 'where')), $action);
         }
 
         // Properly format the URI pattern.
