@@ -23,33 +23,35 @@ class RouteCompiler
      * Compile an URI pattern to a valid regexp.
      *
      * @param  string   $uri
-     * @param  array    $patterns
+     * @param  array    $requirements
      * @return string
      */
-    public static function compile($uri, $patterns = array())
+    public static function compile($uri, $requirements = array())
     {
-        $pattern = '/' .ltrim($uri, '/');
+        $uri = '/' .ltrim($uri, '/');
 
-        return static::compilePattern($pattern, $patterns);
+        list($pattern, $optionals) = static::compilePattern($uri, $requirements);
+
+        return static::computeRegexp($pattern, $optionals);
     }
 
     /**
-     * Compile an URI pattern to a valid regexp.
+     * Compile an URI pattern.
      *
      * @param  string   $uri
-     * @param  array    $patterns
+     * @param  array    $requirements
      * @return string
      *
      * @throw \LogicException
      */
-    protected static function compilePattern($uri, $patterns)
+    public static function compilePattern($uri, $requirements)
     {
         $optionals = array();
 
         //
         $parameters = array();
 
-        $regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $patterns, &$optionals, &$parameters)
+        $regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $requirements, &$optionals, &$parameters)
         {
             $prefix = '';
 
@@ -66,13 +68,13 @@ class RouteCompiler
                 $prefix = '(?:';
 
                 array_push($optionals, $parameter);
-            } else if ($optionals > 0) {
+            } else if (count($optionals) > 0) {
                 $message = sprintf('Route pattern [%s] cannot reference standard parameter [%s] after optionals.', $uri, $parameter);
 
                 throw new LogicException($message);
             }
 
-            $pattern = Arr::get($patterns, $parameter, self::DEFAULT_PATTERN);
+            $pattern = Arr::get($requirements, $parameter, self::DEFAULT_PATTERN);
 
             //
             array_push($parameters, $parameter);
@@ -81,7 +83,7 @@ class RouteCompiler
 
         }, $uri);
 
-        return static::computeRegexp($regexp, $optionals);
+        return array($regexp, $optionals);
     }
 
     /**
@@ -94,7 +96,7 @@ class RouteCompiler
     public static function computeRegexp($pattern, $optionals = array())
     {
         if (! empty($optionals)) {
-            // When the optionals are present, we need to adjust the pattern.
+            // When the optionals are present, we just need to adjust the pattern.
             $pattern .= str_repeat(')?', count($optionals));
         }
 
