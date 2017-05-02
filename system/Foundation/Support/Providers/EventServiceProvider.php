@@ -31,16 +31,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadEvents();
-    }
-
-    /**
-     * Load the application events.
-     *
-     * @return void
-     */
-    protected function loadEvents()
-    {
         $events = $this->app['events'];
 
         foreach ($this->listen as $event => $listeners) {

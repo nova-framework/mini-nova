@@ -27,20 +27,6 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load the application routes.
-     *
-     * @return void
-     */
-    protected function loadRoutes()
-    {
-        if (method_exists($this, 'map')) {
-            $router = $this->app['router'];
-
-            call_user_func(array($this, 'map'), $router);
-        }
-    }
-
-    /**
      * Register the service provider.
      *
      * @return void
@@ -48,6 +34,37 @@ class RouteServiceProvider extends ServiceProvider
     public function register()
     {
         //
+    }
+
+    /**
+     * Load the application routes.
+     *
+     * @return void
+     */
+    protected function loadRoutes()
+    {
+        if (method_exists($this, 'map')) {
+            call_user_func(array($this, 'map'), $this->app['router']);
+        }
+    }
+    /**
+     * Load the standard routes file for the application.
+     *
+     * @param  string  $path
+     * @return mixed
+     */
+    protected function loadRoutesFrom($path)
+    {
+        $router = $this->app['router'];
+
+        if (is_null($this->namespace)) {
+            return require $path;
+        }
+
+        $router->group(array('namespace' => $this->namespace), function (Router $router) use ($path)
+        {
+            require $path;
+        });
     }
 
     /**
@@ -59,8 +76,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function __call($method, $parameters)
     {
-        $router = $this->app['router'];
+        $instance = $this->app['router'];
 
-        return call_user_func_array(array($router, $method), $parameters);
+        return call_user_func_array(array($instance, $method), $parameters);
     }
 }
