@@ -63,9 +63,9 @@ class Router
     protected $routes;
 
     /**
-     * The current attributes being shared by routes.
+     * Array of Route Groups.
      */
-    protected $group;
+    protected $groupStack = array();
 
     /**
      * All of the wheres that have been registered.
@@ -96,37 +96,62 @@ class Router
     }
 
     /**
+     * Register a route with the router.
+     *
+     * @param  string|array  $method
+     * @param  string        $route
+     * @param  mixed         $action
+     * @return void
+     */
+    public function match($method, $route, $action)
+    {
+        $this->addRoute($method, $uri, $action);
+    }
+
+    /**
      * Register a group of routes that share attributes.
      *
      * @param  array    $attributes
      * @param  Closure  $callback
      * @return void
      */
-    public static function group($attributes, Closure $callback)
+    public function group($attributes, Closure $callback)
     {
-        $this->group = $attributes;
+        if (! empty($this->groupStack)) {
+            $attributes = static::mergeGroup($attributes, end($this->groupStack));
+        }
+
+        $this->groupStack[] = $attributes;
 
         call_user_func($callback, $this);
 
-        $this->group = null;
+        array_pop($this->groupStack);
     }
 
     /**
-     * Register a route with the router.
+     * Merge the given group attributes.
      *
-     * <code>
-     *      // Register a Route with the Router
-     *      Router::match('GET', '/', function() { return 'Home!'; });
-     * </code>
-     *
-     * @param  string|array  $methods
-     * @param  string        $route
-     * @param  mixed         $action
-     * @return void
+     * @param  array  $new
+     * @param  array  $old
+     * @return array
      */
-    public function match($methods, $route, $action)
+    protected static function mergeGroup($new, $old)
     {
-        $this->addRoute($methods, $uri, $action);
+        if (isset($new['namespace']) && isset($old['namespace'])) {
+            $new['namespace'] = trim(Arr::get($old, 'namespace'), '\\') .'\\' .trim($new['namespace'], '\\');
+        } else {
+            $new['namespace'] = isset($new['namespace']) ? trim($new['namespace'], '\\') : Arr::get($old, 'namespace');
+        }
+
+        if (isset($new['prefix']) && isset($old['prefix'])) {
+            $new['prefix'] = trim(Arr::get($old, 'prefix'), '/') .'/' .trim($new['prefix'], '/');
+        } else {
+            $new['prefix'] = isset($new['prefix']) ? trim($new['prefix'], '/') : Arr::get($old, 'prefix');
+        }
+
+        $new['where'] = array_merge(Arr::get($old, 'where', array()), Arr::get($new, 'where', array()));
+
+        return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where')), $new);
     }
 
     /**
@@ -140,7 +165,7 @@ class Router
     protected function addRoute($method, $uri, $action)
     {
         // When the Action references a Controller, convert it to a Controller Action.
-        if ($this->actionReferencesController($action)) {
+        if ($this->routingToController($action)) {
             $action = $this->convertToControllerAction($action);
         }
 
@@ -157,30 +182,9 @@ class Router
             });
         }
 
-        // If a group is being registered, we'll merge all of the group options into the action,
-        // giving preference to the action for options that are specified in both.
-
-        if (! is_null($this->group)) {
-            $group = (array) $this->group;
-
-            $action['where'] = array_merge(
-                isset($group['where'])  ? $group['where']  : array(),
-                isset($action['where']) ? $action['where'] : array()
-            );
-
-            if (isset($group['prefix'])) {
-                $uri = trim($group['prefix'], '/') .'/' .trim($uri, '/');
-            }
-
-            if (isset($group['namespace'])) {
-                $action['uses'] = $group['namespace'] .'\\' .$action['uses'];
-            }
-
-            $action = array_merge_recursive(array_except($group, array('namespace', 'prefix', 'where')), $action);
+        if (! empty($this->groupStack)) {
+            $action = static::mergeGroup($action, end($this->groupStack));
         }
-
-        // Properly format the URI pattern.
-        $uri = '/' .trim($uri, '/');
 
         $this->routes->addRoute($method, $uri, $action);
     }
@@ -191,7 +195,7 @@ class Router
      * @param  array  $action
      * @return bool
      */
-    protected function actionReferencesController($action)
+    protected function routingToController($action)
     {
         if ($action instanceof Closure) {
             return false;
@@ -212,9 +216,26 @@ class Router
             $action = array('uses' => $action);
         }
 
+        if (! empty($this->groupStack)) {
+            $action['uses'] = $this->prependGroupUses($action['uses']);
+        }
+
         $action['controller'] = $action['uses'];
 
         return $action;
+    }
+
+    /**
+     * Prepend the last group uses onto the use clause.
+     *
+     * @param  string  $uses
+     * @return string
+     */
+    protected function prependGroupUses($uses)
+    {
+        $group = end($this->groupStack);
+
+        return isset($group['namespace']) ? $group['namespace'] .'\\' .$uses : $uses;
     }
 
     /**
@@ -477,9 +498,9 @@ class Router
      *
      * @return bool
      */
-    public function hasGroup()
+    public function hasGroupStack()
     {
-        return ! is_null($this->group);
+        return ! empty($this->groupStack);
     }
 
     /**

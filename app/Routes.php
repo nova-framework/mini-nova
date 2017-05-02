@@ -17,9 +17,15 @@ $router->any('/', function()
     return View::make('Layouts/Default')->with('content', $view);
 });
 
-$router->get('sample/{name}/{slug?}', array('middleware' => 'test', 'uses' => 'App\Controllers\Sample@index'));
+$router->group(array('prefix' => 'sample'), function ($router)
+{
+    $router->get('/', 'Sample@index');
 
-$router->post('sample', 'App\Controllers\Sample@store');
+    $router->get('{name}/{slug?}', array('middleware' => 'test', 'prefix' => 'test', 'uses' => 'Sample@index'));
+
+});
+
+$router->post('sample', 'Sample@store');
 
 
 $router->get('test/{id}/{name?}/{slug?}', array(function ($id, $name = null, $slug = null)

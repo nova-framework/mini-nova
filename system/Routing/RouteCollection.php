@@ -65,10 +65,10 @@ class RouteCollection
      *
      * @param  string|array  $method
      * @param  string        $uri
-     * @param  mixed         $action
+     * @param  array         $action
      * @return void
      */
-    public function addRoute($method, $uri, $action)
+    public function addRoute($method, $uri, array $action)
     {
         if (is_string($method) && (strtoupper($method) === 'ANY')) {
             $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
@@ -79,6 +79,8 @@ class RouteCollection
         if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
             array_push($methods, 'HEAD');
         }
+
+        $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
 
         foreach ($methods as $method) {
             $this->routes[$method][$uri] = $action;
@@ -108,7 +110,7 @@ class RouteCollection
         // If the destination key exists in the routes array we can just return that route right now.
 
         if (array_key_exists($path, $routes)) {
-            $action = $routes[$uri];
+            $action = $routes[$path];
 
             return new Route($method, $path, $action);
         }
