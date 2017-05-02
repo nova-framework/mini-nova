@@ -50,32 +50,33 @@ class Sample extends Controller
         $results = array();
 
         foreach($routes->getRoutes() as $route) {
-            $options = array_filter($route, function ($value)
+            $route = array_filter($route, function ($value)
             {
                 return is_string($value);
 
             }, ARRAY_FILTER_USE_KEY);
 
-            if ($options['uses'] instanceof Closure) {
-                $options['uses'] = 'Closure';
+            if ($route['uses'] instanceof Closure) {
+                $route['uses'] = 'Closure';
             }
 
-            $patterns = array_merge(Route::patterns(), Arr::get($options, 'where', array()));
+            $patterns = array_merge(Route::patterns(), Arr::get($route, 'where', array()));
 
-            $options['where'] = $patterns;
+            $route['where'] = $patterns;
 
             //
-            $uri = $options['uri'];
+            $uri = $route['uri'];
 
             if (preg_match('/\{([\w\?]+?)\}/', $uri) === 1) {
-                $options['regex'] = RouteCompiler::compile($uri, $patterns);
+                $route['regex'] = RouteCompiler::compile($uri, $patterns);
             } else {
-                $options['regex'] = RouteCompiler::computeRegexp($uri);
+                $route['regex'] = RouteCompiler::computeRegexp($uri);
             }
 
-            ksort($options);
+            ksort($route);
 
-            $results[] = $options;
+            //
+            $results[] = $route;
         }
 
         //
