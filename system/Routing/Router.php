@@ -217,25 +217,16 @@ class Router
         }
 
         if (! empty($this->groupStack)) {
-            $action['uses'] = $this->prependGroupUses($action['uses']);
+            $group = end($this->groupStack);
+
+            if (isset($group['namespace'])) {
+                $action['uses'] = $group['namespace'] .'\\' .$action['uses'];
+            }
         }
 
         $action['controller'] = $action['uses'];
 
         return $action;
-    }
-
-    /**
-     * Prepend the last group uses onto the use clause.
-     *
-     * @param  string  $uses
-     * @return string
-     */
-    protected function prependGroupUses($uses)
-    {
-        $group = end($this->groupStack);
-
-        return isset($group['namespace']) ? $group['namespace'] .'\\' .$uses : $uses;
     }
 
     /**

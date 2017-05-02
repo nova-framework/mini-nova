@@ -134,9 +134,6 @@ $app->getProviderRepository()->load($app, $config['providers']);
 $app->booted( function() use ($app)
 {
 
-// Get the Router instance.
-$router = $app['router'];
-
 //--------------------------------------------------------------------------
 // Load The Global Application Script
 //--------------------------------------------------------------------------
