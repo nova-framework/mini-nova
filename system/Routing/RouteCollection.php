@@ -16,13 +16,6 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 class RouteCollection
 {
     /**
-     * The instance of Router.
-     *
-     * @var \Mini\Routing\Router;
-     */
-    protected $router;
-
-    /**
      * The route names that have been matched.
      *
      * @var array
@@ -58,16 +51,6 @@ class RouteCollection
      */
     protected $allRoutes = array();
 
-
-    /**
-     * Construct a new RouteCollection instance.
-     *
-     * @return void
-     */
-    public function __construct(Router $router)
-    {
-        $this->router = $router;
-    }
 
     /**
      * Add a route to the router.
@@ -183,23 +166,14 @@ class RouteCollection
 
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
-        // Of course literal route matches are the quickest to find, so we will check for those first.
-        // If the destination key exists in the routes array we can just return that route right now.
-
         if (! is_null($route = Arr::get($routes, $path))) {
             $route->compile(false);
 
             return $route;
         }
 
-        // If we can't find a literal match we'll iterate through all of the registered routes to find
-        // a matching route based on the regex pattern generated from route's parameters and patterns.
-
         return Arr::first($routes, function($pattern, $route) use ($request, $includingMethod)
         {
-            // We only need to check routes which have parameters since all others would have been able
-            // to be matched by the search for literal matches we just did before we started searching.
-
             //if (preg_match('/\{([\w\?]+?)\}/', $pattern) !== 1) {
             if (strpos($pattern, '{') === false) {
                 return false;

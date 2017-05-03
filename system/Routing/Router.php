@@ -92,7 +92,7 @@ class Router
 
         $this->container = $container ?: new Container();
 
-        $this->routes = new RouteCollection($this);
+        $this->routes = new RouteCollection();
     }
 
     /**
