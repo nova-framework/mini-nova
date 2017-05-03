@@ -45,45 +45,32 @@ class Sample extends Controller
 
     public function routes()
     {
-        $routes = Route::getRoutes();
+        $routeCollection = Route::getRoutes();
 
-        $results = array();
+        //
+        $content = '';
 
-        foreach($routes->getRoutes() as $route) {
-            $route = array_filter($route, function ($value)
+        foreach($routeCollection->getRoutes() as $route) {
+            $route->compile();
+
+            $action = array_filter($route->getAction(), function ($value)
             {
                 return is_string($value);
 
             }, ARRAY_FILTER_USE_KEY);
 
-            if ($route['uses'] instanceof Closure) {
-                $route['uses'] = 'Closure';
+            if ($action['uses'] instanceof Closure) {
+                $action['uses'] = 'Closure';
             }
 
-            $patterns = array_merge(Route::patterns(), Arr::get($route, 'where', array()));
+            $result = array(
+                'uri'     => $route->getUri(),
+                'regex'   => $route->getRegex(),
+                'methods' => $route->getMethods(),
+                'action'  => $action,
+            );
 
-            $route['where'] = $patterns;
-
-            //
-            $uri = $route['uri'];
-
-            if (preg_match('/\{([\w\?]+?)\}/', $uri) === 1) {
-                $route['regex'] = RouteCompiler::compile($uri, $patterns);
-            } else {
-                $route['regex'] = RouteCompiler::computeRegexp($uri);
-            }
-
-            ksort($route);
-
-            //
-            $results[] = $route;
-        }
-
-        //
-        $content = '';
-
-        foreach($results as $route) {
-            $content .= '<pre>' .htmlentities(var_export($route, true)) .'</pre>';
+            $content .= '<pre>' .htmlentities(var_export($result, true)) .'</pre>';
         }
 
         return View::make('Default')

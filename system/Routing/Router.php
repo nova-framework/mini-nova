@@ -105,7 +105,7 @@ class Router
      */
     public function match($method, $route, $action)
     {
-        $this->addRoute($method, $uri, $action);
+        return $this->addRoute($method, $uri, $action);
     }
 
     /**
@@ -186,7 +186,39 @@ class Router
             $action = static::mergeGroup($action, end($this->groupStack));
         }
 
-        $this->routes->addRoute($method, $uri, $action);
+        return $this->createRoute($method, $uri, $action);
+    }
+
+    /**
+     * Create a new route instance.
+     *
+     * @param  array|string  $method
+     * @param  string  $uri
+     * @param  mixed   $action
+     * @return \Nova\Routing\Route
+     */
+    protected function createRoute($method, $uri, $action)
+    {
+        if (is_string($method) && (strtoupper($method) === 'ANY')) {
+            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+        } else {
+            $methods = array_map('strtoupper', (array) $method);
+        }
+
+        if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
+            array_push($methods, 'HEAD');
+        }
+
+        $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
+
+        $wheres = Arr::get($action, 'where', array());
+
+        // Create a new Route instance.
+        $route = new Route($methods, $uri, $action);
+
+        $route->where(array_merge($this->patterns, $wheres));
+
+        return $this->routes->addRoute($route);
     }
 
     /**

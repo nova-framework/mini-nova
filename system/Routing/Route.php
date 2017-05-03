@@ -19,11 +19,11 @@ class Route
     protected $uri;
 
     /**
-     * The request method the route responds to.
+     * Supported HTTP methods.
      *
-     * @var string
+     * @var array
      */
-    protected $method;
+    private $methods = array();
 
     /**
      * The action that is assigned to the route.
@@ -33,11 +33,18 @@ class Route
     protected $action;
 
     /**
+     * The regular expression requirements.
+     *
+     * @var array
+     */
+    protected $wheres = array();
+
+    /**
      * The parameters that will be passed to the route callback.
      *
      * @var array
      */
-    protected $parameters;
+    protected $parameters = array();
 
     /**
      * The regex pattern the route responds to.
@@ -57,23 +64,17 @@ class Route
     /**
      * Create a new Route instance.
      *
-     * @param  string        $method
+     * @param  string|array  $method
      * @param  string        $uri
      * @param  array         $action
-     * @param  string|null   $regex
-     * @param  array         $parameters
      */
-    public function __construct($method, $uri, $action, $parameters = array(), $regex = null)
+    public function __construct($method, $uri, $action)
     {
-        $this->uri    = $uri;
-        $this->method = $method;
+        $this->uri = $uri;
+
+        $this->methods = (array) $method;
+
         $this->action = $action;
-
-        //
-        $this->parameters = $parameters;
-
-        // When the given regex is null, we fallback to one computed from URI.
-        $this->regex = $regex ?: RouteCompiler::computeRegexp($uri);
     }
 
     /**
@@ -166,6 +167,59 @@ class Route
     }
 
     /**
+     * Checks if a Request matches the Route pattern.
+     *
+     * @param \Http\Request $request The dispatched Request instance
+     * @param bool $includingMethod Wheter or not is matched the HTTP Method
+     * @return bool Match status
+     */
+    public function matches(Request $request, $includingMethod = true)
+    {
+        if ($includingMethod && ! in_array($request->method(), $this->methods)) {
+            return false;
+        }
+
+        $uri = $request->path();
+
+        $path = ($uri === '/') ? '/' : '/' .$uri;
+
+        //
+        $this->compile();
+
+        if (preg_match($this->getRegex(), $path, $matches) === 1) {
+            $this->parameters = array_filter($matches, function ($value)
+            {
+                return is_string($value);
+
+            }, ARRAY_FILTER_USE_KEY);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Compile the Route pattern for matching and return it.
+     *
+     * @param bool $complete
+     * @return string
+     * @throws \LogicException
+     */
+    public function compile($complete = true)
+    {
+        if (isset($this->regex)) {
+            return $this->regex;
+        }
+
+        if ($complete) {
+            return $this->regex = RouteCompiler::compile($this->uri, $this->wheres);
+        } else {
+            return $this->regex = RouteCompiler::computeRegexp($this->uri);
+        }
+    }
+
+    /**
      * Get or set the middlewares attached to the route.
      *
      * @param  array|string|null $middleware
@@ -210,26 +264,6 @@ class Route
     }
 
     /**
-     * Get the uri for the route.
-     *
-     * @return string
-     */
-    public function uri()
-    {
-        return $this->uri;
-    }
-
-    /**
-     * Get the method for the route.
-     *
-     * @return string
-     */
-    public function method()
-    {
-        return $this->method;
-    }
-
-    /**
      * Get a given parameter from the route.
      *
      * @param  string  $name
@@ -258,13 +292,50 @@ class Route
     }
 
     /**
+     * Set a regular expression requirement on the route.
+     *
+     * @param  array|string  $name
+     * @param  string  $expression
+     * @return $this
+     * @throws \BadMethodCallException
+     */
+    public function where($name, $expression = null)
+    {
+        foreach ($this->parseWhere($name, $expression) as $name => $expression) {
+            $this->wheres[$name] = $expression;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Parse arguments to the where method into an array.
+     *
+     * @param  array|string  $name
+     * @param  string  $expression
+     * @return array
+     */
+    protected function parseWhere($name, $expression)
+    {
+        return is_array($name) ? $name : array($name => $expression);
+    }
+
+    /**
      * Get the regex for the route.
      *
      * @return string
      */
-    public function regex()
+    public function getRegex()
     {
         return $this->regex;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMethods()
+    {
+        return $this->methods;
     }
 
     /**
@@ -274,7 +345,7 @@ class Route
      */
     public function getPath()
     {
-        return $this->uri();
+        return $this->uri;
     }
 
     /**
@@ -284,7 +355,7 @@ class Route
      */
     public function getUri()
     {
-        return $this->uri();
+        return $this->uri;
     }
 
     /**

@@ -72,35 +72,20 @@ class RouteCollection
     /**
      * Add a route to the router.
      *
-     * @param  string|array  $method
-     * @param  string        $uri
-     * @param  array         $action
+     * @param  \Mini\Routing\Route  $route
      * @return void
      */
-    public function addRoute($method, $uri, array $action)
+    public function addRoute($route)
     {
-        if (is_string($method) && (strtoupper($method) === 'ANY')) {
-            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
-        } else {
-            $methods = array_map('strtoupper', (array) $method);
+        $uri = $route->getUri();
+
+        foreach ($route->getMethods() as $method) {
+            $this->routes[$method][$uri] = $route;
         }
 
-        if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
-            array_push($methods, 'HEAD');
-        }
+        $this->allRoutes[$method .'/' .$uri] = $route;
 
-        $action['methods'] = $methods;
-
-        //
-        $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
-
-        $action['uri'] = $uri;
-
-        foreach ($methods as $method) {
-            $this->routes[$method][$uri] = $action;
-        }
-
-        $this->allRoutes[$method .$uri] = $action;
+        return $route;
     }
 
     /**
@@ -112,7 +97,7 @@ class RouteCollection
      */
     public function match(Request $request)
     {
-        $routes = $this->get($request->method());
+        $routes = $this->get($request->getMethod());
 
         if (! is_null($route = $this->check($routes, $request))) {
             return $route;
@@ -142,7 +127,7 @@ class RouteCollection
         $others = array();
 
         foreach ($methods as $method) {
-            if (! is_null($route = $this->check($this->get($method), $request))) {
+            if (! is_null($route = $this->check($this->get($method), $request, false))) {
                 $others[] = $method;
             }
         }
@@ -165,7 +150,6 @@ class RouteCollection
             return (new Route('OPTIONS', $request->path(), function() use ($others)
             {
                 return new Response('', 200, array('Allow' => implode(',', $others)));
-
             }));
         }
 
@@ -193,55 +177,36 @@ class RouteCollection
      * @param  bool  $includingMethod
      * @return \Nova\Routing\Route|null
      */
-    protected function check(array $routes, $request)
+    protected function check(array $routes, $request, $includingMethod = true)
     {
         $uri = $request->path();
 
-        $method = $request->method();
-
-        //
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
         // Of course literal route matches are the quickest to find, so we will check for those first.
         // If the destination key exists in the routes array we can just return that route right now.
 
-        if (array_key_exists($path, $routes)) {
-            $action = $routes[$path];
+        if (! is_null($route = Arr::get($routes, $path))) {
+            $route->compile(false);
 
-            return new Route($method, $path, $action);
+            return $route;
         }
 
         // If we can't find a literal match we'll iterate through all of the registered routes to find
         // a matching route based on the regex pattern generated from route's parameters and patterns.
 
-        foreach ($routes as $route => $action) {
+        return Arr::first($routes, function($pattern, $route) use ($request, $includingMethod)
+        {
             // We only need to check routes which have parameters since all others would have been able
             // to be matched by the search for literal matches we just did before we started searching.
 
-            //if (preg_match('/\{([\w\?]+?)\}/', $route) !== 1) {
-            if (strpos($route, '{') === false) {
-                continue;
+            //if (preg_match('/\{([\w\?]+?)\}/', $pattern) !== 1) {
+            if (strpos($pattern, '{') === false) {
+                return false;
             }
 
-            // Prepare the patterns used for route compilation.
-            $wheres = Arr::get($action, 'where', array());
-
-            $patterns = array_merge($this->router->patterns(), $wheres);
-
-            // Prepare the route pattern.
-            $pattern = RouteCompiler::compile($route, $patterns);
-
-            if (preg_match($pattern, $path, $matches) === 1) {
-                // Retrieve the parameters from matches, looking for the string keys.
-                $parameters = array_filter($matches, function ($value)
-                {
-                    return is_string($value);
-
-                }, ARRAY_FILTER_USE_KEY);
-
-                return new Route($method, $route, $action, $parameters, $pattern);
-            }
-        }
+            return $route->matches($request, $includingMethod);
+        });
     }
 
     /**
@@ -252,7 +217,9 @@ class RouteCollection
      */
     protected function get($method = null)
     {
-        if (is_null($method)) return $this->getRoutes();
+        if (is_null($method)) {
+            return $this->getRoutes();
+        }
 
         return Arr::get($this->routes, $method, array());
     }
@@ -281,7 +248,7 @@ class RouteCollection
         }
 
         foreach ($this->getRoutes() as $route) {
-            if (isset($route['as']) && ($route['as'] === $name)) {
+            if ($route->getName() === $name) {
                 return $this->names[$name] = $route;
             }
         }
@@ -300,7 +267,7 @@ class RouteCollection
         }
 
         foreach ($this->getRoutes() as $route) {
-            if (isset($route['controller']) && ($route['controller'] === $action)) {
+            if ($route->getActionName() === $action) {
                 return $this->uses[$action] = $route;
             }
         }
