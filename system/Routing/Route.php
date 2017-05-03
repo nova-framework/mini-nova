@@ -70,9 +70,19 @@ class Route
      */
     public function __construct($method, $uri, $action)
     {
+        $methods = array_map('strtoupper', (array) $method);
+
+        if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
+            array_push($methods, 'HEAD');
+        }
+
+        // Properly prefix the URI pattern.
+        $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
+
+        //
         $this->uri = $uri;
 
-        $this->methods = (array) $method;
+        $this->methods = $methods;
 
         $this->action = $action;
     }

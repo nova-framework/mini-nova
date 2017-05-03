@@ -97,6 +97,20 @@ class Router
     }
 
     /**
+     * Register a new route responding to all verbs.
+     *
+     * @param  string  $uri
+     * @param  \Closure|array|string  $action
+     * @return \Nova\Routing\Route
+     */
+    public function any($route, $action)
+    {
+        $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+
+        return $this->addRoute($methods, $route, $action);
+    }
+    
+    /**
      * Register a route with the router.
      *
      * @param  string|array  $method
@@ -200,22 +214,10 @@ class Router
      */
     protected function createRoute($method, $uri, $action)
     {
-        if (is_string($method) && (strtoupper($method) === 'ANY')) {
-            $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
-        } else {
-            $methods = array_map('strtoupper', (array) $method);
-        }
-
-        if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
-            array_push($methods, 'HEAD');
-        }
-
-        $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
-
         $wheres = Arr::get($action, 'where', array());
 
         // Create a new Route instance.
-        $route = new Route($methods, $uri, $action);
+        $route = new Route($method, $uri, $action);
 
         $route->where(array_merge($this->patterns, $wheres));
 

@@ -20,6 +20,20 @@ use IteratorAggregate;
 class RouteCollection implements Countable, IteratorAggregate
 {
     /**
+     * All of the routes that have been registered.
+     *
+     * @var array
+     */
+    protected $routes = array();
+
+    /**
+     * An flattened array of all of the routes.
+     *
+     * @var array
+     */
+    protected $allRoutes = array();
+
+    /**
      * The route names that have been matched.
      *
      * @var array
@@ -32,28 +46,6 @@ class RouteCollection implements Countable, IteratorAggregate
      * @var array
      */
     protected $actionList = array();
-
-    /**
-     * All of the routes that have been registered.
-     *
-     * @var array
-     */
-    protected $routes = array(
-        'GET'    => array(),
-        'HEAD'   => array(),
-        'POST'   => array(),
-        'PUT'    => array(),
-        'PATCH'  => array(),
-        'DELETE' => array(),
-        'OPTIONS'=> array(),
-    );
-
-    /**
-     * An flattened array of all of the routes.
-     *
-     * @var array
-     */
-    protected $allRoutes = array();
 
 
     /**
@@ -70,7 +62,7 @@ class RouteCollection implements Countable, IteratorAggregate
             $this->routes[$method][$uri] = $route;
         }
 
-        $this->allRoutes[$method .'/' .$uri] = $route;
+        $this->allRoutes[] = $route;
 
         //
         $this->addLookups($route);
@@ -89,11 +81,15 @@ class RouteCollection implements Countable, IteratorAggregate
         $action = $route->getAction();
 
         if (isset($action['as'])) {
-            $this->nameList[$action['as']] = $route;
+            $name = $action['as'];
+
+            $this->nameList[$name] = $route;
         }
 
         if (isset($action['controller'])) {
-            $this->addToActionList($action, $route);
+            $controller = $action['controller'];
+
+            $this->addToActionList($controller, $route);
         }
     }
 
@@ -106,8 +102,8 @@ class RouteCollection implements Countable, IteratorAggregate
      */
     protected function addToActionList($action, $route)
     {
-        if (! isset($this->actionList[$action['controller']])) {
-            $this->actionList[$action['controller']] = $route;
+        if (! isset($this->actionList[$action])) {
+            $this->actionList[$action] = $route;
         }
     }
 
@@ -257,7 +253,7 @@ class RouteCollection implements Countable, IteratorAggregate
      */
     public function getByName($name)
     {
-        return isset($this->nameList[$name]) ? $this->nameList[$name] : null;
+        return Arr::get($this->nameList, $name);
     }
 
     /**
@@ -268,8 +264,8 @@ class RouteCollection implements Countable, IteratorAggregate
      */
     public function getByAction($action)
     {
-        return isset($this->actionList[$action]) ? $this->actionList[$action] : null;
-    }
+        return Arr::get($this->actionList, $action);
+     }
 
     /**
      * Get all of the registered routes.
@@ -278,7 +274,7 @@ class RouteCollection implements Countable, IteratorAggregate
      */
     public function getRoutes()
     {
-        return array_values($this->allRoutes);
+        return $this->allRoutes;
     }
 
     /**
