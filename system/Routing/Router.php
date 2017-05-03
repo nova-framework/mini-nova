@@ -81,7 +81,7 @@ class Router
      */
     public static $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
 
-    
+
     /**
      * Construct a new Router instance.
      *
