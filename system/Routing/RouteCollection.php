@@ -12,22 +12,26 @@ use Mini\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
+use Countable;
+use ArrayIterator;
+use IteratorAggregate;
 
-class RouteCollection
+
+class RouteCollection implements Countable, IteratorAggregate
 {
     /**
      * The route names that have been matched.
      *
      * @var array
      */
-    protected $names = array();
+    protected $nameList = array();
 
     /**
      * The actions that have been reverse routed.
      *
      * @var array
      */
-    protected $uses = array();
+    protected $actionList = array();
 
     /**
      * All of the routes that have been registered.
@@ -68,7 +72,43 @@ class RouteCollection
 
         $this->allRoutes[$method .'/' .$uri] = $route;
 
+        //
+        $this->addLookups($route);
+
         return $route;
+    }
+
+    /**
+     * Add the route to any look-up tables if necessary.
+     *
+     * @param  \Nova\Routing\Route  $route
+     * @return void
+     */
+    protected function addLookups($route)
+    {
+        $action = $route->getAction();
+
+        if (isset($action['as'])) {
+            $this->nameList[$action['as']] = $route;
+        }
+
+        if (isset($action['controller'])) {
+            $this->addToActionList($action, $route);
+        }
+    }
+
+    /**
+     * Add a route to the controller action dictionary.
+     *
+     * @param  array  $action
+     * @param  \Nova\Routing\Route  $route
+     * @return void
+     */
+    protected function addToActionList($action, $route)
+    {
+        if (! isset($this->actionList[$action['controller']])) {
+            $this->actionList[$action['controller']] = $route;
+        }
     }
 
     /**
@@ -217,15 +257,7 @@ class RouteCollection
      */
     public function getByName($name)
     {
-        if (isset($this->names[$name])) {
-            return $this->names[$name];
-        }
-
-        foreach ($this->getRoutes() as $route) {
-            if ($route->getName() === $name) {
-                return $this->names[$name] = $route;
-            }
-        }
+        return isset($this->nameList[$name]) ? $this->nameList[$name] : null;
     }
 
     /**
@@ -236,15 +268,7 @@ class RouteCollection
      */
     public function getByAction($action)
     {
-        if (isset($this->uses[$action])) {
-            return $this->uses[$action];
-        }
-
-        foreach ($this->getRoutes() as $route) {
-            if ($route->getActionName() === $action) {
-                return $this->uses[$action] = $route;
-            }
-        }
+        return isset($this->actionList[$action]) ? $this->actionList[$action] : null;
     }
 
     /**
@@ -257,4 +281,23 @@ class RouteCollection
         return array_values($this->allRoutes);
     }
 
+    /**
+     * Get an iterator for the items.
+     *
+     * @return \ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->getRoutes());
+    }
+
+    /**
+     * Count the number of items in the collection.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->getRoutes());
+    }
 }
