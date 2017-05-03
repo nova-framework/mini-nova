@@ -109,18 +109,18 @@ class Router
 
         return $this->addRoute($methods, $route, $action);
     }
-    
+
     /**
      * Register a route with the router.
      *
-     * @param  string|array  $method
+     * @param  string|array  $methods
      * @param  string        $route
      * @param  mixed         $action
      * @return void
      */
-    public function match($method, $route, $action)
+    public function match($methods, $route, $action)
     {
-        return $this->addRoute($method, $uri, $action);
+        return $this->addRoute($methods, $uri, $action);
     }
 
     /**
