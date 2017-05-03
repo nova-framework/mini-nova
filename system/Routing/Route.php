@@ -212,11 +212,8 @@ class Route
             return $this->regex;
         }
 
-        if ($complete) {
-            return $this->regex = RouteCompiler::compile($this->uri, $this->wheres);
-        } else {
-            return $this->regex = RouteCompiler::computeRegexp($this->uri);
-        }
+        return $this->regex = $complete ? RouteCompiler::compile($this->uri, $this->wheres)
+                                        : RouteCompiler::computeRegexp($this->uri);
     }
 
     /**
