@@ -179,9 +179,7 @@ class Route
             return false;
         }
 
-        $uri = $request->path();
-
-        $path = ($uri === '/') ? '/' : '/' .$uri;
+        $path = '/' .ltrim($request->path(), '/');
 
         //
         $this->compile();

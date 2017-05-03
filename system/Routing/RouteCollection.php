@@ -162,9 +162,7 @@ class RouteCollection
      */
     protected function check(array $routes, $request, $includingMethod = true)
     {
-        $uri = $request->path();
-
-        $path = ($uri === '/') ? '/' : '/' .$uri;
+        $path = '/' .ltrim($request->path(), '/');
 
         if (! is_null($route = Arr::get($routes, $path))) {
             // We have a direct URI match, and that's good because is the faster way.
