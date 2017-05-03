@@ -167,15 +167,17 @@ class RouteCollection
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
         if (! is_null($route = Arr::get($routes, $path))) {
+            // We have a direct URI match, and that's good because is faster this way.
             $route->compile(false);
 
             return $route;
         }
 
-        return Arr::first($routes, function($pattern, $route) use ($request, $includingMethod)
+        return Arr::first($routes, function($uri, $route) use ($request, $includingMethod)
         {
-            //if (preg_match('/\{([\w\?]+?)\}/', $pattern) !== 1) {
-            if (strpos($pattern, '{') === false) {
+            //if (preg_match('/\{([\w\?]+?)\}/', $uri) !== 1) {
+            if (strpos($uri, '{') === false) {
+                // The Routes with no named parameters was already checked previously.
                 return false;
             }
 
