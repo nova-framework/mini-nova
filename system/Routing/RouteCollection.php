@@ -167,7 +167,7 @@ class RouteCollection
         $path = ($uri === '/') ? '/' : '/' .$uri;
 
         if (! is_null($route = Arr::get($routes, $path))) {
-            // We have a direct URI match, and that's good because is faster this way.
+            // We have a direct URI match, and that's good because is the faster way.
             $route->compile(false);
 
             return $route;
