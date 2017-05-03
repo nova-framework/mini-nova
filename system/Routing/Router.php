@@ -214,12 +214,15 @@ class Router
      */
     protected function createRoute($method, $uri, $action)
     {
-        $wheres = Arr::get($action, 'where', array());
+        $patterns = array_merge(
+            $this->patterns,
+            Arr::get($action, 'where', array())
+        );
 
         // Create a new Route instance.
         $route = new Route($method, $uri, $action);
 
-        $route->where(array_merge($this->patterns, $wheres));
+        $route->where($patterns);
 
         return $this->routes->addRoute($route);
     }
