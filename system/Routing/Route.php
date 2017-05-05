@@ -68,7 +68,7 @@ class Route
      * @param  string        $uri
      * @param  array         $action
      */
-    public function __construct($method, $uri, $action)
+    public function __construct($method, $uri, $action, $wheres = array())
     {
         $methods = array_map('strtoupper', (array) $method);
 
@@ -80,11 +80,10 @@ class Route
         $uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
 
         //
-        $this->uri = $uri;
-
+        $this->uri     = $uri;
         $this->methods = $methods;
-
-        $this->action = $action;
+        $this->action  = $action;
+        $this->wheres  = $wheres;
     }
 
     /**
@@ -325,6 +324,16 @@ class Route
         return is_array($name) ? $name : array($name => $expression);
     }
 
+    /**
+     * Get the regular expression requirements on the route.
+     *
+     * @return array
+     */
+    public function getWheres()
+    {
+        return $this->wheres;
+    }
+    
     /**
      * Get the regex for the route.
      *

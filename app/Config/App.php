@@ -129,6 +129,7 @@ return array(
         'Mini\Routing\RoutingServiceProvider',
         'Mini\Log\LogServiceProvider',
         'Mini\Cookie\CookieServiceProvider',
+        'Mini\Session\SessionServiceProvider',
         'Mini\View\ViewServiceProvider',
         'Mini\Encryption\EncryptionServiceProvider',
         'Mini\Hashing\HashServiceProvider',

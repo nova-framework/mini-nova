@@ -6,6 +6,7 @@ use App\Core\Controller;
 
 use Mini\Routing\RouteCompiler;
 use Mini\Support\Facades\Route;
+use Mini\Support\Facades\Session;
 use Mini\Support\Facades\View;
 use Mini\Support\Arr;
 use Mini\Support\Str;
@@ -64,10 +65,11 @@ class Sample extends Controller
             }
 
             $result = array(
-                'uri'     => $route->getUri(),
-                'regex'   => $route->getRegex(),
                 'methods' => $route->getMethods(),
+                'uri'     => $route->getUri(),
                 'action'  => $action,
+                'wheres'  => $route->getWheres(),
+                'regex'   => $route->getRegex(),
             );
 
             $content .= '<pre>' .htmlentities(var_export($result, true)) .'</pre>';
@@ -77,4 +79,16 @@ class Sample extends Controller
             ->shares('title', 'Routes')
             ->with('content', $content);
     }
+
+    public function session()
+    {
+        $data = Session::all();
+
+        $content = '<pre>' .htmlentities(var_export($data, true)) .'</pre>';
+
+        return View::make('Default')
+            ->shares('title', 'Session')
+            ->with('content', $content);
+    }
 }
+

@@ -201,9 +201,7 @@ class Router
             $action = static::mergeGroup($action, end($this->groupStack));
         }
 
-        $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
-
-        return $this->createRoute($method, $uri, $action)->where($patterns);
+        return $this->createRoute($method, $uri, $action);
     }
 
     /**
@@ -216,7 +214,10 @@ class Router
      */
     protected function createRoute($method, $uri, $action)
     {
-        $route = new Route($method, $uri, $action);
+        $patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
+
+        //
+        $route = new Route($method, $uri, $action, $patterns);
 
         return $this->routes->addRoute($route);
     }

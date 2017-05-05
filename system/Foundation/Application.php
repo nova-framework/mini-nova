@@ -416,9 +416,10 @@ class Application extends Container
     public function registerCoreContainerAliases()
     {
         $aliases = array(
-            'app'    => array('Mini\Foundation\Application', 'Mini\Container\Container'),
-            'log'    => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
-            'router' => array('Mini\Routing\Router'),
+            'app'           => array('Mini\Foundation\Application', 'Mini\Container\Container'),
+            'log'           => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+            'router'        => array('Mini\Routing\Router'),
+            'session.store' => array('Mini\Session\Store'),
 
         );
 
