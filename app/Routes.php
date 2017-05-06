@@ -38,6 +38,13 @@ $router->get('test/{id}/{name?}/{slug?}', array(function ($id, $name = null, $sl
 
 }, 'where' => array('id' => '[0-9]+')));
 
+
+
+$router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function ($router)
+{
+    $router->get('users', 'Users@index');
+});
+
 /*
 // A Catch-All route.
 $router->any('{slug}', function($slug)

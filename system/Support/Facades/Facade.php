@@ -81,6 +81,16 @@ abstract class Facade
     }
 
     /**
+     * Clear all of the resolved instances.
+     *
+     * @return void
+     */
+    public static function clearResolvedInstances()
+    {
+        static::$resolvedInstance = array();
+    }
+    
+    /**
      * Handle dynamic, static calls to the object.
      *
      * @param  string  $method

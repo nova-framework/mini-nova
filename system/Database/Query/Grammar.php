@@ -641,7 +641,7 @@ class Grammar
      */
     public function wrapTable($table)
     {
-        return $this->wrap($this->connection->getTablePrefix() .$table);
+        return $this->wrap($this->getTablePrefix() .$table);
     }
 
     /**

@@ -11,7 +11,7 @@ namespace Mini\Database;
 use PDO;
 
 
-abstract class Connector
+class Connector
 {
     /**
      * The default PDO connection options.
@@ -68,7 +68,7 @@ abstract class Connector
     {
         extract($config);
 
-        $dsn = "mysql:host={$hostname};dbname={$database}";
+        $dsn = "mysql:host={$host};dbname={$database}";
 
         if (isset($config['port'])) {
             $dsn .= ";port={$port}";

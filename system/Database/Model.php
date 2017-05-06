@@ -296,9 +296,7 @@ class Model
 
         $grammar = $connection->getQueryGrammar();
 
-        $processor = $connection->getPostProcessor();
-
-        return new QueryBuilder($connection, $grammar, $processor);
+        return new QueryBuilder($connection, $grammar);
     }
 
     /**

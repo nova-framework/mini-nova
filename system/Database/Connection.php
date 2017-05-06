@@ -128,10 +128,6 @@ class Connection
      */
     public function __construct(array $config)
     {
-        if (! isset($config['driver'])) {
-            throw new \InvalidArgumentException("A driver must be specified.");
-        }
-
         $this->config = $config;
 
         $this->database = $config['database'];
@@ -640,7 +636,7 @@ class Connection
      * @param  \Events\Dispatcher
      * @return void
      */
-    public function setEventDispatcher(\Events\Dispatcher $events)
+    public function setEventDispatcher(\Mini\Events\Dispatcher $events)
     {
         $this->events = $events;
     }

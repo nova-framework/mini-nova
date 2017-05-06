@@ -1,5 +1,10 @@
 <?php
 
+define('ROLE_ADMIN',   1);
+define('ROLE_MANAGER', 2);
+define('ROLE_REGUSER', 3);
+
+
 // A sample Middleware.
 Route::middleware('test', function($request, Closure $next)
 {
