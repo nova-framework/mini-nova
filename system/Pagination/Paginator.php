@@ -6,13 +6,13 @@
  * @version 3.0
  */
 
-namespace Pagination;
+namespace Mini\Pagination;
 
-use Pagination\Factory;
-use Pagination\Presenter;
-use Support\Collection;
-use Support\Contracts\JsonableInterface;
-use Support\Contracts\ArrayableInterface;
+use Mini\Pagination\Factory;
+use Mini\Pagination\Presenter;
+use Mini\Support\Collection;
+use Mini\Support\Contracts\JsonableInterface;
+use Mini\Support\Contracts\ArrayableInterface;
 
 use Input;
 use Request;
@@ -140,7 +140,8 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
 
         if (is_null($perPage)) {
             $this->perPage = (int) $total;
-            $this->hasMore = count($items) > $this->perPage;
+            $this->hasMore = (count($items) > $this->perPage);
+
             $this->items = array_slice($items, 0, $this->perPage);
         } else {
             $this->items = $items;
@@ -173,7 +174,7 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
         if ($this->isQuickPaginating()) {
             $this->currentPage = $this->factory->getCurrentPage();
 
-            $this->lastPage = $this->hasMore ? $this->currentPage + 1 : $this->currentPage;
+            $this->lastPage = $this->hasMore ? ($this->currentPage + 1) : $this->currentPage;
         } else {
             $this->lastPage = max((int) ceil($this->total / $this->perPage), 1);
 
@@ -188,7 +189,7 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
      */
     protected function calculateItemRanges()
     {
-        $this->from = $this->total ? ($this->currentPage - 1) * $this->perPage + 1 : 0;
+        $this->from = $this->total ? (($this->currentPage - 1) * $this->perPage + 1) : 0;
 
         $this->to = min($this->total, $this->currentPage * $this->perPage);
     }
@@ -203,7 +204,7 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
     {
         $page = $this->factory->getCurrentPage();
 
-        if (is_numeric($page) && $page > $lastPage) {
+        if (is_numeric($page) && ($page > $lastPage)) {
             return ($lastPage > 0) ? $lastPage : 1;
         }
 
@@ -230,9 +231,11 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
      */
     public function links()
     {
-        $presenter = $this->getPresenter();
+        if ($this->getLastPage() > 1) {
+            $presenter = $this->getPresenter();
 
-        return $presenter->render();
+            return $presenter->render();
+        }
     }
 
     /**
@@ -394,7 +397,7 @@ class Paginator implements ArrayableInterface, ArrayAccess, Countable, IteratorA
     /**
      * Get a collection instance containing the items.
      *
-     * @return \Support\Collection
+     * @return \Mini\Support\Collection
      */
     public function getCollection()
     {

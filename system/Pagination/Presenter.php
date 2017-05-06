@@ -105,7 +105,15 @@ class Presenter
      */
     public function render()
     {
-        if ($this->lastPage <= 1) return '';
+        if ($this->paginator->isQuickPaginating()) {
+            $previous = __d('nova', '&laquo; Previous');
+
+            $next = __d('nova', 'Next &raquo;');
+
+            $content = $this->getPrevious($previous) .$this->getNext($next);
+
+            return $this->getPaginationWrapper($content);
+        }
 
         if ($this->lastPage < 13) {
             $content = $this->getPageRange(1, $this->lastPage);
@@ -161,11 +169,11 @@ class Presenter
             $content = $this->getPageRange($start, $this->lastPage);
 
             return $this->getStart() .$content;
+        } else {
+            $content = $this->getAdjacentRange();
+
+            return $this->getStart() .$content .$this->getFinish();
         }
-
-        $content = $this->getAdjacentRange();
-
-        return $this->getStart() .$content .$this->getFinish();
     }
 
     /**

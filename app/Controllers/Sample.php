@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Core\Controller;
 
 use Mini\Routing\RouteCompiler;
+use Mini\Support\Facades\Input;
+use Mini\Support\Facades\Paginator;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Route;
 use Mini\Support\Facades\Session;
@@ -100,6 +102,74 @@ class Sample extends Controller
         Session::set('test', 'This is a test!');
 
         return Redirect::to('sample/session');
+    }
+
+    public function pagination()
+    {
+        // Populate the items.
+        $items = array_map(function ($value)
+        {
+            $data = array(
+                'name' => 'Blog post #' .$value,
+                'url'  => 'posts/' .$value,
+                'body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum viverra aliquet. Cras sed auctor erat. Curabitur lobortis lacinia risus, et imperdiet dolor vehicula ac. Nullam venenatis lectus non nisl molestie iaculis. Pellentesque eleifend porta arcu et efficitur. Praesent pulvinar non nulla vitae consectetur. Curabitur a odio nec neque euismod luctus. Curabitur euismod felis sed lacus tempor pharetra.',
+            );
+
+            return $data;
+
+        }, range(1, 100));
+
+        //
+        if (Input::get('mode', 'default') == 'simple') {
+            $defaultMode = false;
+        } else {
+            $defaultMode = true;
+        }
+
+        //
+        $page = Input::get('offset', 1);
+
+        if (($page > count($items)) || ($page < 1)) {
+            $page = 1;
+        }
+
+        //
+        $perPage = 5;
+
+        if ($defaultMode) {
+            // We use the Standard Pagination.
+            $offset = ($page * $perPage) - $perPage;
+
+            $slices = array_slice($items, $offset, $perPage);
+
+            $posts = Paginator::make($slices, count($items), $perPage);
+        } else {
+            // We use the Simple Pagination.
+            $offset = ($page - 1) * $perPage;
+
+            $slices = array_slice($items, $offset, $perPage + 1);
+
+            $posts = Paginator::make($slices, $perPage);
+        }
+
+        //
+        $posts->appends(array(
+            'mode' => $defaultMode ? 'default' : 'simple',
+        ));
+
+        $content = $posts->links();
+
+        foreach ($posts->getItems() as $post) {
+            $content .= '<h4><a href="/' .$post['url'] .'"><strong>' .$post['name'] .'</strong></a></h4>';
+
+            $content .= '<p style="text-align: justify">' .$post['body'] .'</p><br>';
+        }
+
+        $content .= $posts->links();
+
+        return View::make('Default')
+            ->shares('title', 'Pagination')
+            ->with('content', $content);
     }
 }
 
