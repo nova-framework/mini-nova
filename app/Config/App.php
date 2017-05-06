@@ -134,6 +134,7 @@ return array(
         'Mini\Encryption\EncryptionServiceProvider',
         'Mini\Hashing\HashServiceProvider',
         'Mini\Mail\MailServiceProvider',
+        'Mini\Database\DatabaseServiceProvider',
 
 
         // The Application Providers.
@@ -176,6 +177,7 @@ return array(
         'Cookie'        => 'Mini\Support\Facades\Cookie',
         'Config'        => 'Mini\Support\Facades\Config',
         'Crypt'         => 'Mini\Support\Facades\Crypt',
+        'DB'            => 'Mini\Support\Facades\DB',
         'Event'         => 'Mini\Support\Facades\Event',
         'Hash'          => 'Mini\Support\Facades\Hash',
         'Input'         => 'Mini\Support\Facades\Input',
