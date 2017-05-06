@@ -15,7 +15,7 @@ class StartSession
      *
      * @var \Mini\Session\Store
      */
-    protected $session;
+    protected $sessionStore;
 
 
     /**
@@ -24,9 +24,9 @@ class StartSession
      * @param  \Mini\Session\Store  $session
      * @return void
      */
-    public function __construct(SessionStore $session)
+    public function __construct(SessionStore $store)
     {
-        $this->session = $session;
+        $this->sessionStore = $store;
     }
 
     /**
@@ -40,10 +40,11 @@ class StartSession
     {
         $session = $this->startSession($request);
 
-        //$request->setSession($session);
+        $request->setSession($session);
 
         $response = $next($request);
 
+        //
         $this->storeCurrentUrl($request, $session);
 
         return $response;
@@ -57,7 +58,9 @@ class StartSession
      */
     protected function startSession(Request $request)
     {
-        return $this->session->start();
+        $this->sessionStore->start();
+
+        return $this->sessionStore;
     }
 
     /**

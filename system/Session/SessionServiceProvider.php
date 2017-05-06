@@ -8,7 +8,7 @@
 
 namespace Mini\Session;
 
-use Mini\Session\Store;
+use Mini\Session\Store as SessionStore;
 use Mini\Support\ServiceProvider;
 
 
@@ -34,9 +34,9 @@ class SessionServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('session.store', function($app)
         {
-            $cookie = $app['config']->get('session.cookie');
+            $name = $app['config']->get('session.cookie');
 
-            return new Store($cookie);
+            return new SessionStore($name);
         });
     }
 

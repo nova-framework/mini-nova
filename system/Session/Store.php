@@ -11,9 +11,63 @@ namespace Mini\Session;
 use Mini\Support\Arr;
 use Mini\Support\Str;
 
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 
-class Store implements \ArrayAccess
+
+class Store implements SessionInterface, \ArrayAccess
 {
+    /**
+     * The session ID.
+     *
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * The session name.
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * The session attributes.
+     *
+     * @var array
+     */
+    protected $attributes = array();
+
+    /**
+     * The session bags.
+     *
+     * @var array
+     */
+    protected $bags = array();
+
+    /**
+     * The meta-data bag instance.
+     *
+     * @var \Symfony\Component\HttpFoundation\Session\Storage\MetadataBag
+     */
+    protected $metaBag;
+
+    /**
+     * Local copies of the session bag data.
+     *
+     * @var array
+     */
+    protected $bagData = array();
+
+    /**
+     * Session store started status.
+     *
+     * @var bool
+     */
+    protected $started = false;
+
+
     /**
      * Create a new Session Store instance.
      *
@@ -23,6 +77,8 @@ class Store implements \ArrayAccess
     public function __construct($name)
     {
         $this->setName($name);
+
+        $this->metaBag = new MetadataBag();
     }
 
     /**
@@ -36,11 +92,13 @@ class Store implements \ArrayAccess
             session_start();
         }
 
+        $this->attributes =& $_SESSION;
+
         if (! $this->has('_token')) {
             $this->regenerateToken();
         }
 
-        return $this;
+        return $this->started = true;
     }
 
     /**
@@ -54,14 +112,38 @@ class Store implements \ArrayAccess
     }
 
     /**
-     * Set the current Session ID.
-     *
-     * @param  string  $id
-     * @return void
+     * {@inheritdoc}
      */
     public function setId($id)
     {
+        if (! $this->isValidId($id)) {
+            $id = $this->generateSessionId();
+        }
+
+        $this->id = $id;
+
         return session_id($id);
+    }
+
+    /**
+     * Determine if this is a valid session ID.
+     *
+     * @param  string  $id
+     * @return bool
+     */
+    public function isValidId($id)
+    {
+        return (is_string($id) && preg_match('/^[a-f0-9]{40}$/', $id));
+    }
+
+    /**
+     * Get a new, random session ID.
+     *
+     * @return string
+     */
+    protected function generateSessionId()
+    {
+        return sha1(uniqid('', true) .str_random(25) .microtime(true));
     }
 
     /**
@@ -82,7 +164,93 @@ class Store implements \ArrayAccess
      */
     public function setName($name)
     {
+        $this->name = $name;
+
         return session_name($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidate($lifetime = null)
+    {
+        $_SESSION = array();
+
+        $this->migrate();
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function migrate($destroy = false, $lifetime = null)
+    {
+        if ($destroy) {
+            session_destroy();
+        }
+
+        $id = $this->generateSessionId();
+
+        session_id($id);
+
+        return true;
+    }
+
+    /**
+     * Generate a new session identifier.
+     *
+     * @param  bool  $destroy
+     * @return bool
+     */
+    public function regenerate($destroy = false)
+    {
+        return $this->migrate($destroy);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save()
+    {
+        $this->addBagDataToSession();
+
+        $this->ageFlashData();
+
+        //
+        //session_write_close();
+
+        $this->started = false;
+    }
+
+    /**
+     * Merge all of the bag data into the session.
+     *
+     * @return void
+     */
+    protected function addBagDataToSession()
+    {
+        foreach (array_merge($this->bags, array($this->metaBag)) as $bag)  {
+            $key = $bag->getStorageKey();
+
+            $this->put($key, $this->bagData[$key]);
+        }
+    }
+
+    /**
+     * Age the flash data for the session.
+     *
+     * @return void
+     */
+    public function ageFlashData()
+    {
+        foreach ($this->get('flash.old', array()) as $old) {
+            $this->forget($old);
+        }
+
+        $this->put('flash.old', $this->get('flash.new', array()));
+
+        $this->put('flash.new', array());
     }
 
     /**
@@ -93,7 +261,7 @@ class Store implements \ArrayAccess
      */
     public function has($name)
     {
-        return ! is_nul($this->get($name));
+        return ! is_null($this->get($name));
     }
 
     /**
@@ -114,6 +282,115 @@ class Store implements \ArrayAccess
     public function set($name, $value)
     {
         Arr::set($_SESSION, $name, $value);
+    }
+
+    /**
+     * Retrieve all items from the Session.
+     *
+     * @return array
+     */
+    public function all()
+    {
+        return $_SESSION;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function replace(array $attributes)
+    {
+        foreach ($attributes as $key => $value) {
+            $this->put($key, $value);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove($name)
+    {
+        return Arr::pull($_SESSION, $name);
+    }
+
+    /**
+     * Remove an item from the Session.
+     *
+     * @param  string  $key
+     * @return void
+     */
+    public function forget($key)
+    {
+        Arr::forget($_SESSION, $key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        session_unset();
+
+        foreach ($this->bags as $bag) {
+            $bag->clear();
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isStarted()
+    {
+        return $this->started;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerBag(SessionBagInterface $bag)
+    {
+        $key = $bag->getStorageKey();
+
+        $this->bags[$key] = $bag;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBag($name)
+    {
+        return Arr::get($this->bags, $name, function()
+        {
+            throw new \InvalidArgumentException("Bag not registered.");
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMetadataBag()
+    {
+        return $this->metaBag;
+    }
+
+    /**
+     * Get the raw bag data array for a given bag.
+     *
+     * @param  string  $name
+     * @return array
+     */
+    public function getBagData($name)
+    {
+        return array_get($this->bagData, $name, array());
+    }
+
+    /**
+     * Remove all of the items from the session.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->clear();
     }
 
     /**
@@ -164,7 +441,17 @@ class Store implements \ArrayAccess
         $this->push('flash', $key);
     }
 
-
+    /**
+     * Flash an input array to the session.
+     *
+     * @param  array  $value
+     * @return void
+     */
+    public function flashInput(array $value)
+    {
+        $this->flash('_old_input', $value);
+    }
+    
     /**
      * Delete all the flashed data.
      *
@@ -177,49 +464,6 @@ class Store implements \ArrayAccess
         }
 
         $this->put('flash', array());
-    }
-
-    /**
-     * Retrieve all items from the Session.
-     *
-     * @return array
-     */
-    public function all()
-    {
-        return $_SESSION;
-    }
-
-    /**
-     * Remove an item from the Session.
-     *
-     * @param  string  $key
-     * @return void
-     */
-    public function forget($key)
-    {
-        Arr::forget($_SESSION, $key);
-    }
-
-    /**
-     * Destroy all data registered to a Session.
-     *
-     * @return bool
-     */
-    public function destroy()
-    {
-        if ($this->getId()) {
-            return session_destroy();
-        }
-    }
-
-    /**
-     * Remove all items from the Session.
-     *
-     * @return bool
-     */
-    public function flush()
-    {
-        return session_unset();
     }
 
     /**

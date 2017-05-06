@@ -35,6 +35,13 @@ class Request extends SymfonyRequest implements ArrayAccess
      */
     protected $routeResolver;
 
+    /**
+     * The Nova session store implementation.
+     *
+     * @var \Nova\Session\Store
+     */
+    protected $sessionStore;
+
 
     /**
      * Create a new Illuminate HTTP request from server variables.
@@ -461,6 +468,68 @@ class Request extends SymfonyRequest implements ArrayAccess
     }
 
     /**
+     * Retrieve an old input item.
+     *
+     * @param  string  $key
+     * @param  mixed   $default
+     * @return mixed
+     */
+    public function old($key = null, $default = null)
+    {
+        return $this->session()->getOldInput($key, $default);
+    }
+
+    /**
+     * Flash the input for the current request to the session.
+     *
+     * @param  string  $filter
+     * @param  array   $keys
+     * @return void
+     */
+    public function flash($filter = null, $keys = array())
+    {
+        $flash = (! is_null($filter)) ? $this->$filter($keys) : $this->input();
+
+        $this->session()->flashInput($flash);
+    }
+
+    /**
+     * Flash only some of the input to the session.
+     *
+     * @param  mixed  string
+     * @return void
+     */
+    public function flashOnly($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        return $this->flash('only', $keys);
+    }
+
+    /**
+     * Flash only some of the input to the session.
+     *
+     * @param  mixed  string
+     * @return void
+     */
+    public function flashExcept($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        return $this->flash('except', $keys);
+    }
+
+    /**
+     * Flush all of the old input from the session.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->session()->flashInput(array());
+    }
+
+    /**
      * Retrieve a parameter item from a given source.
      *
      * @param  string  $source
@@ -578,6 +647,22 @@ class Request extends SymfonyRequest implements ArrayAccess
         if (Str::startsWith($header, 'Bearer ')) {
             return Str::substr($header, 7);
         }
+    }
+
+    /**
+     * Get the session associated with the request.
+     *
+     * @return \Session\Store
+     *
+     * @throws \RuntimeException
+     */
+    public function session()
+    {
+        if (! $this->hasSession()) {
+            throw new \RuntimeException("Session store not set on request.");
+        }
+
+        return $this->getSession();
     }
     
     /**
