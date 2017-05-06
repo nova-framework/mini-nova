@@ -3,6 +3,7 @@
 namespace Mini\Http;
 
 use Mini\Http\ResponseTrait;
+use Nova\Session\Store as SessionStore;
 
 use Symfony\Component\HttpFoundation\Cookie as SymfonyCookie;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
@@ -82,7 +83,7 @@ class RedirectResponse extends SymfonyRedirectResponse
     {
         return $this->withInput($this->request->except(func_get_args()));
     }
-    
+
     /**
      * Get the request instance.
      *
