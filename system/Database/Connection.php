@@ -8,8 +8,6 @@
 
 namespace Mini\Database;
 
-use Mini\Core\Config;
-use Mini\Core\Logger;
 use Mini\Database\Connector;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
