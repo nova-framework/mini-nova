@@ -64,6 +64,13 @@ class Model
     public $timestamps = true;
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = array();
+    
+    /**
      * The connection resolver instance.
      *
      * @var \Mini\Database\ConnectionResolverInterface
@@ -344,6 +351,18 @@ class Model
     public function freshTimestampString()
     {
         return $this->fromDateTime($this->freshTimestamp());
+    }
+
+    /**
+     * Get the attributes that should be converted to dates.
+     *
+     * @return array
+     */
+    public function getDates()
+    {
+        $defaults = array(static::CREATED_AT, static::UPDATED_AT);
+
+        return array_merge($this->dates, $defaults);
     }
 
     /**
