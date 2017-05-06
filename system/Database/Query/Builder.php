@@ -1618,10 +1618,6 @@ class Builder
         return $this->grammar;
     }
 
-    //--------------------------------------------------------------------
-    // Magic Methods
-    //--------------------------------------------------------------------
-
     /**
      * Handle dynamic method calls into the method.
      *

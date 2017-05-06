@@ -633,10 +633,6 @@ class Grammar
         return array('TRUNCATE ' .$this->wrapTable($this->from) => array());
     }
 
-    //--------------------------------------------------------------------
-    // Utility Methods
-    //--------------------------------------------------------------------
-
     /**
      * Wrap a table in keyword identifiers.
      *
