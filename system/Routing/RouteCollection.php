@@ -33,20 +33,6 @@ class RouteCollection implements Countable, IteratorAggregate
      */
     protected $allRoutes = array();
 
-    /**
-     * The route names that have been matched.
-     *
-     * @var array
-     */
-    protected $nameList = array();
-
-    /**
-     * The actions that have been reverse routed.
-     *
-     * @var array
-     */
-    protected $actionList = array();
-
 
     /**
      * Add a route to the router.
@@ -64,33 +50,7 @@ class RouteCollection implements Countable, IteratorAggregate
 
         $this->allRoutes[] = $route;
 
-        //
-        $this->addLookups($route);
-
         return $route;
-    }
-
-    /**
-     * Add the route to any look-up tables if necessary.
-     *
-     * @param  \Nova\Routing\Route  $route
-     * @return void
-     */
-    protected function addLookups($route)
-    {
-        $action = $route->getAction();
-
-        if (isset($action['as'])) {
-            $name = $action['as'];
-
-            $this->nameList[$name] = $route;
-        }
-
-        if (isset($action['controller'])) {
-            $controller = $action['controller'];
-
-            $this->addToActionList($controller, $route);
-        }
     }
 
     /**
@@ -233,39 +193,6 @@ class RouteCollection implements Countable, IteratorAggregate
 
         return Arr::get($this->routes, $method, array());
     }
-
-    /**
-     * Determine if the route collection contains a given named route.
-     *
-     * @param  string  $name
-     * @return bool
-     */
-    public function hasNamedRoute($name)
-    {
-        return ! is_null($this->getByName($name));
-    }
-
-    /**
-     * Find a route by the route's assigned name.
-     *
-     * @param  string  $name
-     * @return array
-     */
-    public function getByName($name)
-    {
-        return Arr::get($this->nameList, $name);
-    }
-
-    /**
-     * Find the route that uses the given action.
-     *
-     * @param  string  $action
-     * @return array
-     */
-    public function getByAction($action)
-    {
-        return Arr::get($this->actionList, $action);
-     }
 
     /**
      * Get all of the registered routes.

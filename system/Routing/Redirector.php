@@ -41,7 +41,7 @@ class Redirector
      */
     public function home($status = 302)
     {
-        return $this->to($this->generator->route('home'), $status);
+        return $this->to('/', $status);
     }
 
     /**
@@ -142,38 +142,6 @@ class Redirector
     public function secure($path, $status = 302, $headers = array())
     {
         return $this->to($path, $status, $headers, true);
-    }
-
-    /**
-     * Create a new redirect response to a named route.
-     *
-     * @param  string  $route
-     * @param  array   $parameters
-     * @param  int     $status
-     * @param  array   $headers
-     * @return \Mini\Http\RedirectResponse
-     */
-    public function route($route, $parameters = array(), $status = 302, $headers = array())
-    {
-        $path = $this->generator->route($route, $parameters);
-
-        return $this->to($path, $status, $headers);
-    }
-
-    /**
-     * Create a new redirect response to a controller action.
-     *
-     * @param  string  $action
-     * @param  array   $parameters
-     * @param  int     $status
-     * @param  array   $headers
-     * @return \Mini\Http\RedirectResponse
-     */
-    public function action($action, $parameters = array(), $status = 302, $headers = array())
-    {
-        $path = $this->generator->action($action, $parameters);
-
-        return $this->to($path, $status, $headers);
     }
 
     /**
