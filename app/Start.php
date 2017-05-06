@@ -89,13 +89,9 @@ $app->singleton(
 // Load The Framework Facades
 //--------------------------------------------------------------------------
 
+Facade::clearResolvedInstances();
+
 Facade::setFacadeApplication($app);
-
-//--------------------------------------------------------------------------
-// Register Facade Aliases To Full Classes
-//--------------------------------------------------------------------------
-
-$app->registerCoreContainerAliases();
 
 //--------------------------------------------------------------------------
 // Register The Config Manager
