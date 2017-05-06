@@ -9,7 +9,7 @@ use Mini\Database\Model;
 use Closure;
 
 
-class Query
+class Builder
 {
     /**
      * The base Query Builder instance.

@@ -11,7 +11,7 @@ namespace Mini\Database;
 use Mini\Database\Connection;
 use Mini\Database\ConnectionResolverInterface as Resolver;
 use Mini\Database\Query\Builder as QueryBuilder;
-use Mini\Database\Query as Builder;
+use Mini\Database\Builder;
 use Mini\Support\Str;
 
 

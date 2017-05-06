@@ -67,6 +67,13 @@ class Store implements SessionInterface, \ArrayAccess
      */
     protected $started = false;
 
+    /**
+     * Session store closed status.
+     *
+     * @var bool
+     */
+    protected $closed = false;
+
 
     /**
      * Create a new Session Store instance.
@@ -82,23 +89,58 @@ class Store implements SessionInterface, \ArrayAccess
     }
 
     /**
+     * Load the session with attributes.
+     *
+     * @param array|null $session
+     */
+    protected function loadSession(array &$session = null)
+    {
+        if (is_null($session)) {
+            $session = &$_SESSION;
+        }
+
+        $bags = array_merge($this->bags, array($this->metaBag));
+
+        foreach ($bags as $bag) {
+            $key = $bag->getStorageKey();
+
+            $value = Arr::get($session, $key, array());
+
+            //
+            $session[$key] = $value;
+
+            $bag->initialize($value);
+        }
+
+        $this->started = true;
+        $this->closed = false;
+    }
+
+    /**
      * Start the Session.
      *
      * @return \Session\Store
+     * @throws \RuntimeException
      */
     public function start()
     {
-        if (! $this->getId()) {
-            session_start();
+        if ($this->started) {
+            return true;
         }
 
-        $this->attributes =& $_SESSION;
+        if (\PHP_SESSION_ACTIVE === session_status()) {
+            throw new \RuntimeException('Failed to start the session: already started by PHP.');
+        }
+
+        session_start();
+
+        $this->loadSession();
 
         if (! $this->has('_token')) {
             $this->regenerateToken();
         }
 
-        return $this->started = true;
+        return true;
     }
 
     /**
@@ -172,29 +214,19 @@ class Store implements SessionInterface, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function invalidate($lifetime = null)
+    public function invalidate($lifeTime = null)
     {
-        $_SESSION = array();
+        $this->clear();
 
-        $this->migrate();
-
-        return true;
+        return $this->migrate(true, $lifeTime);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function migrate($destroy = false, $lifetime = null)
+    public function migrate($destroy = false, $lifeTime = null)
     {
-        if ($destroy) {
-            session_destroy();
-        }
-
-        $id = $this->generateSessionId();
-
-        session_id($id);
-
-        return true;
+        return $this->regenerate($destroy, $lifeTime);
     }
 
     /**
@@ -203,9 +235,27 @@ class Store implements SessionInterface, \ArrayAccess
      * @param  bool  $destroy
      * @return bool
      */
-    public function regenerate($destroy = false)
+    public function regenerate($destroy = false, $lifeTime = null)
     {
-        return $this->migrate($destroy);
+        if (\PHP_SESSION_ACTIVE !== session_status()) {
+            return false;
+        }
+
+        if (! is_nulol($lifeTime)) {
+            ini_set('session.cookie_lifetime', $lifeTime);
+        }
+
+        if ($destroy) {
+            $this->metaBag->stampNew();
+        }
+
+        $isRegenerated = session_regenerate_id($destroy);
+
+        // The reference to $_SESSION in session bags is lost in PHP7 and we need to re-create it.
+        // @see https://bugs.php.net/bug.php?id=70013
+        $this->loadSession();
+
+        return $isRegenerated;
     }
 
     /**
@@ -213,44 +263,19 @@ class Store implements SessionInterface, \ArrayAccess
      */
     public function save()
     {
-        $this->addBagDataToSession();
+        $bags = array_merge($this->bags, array($this->metaBag));
 
-        $this->ageFlashData();
-
-        //
-        //session_write_close();
-
-        $this->started = false;
-    }
-
-    /**
-     * Merge all of the bag data into the session.
-     *
-     * @return void
-     */
-    protected function addBagDataToSession()
-    {
-        foreach (array_merge($this->bags, array($this->metaBag)) as $bag)  {
+        foreach ($bags as $bag)  {
             $key = $bag->getStorageKey();
 
             $this->put($key, $this->bagData[$key]);
         }
-    }
 
-    /**
-     * Age the flash data for the session.
-     *
-     * @return void
-     */
-    public function ageFlashData()
-    {
-        foreach ($this->get('flash.old', array()) as $old) {
-            $this->forget($old);
-        }
+        //
+        session_write_close();
 
-        $this->put('flash.old', $this->get('flash.new', array()));
-
-        $this->put('flash.new', array());
+        $this->started = false;
+        $this->closed  = true;
     }
 
     /**
@@ -367,11 +392,13 @@ class Store implements SessionInterface, \ArrayAccess
      */
     public function clear()
     {
-        session_unset();
-
         foreach ($this->bags as $bag) {
             $bag->clear();
         }
+
+        $_SESSION = array();
+
+        $this->loadSession();
     }
 
     /**
@@ -496,10 +523,10 @@ class Store implements SessionInterface, \ArrayAccess
      *
      * @return void
      */
-    public function deleteFlash()
+    public function clearFlash()
     {
         foreach ($this->get('flash', array()) as $key) {
-            $this->delete($key);
+            $this->forget($key);
         }
 
         $this->put('flash', array());

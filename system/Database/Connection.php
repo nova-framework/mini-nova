@@ -11,6 +11,7 @@ namespace Mini\Database;
 use Mini\Database\Connector;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
+use Mini\Database\Query\Grammar as QueryGrammar;
 use Mini\Database\QueryException;
 
 use Closure;
@@ -41,6 +42,13 @@ class Connection
      * @var \Events\Dispatcher
      */
     protected $events;
+
+    /**
+     * The query grammar implementation.
+     *
+     * @var \Mini\Database\Query\Grammar
+     */
+    protected $queryGrammar;
 
     /**
      * The paginator environment instance.
@@ -130,6 +138,8 @@ class Connection
 
         $this->tablePrefix = $config['prefix'];
 
+        $this->queryGrammar = $this->withTablePrefix(new QueryGrammar());;
+
         //
         $this->connector = $this->createConnector($config);
 
@@ -168,7 +178,7 @@ class Connection
      */
     public function table($table)
     {
-        $query = new QueryBuilder($this);
+        $query = new QueryBuilder($this, $this->getQueryGrammar());
 
         return $query->from($table);
     }
@@ -328,10 +338,12 @@ class Connection
      */
     public function prepareBindings(array $bindings)
     {
+        $grammar = $this->getQueryGrammar();
+
         foreach ($bindings as $key => $value) {
             if ($value instanceof DateTimeInterface) {
                 // We need to transform all DateTime instances into an actual date string.
-                $bindings[$key] = $value->format($this->getDateFormat());
+                $bindings[$key] = $value->format($grammar->getDateFormat());
             } else if ($value === false) {
                 $bindings[$key] = 0;
             }
@@ -538,7 +550,7 @@ class Connection
     }
 
     /**
-     * Set the table prefix in use by the Connection.
+     * Set the table prefix in use by the connection.
      *
      * @param  string  $prefix
      * @return void
@@ -546,6 +558,21 @@ class Connection
     public function setTablePrefix($prefix)
     {
         $this->tablePrefix = $prefix;
+
+        $this->getQueryGrammar()->setTablePrefix($prefix);
+    }
+
+    /**
+     * Set the table prefix and return the grammar.
+     *
+     * @param  \Nova\Database\Grammar  $grammar
+     * @return \Nova\Database\Grammar
+     */
+    public function withTablePrefix(QueryGrammar $grammar)
+    {
+        $grammar->setTablePrefix($this->tablePrefix);
+
+        return $grammar;
     }
 
     /**
@@ -585,6 +612,16 @@ class Connection
         $this->pdo = $pdo;
 
         return $this;
+    }
+
+    /**
+     * Get the query grammar used by the connection.
+     *
+     * @return \Nova\Database\Query\Grammar
+     */
+    public function getQueryGrammar()
+    {
+        return $this->queryGrammar;
     }
 
     /**
@@ -741,13 +778,4 @@ class Connection
         return $this->loggingQueries;
     }
 
-    /**
-     * Get the format for database stored dates.
-     *
-     * @return string
-     */
-    public function getDateFormat()
-    {
-        return $this->connector->getDateFormat();
-    }
 }
