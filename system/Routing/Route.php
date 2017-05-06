@@ -325,6 +325,36 @@ class Route
     }
 
     /**
+     * Determine if the route only responds to HTTP requests.
+     *
+     * @return bool
+     */
+    public function httpOnly()
+    {
+        return in_array('http', $this->action, true);
+    }
+
+    /**
+     * Determine if the route only responds to HTTPS requests.
+     *
+     * @return bool
+     */
+    public function httpsOnly()
+    {
+        return $this->secure();
+    }
+
+    /**
+     * Determine if the route only responds to HTTPS requests.
+     *
+     * @return bool
+     */
+    public function secure()
+    {
+        return in_array('https', $this->action, true);
+    }
+    
+    /**
      * Get the regular expression requirements on the route.
      *
      * @return array
@@ -333,7 +363,7 @@ class Route
     {
         return $this->wheres;
     }
-    
+
     /**
      * Get the regex for the route.
      *

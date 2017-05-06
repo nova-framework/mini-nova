@@ -3,7 +3,9 @@
 namespace Mini\Routing;
 
 use Mini\Routing\ControllerDispatcher;
+use Mini\Routing\Redirector;
 use Mini\Routing\Router;
+use Mini\Routing\UrlGenerator;
 use Mini\Support\ServiceProvider;
 
 
@@ -20,6 +22,10 @@ class RoutingServiceProvider extends ServiceProvider
         $this->registerRouter();
 
         $this->registerCustomDispatcher();
+
+        $this->registerUrlGenerator();
+
+        $this->registerRedirector();
     }
 
     /**
@@ -36,7 +42,7 @@ class RoutingServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the URL generator service.
+     * Register the custom Controller dispatcher service.
      *
      * @return void
      */
@@ -47,5 +53,49 @@ class RoutingServiceProvider extends ServiceProvider
             return new ControllerDispatcher($app['router'], $app);
         });
     }
-    
+
+    /**
+     * Register the URL generator service.
+     *
+     * @return void
+     */
+    protected function registerUrlGenerator()
+    {
+        $this->app['url'] = $this->app->share(function($app)
+        {
+            $routes = $app['router']->getRoutes();
+
+            $url = new UrlGenerator($routes, $app->rebinding('request', function($app, $request)
+            {
+                $app['url']->setRequest($request);
+            }));
+
+            $url->setSessionResolver(function ()
+            {
+                return $this->app['session'];
+            });
+
+            return $url;
+        });
+    }
+
+
+    /**
+     * Register the Redirector service.
+     *
+     * @return void
+     */
+    protected function registerRedirector()
+    {
+        $this->app['redirect'] = $this->app->share(function($app)
+        {
+            $redirector = new Redirector($app['url']);
+
+            if (isset($app['session.store'])) {
+                $redirector->setSession($app['session.store']);
+            }
+
+            return $redirector;
+        });
+    }
 }

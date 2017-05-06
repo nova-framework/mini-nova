@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 
 use Mini\Routing\RouteCompiler;
+use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Route;
 use Mini\Support\Facades\Session;
 use Mini\Support\Facades\View;
@@ -84,11 +85,21 @@ class Sample extends Controller
     {
         $data = Session::all();
 
+        Session::forget('test');
+
+        //
         $content = '<pre>' .htmlentities(var_export($data, true)) .'</pre>';
 
         return View::make('Default')
             ->shares('title', 'Session')
             ->with('content', $content);
+    }
+
+    public function redirect()
+    {
+        Session::set('test', 'This is a test!');
+
+        return Redirect::to('sample/session');
     }
 }
 
