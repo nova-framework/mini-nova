@@ -138,6 +138,7 @@ return array(
         'Mini\Pagination\PaginationServiceProvider',
         'Mini\Filesystem\FilesystemServiceProvider',
         'Mini\Cache\CacheServiceProvider',
+        'Mini\Language\LanguageServiceProvider',
 
 
         // The Application Providers.
@@ -186,6 +187,7 @@ return array(
         'File'          => 'Mini\Support\Facades\File',
         'Hash'          => 'Mini\Support\Facades\Hash',
         'Input'         => 'Mini\Support\Facades\Input',
+        'Langauge'      => 'Mini\Support\Facades\Language',
         'Log'           => 'Mini\Support\Facades\Log',
         'Mail'          => 'Mini\Support\Facades\Mail',
         'Paginator'     => 'Mini\Support\Facades\Paginator',
