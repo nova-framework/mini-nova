@@ -277,6 +277,45 @@ class Store implements SessionInterface, \ArrayAccess
     }
 
     /**
+     * Get the value of a given key and then forget it.
+     *
+     * @param  string  $key
+     * @param  string  $default
+     * @return mixed
+     */
+    public function pull($key, $default = null)
+    {
+        return Arr::pull($this->attributes, $key, $default);
+    }
+
+    /**
+     * Determine if the session contains old input.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasOldInput($key = null)
+    {
+        $old = $this->getOldInput($key);
+
+        return is_null($key) ? (count($old) > 0) : ! is_null($old);
+    }
+
+    /**
+     * Get the requested item from the flashed input array.
+     *
+     * @param  string  $key
+     * @param  mixed   $default
+     * @return mixed
+     */
+    public function getOldInput($key = null, $default = null)
+    {
+        $input = $this->get('_old_input', array());
+
+        return Arr::get($input, $key, $default);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function set($name, $value)
@@ -451,7 +490,7 @@ class Store implements SessionInterface, \ArrayAccess
     {
         $this->flash('_old_input', $value);
     }
-    
+
     /**
      * Delete all the flashed data.
      *
@@ -483,7 +522,7 @@ class Store implements SessionInterface, \ArrayAccess
      */
     public function regenerateToken()
     {
-        $this->put('_token', Str::random(128));
+        $this->put('_token', Str::random(40));
     }
 
     /**
