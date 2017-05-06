@@ -8,11 +8,11 @@
 
 namespace Mini\Database\Query;
 
-use Mini\Helpers\Inflector;
 use Mini\Database\Connection;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\JoinClause;
 use Mini\Support\Facades\Paginator;
+use Mini\Support\Str;
 
 use PDO;
 use Closure;
@@ -792,7 +792,7 @@ class Builder
     {
         $boolean = strtolower($connector);
 
-        $this->where(Inflector::tableize($segment), '=', $parameters[$index], $boolean);
+        $this->where(Str::snake($segment), '=', $parameters[$index], $boolean);
     }
 
 
