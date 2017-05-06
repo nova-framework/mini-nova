@@ -1,5 +1,6 @@
 <?php
 
+use Mini\Container\Container;
 use Mini\Support\Arr;
 use Mini\Support\Collection;
 use Mini\Support\Str;
@@ -84,12 +85,11 @@ if (! function_exists('app'))
      */
     function app($make = null)
     {
-        if (! is_null($make))
-        {
-            return app()->make($make);
+        if (is_null($make)) {
+            return Container::getInstance();
         }
 
-        return Mini\Support\Facades\Facade::getFacadeApplication();
+        return Container::getInstance()->make($make, $parameters);
     }
 }
 

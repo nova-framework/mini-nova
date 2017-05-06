@@ -10,6 +10,7 @@ use Mini\Http\Request;
 use Mini\Routing\RoutingServiceProvider;
 use Mini\Support\Arr;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -46,6 +47,13 @@ class Application extends Container
     protected $bootedCallbacks = array();
 
     /**
+     * The array of finish callbacks.
+     *
+     * @var array
+     */
+    protected $terminatingCallbacks = array();
+
+    /**
      * All of the registered service providers.
      *
      * @var array
@@ -70,14 +78,15 @@ class Application extends Container
     /**
      * Create a new Nova application instance.
      *
-     * @param  \Mini\Http\Request  $request
      * @return void
      */
-    public function __construct(Request $request = null)
+    public function __construct()
     {
-        $this->registerBaseBindings($request ?: $this->createNewRequest());
+        $this->registerBaseBindings();
 
         $this->registerBaseServiceProviders();
+
+        $this->registerCoreContainerAliases();
     }
 
     /**
@@ -106,9 +115,11 @@ class Application extends Container
      * @param  \Mini\Http\Request  $request
      * @return void
      */
-    protected function registerBaseBindings($request)
+    protected function registerBaseBindings()
     {
-        $this->instance('request', $request);
+        static::setInstance($this);
+
+        $this->instance('app', $this);
 
         $this->instance('Mini\Container\Container', $this);
     }
@@ -324,6 +335,39 @@ class Application extends Container
     }
 
     /**
+     * "Extend" an abstract type in the container.
+     *
+     * (Overriding Container::extend)
+     *
+     * @param  string   $abstract
+     * @param  \Closure  $closure
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function extend($abstract, Closure $closure)
+    {
+        $abstract = $this->getAlias($abstract);
+
+        if (isset($this->deferredServices[$abstract])) {
+            $this->loadDeferredProvider($abstract);
+        }
+
+        return parent::extend($abstract, $closure);
+    }
+
+    /**
+     * Register a "finish" application filter.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public function finish($callback)
+    {
+        $this->finishCallbacks[] = $callback;
+    }
+
+    /**
      * Determine if the application has booted.
      *
      * @return bool
@@ -357,7 +401,6 @@ class Application extends Container
         $this->fireAppCallbacks($this->bootedCallbacks);
     }
 
-
     /**
      * Register a new boot listener.
      *
@@ -381,6 +424,52 @@ class Application extends Container
 
         if ($this->booted) {
             $this->fireAppCallbacks(array($callback));
+        }
+    }
+
+    /**
+     * Throw an HttpException with the given data.
+     *
+     * @param  int     $code
+     * @param  string  $message
+     * @param  array   $headers
+     * @return void
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     */
+    public function abort($code, $message = '', array $headers = array())
+    {
+        if ($code == 404) {
+            throw new NotFoundHttpException($message);
+        }
+
+        throw new HttpException($code, $message, null, $headers);
+    }
+
+    /**
+     * Register a terminating callback with the application.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function terminating(Closure $callback)
+    {
+        $this->terminatingCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Call the "finish" and "shutdown" callbacks assigned to the application.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return void
+     */
+    public function terminate(SymfonyRequest $request, SymfonyResponse $response)
+    {
+        foreach ($this->terminatingCallbacks as $callback) {
+            call_user_func($callback, $request, $response);
         }
     }
 
