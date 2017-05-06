@@ -115,14 +115,13 @@ class DatabaseManager implements ConnectionResolverInterface
         {
             return $app['cache'];
         });
-
+        */
 
         // Setup the Paginator.
         $connection->setPaginator(function() use ($app)
         {
             return $app['paginator'];
         });
-        */
 
         return $connection;
     }

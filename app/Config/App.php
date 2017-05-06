@@ -135,6 +135,7 @@ return array(
         'Mini\Hashing\HashServiceProvider',
         'Mini\Mail\MailServiceProvider',
         'Mini\Database\DatabaseServiceProvider',
+        'Mini\Pagination\PaginationServiceProvider',
 
 
         // The Application Providers.
@@ -183,6 +184,7 @@ return array(
         'Input'         => 'Mini\Support\Facades\Input',
         'Log'           => 'Mini\Support\Facades\Log',
         'Mail'          => 'Mini\Support\Facades\Mail',
+        'Paginator'     => 'Mini\Support\Facades\Paginator',
         'Request'       => 'Mini\Support\Facades\Request',
         'Response'      => 'Mini\Support\Facades\Response',
         'Route'         => 'Mini\Support\Facades\Route',
