@@ -33,7 +33,7 @@ return array(
     |
     */
 
-    'default' => 'default',
+    'default' => 'primary',
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +52,7 @@ return array(
     */
 
     'connections' => array(
-        'default' => array(
+        'primary' => array(
             'host'      => 'localhost',
             'database'  => 'minime',
             'username'  => 'minime',
