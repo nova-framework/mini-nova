@@ -29,13 +29,6 @@ class Model
     protected $connection = null;
 
     /**
-     * The Database Connection instance.
-     *
-     * @var string
-     */
-    protected $db = null;
-
-    /**
      * The table associated with the Model.
      *
      * @var string
@@ -69,7 +62,7 @@ class Model
      * @var array
      */
     protected $dates = array();
-    
+
     /**
      * The connection resolver instance.
      *
@@ -103,9 +96,6 @@ class Model
         if (! is_null($connection)) {
             $this->connection = $connection;
         }
-
-        // Setup the Database Connection instance.
-        $this->db = $this->getConnection();
     }
 
     /**
@@ -265,9 +255,6 @@ class Model
     {
         $this->connection = $name;
 
-        // Setup the Database Connection instance.
-        $this->db = $this->getConnection();
-
         return $this;
     }
 
@@ -340,7 +327,7 @@ class Model
      */
     public function freshTimestamp()
     {
-        return new Carbon;
+        return new Carbon();
     }
 
     /**
