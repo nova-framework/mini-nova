@@ -3,7 +3,10 @@
 namespace Mini\Http;
 
 use Mini\Http\ResponseTrait;
-use Nova\Session\Store as SessionStore;
+use Mini\Session\Store as SessionStore;
+use Mini\Support\MessageBag;
+use Mini\Support\Contracts\MessageProviderInterface;
+use Mini\Support\Str;
 
 use Symfony\Component\HttpFoundation\Cookie as SymfonyCookie;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
@@ -24,7 +27,7 @@ class RedirectResponse extends SymfonyRedirectResponse
     /**
      * The session store implementation.
      *
-     * @var \Nova\Session\Store
+     * @var \Mini\Session\Store
      */
     protected $session;
 
@@ -77,7 +80,7 @@ class RedirectResponse extends SymfonyRedirectResponse
      * Flash an array of input to the session.
      *
      * @param  mixed  string
-     * @return \Nova\Http\RedirectResponse
+     * @return \Mini\Http\RedirectResponse
      */
     public function exceptInput()
     {
@@ -85,9 +88,42 @@ class RedirectResponse extends SymfonyRedirectResponse
     }
 
     /**
+     * Flash a container of errors to the session.
+     *
+     * @param  \Mini\Support\Contracts\MessageProviderInterface|array  $provider
+     * @param  string  $key
+     * @return $this
+     */
+    public function withErrors($provider, $key = 'default')
+    {
+        $value = $this->parseErrors($provider);
+
+        $this->session->flash(
+            'errors', $this->session->get('errors', new ViewErrorBag)->put($key, $value)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Parse the given errors into an appropriate value.
+     *
+     * @param  \Mini\Support\Contracts\MessageProviderInterface|array  $provider
+     * @return \Mini\Support\MessageBag
+     */
+    protected function parseErrors($provider)
+    {
+        if ($provider instanceof MessageProviderInterface) {
+            return $provider->getMessageBag();
+        }
+
+        return new MessageBag((array) $provider);
+    }
+
+    /**
      * Get the request instance.
      *
-     * @return  \Nova\Http\Request
+     * @return  \Mini\Http\Request
      */
     public function getRequest()
     {
@@ -97,7 +133,7 @@ class RedirectResponse extends SymfonyRedirectResponse
     /**
      * Set the request instance.
      *
-     * @param  \Nova\Http\Request  $request
+     * @param  \Mini\Http\Request  $request
      * @return void
      */
     public function setRequest(Request $request)
