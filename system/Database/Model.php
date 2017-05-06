@@ -14,6 +14,10 @@ use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Builder;
 use Mini\Support\Str;
 
+use Carbon\Carbon;
+
+use DateTime;
+
 
 class Model
 {
@@ -53,11 +57,32 @@ class Model
     protected $perPage = 15;
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
      * The connection resolver instance.
      *
      * @var \Mini\Database\ConnectionResolverInterface
      */
     protected static $resolver;
+
+    /**
+     * The name of the "created at" column.
+     *
+     * @var string
+     */
+    const CREATED_AT = 'created_at';
+
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = 'updated_at';
 
 
     /**
@@ -148,6 +173,16 @@ class Model
             ->delete();
 
         return true;
+    }
+
+    /**
+     * Determine if the model uses timestamps.
+     *
+     * @return bool
+     */
+    public function usesTimestamps()
+    {
+        return $this->timestamps;
     }
 
     /**
@@ -269,6 +304,100 @@ class Model
     public static function unsetConnectionResolver()
     {
         static::$resolver = null;
+    }
+
+    /**
+     * Get the name of the "created at" column.
+     *
+     * @return string
+     */
+    public function getCreatedAtColumn()
+    {
+        return static::CREATED_AT;
+    }
+
+    /**
+     * Get the name of the "updated at" column.
+     *
+     * @return string
+     */
+    public function getUpdatedAtColumn()
+    {
+        return static::UPDATED_AT;
+    }
+
+    /**
+     * Get a fresh timestamp for the model.
+     *
+     * @return \Carbon\Carbon
+     */
+    public function freshTimestamp()
+    {
+        return new Carbon;
+    }
+
+    /**
+     * Get a fresh timestamp for the model.
+     *
+     * @return string
+     */
+    public function freshTimestampString()
+    {
+        return $this->fromDateTime($this->freshTimestamp());
+    }
+
+    /**
+     * Convert a DateTime to a storable string.
+     *
+     * @param  \DateTime|int  $value
+     * @return string
+     */
+    public function fromDateTime($value)
+    {
+        $format = $this->getDateFormat();
+
+        if ($value instanceof DateTime) {
+            //
+        } else if (is_numeric($value)) {
+            $value = Carbon::createFromTimestamp($value);
+        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+            $value = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+        } else {
+            $value = Carbon::createFromFormat($format, $value);
+        }
+
+        return $value->format($format);
+    }
+
+    /**
+     * Return a timestamp as DateTime object.
+     *
+     * @param  mixed  $value
+     * @return \Carbon\Carbon
+     */
+    protected function asDateTime($value)
+    {
+        if (is_numeric($value)) {
+            return Carbon::createFromTimestamp($value);
+        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+            return Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+        } else if (! $value instanceof DateTime) {
+            $format = $this->getDateFormat();
+
+            return Carbon::createFromFormat($format, $value);
+        }
+
+        return Carbon::instance($value);
+    }
+
+    /**
+     * Get the format for database stored dates.
+     *
+     * @return string
+     */
+    protected function getDateFormat()
+    {
+        return $this->getConnection()->getQueryGrammar()->getDateFormat();
     }
 
     /**

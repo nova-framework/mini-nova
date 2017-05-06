@@ -5,6 +5,7 @@ namespace Mini\Database;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Model;
+use Mini\Support\Arr;
 
 use Closure;
 
@@ -153,6 +154,110 @@ class Builder
         $results = $query->get($columns);
 
         return $paginator->make($results, $perPage);
+    }
+
+    /**
+     * Insert a new record into the database.
+     *
+     * @param  array  $values
+     * @return bool
+     */
+    public function insert(array $values)
+    {
+        return $this->query->insert($this->addTimestamps($values));
+    }
+
+    /**
+     * Insert a new Record and get the value of the primary key.
+     *
+     * @param  array   $values
+     * @return int
+     */
+    public function insertGetId(array $values)
+    {
+        return $this->query->insertGetId($this->addTimestamps($values));
+    }
+
+    /**
+     * Add the "created at" and "updated at" columns to an array of values.
+     *
+     * @param  array  $values
+     * @return array
+     */
+    protected function addTimestamps(array $values)
+    {
+        if (! $this->model->usesTimestamps()) return $values;
+
+        $columns = array(
+            $this->model->getCreatedAtColumn(),
+            $this->model->getUpdatedAtColumn(),
+        );
+
+        $timestamp = $this->model->freshTimestampString();
+
+        foreach ($columns as $column) {
+            if (is_null($value = Arr::get($values, $column))) {
+                Arr::set($values, $column, $timestamp);
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * Update a record in the database.
+     *
+     * @param  array  $values
+     * @return int
+     */
+    public function update(array $values)
+    {
+        return $this->query->update($this->addUpdatedAtColumn($values));
+    }
+
+    /**
+     * Increment a column's value by a given amount.
+     *
+     * @param  string  $column
+     * @param  int     $amount
+     * @param  array   $extra
+     * @return int
+     */
+    public function increment($column, $amount = 1, array $extra = array())
+    {
+        $extra = $this->addUpdatedAtColumn($extra);
+
+        return $this->query->increment($column, $amount, $extra);
+    }
+
+    /**
+     * Decrement a column's value by a given amount.
+     *
+     * @param  string  $column
+     * @param  int     $amount
+     * @param  array   $extra
+     * @return int
+     */
+    public function decrement($column, $amount = 1, array $extra = array())
+    {
+        $extra = $this->addUpdatedAtColumn($extra);
+
+        return $this->query->decrement($column, $amount, $extra);
+    }
+
+    /**
+     * Add the "updated at" column to an array of values.
+     *
+     * @param  array  $values
+     * @return array
+     */
+    protected function addUpdatedAtColumn(array $values)
+    {
+        if (! $this->model->usesTimestamps()) return $values;
+
+        $column = $this->model->getUpdatedAtColumn();
+
+        return Arr::add($values, $column, $this->model->freshTimestampString());
     }
 
     /**
