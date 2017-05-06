@@ -136,6 +136,7 @@ return array(
         'Mini\Mail\MailServiceProvider',
         'Mini\Database\DatabaseServiceProvider',
         'Mini\Pagination\PaginationServiceProvider',
+        'Mini\Cache\CacheServiceProvider',
 
 
         // The Application Providers.
@@ -175,6 +176,7 @@ return array(
 
         // The Support Facades.
         'App'           => 'Mini\Support\Facades\App',
+        'Cache'         => 'Mini\Support\Facades\Cache',
         'Cookie'        => 'Mini\Support\Facades\Cookie',
         'Config'        => 'Mini\Support\Facades\Config',
         'Crypt'         => 'Mini\Support\Facades\Crypt',
