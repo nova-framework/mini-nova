@@ -136,6 +136,7 @@ return array(
         'Mini\Mail\MailServiceProvider',
         'Mini\Database\DatabaseServiceProvider',
         'Mini\Pagination\PaginationServiceProvider',
+        'Mini\Filesystem\FilesystemServiceProvider',
         'Mini\Cache\CacheServiceProvider',
 
 
@@ -182,6 +183,7 @@ return array(
         'Crypt'         => 'Mini\Support\Facades\Crypt',
         'DB'            => 'Mini\Support\Facades\DB',
         'Event'         => 'Mini\Support\Facades\Event',
+        'File'          => 'Mini\Support\Facades\File',
         'Hash'          => 'Mini\Support\Facades\Hash',
         'Input'         => 'Mini\Support\Facades\Input',
         'Log'           => 'Mini\Support\Facades\Log',
