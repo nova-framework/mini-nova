@@ -109,13 +109,11 @@ class DatabaseManager implements ConnectionResolverInterface
 
         $app = $this->app;
 
-        /*
         // Setup the Cache.
         $connection->setCacheManager(function() use ($app)
         {
             return $app['cache'];
         });
-        */
 
         // Setup the Paginator.
         $connection->setPaginator(function() use ($app)
