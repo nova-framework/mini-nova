@@ -1,6 +1,4 @@
 *
 !cache/
 !logs/
-!sessions/
-!views/
 !.gitignore
