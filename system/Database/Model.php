@@ -141,6 +141,8 @@ class Model
      */
     public function insert(array $values)
     {
+        $values = $this->convertDates($values);
+
         return $this->newQuery()->insertGetId($values);
     }
 
@@ -153,6 +155,8 @@ class Model
      */
     public function update($id, array $attributes = array())
     {
+        $attributes = $this->convertDates($attributes);
+
         return $this->newQuery()
             ->where($this->getKeyName(), $id)
             ->update($attributes);
@@ -170,6 +174,24 @@ class Model
             ->delete();
 
         return true;
+    }
+
+    /**
+     * Convert the DateTimes to storable strings.
+     *
+     * @return array
+     */
+    protected function convertDates(array $values)
+    {
+        $dates = $this->getDates();
+
+        foreach($values as $key => $value) {
+            if (in_array($key, $dates)) {
+                $values[$key] = $this->fromDateTime($value);
+            }
+        }
+
+        return $values;
     }
 
     /**
