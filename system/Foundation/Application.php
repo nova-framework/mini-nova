@@ -418,6 +418,9 @@ class Application extends Container
         $aliases = array(
             'app'           => array('Mini\Foundation\Application', 'Mini\Container\Container'),
             'log'           => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+            'config'        => array('Mini\Config\Repository'),
+            'cookie'        => array('Mini\Cookie\CookieJar'),
+            'encrypter'     => array('Mini\Encryption\Encrypter'),
             'router'        => array('Mini\Routing\Router'),
             'session.store' => array('Mini\Session\Store'),
 

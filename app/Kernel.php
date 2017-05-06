@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
         'App\Middleware\HandleStatistics',
         'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
         'Mini\Session\Middleware\StartSession',
+        'App\Middleware\VerifyCsrfToken',
     );
 
     /**
