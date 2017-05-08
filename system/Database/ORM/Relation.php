@@ -4,6 +4,7 @@ namespace Mini\Database\ORM;
 
 use Mini\Database\ORM\Builder;
 use Mini\Database\ORM\Model;
+use Mini\Support\Arr;
 
 
 class Relation
@@ -71,6 +72,22 @@ class Relation
 	public function getResults()
 	{
 		return call_user_func(array($this->query, $this->getter));
+	}
+
+	/**
+	 * Get all of the primary keys for an array of models.
+	 *
+	 * @param  array   $models
+	 * @param  string  $key
+	 * @return array
+	 */
+	protected function getKeys(array $models, $key = null)
+	{
+		return Arr::unique(array_values(array_map(function($value) use ($key)
+		{
+			return ! is_null($key) ? $value->getAttribute($key) : $value->getKey();
+
+		}, $models)));
 	}
 
 	/**
