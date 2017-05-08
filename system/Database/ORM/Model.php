@@ -1435,6 +1435,8 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 			}
 		}
 
+		return array_merge($attributes, $this->relationsToArray());
+
 		return $attributes;
 	}
 
@@ -1446,6 +1448,46 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	protected function getArrayableAttributes()
 	{
 		return $this->getArrayableItems($this->attributes);
+	}
+
+	/**
+	 * Get the model's relationships in array form.
+	 *
+	 * @return array
+	 */
+	public function relationsToArray()
+	{
+		$attributes = array();
+
+		foreach ($this->getArrayableRelations() as $key => $value) {
+			if (in_array($key, $this->hidden)) continue;
+
+			if ($value instanceof ArrayableInterface) {
+				$relation = $value->toArray();
+			} else if (is_null($value)) {
+				$relation = $value;
+			}
+
+			$key = Str::snake($key);
+
+			if (isset($relation) || is_null($value)) {
+				$attributes[$key] = $relation;
+			}
+
+			unset($relation);
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Get an attribute array of all arrayable relations.
+	 *
+	 * @return array
+	 */
+	protected function getArrayableRelations()
+	{
+		return $this->getArrayableItems($this->relations);
 	}
 
 	/**

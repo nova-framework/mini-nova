@@ -25,6 +25,8 @@ class Users extends Controller
 
         $content .= '<pre>' .htmlentities(var_export($role, true)) .'</pre>';
 
+        $content .= '<pre>' .htmlentities(var_export($user->toArray(), true)) .'</pre>';
+
         //
         $users = $role->users()->take(15)->orderBy('username')->get();
 
