@@ -680,14 +680,8 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		}
 	}
 
-	public function hasOne($related, $foreignKey = null, $localKey = null, $relation = null)
+	public function hasOne($related, $foreignKey = null, $localKey = null)
 	{
-		if (is_null($relation)) {
-			list(, $caller) = debug_backtrace(false, 2);
-
-			$relation = $caller['function'];
-		}
-
 		$foreignKey = $foreignKey ?: $this->getForeignKey();
 
 		$model = new $related;
@@ -726,21 +720,15 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		return new Relation($query, $this, 'first');
 	}
 
-	public function hasMany($related, $foreignKey = null, $localKey = null, $relation = null)
+	public function hasMany($related, $foreignKey = null, $localKey = null)
 	{
-		if (is_null($relation)) {
-			list(, $caller) = debug_backtrace(false, 2);
-
-			$relation = $caller['function'];
-		}
-
 		$foreignKey = $foreignKey ?: $this->getForeignKey();
-
-		$model = new $related;
 
 		$localKey = $localKey ?: $this->getKeyName();
 
 		//
+		$model = new $related;
+
 		$table = $model->getTable();
 
 		$query = $model->newQuery()->where($table .'.' .$foreignKey, '=', $this->{$localKey});
