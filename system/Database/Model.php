@@ -18,6 +18,8 @@ use DateTime;
 use JsonSerializable;
 
 
+class MassAssignmentException extends \RuntimeException {}
+
 class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonSerializable
 {
     /**
@@ -241,9 +243,15 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
      */
     public function fill(array $attributes)
     {
+        $totallyGuarded = $this->totallyGuarded();
+
         foreach ($this->fillableFromArray($attributes) as $key => $value) {
+            $key = $key->removeTableFromKey($key);
+
             if ($this->isFillable($key)) {
                 $this->setAttribute($key, $value);
+            } else if ($totallyGuarded) {
+                throw new MassAssignmentException($key);
             }
         }
 
@@ -1414,6 +1422,19 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     public function totallyGuarded()
     {
         return ((count($this->fillable) == 0) && ($this->guarded == array('*')));
+    }
+
+    /**
+     * Remove the table name from a given key.
+     *
+     * @param  string  $key
+     * @return string
+     */
+    protected function removeTableFromKey($key)
+    {
+        if (! str_contains($key, '.')) return $key;
+
+        return last(explode('.', $key));
     }
 
     /**
