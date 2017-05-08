@@ -4,6 +4,7 @@ namespace App\Middleware;
 
 use Mini\Http\Response;
 use Mini\Support\Facades\Config;
+use Mini\Support\Facades\DB;
 use Mini\Support\Str;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -61,7 +62,34 @@ class HandleStatistics
         //
         $umax = sprintf("%0d", intval(25 / $elapsedTime));
 
-        return sprintf('Elapsed Time: <b>%s</b> sec | Memory Usage: <b>%s</b> | UMAX: <b>%s</b>', $elapsedTime, $memoryUsage, $umax);
+        if ($this->withDatabase()) {
+            $queries = $this->getSqlQueries();
+
+            $result = __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | SQL: <b>{2}</b> {3, plural, one{query} other{queries}} | UMAX: <b>{4}</b>', $elapsedTime, $memoryUsage, $queries, $queries, $umax);
+        } else {
+            $result = __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | UMAX: <b>{2}</b>', $elapsedTime, $memoryUsage, $umax);
+        }
+
+        return $result;
+    }
+
+    protected function getSqlQueries()
+    {
+        $withDatabase = $this->withDatabase();
+
+        if (! $withDatabase) return 0;
+
+        // Calculate and return the total SQL Queries.
+        $connection = DB::connection();
+
+        $queries = $connection->getQueryLog();
+
+        return count($queries);
+    }
+
+    protected function withDatabase()
+    {
+        return Config::get('profiler', 'withDatabase', false);
     }
 
     protected static function humanSize($bytes, $decimals = 2)

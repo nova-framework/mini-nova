@@ -9,7 +9,7 @@
 namespace Mini\Database;
 
 use Mini\Database\DatabaseManager;
-use Mini\Database\Model;
+use Mini\Database\ORM\Model;
 use Mini\Support\ServiceProvider;
 
 

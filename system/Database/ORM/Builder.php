@@ -1,11 +1,11 @@
 <?php
 
-namespace Mini\Database;
+namespace Mini\Database\ORM;
 
+use Mini\Database\ORM\ModelNotFoundException;
+use Mini\Database\ORM\Model;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
-use Mini\Database\Model;
-use Mini\Database\ModelNotFoundException;
 use Mini\Support\Arr;
 use Mini\Support\Collection;
 

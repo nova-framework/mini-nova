@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Database;
+namespace Mini\Database\ORM;
 
 
 class ModelNotFoundException extends \RuntimeException

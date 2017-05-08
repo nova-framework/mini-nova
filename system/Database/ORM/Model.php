@@ -1,11 +1,12 @@
 <?php
 
-namespace Mini\Database;
+namespace Mini\Database\ORM;
 
+use Mini\Database\ORM\Builder;
+use Mini\Database\ORM\ModelNotFoundException;
+use Mini\Database\ORM\Relation;
 use Mini\Database\Query\Builder as QueryBuilder;
-use Mini\Database\Builder;
 use Mini\Database\ConnectionResolverInterface as Resolver;
-use Mini\Database\ModelNotFoundException;
 use Mini\Events\Dispatcher;
 use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\JsonableInterface;
@@ -17,6 +18,7 @@ use Carbon\Carbon;
 use ArrayAccess;
 use DateTime;
 use JsonSerializable;
+use LogicException;
 
 
 class MassAssignmentException extends \RuntimeException {}
@@ -78,6 +80,13 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	 * @var array
 	 */
 	protected $original = array();
+
+	/**
+	 * The loaded relationships for the Model.
+	 *
+	 * @var array
+	 */
+	protected $relations = array();
 
 	/**
 	 * The attributes that should be hidden for arrays.
@@ -671,6 +680,74 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		}
 	}
 
+	public function hasOne($related, $foreignKey = null, $localKey = null, $relation = null)
+	{
+		if (is_null($relation)) {
+			list(, $caller) = debug_backtrace(false, 2);
+
+			$relation = $caller['function'];
+		}
+
+		$foreignKey = $foreignKey ?: $this->getForeignKey();
+
+		$model = new $related;
+
+		$localKey = $localKey ?: $this->getKeyName();
+
+		//
+		$table = $this->getTable();
+
+		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $model->{$foreignKey});
+
+		return new Relation($query, 'first');
+	}
+
+	public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
+	{
+		if (is_null($relation)) {
+			list(, $caller) = debug_backtrace(false, 2);
+
+			$relation = $caller['function'];
+		}
+
+		if (is_null($foreignKey)) {
+			$foreignKey = Str::snake($relation) .'_id';
+		}
+
+		$model = new $related;
+
+		$otherKey = $otherKey ?: $model->getKeyName();
+
+		//
+		$table = $model->getTable();
+
+		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $this->{$foreignKey});
+
+		return new Relation($query, 'first');
+	}
+
+	public function hasMany($related, $foreignKey = null, $localKey = null, $relation = null)
+	{
+		if (is_null($relation)) {
+			list(, $caller) = debug_backtrace(false, 2);
+
+			$relation = $caller['function'];
+		}
+
+		$foreignKey = $foreignKey ?: $this->getForeignKey();
+
+		$model = new $related;
+
+		$localKey = $localKey ?: $this->getKeyName();
+
+		//
+		$table = $model->getTable();
+
+		$query = $model->newQuery()->where($table .'.' .$foreignKey, '=', $this->{$localKey});
+
+		return new Relation($query, 'get');
+	}
+
 	/**
 	 * Fire the given event for the model.
 	 *
@@ -786,6 +863,16 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		if ($inAttributes || $this->hasGetMutator($key)) {
 			return $this->getAttributeValue($key);
 		}
+
+		if (array_key_exists($key, $this->relations)) {
+			return $this->relations[$key];
+		}
+
+		$camelKey = Str::camel($key);
+
+		if (method_exists($this, $camelKey)) {
+			return $this->getRelationshipFromMethod($key, $camelKey);
+		}
 	}
 
 	/**
@@ -818,6 +905,26 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		if (array_key_exists($key, $this->attributes)) {
 			return $this->attributes[$key];
 		}
+	}
+
+	/**
+	 * Get a relationship value from a method.
+	 *
+	 * @param  string  $key
+	 * @param  string  $method
+	 * @return mixed
+	 *
+	 * @throws \LogicException
+	 */
+	protected function getRelationshipFromMethod($key, $method)
+	{
+		$relation = call_user_func(array($this, $method));
+
+		if (! $relation instanceof Relation) {
+			throw new LogicException("Relationship method must return an object of type Mini\Database\ORM\Relation");
+		}
+
+		return $this->relations[$key] = $relation->getResults();
 	}
 
 	/**
