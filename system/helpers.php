@@ -426,6 +426,36 @@ if (! function_exists('array_where'))
     }
 }
 
+if (! function_exists('asset'))
+{
+    /**
+     * Generate an asset path for the application.
+     *
+     * @param  string  $path
+     * @param  bool    $secure
+     * @return string
+     */
+    function asset($path, $secure = null)
+    {
+        return app('url')->asset($path, $secure);
+    }
+}
+
+if (! function_exists('bcrypt'))
+{
+    /**
+     * Hash the given value.
+     *
+     * @param  string  $value
+     * @param  array   $options
+     * @return string
+     */
+    function bcrypt($value, $options = array())
+    {
+        return app('hash')->make($value, $options);
+    }
+}
+
 if (! function_exists('camel_case'))
 {
     /**
