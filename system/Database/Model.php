@@ -87,6 +87,13 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     protected $hidden = array();
 
     /**
+     * The attributes that should be visible in arrays.
+     *
+     * @var array
+     */
+    protected $visible = array();
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -1123,6 +1130,38 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     }
 
     /**
+     * Get the hidden attributes for the model.
+     *
+     * @return array
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
+    }
+
+    /**
+     * Set the hidden attributes for the model.
+     *
+     * @param  array  $hidden
+     * @return void
+     */
+    public function setHidden(array $hidden)
+    {
+        $this->hidden = $hidden;
+    }
+
+    /**
+     * Set the visible attributes for the model.
+     *
+     * @param  array  $visible
+     * @return void
+     */
+    public function setVisible(array $visible)
+    {
+        $this->visible = $visible;
+    }
+    
+    /**
      * Get the number of models to return per page.
      *
      * @return int
@@ -1430,6 +1469,10 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
      */
     protected function getArrayableItems(array $values)
     {
+        if (count($this->visible) > 0) {
+            return array_intersect_key($values, array_flip($this->visible));
+        }
+
         return array_diff_key($values, array_flip($this->hidden));
     }
 
