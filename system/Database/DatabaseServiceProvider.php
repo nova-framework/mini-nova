@@ -15,30 +15,30 @@ use Mini\Support\ServiceProvider;
 
 class DatabaseServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the Application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        // Setup the Model.
-        Model::setConnectionResolver($this->app['db']);
+	/**
+	 * Bootstrap the Application events.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		// Setup the Model.
+		Model::setConnectionResolver($this->app['db']);
 
-        Model::setEventDispatcher($this->app['events']);
-    }
+		Model::setEventDispatcher($this->app['events']);
+	}
 
-    /**
-     * Register the Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $this->app->bindShared('db', function($app)
-        {
-            return new DatabaseManager($app);
-        });
-    }
+	/**
+	 * Register the Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$this->app->bindShared('db', function($app)
+		{
+			return new DatabaseManager($app);
+		});
+	}
 
 }

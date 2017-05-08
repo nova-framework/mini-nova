@@ -13,123 +13,123 @@ use PDO;
 
 class Connector
 {
-    /**
-     * The default PDO connection options.
-     *
-     * @var array
-     */
-    protected $options = array(
-        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
-        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
-        PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::ATTR_EMULATE_PREPARES  => false,
-    );
+	/**
+	 * The default PDO connection options.
+	 *
+	 * @var array
+	 */
+	protected $options = array(
+		PDO::ATTR_CASE			  => PDO::CASE_NATURAL,
+		PDO::ATTR_ERRMODE		   => PDO::ERRMODE_EXCEPTION,
+		PDO::ATTR_ORACLE_NULLS	  => PDO::NULL_NATURAL,
+		PDO::ATTR_STRINGIFY_FETCHES => false,
+		PDO::ATTR_EMULATE_PREPARES  => false,
+	);
 
 
-    /**
-     * Establish a database connection.
-     *
-     * @param  array  $config
-     * @return \PDO
-     */
-    public function connect(array $config)
-    {
-        $dsn = $this->getDsn($config);
+	/**
+	 * Establish a database connection.
+	 *
+	 * @param  array  $config
+	 * @return \PDO
+	 */
+	public function connect(array $config)
+	{
+		$dsn = $this->getDsn($config);
 
-        $options = $this->getOptions($config);
+		$options = $this->getOptions($config);
 
-        $connection = $this->createConnection($dsn, $config, $options);
+		$connection = $this->createConnection($dsn, $config, $options);
 
-        //
-        $collation = $config['collation'];
+		//
+		$collation = $config['collation'];
 
-        $charset = $config['charset'];
+		$charset = $config['charset'];
 
-        $names = "set names '$charset'".
-            ( ! is_null($collation) ? " collate '$collation'" : '');
+		$names = "set names '$charset'".
+			( ! is_null($collation) ? " collate '$collation'" : '');
 
-        $connection->prepare($names)->execute();
+		$connection->prepare($names)->execute();
 
-        if (isset($config['strict']) && $config['strict']) {
-            $connection->prepare("set session sql_mode='STRICT_ALL_TABLES'")->execute();
-        }
+		if (isset($config['strict']) && $config['strict']) {
+			$connection->prepare("set session sql_mode='STRICT_ALL_TABLES'")->execute();
+		}
 
-        return $connection;
-    }
+		return $connection;
+	}
 
-    /**
-     * Create a DSN string from a configuration.
-     *
-     * @param  array   $config
-     * @return string
-     */
-    protected function getDsn(array $config)
-    {
-        extract($config);
+	/**
+	 * Create a DSN string from a configuration.
+	 *
+	 * @param  array   $config
+	 * @return string
+	 */
+	protected function getDsn(array $config)
+	{
+		extract($config);
 
-        $dsn = "mysql:host={$host};dbname={$database}";
+		$dsn = "mysql:host={$host};dbname={$database}";
 
-        if (isset($config['port'])) {
-            $dsn .= ";port={$port}";
-        }
+		if (isset($config['port'])) {
+			$dsn .= ";port={$port}";
+		}
 
-        if (isset($config['unix_socket'])) {
-            $dsn .= ";unix_socket={$config['unix_socket']}";
-        }
+		if (isset($config['unix_socket'])) {
+			$dsn .= ";unix_socket={$config['unix_socket']}";
+		}
 
-        return $dsn;
-    }
+		return $dsn;
+	}
 
-    /**
-     * Get the PDO options based on the configuration.
-     *
-     * @param  array  $config
-     * @return array
-     */
-    public function getOptions(array $config)
-    {
-        $options = array_get($config, 'options', array());
+	/**
+	 * Get the PDO options based on the configuration.
+	 *
+	 * @param  array  $config
+	 * @return array
+	 */
+	public function getOptions(array $config)
+	{
+		$options = array_get($config, 'options', array());
 
-        return array_diff_key($this->options, $options) + $options;
-    }
+		return array_diff_key($this->options, $options) + $options;
+	}
 
-    /**
-     * Create a new PDO connection.
-     *
-     * @param  string  $dsn
-     * @param  array   $config
-     * @param  array   $options
-     * @return PDO
-     */
-    public function createConnection($dsn, array $config, array $options)
-    {
-        $username = array_get($config, 'username');
+	/**
+	 * Create a new PDO connection.
+	 *
+	 * @param  string  $dsn
+	 * @param  array   $config
+	 * @param  array   $options
+	 * @return PDO
+	 */
+	public function createConnection($dsn, array $config, array $options)
+	{
+		$username = array_get($config, 'username');
 
-        $password = array_get($config, 'password');
+		$password = array_get($config, 'password');
 
-        return new PDO($dsn, $username, $password, $options);
-    }
+		return new PDO($dsn, $username, $password, $options);
+	}
 
-    /**
-     * Get the default PDO connection options.
-     *
-     * @return array
-     */
-    public function getDefaultOptions()
-    {
-        return $this->options;
-    }
+	/**
+	 * Get the default PDO connection options.
+	 *
+	 * @return array
+	 */
+	public function getDefaultOptions()
+	{
+		return $this->options;
+	}
 
-    /**
-     * Set the default PDO connection options.
-     *
-     * @param  array  $options
-     * @return void
-     */
-    public function setDefaultOptions(array $options)
-    {
-        $this->options = $options;
-    }
+	/**
+	 * Set the default PDO connection options.
+	 *
+	 * @param  array  $options
+	 * @return void
+	 */
+	public function setDefaultOptions(array $options)
+	{
+		$this->options = $options;
+	}
 
 }
