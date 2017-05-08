@@ -684,11 +684,11 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	{
 		$foreignKey = $foreignKey ?: $this->getForeignKey();
 
-		$model = new $related;
-
 		$localKey = $localKey ?: $this->getKeyName();
 
 		//
+		$model = new $related;
+
 		$table = $this->getTable();
 
 		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $model->{$foreignKey});
