@@ -319,6 +319,78 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     }
 
     /**
+     * Get the first record matching the attributes or create it.
+     *
+     * @param  array  $attributes
+     * @return static
+     */
+    public static function firstOrCreate(array $attributes)
+    {
+        if (! is_null($model = static::where($attributes)->first())) {
+            return $model;
+        }
+
+        return static::create($attributes);
+    }
+
+    /**
+     * Get the first record matching the attributes or instantiate it.
+     *
+     * @param  array  $attributes
+     * @return static
+     */
+    public static function firstOrNew(array $attributes)
+    {
+        if (! is_null($model = static::where($attributes)->first())) {
+            return $model;
+        }
+
+        return new static($attributes);
+    }
+
+    /**
+     * Create or update a record matching the attributes, and fill it with values.
+     *
+     * @param  array  $attributes
+     * @param  array  $values
+     * @return static
+     */
+    public static function updateOrCreate(array $attributes, array $values = array())
+    {
+        $model = static::firstOrNew($attributes);
+
+        $model->fill($values)->save();
+
+        return $model;
+    }
+
+    /**
+     * Begin querying the model.
+     *
+     * @return \Mini\Database\Builder
+     */
+    public static function query()
+    {
+        return (new static)->newQuery();
+    }
+
+    /**
+     * Begin querying the model on a given connection.
+     *
+     * @param  string  $connection
+     * @return \Mini\Database\Builder
+     */
+    public static function on($connection = null)
+    {
+        $model = new static;
+
+        $model->setConnection($connection);
+
+        return $model->newQuery();
+    }
+
+
+    /**
      * Get all of the models from the database.
      *
      * @param  array  $columns
