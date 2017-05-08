@@ -121,7 +121,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     /**
      * The event dispatcher instance.
      *
-     * @var \Nova\Events\Dispatcher
+     * @var \Mini\Events\Dispatcher
      */
     protected static $dispatcher;
 
@@ -583,7 +583,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     {
         if (! isset(static::$dispatcher)) return true;
 
-        $event = "orm.{$event}: ".get_class($this);
+        $event = "entity.{$event}: ".get_class($this);
 
         $method = $halt ? 'until' : 'fire';
 
@@ -1121,6 +1121,37 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     public static function unsetConnectionResolver()
     {
         static::$resolver = null;
+    }
+
+    /**
+     * Get the event dispatcher instance.
+     *
+     * @return \Mini\Events\Dispatcher
+     */
+    public static function getEventDispatcher()
+    {
+        return static::$dispatcher;
+    }
+
+    /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Mini\Events\Dispatcher  $dispatcher
+     * @return void
+     */
+    public static function setEventDispatcher(Dispatcher $dispatcher)
+    {
+        static::$dispatcher = $dispatcher;
+    }
+
+    /**
+     * Unset the event dispatcher for models.
+     *
+     * @return void
+     */
+    public static function unsetEventDispatcher()
+    {
+        static::$dispatcher = null;
     }
 
     /**
