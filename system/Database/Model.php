@@ -139,7 +139,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
      *
      * @var bool
      */
-    protected static $unguarded = true;
+    protected static $unguarded = false;
 
     /**
      * The cache of the mutated attributes for each class.
