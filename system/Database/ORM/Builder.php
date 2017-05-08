@@ -28,6 +28,13 @@ class Builder
 	 */
 	protected $model;
 
+	/**
+	 * The relationships that should be eager loaded.
+	 *
+	 * @var array
+	 */
+	protected $eagerLoad = array();
+
 
 	/**
 	 * Create a new Model Query Builder instance.
@@ -129,6 +136,10 @@ class Builder
 	public function get($columns = array('*'))
 	{
 		$models = $this->getModels($columns);
+
+		if (count($models) > 0) {
+			$models = $this->eagerLoadRelations($models);
+		}
 
 		return $this->model->newCollection($models);
 	}
@@ -346,6 +357,102 @@ class Builder
 		$column = $this->model->getUpdatedAtColumn();
 
 		return Arr::add($values, $column, $this->model->freshTimestampString());
+	}
+
+	/**
+	 * Eager load the relationships for the models.
+	 *
+	 * @param  array  $models
+	 * @return array
+	 */
+	public function eagerLoadRelations(array $models)
+	{
+		foreach ($this->eagerLoad as $name => $constraints) {
+			$models = $this->loadRelation($models, $name, $constraints);
+		}
+
+		return $models;
+	}
+
+	/**
+	 * Eagerly load the relationship on a set of models.
+	 *
+	 * @param  array	 $models
+	 * @param  string	$name
+	 * @param  \Closure  $constraints
+	 * @return array
+	 */
+	protected function loadRelation(array $models, $name, Closure $constraints)
+	{
+		$relation = $this->getRelation($name);
+
+		$query = $relation->addEagerConstraints($models);
+
+		call_user_func($constraints, $relation);
+
+		//
+		$models = $relation->initRelation($models, $name);
+
+		$results = $relation->getEager();
+
+		return $relation->match($models, $results, $name);
+	}
+
+	/**
+	 * Get the relation instance for the given relation name.
+	 *
+	 * @param  string  $relation
+	 * @return \Mini\Database\ORM\Relation
+	 */
+	public function getRelation($relation)
+	{
+		return Relation::noConstraints(function() use ($relation)
+		{
+			return $this->getModel()->$relation();
+		});
+	}
+
+	/**
+	 * Set the relationships that should be eager loaded.
+	 *
+	 * @param  mixed  $relations
+	 * @return $this
+	 */
+	public function with($relations)
+	{
+		if (is_string($relations)) {
+			$relations = func_get_args();
+		}
+
+		$eagers = $this->parseRelations($relations);
+
+		$this->eagerLoad = array_merge($this->eagerLoad, $eagers);
+
+		return $this;
+	}
+
+	/**
+	 * Parse a list of relations into individuals.
+	 *
+	 * @param  array  $relations
+	 * @return array
+	 */
+	protected function parseRelations(array $relations)
+	{
+		$results = array();
+
+		foreach ($relations as $name => $constraints) {
+			if (is_numeric($name)) {
+				list($name, $constraints) = array($constraints, function()
+				{
+					//
+				});
+			}
+
+			$results[$name] = $constraints;
+		}
+
+		return $results;
 	}
 
 	/**

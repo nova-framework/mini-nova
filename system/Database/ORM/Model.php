@@ -117,6 +117,13 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	protected $guarded = array('*');
 
 	/**
+	 * The relations to eager load on every query.
+	 *
+	 * @var array
+	 */
+	protected $with = array();
+
+	/**
 	 * Indicates if the Model exists.
 	 *
 	 * @var bool
@@ -680,6 +687,42 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		}
 	}
 
+	/**
+	 * Eager load relations on the model.
+	 *
+	 * @param  array|string  $relations
+	 * @return $this
+	 */
+	public function load($relations)
+	{
+		if (is_string($relations)) {
+			$relations = func_get_args();
+		}
+
+		$query = $this->newQuery()->with($relations);
+
+		$query->eagerLoadRelations(array($this));
+
+		return $this;
+	}
+
+	/**
+	 * Being querying a model with eager loading.
+	 *
+	 * @param  array|string  $relations
+	 * @return \Mini\Database\ORM\Builder|static
+	 */
+	public static function with($relations)
+	{
+		if (is_string($relations)) {
+			$relations = func_get_args();
+		}
+
+		$instance = new static;
+
+		return $instance->newQuery()->with($relations);
+	}
+
 	public function hasOne($related, $foreignKey = null, $localKey = null)
 	{
 		$foreignKey = $foreignKey ?: $this->getForeignKey();
@@ -691,9 +734,44 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$table = $this->getTable();
 
-		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $model->{$foreignKey});
+		//
+		$relation = new Relation($model, $this);
 
-		return new Relation($query, $this, 'first');
+		//
+		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $localKey)
+		{
+			return $query->where($table .'.' .$foreignKey, '=', $this->getAttribute($localKey));
+		});
+
+		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $localKey)
+		{
+			return $query->whereIn($table .'.' .$foreignKey, $relation->getKeys($models, $localKey));
+		});
+
+		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $localKey)
+		{
+			$dictionary = array();
+
+			foreach ($results as $result) {
+				$key = $result->getAttribute($foreignKey);
+
+				$dictionary[$key] = $result;
+			}
+
+			foreach ($models as $model) {
+				$key = $model->getAttribute($localKey);
+
+				if (isset($dictionary[$key])) {
+					$value = $dictionary[$key];
+
+					$model->setRelation($name, $value);
+				}
+			}
+
+			return $models;
+		});
+
+		return $relation;
 	}
 
 	public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
@@ -712,12 +790,60 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$otherKey = $otherKey ?: $model->getKeyName();
 
-		//
 		$table = $model->getTable();
 
-		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $this->{$foreignKey});
+		//
+		$relation = new Relation($model, $this);
 
-		return new Relation($query, $this, 'first');
+		//
+		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $otherKey)
+		{
+			return $query->where($table .'.' .$otherKey, '=', $this->getAttribute($foreignKey));
+		});
+
+		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $otherKey)
+		{
+			$keys = array();
+
+			foreach ($models as $model) {
+				if (! is_null($value = $model->{$foreignKey})) {
+					$keys[] = $value;
+				}
+			}
+
+			if (count($keys) == 0) {
+				$keys = array(0);
+			} else {
+				$keys = array_values(array_unique($keys));
+			}
+
+			return $query->whereIn($table .'.' .$otherKey, $keys);
+		});
+
+		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $otherKey)
+		{
+			$dictionary = array();
+
+			foreach ($results as $result) {
+				$key = $result->getAttribute($otherKey);
+
+				$dictionary[$key] = $result;
+			}
+
+			foreach ($models as $model) {
+				$key = $model->$foreignKey;
+
+				if (isset($dictionary[$key])) {
+					$value = $dictionary[$key];
+
+					$model->setRelation($name, $value);
+				}
+			}
+
+			return $models;
+		});
+
+		return $relation;
 	}
 
 	public function hasMany($related, $foreignKey = null, $localKey = null)
@@ -731,9 +857,44 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$table = $model->getTable();
 
-		$query = $model->newQuery()->where($table .'.' .$foreignKey, '=', $this->{$localKey});
+		//
+		$relation = new Relation($model, $this, false);
 
-		return new Relation($query, $this, 'get');
+		//
+		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $localKey)
+		{
+			return $query->where($table .'.' .$foreignKey, '=', $this->getAttribute($localKey));
+		});
+
+		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $localKey)
+		{
+			return $query->whereIn($table .'.' .$foreignKey, $relation->getKeys($models, $localKey));
+		});
+
+		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $localKey)
+		{
+			$dictionary = array();
+
+			foreach ($results as $result) {
+				$key = $result->getAttribute($foreignKey);
+
+				$dictionary[$key][] = $result;
+			}
+
+			foreach ($models as $model) {
+				$key = $model->getAttribute($localKey);
+
+				if (isset($dictionary[$key])) {
+					$value = $dictionary[$key];
+
+					$model->setRelation($name, $relation->getRelated()->newCollection($value));
+				}
+			}
+
+			return $models;
+		});
+
+		return $relation;
 	}
 
 	/**
@@ -844,7 +1005,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	 * @param  string  $key
 	 * @return mixed
 	 */
-	protected function getAttribute($key)
+	public function getAttribute($key)
 	{
 		$inAttributes = array_key_exists($key, $this->attributes);
 
@@ -1110,6 +1271,20 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 			static::$dispatcher->listen("entity.{$event}: {$name}", $callback);
 		}
+	}
+
+	/**
+	 * Set the specific relationship in the Model.
+	 *
+	 * @param  string  $relation
+	 * @param  mixed   $value
+	 * @return $this
+	 */
+	public function setRelation($relation, $value)
+	{
+		$this->relations[$relation] = $value;
+
+		return $this;
 	}
 
 	/**

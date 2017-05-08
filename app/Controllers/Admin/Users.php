@@ -16,21 +16,29 @@ class Users extends Controller
         $content = '';
 
         //
-        $user = User::find(4);
-
-        $content .= '<pre>' .htmlentities(var_export($user, true)) .'</pre>';
+        $user = User::with('role')->find(4);
 
         //
         $role = $user->role;
+
+        $content .= '<pre>' .htmlentities(var_export($user, true)) .'</pre>';
 
         $content .= '<pre>' .htmlentities(var_export($role, true)) .'</pre>';
 
         $content .= '<pre>' .htmlentities(var_export($user->toArray(), true)) .'</pre>';
 
         //
-        $users = $role->users()->take(15)->orderBy('username')->get();
+        $roles = Role::with('users')->get();
 
-        $content .= '<pre>' .htmlentities(var_export($users, true)) .'</pre>';
+        foreach ($roles as $role) {
+			$content .= '<br><pre>' .htmlentities(var_export($role->id, true)) .'</pre>';
+
+			$users = $role->users->lists('username');
+
+			$content .= '<pre>' .htmlentities(var_export($users, true)) .'</pre>';
+        }
+
+        //$content .= '<pre>' .htmlentities(var_export($roles, true)) .'</pre>';
 
         //
         //$users = User::all();
