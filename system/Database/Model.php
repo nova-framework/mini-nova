@@ -974,6 +974,22 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     }
 
     /**
+     * Register a model event with the dispatcher.
+     *
+     * @param  string  $event
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    protected static function registerModelEvent($event, $callback)
+    {
+        if (isset(static::$dispatcher)) {
+            $name = get_called_class();
+
+            static::$dispatcher->listen("entity.{$event}: {$name}", $callback);
+        }
+    }
+
+    /**
      * Get the observable event names.
      *
      * @return array
