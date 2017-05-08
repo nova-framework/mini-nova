@@ -839,12 +839,29 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
         $dirty = array();
 
         foreach ($this->attributes as $key => $value) {
-            if (! array_key_exists($key, $this->original) || ($value !== $this->original[$key])) {
+            if (! array_key_exists($key, $this->original)) {
+                $dirty[$key] = $value;
+            } else if (($value !== $this->original[$key]) && ! $this->originalIsNumericallyEquivalent($key)) {
                 $dirty[$key] = $value;
             }
         }
 
         return $dirty;
+    }
+
+    /**
+     * Determine if the new and old values for a given key are numerically equivalent.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    protected function originalIsNumericallyEquivalent($key)
+    {
+        $current = $this->attributes[$key];
+
+        $original = $this->original[$key];
+
+        return is_numeric($current) && is_numeric($original) && (strcmp((string) $current, (string) $original) === 0);
     }
 
     /**
@@ -1160,7 +1177,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     {
         $this->visible = $visible;
     }
-    
+
     /**
      * Get the number of models to return per page.
      *
