@@ -8,10 +8,32 @@ use Mini\Database\ORM\Model;
 
 class Relation
 {
+	/**
+	 * The ORM query builder instance.
+	 *
+	 * @var \Mini\Database\ORM\Builder
+	 */
 	protected $query;
 
+	/**
+	 * The parent model instance.
+	 *
+	 * @var \Mini\Database\ORM\Model
+	 */
 	protected $parent;
 
+	/**
+	 * The related model instance.
+	 *
+	 * @var \Mini\Database\ORM\Model
+	 */
+	protected $related;
+
+	/**
+	 * The getter name for returning results.
+	 *
+	 * @var string
+	 */
 	protected $getter;
 
 	/**
@@ -35,6 +57,8 @@ class Relation
 		$this->query = $query;
 
 		$this->parent = $parent;
+
+		$this->related = $query->getModel();
 
 		$this->getter = $getter;
 	}
