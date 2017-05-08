@@ -1,25 +1,24 @@
 <?php
-/**
- * Model - A simple Database Model.
- *
- * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
- */
 
 namespace Mini\Database;
 
-use Mini\Database\Connection;
-use Mini\Database\ConnectionResolverInterface as Resolver;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Builder;
+use Mini\Database\ConnectionResolverInterface as Resolver;
+use Mini\Events\Dispatcher;
+use Mini\Support\Contracts\ArrayableInterface;
+use Mini\Support\Contracts\JsonableInterface;
+use Mini\Support\Collection;
 use Mini\Support\Str;
 
 use Carbon\Carbon;
 
+use ArrayAccess;
 use DateTime;
+use JsonSerializable;
 
 
-class Model
+class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonSerializable
 {
     /**
      * The Database Connection name.
@@ -64,11 +63,88 @@ class Model
     protected $dates = array();
 
     /**
+     * The Model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = array();
+
+    /**
+     * The Model attribute's original state.
+     *
+     * @var array
+     */
+    protected $original = array();
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = array();
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = array();
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = array('*');
+
+    /**
+     * Indicates if the Model exists.
+     *
+     * @var bool
+     */
+    public $exists = false;
+
+    /**
+     * Indicates if the model was inserted during the current request lifecycle.
+     *
+     * @var bool
+     */
+    public $wasRecentlyCreated = false;
+
+    /**
      * The connection resolver instance.
      *
      * @var \Mini\Database\ConnectionResolverInterface
      */
     protected static $resolver;
+
+    /**
+     * The event dispatcher instance.
+     *
+     * @var \Nova\Events\Dispatcher
+     */
+    protected static $dispatcher;
+
+    /**
+     * The array of booted models.
+     *
+     * @var array
+     */
+    protected static $booted = array();
+
+    /**
+     * Indicates if all mass assignment is enabled.
+     *
+     * @var bool
+     */
+    protected static $unguarded = true;
+
+    /**
+     * The cache of the mutated attributes for each class.
+     *
+     * @var array
+     */
+    protected static $mutatorCache = array();
 
     /**
      * The name of the "created at" column.
@@ -86,112 +162,827 @@ class Model
 
 
     /**
-     * Create a new Model instance.
+     * Create a new generic User object.
      *
      * @param  array  $attributes
      * @return void
      */
-    public function __construct($connection = null)
+    public function __construct($attributes = array())
     {
-        if (! is_null($connection)) {
-            $this->connection = $connection;
+        $this->bootIfNotBooted();
+
+        $this->syncOriginal();
+
+        $this->fill($attributes);
+    }
+
+    /**
+     * Check if the model needs to be booted and if so, do it.
+     *
+     * @return void
+     */
+    protected function bootIfNotBooted()
+    {
+        $class = get_class($this);
+
+        if (! isset(static::$booted[$class])) {
+            static::$booted[$class] = true;
+
+            $this->fireModelEvent('booting', false);
+
+            static::boot();
+
+            $this->fireModelEvent('booted', false);
         }
     }
 
     /**
-     * Get all of the Records from the database.
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        $class = get_called_class();
+
+        static::$mutatorCache[$class] = array();
+
+        foreach (get_class_methods($class) as $method) {
+            if (preg_match('/^get(.+)Attribute$/', $method, $matches)) {
+                static::$mutatorCache[$class][] = Str::snake($matches[1]);
+            }
+        }
+    }
+
+    /**
+     * Register an observer with the Model.
+     *
+     * @param  object  $class
+     * @return void
+     */
+    public static function observe($class)
+    {
+        $instance = new static;
+
+        $className = get_class($class);
+
+        foreach ($instance->getObservableEvents() as $event) {
+            if (method_exists($class, $event)) {
+                static::registerModelEvent($event, $className .'@' .$event);
+            }
+        }
+    }
+
+    /**
+     * Fill the Model with an array of attributes.
+     *
+     * @param  array  $attributes
+     * @return Model
+     */
+    public function fill(array $attributes)
+    {
+        foreach ($this->fillableFromArray($attributes) as $key => $value) {
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the fillable attributes of a given array.
+     *
+     * @param  array  $attributes
+     * @return array
+     */
+    protected function fillableFromArray(array $attributes)
+    {
+        if ((count($this->fillable) > 0) && ! static::$unguarded) {
+            return array_intersect_key($attributes, array_flip($this->fillable));
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Create a new instance of the given Model.
+     *
+     * @param  array  $attributes
+     * @param  bool   $exists
+     * @return Model
+     */
+    public function newInstance($attributes = array(), $exists = false)
+    {
+        $model = new static((array) $attributes);
+
+        $model->exists = $exists;
+
+        return $model;
+    }
+
+    /**
+     * Create a new Model instance that is existing.
+     *
+     * @param  array  $attributes
+     * @return \Database\ORM\Model|static
+     */
+    public function newFromBuilder($attributes = array())
+    {
+        $instance = $this->newInstance(array(), true);
+
+        $instance->setRawAttributes((array) $attributes, true);
+
+        return $instance;
+    }
+
+    /**
+     * Create a new Model instance, save it, then return the instance.
+     *
+     * @param  array  $attributes
+     * @return static
+     */
+    public static function create(array $attributes)
+    {
+        $model = new static($attributes);
+
+        $model->save();
+
+        return $model;
+    }
+
+    /**
+     * Get all of the models from the database.
      *
      * @param  array  $columns
      * @return array
      */
-    public function all($columns = array('*'))
+    public static function all($columns = array('*'))
     {
-        return $this->newQuery()->get($columns);
+        $instance = new static();
+
+        return $instance->newQuery()->get($columns);
     }
 
     /**
-     * Find a Record by its primary key.
+     * Find a Model by its primary key.
      *
      * @param  mixed  $id
      * @param  array  $columns
      * @return Model
      */
-    public function find($id, $columns = array('*'))
+    public static function find($id, $columns = array('*'))
     {
-        return $this->newQuery()->find($id, $columns);
+        $instance = new static();
+
+        return $instance->newQuery()->find($id, $columns);
     }
 
     /**
-     * Find Records by their primary key.
+     * Find a Model by its primary key or return new static.
      *
-     * @param  array  $ids
+     * @param  mixed  $id
      * @param  array  $columns
-     * @return Model
+     * @return \Database\ORM\Model|static
      */
-    public function findMany($ids, $columns = array('*'))
+    public static function findOrNew($id, $columns = array('*'))
     {
-        return $this->newQuery()->findMany($ids, $columns);
+        if (! is_null($model = static::find($id, $columns))) return $model;
+
+        return new static($columns);
     }
 
     /**
-     * Insert a new Record and get the value of the primary key.
+     * Find a Model by its primary key or throw an exception.
      *
-     * @param  array   $values
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Database\ORM\Model|static
+     *
+     * @throws \Exception
+     */
+    public static function findOrFail($id, $columns = array('*'))
+    {
+        if (! is_null($model = static::find($id, $columns))) {
+            return $model;
+        }
+
+        throw new \Exception('No query results for Model [' .get_called_class() .']');
+    }
+
+    /**
+     * Increment a Column's value by a given amount.
+     *
+     * @param  string  $column
+     * @param  int     $amount
      * @return int
      */
-    public function insert(array $values)
+    protected function increment($column, $amount = 1)
     {
-        $values = $this->convertDates($values);
+        return $this->incrementOrDecrement($column, $amount, 'increment');
+    }
 
-        return $this->newQuery()->insertGetId($values);
+    /**
+     * Decrement a Column's value by a given amount.
+     *
+     * @param  string  $column
+     * @param  int     $amount
+     * @return int
+     */
+    protected function decrement($column, $amount = 1)
+    {
+        return $this->incrementOrDecrement($column, $amount, 'decrement');
+    }
+
+    /**
+     * Run the increment or decrement method on the Model.
+     *
+     * @param  string  $column
+     * @param  int     $amount
+     * @param  string  $method
+     * @return int
+     */
+    protected function incrementOrDecrement($column, $amount, $method)
+    {
+        $query = $this->newQuery();
+
+        if ( ! $this->exists) {
+            return $query->{$method}($column, $amount);
+        }
+
+        $this->{$column} = $this->{$column} + ($method == 'increment' ? $amount : $amount * -1);
+
+        $this->syncOriginalAttribute($column);
+
+        return $query->where($this->getKeyName(), $this->getKey())->{$method}($column, $amount);
     }
 
     /**
      * Update the Model in the database.
      *
-     * @param  mixed  $id
      * @param  array  $attributes
      * @return mixed
      */
-    public function update($id, array $attributes = array())
+    public function update(array $attributes = array())
     {
-        $attributes = $this->convertDates($attributes);
+        if (! $this->exists) {
+            return $this->newQuery()->update($attributes);
+        }
 
-        return $this->newQuery()
-            ->where($this->getKeyName(), $id)
-            ->update($attributes);
+        return $this->fill($attributes)->save();
     }
 
     /**
-     * Delete the Record from the database.
+     * Save the Model to the database.
      *
-     * @return bool|null
+     * @param  array  $options
+     * @return bool
      */
-    public function delete($id)
+    public function save()
     {
-        $this->newQuery()
-            ->where($this->getKeyName(), $id)
-            ->delete();
+        if ($this->fireModelEvent('saving') === false) {
+            return false;
+        }
+
+        $query = $this->newQuery();
+
+        if ($this->exists) {
+            $saved = $this->performUpdate($query);
+        } else {
+            $saved = $this->performInsert($query);
+        }
+
+        if ($saved) {
+            $this->fireModelEvent('saved', false);
+
+            $this->syncOriginal();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Perform a Model update operation.
+     *
+     * @param  \Database\ORM\Builder  $query
+     * @return bool
+     */
+    protected function performUpdate(Builder $query)
+    {
+        $dirty = $this->getDirty();
+
+        if (count($dirty) > 0) {
+            if ($this->fireModelEvent('updating') === false) {
+                return false;
+            }
+
+            if ($this->timestamps) {
+                $this->updateTimestamps();
+            }
+
+            $dirty = $this->getDirty();
+
+            if (count($dirty) > 0) {
+                $this->setKeysForSaveQuery($query)->update($dirty);
+
+                $this->fireModelEvent('updated', false);
+            }
+        }
 
         return true;
     }
 
     /**
-     * Convert the DateTimes to storable strings.
+     * Perform a model insert operation.
      *
-     * @return array
+     * @param  \Database\ORM\Builder  $query
+     * @return bool
      */
-    protected function convertDates(array $values)
+    protected function performInsert(Builder $query)
     {
-        $dates = $this->getDates();
+        if ($this->fireModelEvent('creating') === false) {
+            return false;
+        }
 
-        foreach($values as $key => $value) {
-            if (in_array($key, $dates)) {
-                $values[$key] = $this->fromDateTime($value);
+        if ($this->timestamps) {
+            $this->updateTimestamps();
+        }
+
+        $attributes = $this->attributes;
+
+        $keyName = $this->getKeyName();
+
+        $id = $query->insertGetId($attributes);
+
+        $this->setAttribute($keyName, $id);
+
+        $this->exists = true;
+
+        $this->wasRecentlyCreated = true;
+
+        $this->fireModelEvent('created', false);
+
+        return true;
+    }
+
+    /**
+     * Update the creation and update timestamps.
+     *
+     * @return void
+     */
+    protected function updateTimestamps()
+    {
+        $time = $this->freshTimestamp();
+
+        if (! $this->isDirty(static::UPDATED_AT)) {
+            $this->{static::UPDATED_AT} = $time;
+        }
+
+        if (! $this->exists && ! $this->isDirty(static::CREATED_AT)) {
+            $this->{static::CREATED_AT} = $time;
+        }
+    }
+
+    /**
+     * Delete the Model from the database.
+     *
+     * @return bool|null
+     */
+    public function delete()
+    {
+        if (is_null($this->primaryKey)) {
+            throw new \Exception("No primary key defined on model.");
+        }
+
+        if ($this->exists) {
+            if ($this->fireModelEvent('deleting') === false) {
+                return false;
+            }
+
+            $query = $this->newQuery();
+
+            $query->where($this->getKeyName(), $this->getKey())->delete();
+
+            $this->exists = false;
+
+            //
+            $this->fireModelEvent('deleted', false);
+
+            return true;
+        }
+    }
+
+    /**
+     * Fire the given event for the model.
+     *
+     * @param  string  $event
+     * @param  bool    $halt
+     * @return mixed
+     */
+    protected function fireModelEvent($event, $halt = true)
+    {
+        if (! isset(static::$dispatcher)) return true;
+
+        $event = "orm.{$event}: ".get_class($this);
+
+        $method = $halt ? 'until' : 'fire';
+
+        return static::$dispatcher->$method($event, $this);
+    }
+
+    /**
+     * Set the keys for a save update query.
+     *
+     * @param  \Database\ORM\Builder  $query
+     * @return \Database\ORM\Builder
+     */
+    protected function setKeysForSaveQuery(Builder $query)
+    {
+        $query->where($this->getKeyName(), $this->getKeyForSaveQuery());
+
+        return $query;
+    }
+
+    /**
+     * Get the primary key value for a save query.
+     *
+     * @return mixed
+     */
+    protected function getKeyForSaveQuery()
+    {
+        $key = $this->getKeyName();
+
+        if (isset($this->original[$key])) {
+            return $this->original[$key];
+        }
+
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Determine if the given attribute may be mass assigned.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function isFillable($key)
+    {
+        if (static::$unguarded) {
+            return true;
+        } else if (in_array($key, $this->fillable)) {
+            return true;
+        } else if ($this->isGuarded($key)) {
+            return false;
+        }
+
+        return (empty($this->fillable) && ! Str::startsWith($key, '_'));
+    }
+
+    /**
+     * Set the array of model attributes. No checking is done.
+     *
+     * @param  array  $attributes
+     * @param  bool   $sync
+     * @return void
+     */
+    public function setRawAttributes(array $attributes, $sync = false)
+    {
+        $this->attributes = $attributes;
+
+        if ($sync) {
+            $this->syncOriginal();
+        }
+    }
+
+    /**
+     * Set a given attribute on the model.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return void
+     */
+    public function setAttribute($key, $value)
+    {
+        if ($this->hasSetMutator($key)) {
+            $method = 'set' .Str::studly($key) .'Attribute';
+
+            return call_user_func(array($this, $method), $value);
+        } else if (in_array($key, $this->getDates()) && ! is_null($value)) {
+            $value = $this->fromDateTime($value);
+        }
+
+        $this->attributes[$key] = $value;
+    }
+
+    /**
+     * Get a plain attribute.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function getAttribute($key)
+    {
+        $value = $this->getAttributeFromArray($key);
+
+        if (in_array($key, $this->getDates()) && ! is_null($value)) {
+            return $this->asDateTime($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Sync the original attributes with the current.
+     *
+     * @return Model
+     */
+    public function syncOriginal()
+    {
+        $this->original = $this->attributes;
+
+        return $this;
+    }
+
+    /**
+     * Sync a single original attribute with its current value.
+     *
+     * @param  string  $attribute
+     * @return $this
+     */
+    public function syncOriginalAttribute($attribute)
+    {
+        $this->original[$attribute] = $this->attributes[$attribute];
+
+        return $this;
+    }
+
+    /**
+     * Determine if the model or given attribute(s) have been modified.
+     *
+     * @param  array|string|null  $attributes
+     * @return bool
+     */
+    public function isDirty($attributes = null)
+    {
+        $dirty = $this->getDirty();
+
+        if (is_null($attributes)) {
+            return ! empty($dirty);
+        }
+
+        if (! is_array($attributes)) {
+            $attributes = func_get_args();
+        }
+
+        foreach ($attributes as $attribute) {
+            if (array_key_exists($attribute, $dirty)) {
+                return true;
             }
         }
 
-        return $values;
+        return false;
+    }
+
+    /**
+     * Get the attributes that have been changed since last sync.
+     *
+     * @return array
+     */
+    public function getDirty()
+    {
+        $dirty = array();
+
+        foreach ($this->attributes as $key => $value) {
+            if (! array_key_exists($key, $this->original) || ($value !== $this->original[$key])) {
+                $dirty[$key] = $value;
+            }
+        }
+
+        return $dirty;
+    }
+
+    /**
+     * Get a plain attribute.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function getAttributeValue($key)
+    {
+        $value = $this->getAttributeFromArray($key);
+
+        if ($this->hasGetMutator($key)) {
+            return $this->mutateAttribute($key, $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get an attribute from the $attributes array.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function getAttributeFromArray($key)
+    {
+        if (array_key_exists($key, $this->attributes)) {
+            return $this->attributes[$key];
+        }
+    }
+
+    /**
+     * Get the value of an attribute using its mutator.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return mixed
+     */
+    protected function mutateAttribute($key, $value)
+    {
+        $method = 'get' .Str::studly($key) .'Attribute';
+
+        return call_user_func(array($this, $method), $value);
+    }
+
+    /**
+     * Get the value of an attribute using its mutator for array conversion.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return mixed
+     */
+    protected function mutateAttributeForArray($key, $value)
+    {
+        $value = $this->mutateAttribute($key, $value);
+
+        return ($value instanceof ArrayableInterface) ? $value->toArray() : $value;
+    }
+
+    /**
+     * Determine if a set mutator exists for an attribute.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasSetMutator($key)
+    {
+        return method_exists($this, 'set' .Str::studly($key) .'Attribute');
+    }
+
+    /**
+     * Determine if a get mutator exists for an attribute.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function hasGetMutator($key)
+    {
+        return method_exists($this, 'get' .Str::studly($key) .'Attribute');
+    }
+
+    /**
+     * Convert a DateTime to a storable string.
+     *
+     * @param  \DateTime|int  $value
+     * @return string
+     */
+    public function fromDateTime($value)
+    {
+        $format = $this->getDateFormat();
+
+        if ($value instanceof DateTime) {
+            //
+        } else if (is_numeric($value)) {
+            $value = Carbon::createFromTimestamp($value);
+        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+            $value = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+        } else {
+            $value = Carbon::createFromFormat($format, $value);
+        }
+
+        return $value->format($format);
+    }
+
+    /**
+     * Return a timestamp as DateTime object.
+     *
+     * @param  mixed  $value
+     * @return \Carbon\Carbon
+     */
+    protected function asDateTime($value)
+    {
+        if (is_numeric($value)) {
+            return Carbon::createFromTimestamp($value);
+        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
+            return Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+        } else if (! $value instanceof DateTime) {
+            $format = $this->getDateFormat();
+
+            return Carbon::createFromFormat($format, $value);
+        }
+
+        return Carbon::instance($value);
+    }
+
+    /**
+     * Register a saving model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function saving($callback)
+    {
+        static::registerModelEvent('saving', $callback);
+    }
+
+    /**
+     * Register a saved model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function saved($callback)
+    {
+        static::registerModelEvent('saved', $callback);
+    }
+
+    /**
+     * Register an updating model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function updating($callback)
+    {
+        static::registerModelEvent('updating', $callback);
+    }
+
+    /**
+     * Register an updated model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function updated($callback)
+    {
+        static::registerModelEvent('updated', $callback);
+    }
+
+    /**
+     * Register a creating model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function creating($callback)
+    {
+        static::registerModelEvent('creating', $callback);
+    }
+
+    /**
+     * Register a created model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function created($callback)
+    {
+        static::registerModelEvent('created', $callback);
+    }
+
+    /**
+     * Register a deleting model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function deleting($callback)
+    {
+        static::registerModelEvent('deleting', $callback);
+    }
+
+    /**
+     * Register a deleted model event with the dispatcher.
+     *
+     * @param  \Closure|string  $callback
+     * @return void
+     */
+    public static function deleted($callback)
+    {
+        static::registerModelEvent('deleted', $callback);
+    }
+
+    /**
+     * Get the observable event names.
+     *
+     * @return array
+     */
+    public function getObservableEvents()
+    {
+        return array(
+            'creating', 'created', 'updating', 'updated', 'deleting', 'deleted', 'saving', 'saved',
+        );
     }
 
     /**
@@ -224,6 +1015,16 @@ class Model
     public function getKeyName()
     {
         return $this->primaryKey;
+    }
+
+    /**
+     * Get the default foreign key name for the Model.
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return Str::snake(class_basename($this)) .'_id';
     }
 
     /**
@@ -375,50 +1176,6 @@ class Model
     }
 
     /**
-     * Convert a DateTime to a storable string.
-     *
-     * @param  \DateTime|int  $value
-     * @return string
-     */
-    public function fromDateTime($value)
-    {
-        $format = $this->getDateFormat();
-
-        if ($value instanceof DateTime) {
-            //
-        } else if (is_numeric($value)) {
-            $value = Carbon::createFromTimestamp($value);
-        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
-            $value = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
-        } else {
-            $value = Carbon::createFromFormat($format, $value);
-        }
-
-        return $value->format($format);
-    }
-
-    /**
-     * Return a timestamp as DateTime object.
-     *
-     * @param  mixed  $value
-     * @return \Carbon\Carbon
-     */
-    protected function asDateTime($value)
-    {
-        if (is_numeric($value)) {
-            return Carbon::createFromTimestamp($value);
-        } else if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value)) {
-            return Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
-        } else if (! $value instanceof DateTime) {
-            $format = $this->getDateFormat();
-
-            return Carbon::createFromFormat($format, $value);
-        }
-
-        return Carbon::instance($value);
-    }
-
-    /**
      * Get the format for database stored dates.
      *
      * @return string
@@ -468,6 +1225,267 @@ class Model
     }
 
     /**
+     * Create a new ORM Collection instance.
+     *
+     * @param  array  $models
+     * @return \Mini\Database\ORM\Collection
+     */
+    public function newCollection(array $models = array())
+    {
+        return new Collection($models);
+    }
+
+    /**
+     * Convert the model instance to JSON.
+     *
+     * @param  int  $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this->toArray(), $options);
+    }
+
+    /**
+     * Convert the object into something JSON serializable.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Convert the Model instance to an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $attributes = $this->getArrayableAttributes();
+
+        foreach ($this->getDates() as $key) {
+            if (! isset($attributes[$key])) {
+                continue;
+            }
+
+            $attributes[$key] = (string) $this->asDateTime($attributes[$key]);
+        }
+
+        foreach ($this->getMutatedAttributes() as $key) {
+            if (! array_key_exists($key, $attributes)) {
+                continue;
+            }
+
+            $attributes[$key] = $this->mutateAttributeForArray(
+                $key, $attributes[$key]
+            );
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Get an attribute array of all arrayable attributes.
+     *
+     * @return array
+     */
+    protected function getArrayableAttributes()
+    {
+        return $this->getArrayableItems($this->attributes);
+    }
+
+    /**
+     * Get an attribute array of all arrayable values.
+     *
+     * @param  array  $values
+     * @return array
+     */
+    protected function getArrayableItems(array $values)
+    {
+        return array_diff_key($values, array_flip($this->hidden));
+    }
+
+    /**
+     * Get all of the current attributes on the Model.
+     *
+     * @return array
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Disable all mass assignable restrictions.
+     *
+     * @return void
+     */
+    public static function unguard()
+    {
+        static::$unguarded = true;
+    }
+
+    /**
+     * Enable the mass assignment restrictions.
+     *
+     * @return void
+     */
+    public static function reguard()
+    {
+        static::$unguarded = false;
+    }
+
+    /**
+     * Set "unguard" to a given state.
+     *
+     * @param  bool  $state
+     * @return void
+     */
+    public static function setUnguardState($state)
+    {
+        static::$unguarded = $state;
+    }
+
+    /**
+     * Determine if the given key is guarded.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function isGuarded($key)
+    {
+        return (in_array($key, $this->guarded) || ($this->guarded == array('*')));
+    }
+
+    /**
+     * Determine if the Model is totally guarded.
+     *
+     * @return bool
+     */
+    public function totallyGuarded()
+    {
+        return ((count($this->fillable) == 0) && ($this->guarded == array('*')));
+    }
+
+    /**
+     * Get the mutated attributes for a given instance.
+     *
+     * @return array
+     */
+    public function getMutatedAttributes()
+    {
+        $class = get_class($this);
+
+        if (isset(static::$mutatorCache[$class])) {
+            return static::$mutatorCache[$class];
+        }
+
+        return array();
+    }
+
+    /**
+     * Determine if the given attribute exists.
+     *
+     * @param  mixed  $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->$offset);
+    }
+
+    /**
+     * Get the value for a given offset.
+     *
+     * @param  mixed  $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->$offset;
+    }
+
+    /**
+     * Set the value for a given offset.
+     *
+     * @param  mixed  $offset
+     * @param  mixed  $value
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->$offset = $value;
+    }
+
+    /**
+     * Unset the value for a given offset.
+     *
+     * @param  mixed  $offset
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->$offset);
+    }
+
+    /**
+     * Dynamically access the user's attributes.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Dynamically set an attribute on the user.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return void
+     */
+    public function __set($key, $value)
+    {
+        $this->setAttribute($key, $value);
+    }
+
+    /**
+     * Dynamically check if a value is set on the user.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        return isset($this->attributes[$key]);
+    }
+
+    /**
+     * Dynamically unset a value on the user.
+     *
+     * @param  string  $key
+     * @return void
+     */
+    public function __unset($key)
+    {
+        unset($this->attributes[$key]);
+    }
+
+    /**
+     * Convert the model to its string representation.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->toJson();
+    }
+
+    /**
      * Handle dynamic method calls into the method.
      *
      * @param  string  $method
@@ -480,4 +1498,19 @@ class Model
 
         return call_user_func_array(array($query, $method), $parameters);
     }
+
+    /**
+     * Handle dynamic static method calls into the Method.
+     *
+     * @param  string  $method
+     * @param  array   $params
+     * @return mixed
+     */
+    public static function __callStatic($method, $params)
+    {
+        $instance = new static();
+
+        return call_user_func_array(array($instance, $method), $params);
+    }
 }
+

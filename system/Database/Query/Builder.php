@@ -1629,7 +1629,7 @@ class Builder
      */
     public function __call($method, $params)
     {
-        if (str_starts_with($method, 'where')) {
+        if (Str::startsWith($method, 'where')) {
             return $this->dynamicWhere($method, $params);
         }
 

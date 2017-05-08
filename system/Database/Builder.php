@@ -6,6 +6,7 @@ use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Model;
 use Mini\Support\Arr;
+use Mini\Support\Collection;
 
 use Closure;
 
@@ -53,7 +54,7 @@ class Builder
 
         $query = $this->query->where($this->model->getKeyName(), '=', $id);
 
-        return $query->first($columns);
+        return $this->first($columns);
     }
 
     /**
@@ -69,7 +70,66 @@ class Builder
 
         $query = $this->query->whereIn($this->model->getKeyName(), $ids);
 
-        return $query->get($columns);
+        return $this->get($columns);
+    }
+
+    /**
+     * Execute the query and get the first result.
+     *
+     * @param  array  $columns
+     * @return \Mini\Database\ORM\Model|static|null
+     */
+    public function first($columns = array('*'))
+    {
+        return $this->take(1)->get($columns)->first();
+    }
+
+    /**
+     * Execute the query as a "select" statement.
+     *
+     * @param  array  $columns
+     * @return \Mini\Database\ORM\Collection|static[]
+     */
+    public function get($columns = array('*'))
+    {
+        $models = $this->getModels($columns);
+
+        return $this->model->newCollection($models);
+    }
+
+    /**
+     * Pluck a single column from the database.
+     *
+     * @param  string  $column
+     * @return mixed
+     */
+    public function pluck($column)
+    {
+        $result = $this->first(array($column));
+
+        if ($result) return $result->{$column};
+    }
+
+    /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string  $column
+     * @param  string  $key
+     * @return array
+     */
+    public function lists($column, $key = null)
+    {
+        $results = $this->query->lists($column, $key);
+
+        if ($this->model->hasGetMutator($column)) {
+            foreach ($results as $key => &$value) {
+                $fill = array($column => $value);
+
+                $value = $this->model->newFromBuilder($fill)->$column;
+            }
+        }
+
+        return $results;
     }
 
     /**
@@ -125,7 +185,7 @@ class Builder
         $query = $this->query->forPage($page, $perPage);
 
         // Retrieve the results from database.
-        $results = $query->get($columns);
+        $results = $this->get($columns)->all();
 
         return $paginator->make($results, $total, $perPage);
     }
@@ -151,57 +211,29 @@ class Builder
         $query = $this->skip(($page - 1) * $perPage)->take($perPage + 1);
 
         // Retrieve the results from database.
-        $results = $query->get($columns);
+        $results = $this->get($columns)->all();
 
         return $paginator->make($results, $perPage);
     }
 
     /**
-     * Insert a new record into the database.
+     * Get the hydrated models.
      *
-     * @param  array  $values
-     * @return bool
+     * @param  array  $columns
+     * @return \Mini\Database\Entity[]
      */
-    public function insert(array $values)
+    public function getModels($columns = array('*'))
     {
-        return $this->query->insert($this->addTimestamps($values));
-    }
+        $results = $this->query->get($columns);
 
-    /**
-     * Insert a new Record and get the value of the primary key.
-     *
-     * @param  array   $values
-     * @return int
-     */
-    public function insertGetId(array $values)
-    {
-        return $this->query->insertGetId($this->addTimestamps($values));
-    }
+        //
+        $models = array();
 
-    /**
-     * Add the "created at" and "updated at" columns to an array of values.
-     *
-     * @param  array  $values
-     * @return array
-     */
-    protected function addTimestamps(array $values)
-    {
-        if (! $this->model->usesTimestamps()) return $values;
-
-        $columns = array(
-            $this->model->getCreatedAtColumn(),
-            $this->model->getUpdatedAtColumn(),
-        );
-
-        $timestamp = $this->model->freshTimestampString();
-
-        foreach ($columns as $column) {
-            if (is_null($value = Arr::get($values, $column))) {
-                Arr::set($values, $column, $timestamp);
-            }
+        foreach ($results as $result) {
+            $models[] = $this->model->newFromBuilder($result);
         }
 
-        return $values;
+        return $models;
     }
 
     /**
