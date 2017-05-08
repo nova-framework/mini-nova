@@ -699,7 +699,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $model->{$foreignKey});
 
-		return new Relation($query, 'first');
+		return new Relation($query, $this, 'first');
 	}
 
 	public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
@@ -723,7 +723,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$query = $model->newQuery()->where($table .'.' .$otherKey, '=', $this->{$foreignKey});
 
-		return new Relation($query, 'first');
+		return new Relation($query, $this, 'first');
 	}
 
 	public function hasMany($related, $foreignKey = null, $localKey = null, $relation = null)
@@ -745,7 +745,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$query = $model->newQuery()->where($table .'.' .$foreignKey, '=', $this->{$localKey});
 
-		return new Relation($query, 'get');
+		return new Relation($query, $this, 'get');
 	}
 
 	/**
