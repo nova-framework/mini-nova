@@ -147,6 +147,26 @@ class Builder
     }
 
     /**
+     * Chunk the results of the query.
+     *
+     * @param  int  $count
+     * @param  callable  $callback
+     * @return void
+     */
+    public function chunk($count, callable $callback)
+    {
+        $results = $this->forPage($page = 1, $count)->get();
+
+        while (count($results) > 0) {
+            call_user_func($callback, $results);
+
+            $page++;
+
+            $results = $this->forPage($page, $count)->get();
+        }
+    }
+
+    /**
      * Get an array with the values of a given column.
      *
      * @param  string  $column
