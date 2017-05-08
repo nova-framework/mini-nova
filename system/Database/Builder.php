@@ -5,6 +5,7 @@ namespace Mini\Database;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Model;
+use Mini\Database\ModelNotFoundException;
 use Mini\Support\Arr;
 use Mini\Support\Collection;
 
@@ -74,6 +75,24 @@ class Builder
     }
 
     /**
+     * Find a model by its primary key or throw an exception.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Mini\Database\ORM\Model|static
+     *
+     * @throws \Mini\Database\ModelNotFoundException
+     */
+    public function findOrFail($id, $columns = array('*'))
+    {
+        if (! is_null($model = $this->find($id, $columns))) {
+            return $model;
+        }
+
+        throw (new ModelNotFoundException)->setModel(get_class($this->model));
+    }
+
+    /**
      * Execute the query and get the first result.
      *
      * @param  array  $columns
@@ -82,6 +101,23 @@ class Builder
     public function first($columns = array('*'))
     {
         return $this->take(1)->get($columns)->first();
+    }
+
+    /**
+     * Execute the query and get the first result or throw an exception.
+     *
+     * @param  array  $columns
+     * @return \Mini\Database\Model|static
+     *
+     * @throws \Mini\Database\ModelNotFoundException
+     */
+    public function firstOrFail($columns = array('*'))
+    {
+        if (! is_null($model = $this->first($columns))) {
+            return $model;
+        }
+
+        throw (new ModelNotFoundException)->setModel(get_class($this->model));
     }
 
     /**

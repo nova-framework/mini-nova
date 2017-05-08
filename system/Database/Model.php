@@ -5,6 +5,7 @@ namespace Mini\Database;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\Builder;
 use Mini\Database\ConnectionResolverInterface as Resolver;
+use Mini\Database\ModelNotFoundException;
 use Mini\Events\Dispatcher;
 use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\JsonableInterface;
@@ -246,8 +247,6 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
         $totallyGuarded = $this->totallyGuarded();
 
         foreach ($this->fillableFromArray($attributes) as $key => $value) {
-            $key = $key->removeTableFromKey($key);
-
             if ($this->isFillable($key)) {
                 $this->setAttribute($key, $value);
             } else if ($totallyGuarded) {
@@ -375,7 +374,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
             return $model;
         }
 
-        throw new \Exception('No query results for Model [' .get_called_class() .']');
+        throw (new ModelNotFoundException)->setModel(get_called_class());
     }
 
     /**
@@ -1422,19 +1421,6 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
     public function totallyGuarded()
     {
         return ((count($this->fillable) == 0) && ($this->guarded == array('*')));
-    }
-
-    /**
-     * Remove the table name from a given key.
-     *
-     * @param  string  $key
-     * @return string
-     */
-    protected function removeTableFromKey($key)
-    {
-        if (! str_contains($key, '.')) return $key;
-
-        return last(explode('.', $key));
     }
 
     /**
