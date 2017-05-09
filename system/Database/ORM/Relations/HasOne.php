@@ -45,13 +45,7 @@ class HasOne extends Relation
 	 */
 	public function match(array $models, Collection $results, $relation)
 	{
-		$dictionary = array();
-
-		foreach ($results as $result) {
-			$key = $result->getAttribute($this->foreignKey);
-
-			$dictionary[$key] = $result;
-		}
+		$dictionary = $this->buildDictionary($results);
 
 		foreach ($models as $model) {
 			$key = $model->getAttribute($this->localKey);
@@ -59,7 +53,7 @@ class HasOne extends Relation
 			if (isset($dictionary[$key])) {
 				$value = $dictionary[$key];
 
-				$model->setRelation($relation, $value);
+				$model->setRelation($relation, reset($value));
 			}
 		}
 

@@ -103,13 +103,7 @@ class HasMany extends Relation
 	 */
 	public function match(array $models, Collection $results, $relation)
 	{
-		$dictionary = array();
-
-		foreach ($results as $result) {
-			$key = $result->getAttribute($this->foreignKey);
-
-			$dictionary[$key][] = $result;
-		}
+		$dictionary = $this->buildDictionary($results);
 
 		foreach ($models as $model) {
 			$key = $model->getAttribute($this->localKey);
@@ -122,6 +116,27 @@ class HasMany extends Relation
 		}
 
 		return $models;
+	}
+
+	/**
+	 * Build model dictionary keyed by the relation's foreign key.
+	 *
+	 * @param  \Mini\Database\ORM\Collection  $results
+	 * @return array
+	 */
+	protected function buildDictionary(Collection $results)
+	{
+		$dictionary = array();
+
+		$foreign = $this->getPlainForeignKey();
+
+		foreach ($results as $result) {
+			$key = $result->getAttribute($foreign);
+
+			$dictionary[$key][] = $result;
+		}
+
+		return $dictionary;
 	}
 
 	/**
@@ -145,5 +160,17 @@ class HasMany extends Relation
 	public function getHasCompareKey()
 	{
 		return $this->getForeignKey();
+	}
+
+	/**
+	 * Get the plain foreign key.
+	 *
+	 * @return string
+	 */
+	public function getPlainForeignKey()
+	{
+		$segments = explode('.', $this->foreignKey);
+
+		return end($segments);
 	}
 }
