@@ -2,9 +2,12 @@
 
 namespace Mini\Database\ORM;
 
+use Mini\Database\ORM\Relations\BelongsTo;
+use Mini\Database\ORM\Relations\HasMany;
+use Mini\Database\ORM\Relations\HasOne;
+use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\Builder;
 use Mini\Database\ORM\ModelNotFoundException;
-use Mini\Database\ORM\Relation;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\ConnectionResolverInterface as Resolver;
 use Mini\Events\Dispatcher;
@@ -732,46 +735,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		//
 		$model = new $related;
 
-		$table = $this->getTable();
-
-		//
-		$relation = new Relation($model, $this);
-
-		//
-		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $localKey)
-		{
-			return $query->where($table .'.' .$foreignKey, '=', $this->getAttribute($localKey));
-		});
-
-		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $localKey)
-		{
-			return $query->whereIn($table .'.' .$foreignKey, $relation->getKeys($models, $localKey));
-		});
-
-		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $localKey)
-		{
-			$dictionary = array();
-
-			foreach ($results as $result) {
-				$key = $result->getAttribute($foreignKey);
-
-				$dictionary[$key] = $result;
-			}
-
-			foreach ($models as $model) {
-				$key = $model->getAttribute($localKey);
-
-				if (isset($dictionary[$key])) {
-					$value = $dictionary[$key];
-
-					$model->setRelation($name, $value);
-				}
-			}
-
-			return $models;
-		});
-
-		return $relation;
+		return new HasOne($model, $this, $foreignKey, $localKey);
 	}
 
 	public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
@@ -790,60 +754,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$otherKey = $otherKey ?: $model->getKeyName();
 
-		$table = $model->getTable();
-
-		//
-		$relation = new Relation($model, $this);
-
-		//
-		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $otherKey)
-		{
-			return $query->where($table .'.' .$otherKey, '=', $this->getAttribute($foreignKey));
-		});
-
-		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $otherKey)
-		{
-			$keys = array();
-
-			foreach ($models as $model) {
-				if (! is_null($value = $model->{$foreignKey})) {
-					$keys[] = $value;
-				}
-			}
-
-			if (count($keys) == 0) {
-				$keys = array(0);
-			} else {
-				$keys = array_values(array_unique($keys));
-			}
-
-			return $query->whereIn($table .'.' .$otherKey, $keys);
-		});
-
-		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $otherKey)
-		{
-			$dictionary = array();
-
-			foreach ($results as $result) {
-				$key = $result->getAttribute($otherKey);
-
-				$dictionary[$key] = $result;
-			}
-
-			foreach ($models as $model) {
-				$key = $model->$foreignKey;
-
-				if (isset($dictionary[$key])) {
-					$value = $dictionary[$key];
-
-					$model->setRelation($name, $value);
-				}
-			}
-
-			return $models;
-		});
-
-		return $relation;
+		return new BelongsTo($model, $this, $foreignKey, $otherKey, $relation);
 	}
 
 	public function hasMany($related, $foreignKey = null, $localKey = null)
@@ -855,46 +766,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		//
 		$model = new $related;
 
-		$table = $model->getTable();
-
-		//
-		$relation = new Relation($model, $this, false);
-
-		//
-		$relation->macro('constraints', function ($query) use ($table, $foreignKey, $localKey)
-		{
-			return $query->where($table .'.' .$foreignKey, '=', $this->getAttribute($localKey));
-		});
-
-		$relation->macro('eagerConstraints', function ($relation, $query, $models) use ($table, $foreignKey, $localKey)
-		{
-			return $query->whereIn($table .'.' .$foreignKey, $relation->getKeys($models, $localKey));
-		});
-
-		$relation->macro('match', function ($relation, $models, $results, $name) use ($foreignKey, $localKey)
-		{
-			$dictionary = array();
-
-			foreach ($results as $result) {
-				$key = $result->getAttribute($foreignKey);
-
-				$dictionary[$key][] = $result;
-			}
-
-			foreach ($models as $model) {
-				$key = $model->getAttribute($localKey);
-
-				if (isset($dictionary[$key])) {
-					$value = $dictionary[$key];
-
-					$model->setRelation($name, $relation->getRelated()->newCollection($value));
-				}
-			}
-
-			return $models;
-		});
-
-		return $relation;
+		return new HasMany($model, $this, $foreignKey, $localKey);
 	}
 
 	/**
@@ -1070,7 +942,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		$relation = call_user_func(array($this, $method));
 
 		if (! $relation instanceof Relation) {
-			throw new LogicException("Relationship method must return an object of type Mini\Database\ORM\Relation");
+			throw new LogicException("Relationship method must return an object of type Mini\Database\ORM\Relations\Relation");
 		}
 
 		return $this->relations[$key] = $relation->getResults();

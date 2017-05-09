@@ -2,6 +2,7 @@
 
 namespace Mini\Database\ORM;
 
+use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\ModelNotFoundException;
 use Mini\Database\ORM\Model;
 use Mini\Database\Query\Expression;

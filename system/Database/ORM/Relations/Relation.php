@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Database\ORM;
+namespace Mini\Database\ORM\Relations;
 
 use Mini\Database\ORM\Builder;
 use Mini\Database\ORM\Model;
@@ -10,7 +10,7 @@ use Mini\Support\Arr;
 use Closure;
 
 
-class Relation
+abstract class Relation
 {
 	/**
 	 * The ORM query builder instance.
@@ -34,20 +34,6 @@ class Relation
 	protected $related;
 
 	/**
-	 * Whether or not we return a single result.
-	 *
-	 * @var bool
-	 */
-	protected $single;
-
-	/**
-	 * All of the registered relation macros.
-	 *
-	 * @var array
-	 */
-	protected $macros = array();
-
-	/**
 	 * Indicates if the relation is adding constraints.
 	 *
 	 * @var bool
@@ -63,14 +49,31 @@ class Relation
 	 * @param string $getter
 	 * @return void
 	 */
-	public function __construct(Model $related, Model $parent, $single = true)
+	public function __construct(Model $related, Model $parent)
 	{
 		$this->related = $related;
+		$this->parent  = $parent;
 
-		$this->parent = $parent;
+		$this->query = $related->newQuery();
 
-		$this->single = $single;
+		//
+		$this->addConstraints();
 	}
+
+	/**
+	 * Set the base constraints on the relation query.
+	 *
+	 * @return void
+	 */
+	abstract public function addConstraints();
+
+	/**
+	 * Set the constraints for an eager load of the relation.
+	 *
+	 * @param  array  $models
+	 * @return void
+	 */
+	abstract public function addEagerConstraints(array $models);
 
 	/**
 	 * Initialize the relation on a set of models.
@@ -79,39 +82,7 @@ class Relation
 	 * @param  string  $relation
 	 * @return array
 	 */
-	public function initRelation(array $models, $relation)
-	{
-		foreach ($models as $model) {
-			$model->setRelation($relation, $this->single ? null : $this->related->newCollection());
-		}
-
-		return $models;
-	}
-
-	/**
-	 * Set the base constraints on the relation query.
-	 *
-	 * @return void
-	 */
-	public function addConstraints()
-	{
-		$query = $this->related->newQuery();
-
-		return $this->query = call_user_func($this->macros['constraints'], $this, $query);
-	}
-
-	/**
-	 * Set the constraints for an eager load of the relation.
-	 *
-	 * @param  array  $models
-	 * @return void
-	 */
-	public function addEagerConstraints(array $models)
-	{
-		$query = $this->related->newQuery();
-
-		return $this->query = call_user_func($this->macros['eagerConstraints'], $this, $query, $models);
-	}
+	abstract public function initRelation(array $models, $relation);
 
 	/**
 	 * Match the eagerly loaded results to their parents.
@@ -121,23 +92,20 @@ class Relation
 	 * @param  string  $relation
 	 * @return array
 	 */
-	public function match(array $models, Collection $results, $relation)
-	{
-		return call_user_func($this->macros['match'], $this, $models, $results, $relation);
-	}
+	abstract public function match(array $models, Collection $results, $relation);
 
 	/**
 	 * Get the result(s) of the relationship.
 	 *
 	 * @return mixed
 	 */
-	public function getResults()
-	{
-		$method = $this->single ? 'first' : 'get';
+	abstract public function getResults();
 
-		return call_user_func(array($this->query, $method));
-	}
-
+	/**
+	 * Get the relationship for eager loading.
+	 *
+	 * @return \Mini\Database\ORM\Collection
+	 */
 	public function getEager()
 	{
 		return $this->query->get();
@@ -176,26 +144,57 @@ class Relation
 		}, $models)));
 	}
 
+	/**
+	 * Touch all of the related models for the relationship.
+	 *
+	 * @return void
+	 */
+	public function touch()
+	{
+		$column = $this->related->getUpdatedAtColumn();
+
+		$this->rawUpdate(array($column => $this->related->freshTimestampString()));
+	}
+
+	/**
+	 * Run a raw update against the base query.
+	 *
+	 * @param  array  $attributes
+	 * @return int
+	 */
+	public function rawUpdate(array $attributes = array())
+	{
+		return $this->query->update($attributes);
+	}
+
+	/**
+	 * Get the underlying query for the relation.
+	 *
+	 * @return \Nova\Database\ORM\Builder
+	 */
+	public function getQuery()
+	{
+		return $this->query;
+	}
+
+   /**
+	 * Get the parent model of the relation.
+	 *
+	 * @return \Mini\Database\ORM\Model
+	 */
 	public function getParent()
 	{
 		return $this->parent;
 	}
 
+	/**
+	 * Get the related model of the relation.
+	 *
+	 * @return \Mini\Database\ORM\Model
+	 */
 	public function getRelated()
 	{
 		return $this->related;
-	}
-
-	/**
-	 * Extend the relation with a given callback.
-	 *
-	 * @param  string	$name
-	 * @param  \Closure  $callback
-	 * @return void
-	 */
-	public function macro($name, Closure $callback)
-	{
-		$this->macros[$name] = $callback;
 	}
 
 	/**
@@ -207,8 +206,10 @@ class Relation
 	 */
 	public function __call($method, $parameters)
 	{
-		$this->addConstraints();
+		$result = call_user_func_array(array($this->query, $method), $parameters);
 
-		return call_user_func_array(array($this->query, $method), $parameters);
+		if ($result === $this->query) return $this;
+
+		return $result;
 	}
 }
