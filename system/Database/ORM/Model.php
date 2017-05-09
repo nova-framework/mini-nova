@@ -64,13 +64,6 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public $timestamps = true;
 
 	/**
-	 * The attributes that should be mutated to dates.
-	 *
-	 * @var array
-	 */
-	protected $dates = array();
-
-	/**
 	 * The Model's attributes.
 	 *
 	 * @var array
@@ -118,6 +111,20 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	 * @var array
 	 */
 	protected $guarded = array('*');
+
+	/**
+	 * The attributes that should be mutated to dates.
+	 *
+	 * @var array
+	 */
+	protected $dates = array();
+
+	/**
+	 * The relationships that should be touched on save.
+	 *
+	 * @var array
+	 */
+	protected $touches = array();
 
 	/**
 	 * The relations to eager load on every query.
@@ -554,7 +561,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	 * @param  array  $options
 	 * @return bool
 	 */
-	public function save()
+	public function save(array $options = array())
 	{
 		if ($this->fireModelEvent('saving') === false) {
 			return false;
@@ -572,6 +579,10 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 			$this->fireModelEvent('saved', false);
 
 			$this->syncOriginal();
+		}
+
+		if (Arr::get($options, 'touch', true)) {
+			$this->touchOwners();
 		}
 
 		return $saved;
@@ -767,6 +778,33 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		$model = new $related;
 
 		return new HasMany($model, $this, $foreignKey, $localKey);
+	}
+
+	/**
+	 * Touch the owning relations of the model.
+	 *
+	 * @return void
+	 */
+	public function touchOwners()
+	{
+		foreach ($this->touches as $relation) {
+			$this->$relation()->touch();
+
+			if (! is_null($this->$relation)) {
+				$this->$relation->touchOwners();
+			}
+		}
+	}
+
+	/**
+	 * Determine if the model touches a given relation.
+	 *
+	 * @param  string  $relation
+	 * @return bool
+	 */
+	public function touches($relation)
+	{
+		return in_array($relation, $this->touches);
 	}
 
 	/**
