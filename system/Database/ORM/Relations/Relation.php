@@ -88,7 +88,7 @@ abstract class Relation
 	 * Match the eagerly loaded results to their parents.
 	 *
 	 * @param  array   $models
-	 * @param  \Nova\Database\ORM\Collection  $results
+	 * @param  \Mini\Database\ORM\Collection  $results
 	 * @param  string  $relation
 	 * @return array
 	 */
@@ -170,9 +170,9 @@ abstract class Relation
 	/**
 	 * Add the constraints for a relationship count query.
 	 *
-	 * @param  \Nova\Database\ORM\Builder  $query
-	 * @param  \Nova\Database\ORM\Builder  $parent
-	 * @return \Nova\Database\ORM\Builder
+	 * @param  \Mini\Database\ORM\Builder  $query
+	 * @param  \Mini\Database\ORM\Builder  $parent
+	 * @return \Mini\Database\ORM\Builder
 	 */
 	public function getRelationCountQuery(Builder $query, Builder $parent)
 	{
@@ -186,14 +186,24 @@ abstract class Relation
 	/**
 	 * Get the underlying query for the relation.
 	 *
-	 * @return \Nova\Database\ORM\Builder
+	 * @return \Mini\Database\ORM\Builder
 	 */
 	public function getQuery()
 	{
 		return $this->query;
 	}
 
-   /**
+	/**
+	 * Get the base query builder driving the ORM builder.
+	 *
+	 * @return \Mini\Database\Query\Builder
+	 */
+	public function getBaseQuery()
+	{
+		return $this->query->getQuery();
+	}
+
+	/**
 	 * Get the parent model of the relation.
 	 *
 	 * @return \Mini\Database\ORM\Model

@@ -537,12 +537,12 @@ class Builder
 	{
 		$relations = explode('.', $relations);
 
-		$closure = function ($q) use (&$closure, &$relations, $operator, $count, $boolean, $callback)
+		$closure = function ($query) use (&$closure, &$relations, $operator, $count, $boolean, $callback)
 		{
 			if (count($relations) > 1) {
-				$q->whereHas(array_shift($relations), $closure);
+				$query->whereHas(array_shift($relations), $closure);
 			} else {
-				$q->has(array_shift($relations), $operator, $count, $boolean, $callback);
+				$query->has(array_shift($relations), $operator, $count, $boolean, $callback);
 			}
 		};
 
