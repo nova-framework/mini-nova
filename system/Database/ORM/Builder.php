@@ -458,9 +458,7 @@ class Builder
 	 */
 	protected function isNested($name, $relation)
 	{
-		$dots = Str::contains($name, '.');
-
-		return $dots && Str::startsWith($name, $relation .'.');
+		return Str::contains($name, '.') && Str::startsWith($name, $relation .'.');
 	}
 
 	/**
