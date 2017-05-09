@@ -173,4 +173,14 @@ class HasMany extends Relation
 
 		return end($segments);
 	}
+
+	/**
+	 * Get the key value of the parent's local key.
+	 *
+	 * @return mixed
+	 */
+	public function getParentKey()
+	{
+		return $this->parent->getAttribute($this->localKey);
+	}
 }
