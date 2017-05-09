@@ -3,8 +3,8 @@
 namespace Mini\Database\ORM\Relations;
 
 use Mini\Database\ORM\Relations\Relation;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
-use Mini\Support\Collection;
 
 
 class HasMany extends Relation
@@ -86,10 +86,8 @@ class HasMany extends Relation
 	 */
 	public function initRelation(array $models, $relation)
 	{
-		$value = $this->related->newCollection();
-
 		foreach ($models as $model) {
-			$model->setRelation($relation, $value);
+			$model->setRelation($relation, $this->related->newCollection());
 		}
 
 		return $models;

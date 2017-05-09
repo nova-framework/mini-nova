@@ -3,8 +3,10 @@
 namespace Mini\Database\ORM\Relations;
 
 use Mini\Database\ORM\Relations\Relation;
+use Mini\Database\ORM\Builder;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
-use Mini\Support\Collection;
+use Mini\Database\Query\Expression;
 
 
 class BelongsTo extends Relation
@@ -78,6 +80,22 @@ class BelongsTo extends Relation
 	}
 
 	/**
+	 * Add the constraints for a relationship count query.
+	 *
+	 * @param  \Mini\Database\ORM\Builder  $query
+	 * @param  \Mini\Database\ORM\Builder  $parent
+	 * @return \Mini\Database\ORM\Builder
+	 */
+	public function getRelationCountQuery(Builder $query, Builder $parent)
+	{
+		$query->select(new Expression('count(*)'));
+
+		$otherKey = $this->wrap($query->getModel()->getTable() .'.' .$this->otherKey);
+
+		return $query->where($this->getQualifiedForeignKey(), '=', new Expression($otherKey));
+	}
+
+	/**
 	 * Set the constraints for an eager load of the relation.
 	 *
 	 * @param  array  $models
@@ -133,7 +151,7 @@ class BelongsTo extends Relation
 	 * Match the eagerly loaded results to their parents.
 	 *
 	 * @param  array   $models
-	 * @param  \Nova\Database\ORM\Collection  $results
+	 * @param  \Mini\Database\ORM\Collection  $results
 	 * @param  string  $relation
 	 * @return array
 	 */
@@ -160,4 +178,23 @@ class BelongsTo extends Relation
 		return $models;
 	}
 
+	/**
+	 * Get the fully qualified foreign key of the relationship.
+	 *
+	 * @return string
+	 */
+	public function getQualifiedForeignKey()
+	{
+		return $this->parent->getTable() .'.' .$this->foreignKey;
+	}
+
+	/**
+	 * Get the fully qualified associated key of the relationship.
+	 *
+	 * @return string
+	 */
+	public function getQualifiedOtherKeyName()
+	{
+		return $this->related->getTable() .'.' .$this->otherKey;
+	}
 }

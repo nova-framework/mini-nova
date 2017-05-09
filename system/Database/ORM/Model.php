@@ -7,13 +7,13 @@ use Mini\Database\ORM\Relations\HasMany;
 use Mini\Database\ORM\Relations\HasOne;
 use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\Builder;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\ModelNotFoundException;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Database\ConnectionResolverInterface as Resolver;
 use Mini\Events\Dispatcher;
 use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\JsonableInterface;
-use Mini\Support\Collection;
 use Mini\Support\Str;
 
 use Carbon\Carbon;
@@ -1189,6 +1189,16 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public function getKeyName()
 	{
 		return $this->primaryKey;
+	}
+
+	/**
+	 * Get the table qualified key name.
+	 *
+	 * @return string
+	 */
+	public function getQualifiedKeyName()
+	{
+		return $this->getTable() .'.' .$this->getKeyName();
 	}
 
 	/**

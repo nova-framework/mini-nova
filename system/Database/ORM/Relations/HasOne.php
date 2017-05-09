@@ -3,8 +3,8 @@
 namespace Mini\Database\ORM\Relations;
 
 use Mini\Database\ORM\Relations\Relation;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
-use Mini\Support\Collection;
 
 
 class HasOne extends Relation

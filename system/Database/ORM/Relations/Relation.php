@@ -3,8 +3,8 @@
 namespace Mini\Database\ORM\Relations;
 
 use Mini\Database\ORM\Builder;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
-use Mini\Support\Collection;
 use Mini\Support\Arr;
 
 use Closure;
@@ -168,6 +168,22 @@ abstract class Relation
 	}
 
 	/**
+	 * Add the constraints for a relationship count query.
+	 *
+	 * @param  \Nova\Database\ORM\Builder  $query
+	 * @param  \Nova\Database\ORM\Builder  $parent
+	 * @return \Nova\Database\ORM\Builder
+	 */
+	public function getRelationCountQuery(Builder $query, Builder $parent)
+	{
+		$query->select(new Expression('count(*)'));
+
+		$key = $this->wrap($this->getQualifiedParentKeyName());
+
+		return $query->where($this->getHasCompareKey(), '=', new Expression($key));
+	}
+
+	/**
 	 * Get the underlying query for the relation.
 	 *
 	 * @return \Nova\Database\ORM\Builder
@@ -188,6 +204,16 @@ abstract class Relation
 	}
 
 	/**
+	 * Get the fully qualified parent key name.
+	 *
+	 * @return string
+	 */
+	public function getQualifiedParentKeyName()
+	{
+		return $this->parent->getQualifiedKeyName();
+	}
+
+	/**
 	 * Get the related model of the relation.
 	 *
 	 * @return \Mini\Database\ORM\Model
@@ -195,6 +221,47 @@ abstract class Relation
 	public function getRelated()
 	{
 		return $this->related;
+	}
+
+	/**
+	 * Get the name of the "created at" column.
+	 *
+	 * @return string
+	 */
+	public function createdAt()
+	{
+		return $this->parent->getCreatedAtColumn();
+	}
+
+	/**
+	 * Get the name of the "updated at" column.
+	 *
+	 * @return string
+	 */
+	public function updatedAt()
+	{
+		return $this->parent->getUpdatedAtColumn();
+	}
+
+	/**
+	 * Get the name of the related model's "updated at" column.
+	 *
+	 * @return string
+	 */
+	public function relatedUpdatedAt()
+	{
+		return $this->related->getUpdatedAtColumn();
+	}
+
+	/**
+	 * Wrap the given value with the parent query's grammar.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	public function wrap($value)
+	{
+		return $this->parent->newQuery()->getQuery()->getGrammar()->wrap($value);
 	}
 
 	/**

@@ -30,6 +30,7 @@ class Users extends Controller
         //
         $roles = Role::with('users')->get();
 
+        /*
         foreach ($roles as $role) {
 			$content .= '<br><pre>' .htmlentities(var_export($role->id, true)) .'</pre>';
 
@@ -37,8 +38,9 @@ class Users extends Controller
 
 			$content .= '<pre>' .htmlentities(var_export($users, true)) .'</pre>';
         }
+        */
 
-        //$content .= '<pre>' .htmlentities(var_export($roles, true)) .'</pre>';
+        $content .= '<pre>' .htmlentities(var_export($roles, true)) .'</pre>';
 
         //
         //$users = User::all();

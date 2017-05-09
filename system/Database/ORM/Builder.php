@@ -4,11 +4,12 @@ namespace Mini\Database\ORM;
 
 use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\ModelNotFoundException;
+use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
 use Mini\Database\Query\Expression;
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Support\Arr;
-use Mini\Support\Collection;
+use Mini\Support\Str;
 
 use Closure;
 
@@ -294,11 +295,15 @@ class Builder
 	{
 		$results = $this->query->get($columns);
 
+		$connection = $this->model->getConnectionName();
+
 		//
 		$models = array();
 
 		foreach ($results as $result) {
-			$models[] = $this->model->newFromBuilder($result);
+			$models[] = $model = $this->model->newFromBuilder($result);
+
+			$model->setConnection($connection);
 		}
 
 		return $models;
@@ -369,7 +374,9 @@ class Builder
 	public function eagerLoadRelations(array $models)
 	{
 		foreach ($this->eagerLoad as $name => $constraints) {
-			$models = $this->loadRelation($models, $name, $constraints);
+			if (strpos($name, '.') === false) {
+				$models = $this->loadRelation($models, $name, $constraints);
+			}
 		}
 
 		return $models;
@@ -407,6 +414,258 @@ class Builder
 	 */
 	public function getRelation($relation)
 	{
+		$relation = Relation::noConstraints(function() use ($relation)
+		{
+			return $this->getModel()->$relation();
+		});
+
+		$nested = $this->nestedRelations($relation);
+
+		if (count($nested) > 0) {
+			$query->getQuery()->with($nested);
+		}
+
+		return $relation;
+	}
+
+	/**
+	 * Get the deeply nested relations for a given top-level relation.
+	 *
+	 * @param  string  $relation
+	 * @return array
+	 */
+	protected function nestedRelations($relation)
+	{
+		$nested = array();
+
+		foreach ($this->eagerLoad as $name => $constraints) {
+			if ($this->isNested($name, $relation)) {
+				$key = substr($name, strlen($relation .'.'));
+
+				$nested[$key] = $constraints;
+			}
+		}
+
+		return $nested;
+	}
+
+	/**
+	 * Determine if the relationship is nested.
+	 *
+	 * @param  string  $name
+	 * @param  string  $relation
+	 * @return bool
+	 */
+	protected function isNested($name, $relation)
+	{
+		$dots = Str::contains($name, '.');
+
+		return $dots && Str::startsWith($name, $relation .'.');
+	}
+
+	/**
+	 * Add a basic where clause to the query.
+	 *
+	 * @param  string  $column
+	 * @param  string  $operator
+	 * @param  mixed   $value
+	 * @param  string  $boolean
+	 * @return $this
+	 */
+	public function where($column, $operator = null, $value = null, $boolean = 'and')
+	{
+		if ($column instanceof Closure) {
+			$query = $this->model->newQuery();
+
+			call_user_func($column, $query);
+
+			$this->query->addNestedWhereQuery($query->getQuery(), $boolean);
+		} else {
+			call_user_func_array(array($this->query, 'where'), func_get_args());
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Add an "or where" clause to the query.
+	 *
+	 * @param  string  $column
+	 * @param  string  $operator
+	 * @param  mixed   $value
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function orWhere($column, $operator = null, $value = null)
+	{
+		return $this->where($column, $operator, $value, 'or');
+	}
+
+	/**
+	 * Add a relationship count condition to the query.
+	 *
+	 * @param  string  $relation
+	 * @param  string  $operator
+	 * @param  int	 $count
+	 * @param  string  $boolean
+	 * @param  \Closure|null  $callback
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', Closure $callback = null)
+	{
+		if (strpos($relation, '.') !== false) {
+			return $this->hasNested($relation, $operator, $count, $boolean, $callback);
+		}
+
+		$relation = $this->getHasRelationQuery($relation);
+
+		$query = $relation->getRelationCountQuery($relation->getRelated()->newQuery(), $this);
+
+		if ($callback) call_user_func($callback, $query);
+
+		return $this->addHasWhere($query, $relation, $operator, $count, $boolean);
+	}
+
+	/**
+	 * Add nested relationship count conditions to the query.
+	 *
+	 * @param  string  $relations
+	 * @param  string  $operator
+	 * @param  int	 $count
+	 * @param  string  $boolean
+	 * @param  \Closure  $callback
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	protected function hasNested($relations, $operator = '>=', $count = 1, $boolean = 'and', $callback = null)
+	{
+		$relations = explode('.', $relations);
+
+		$closure = function ($q) use (&$closure, &$relations, $operator, $count, $boolean, $callback)
+		{
+			if (count($relations) > 1) {
+				$q->whereHas(array_shift($relations), $closure);
+			} else {
+				$q->has(array_shift($relations), $operator, $count, $boolean, $callback);
+			}
+		};
+
+		return $this->whereHas(array_shift($relations), $closure);
+	}
+
+	/**
+	 * Add a relationship count condition to the query.
+	 *
+	 * @param  string  $relation
+	 * @param  string  $boolean
+	 * @param  \Closure|null  $callback
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function doesntHave($relation, $boolean = 'and', Closure $callback = null)
+	{
+		return $this->has($relation, '<', 1, $boolean, $callback);
+	}
+
+	/**
+	 * Add a relationship count condition to the query with where clauses.
+	 *
+	 * @param  string	$relation
+	 * @param  \Closure  $callback
+	 * @param  string	$operator
+	 * @param  int	   $count
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function whereHas($relation, Closure $callback, $operator = '>=', $count = 1)
+	{
+		return $this->has($relation, $operator, $count, 'and', $callback);
+	}
+
+	/**
+	 * Add a relationship count condition to the query with where clauses.
+	 *
+	 * @param  string  $relation
+	 * @param  \Closure|null  $callback
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function whereDoesntHave($relation, Closure $callback = null)
+	{
+		return $this->doesntHave($relation, 'and', $callback);
+	}
+
+	/**
+	 * Add a relationship count condition to the query with an "or".
+	 *
+	 * @param  string  $relation
+	 * @param  string  $operator
+	 * @param  int	 $count
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function orHas($relation, $operator = '>=', $count = 1)
+	{
+		return $this->has($relation, $operator, $count, 'or');
+	}
+
+	/**
+	 * Add a relationship count condition to the query with where clauses and an "or".
+	 *
+	 * @param  string	$relation
+	 * @param  \Closure  $callback
+	 * @param  string	$operator
+	 * @param  int	   $count
+	 * @return \Nova\Database\ORM\Builder|static
+	 */
+	public function orWhereHas($relation, Closure $callback, $operator = '>=', $count = 1)
+	{
+		return $this->has($relation, $operator, $count, 'or', $callback);
+	}
+
+	/**
+	 * Add the "has" condition where clause to the query.
+	 *
+	 * @param  \Nova\Database\ORM\Builder  $hasQuery
+	 * @param  \Nova\Database\ORM\Relations\Relation  $relation
+	 * @param  string  $operator
+	 * @param  int  $count
+	 * @param  string  $boolean
+	 * @return \Nova\Database\ORM\Builder
+	 */
+	protected function addHasWhere(Builder $hasQuery, Relation $relation, $operator, $count, $boolean)
+	{
+		$this->mergeWheresToHas($hasQuery, $relation);
+
+		if (is_numeric($count)) {
+			$count = new Expression($count);
+		}
+
+		return $this->where(new Expression('(' .$hasQuery->toSql() .')'), $operator, $count, $boolean);
+	}
+
+	/**
+	 * Merge the "wheres" from a relation query to a has query.
+	 *
+	 * @param  \Nova\Database\ORM\Builder  $hasQuery
+	 * @param  \Nova\Database\ORM\Relations\Relation  $relation
+	 * @return void
+	 */
+	protected function mergeWheresToHas(Builder $hasQuery, Relation $relation)
+	{
+		$relationQuery = $relation->getBaseQuery();
+
+		$hasQuery = $hasQuery->getModel()->removeGlobalScopes($hasQuery);
+
+		$hasQuery->mergeWheres(
+			$relationQuery->wheres, $relationQuery->getBindings()
+		);
+
+		$this->query->mergeBindings($hasQuery->getQuery());
+	}
+
+	/**
+	 * Get the "has relation" base query instance.
+	 *
+	 * @param  string  $relation
+	 * @return \Nova\Database\ORM\Builder
+	 */
+	protected function getHasRelationQuery($relation)
+	{
 		return Relation::noConstraints(function() use ($relation)
 		{
 			return $this->getModel()->$relation();
@@ -428,6 +687,53 @@ class Builder
 		$eagers = $this->parseRelations($relations);
 
 		$this->eagerLoad = array_merge($this->eagerLoad, $eagers);
+
+		return $this;
+	}
+
+	/**
+	 * Prevent the specified relations from being eager loaded.
+	 *
+	 * @param  mixed  $relations
+	 * @return $this
+	 */
+	public function without($relations)
+	{
+		if (is_string($relations)) $relations = func_get_args();
+
+		$this->eagerLoad = array_diff_key($this->eagerLoad, array_flip($relations));
+
+		return $this;
+	}
+
+	/**
+	 * Add subselect queries to count the relations.
+	 *
+	 * @param  mixed  $relations
+	 * @return $this
+	 */
+	public function withCount($relations)
+	{
+		if (is_string($relations)) $relations = func_get_args();
+
+		// If no columns are set, add the default * columns.
+		if (is_null($this->query->columns)) {
+			$this->query->select($this->query->from .'.*');
+		}
+
+		$relations = $this->parseRelations($relations);
+
+		foreach ($relations as $name => $constraints) {
+			$relation = $this->getHasRelationQuery($name);
+
+			$query = $relation->getRelationCountQuery($relation->getRelated()->newQuery(), $this);
+
+			call_user_func($constraints, $query);
+
+			$this->mergeWheresToHas($query, $relation);
+
+			$this->selectSub($query->getQuery(), Str::snake($name) .'_count');
+		}
 
 		return $this;
 	}
