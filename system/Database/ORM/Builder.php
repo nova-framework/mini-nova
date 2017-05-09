@@ -750,13 +750,34 @@ class Builder
 
 		foreach ($relations as $name => $constraints) {
 			if (is_numeric($name)) {
-				list($name, $constraints) = array($constraints, function()
-				{
-					//
-				});
+				list($name, $constraints) = array($constraints, function () {});
 			}
 
+			$results = $this->parseNested($name, $results);
+
 			$results[$name] = $constraints;
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Parse the nested relationships in a relation.
+	 *
+	 * @param  string  $name
+	 * @param  array   $results
+	 * @return array
+	 */
+	protected function parseNested($name, $results)
+	{
+		$progress = array();
+
+		foreach (explode('.', $name) as $segment) {
+			$progress[] = $segment;
+
+			if (! isset($results[$last = implode('.', $progress)])) {
+				$results[$last] = function () {};
+			}
 		}
 
 		return $results;
@@ -795,6 +816,27 @@ class Builder
 	public function setQuery($query)
 	{
 		$this->query = $query;
+	}
+
+	/**
+	 * Get the relationships being eagerly loaded.
+	 *
+	 * @return array
+	 */
+	public function getEagerLoads()
+	{
+		return $this->eagerLoad;
+	}
+
+	/**
+	 * Set the relationships being eagerly loaded.
+	 *
+	 * @param  array  $eagerLoad
+	 * @return void
+	 */
+	public function setEagerLoads(array $eagerLoad)
+	{
+		$this->eagerLoad = $eagerLoad;
 	}
 
 	/**
