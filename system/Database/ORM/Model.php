@@ -3,9 +3,11 @@
 namespace Mini\Database\ORM;
 
 use Mini\Database\ORM\Relations\BelongsTo;
+use Mini\Database\ORM\Relations\BelongsToMany;
 use Mini\Database\ORM\Relations\HasMany;
 use Mini\Database\ORM\Relations\HasManyThrough;
 use Mini\Database\ORM\Relations\HasOne;
+use Mini\Database\ORM\Relations\Pivot;
 use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\Builder;
 use Mini\Database\ORM\Collection;
@@ -805,6 +807,74 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	}
 
 	/**
+	 * Define a many-to-many relationship.
+	 *
+	 * @param  string  $related
+	 * @param  string  $table
+	 * @param  string  $foreignKey
+	 * @param  string  $otherKey
+	 * @param  string  $relation
+	 * @return \Mini\Database\ORM\Relations\BelongsToMany
+	 */
+	public function belongsToMany($related, $table = null, $foreignKey = null, $otherKey = null, $relation = null)
+	{
+		if (is_null($relation)) {
+			$relation = $this->getBelongsToManyCaller();
+		}
+
+		$foreignKey = $foreignKey ?: $this->getForeignKey();
+
+		$model = new $related;
+
+		$otherKey = $otherKey ?: $model->getForeignKey();
+
+		if (is_null($table)) {
+			$table = $this->joiningTable($related);
+		}
+
+		return new BelongsToMany($model, $this, $table, $foreignKey, $otherKey, $relation);
+	}
+
+	/**
+	 * Get the relationship name of the belongs to many.
+	 *
+	 * @return  string
+	 */
+	protected function getBelongsToManyCaller()
+	{
+		$self = __FUNCTION__;
+
+		$caller = array_first(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), function($key, $trace) use ($self)
+		{
+			$caller = $trace['function'];
+
+			return (! in_array($caller, Model::$manyMethods) && $caller != $self);
+		});
+
+		return ! is_null($caller) ? $caller['function'] : null;
+	}
+
+	/**
+	 * Get the joining table name for a many-to-many relation.
+	 *
+	 * @param  string  $related
+	 * @return string
+	 */
+	public function joiningTable($related)
+	{
+		$base = Str::snake(class_basename($this));
+
+		$related = Str::snake(class_basename($related));
+
+		$models = array($related, $base);
+
+		//
+		sort($models);
+
+		return strtolower(implode('_', $models));
+	}
+
+	/**
 	 * Touch the owning relations of the model.
 	 *
 	 * @return void
@@ -1510,6 +1580,20 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public function newCollection(array $models = array())
 	{
 		return new Collection($models);
+	}
+
+	/**
+	 * Create a new pivot model instance.
+	 *
+	 * @param  \Mini\Database\ORM\Model  $parent
+	 * @param  array   $attributes
+	 * @param  string  $table
+	 * @param  bool	$exists
+	 * @return \Mini\Database\ORM\Relations\Pivot
+	 */
+	public function newPivot(Model $parent, array $attributes, $table, $exists)
+	{
+		return new Pivot($parent, $attributes, $table, $exists);
 	}
 
 	/**
