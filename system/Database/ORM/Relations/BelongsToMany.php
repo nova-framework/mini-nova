@@ -550,7 +550,9 @@ class BelongsToMany extends Relation
 			$id = $id->getKey();
 		}
 
-		$timed = in_array($this->createdAt(), $this->pivotColumns) || in_array($this->updatedAt(), $this->pivotColumns);
+		$columns = $this->pivotColumns;
+
+		$timed = in_array($this->createdAt(), $columns) || in_array($this->updatedAt(), $columns);
 
 		//
 		$records = array();
@@ -579,7 +581,15 @@ class BelongsToMany extends Relation
 	{
 		list($id, $extra) = $this->getAttachId($key, $value, $attributes);
 
-		$record = $this->createAttachRecord($id, $timed);
+		// Create a new pivot attachment record.
+		$record = array(
+			$this->foreignKey => $this->parent->getKey(),
+			$this->otherKey   => $id,
+		);
+
+		if ($timed) {
+			$record = $this->setTimestampsOnAttach($record);
+		}
 
 		return array_merge($record, $extra);
 	}
@@ -599,26 +609,6 @@ class BelongsToMany extends Relation
 		}
 
 		return array($value, $attributes);
-	}
-
-	/**
-	 * Create a new pivot attachment record.
-	 *
-	 * @param  int   $id
-	 * @param  bool  $timed
-	 * @return array
-	 */
-	protected function createAttachRecord($id, $timed)
-	{
-		$record[$this->foreignKey] = $this->parent->getKey();
-
-		$record[$this->otherKey] = $id;
-
-		if ($timed) {
-			$record = $this->setTimestampsOnAttach($record);
-		}
-
-		return $record;
 	}
 
 	/**
@@ -661,9 +651,9 @@ class BelongsToMany extends Relation
 			$ids = (array) $ids->getKey();
 		}
 
-		$query = $this->newPivotQuery();
-
 		$ids = (array) $ids;
+
+		$query = $this->newPivotQuery();
 
 		if (count($ids) > 0) {
 			$query->whereIn($this->otherKey, (array) $ids);
@@ -673,9 +663,7 @@ class BelongsToMany extends Relation
 			$this->touchIfTouching();
 		}
 
-		$results = $query->delete();
-
-		return $results;
+		return $query->delete();
 	}
 
 	/**
@@ -685,33 +673,16 @@ class BelongsToMany extends Relation
 	 */
 	public function touchIfTouching()
 	{
-		if ($this->touchingParent()) {
+		// Attempt to guess the name of the inverse of the relation.
+		$relation = Str::camel(Str::plural(class_basename($this->parent)));
+
+		if ($this->related->touches($relation)) {
 			$this->parent->touch();
 		}
 
 		if ($this->parent->touches($this->relation)) {
 			$this->touch();
 		}
-	}
-
-	/**
-	 * Determine if we should touch the parent on sync.
-	 *
-	 * @return bool
-	 */
-	protected function touchingParent()
-	{
-		return $this->related->touches($this->guessInverseRelation());
-	}
-
-	/**
-	 * Attempt to guess the name of the inverse of the relation.
-	 *
-	 * @return string
-	 */
-	protected function guessInverseRelation()
-	{
-		return Str::camel(Str::plural(class_basename($this->parent)));
 	}
 
 	/**

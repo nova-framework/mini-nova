@@ -666,13 +666,43 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	{
 		$time = $this->freshTimestamp();
 
-		if (! $this->isDirty(static::UPDATED_AT)) {
-			$this->{static::UPDATED_AT} = $time;
+		//
+		$column = static::UPDATED_AT;
+
+		if (! $this->isDirty($column)) {
+			$this->{$column} = $time;
 		}
 
-		if (! $this->exists && ! $this->isDirty(static::CREATED_AT)) {
-			$this->{static::CREATED_AT} = $time;
+		$column = static::CREATED_AT;
+
+		if (! $this->exists && ! $this->isDirty($column)) {
+			$this->{$column} = $time;
 		}
+	}
+
+	/**
+	 * Destroy the models for the given IDs.
+	 *
+	 * @param  array|int  $ids
+	 * @return int
+	 */
+	public static function destroy($ids)
+	{
+		$count = 0;
+
+		$ids = is_array($ids) ? $ids : func_get_args();
+
+		$instance = new static;
+
+		$key = $instance->getKeyName();
+
+		foreach ($instance->whereIn($key, $ids)->get() as $model) {
+			if ($model->delete()) {
+				$count++;
+			}
+		}
+
+		return $count;
 	}
 
 	/**
@@ -691,9 +721,9 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 				return false;
 			}
 
-			$query = $this->newQuery();
+			$this->touchOwners();
 
-			$query->where($this->getKeyName(), $this->getKey())->delete();
+			$this->newQuery()->where($this->getKeyName(), $this->getKey())->delete();
 
 			$this->exists = false;
 
@@ -819,7 +849,9 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public function belongsToMany($related, $table = null, $foreignKey = null, $otherKey = null, $relation = null)
 	{
 		if (is_null($relation)) {
-			$relation = $this->getBelongsToManyCaller();
+			list(, $caller) = debug_backtrace(false, 2);
+
+			$relation = $caller['function'];
 		}
 
 		$foreignKey = $foreignKey ?: $this->getForeignKey();
@@ -833,25 +865,6 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		}
 
 		return new BelongsToMany($model, $this, $table, $foreignKey, $otherKey, $relation);
-	}
-
-	/**
-	 * Get the relationship name of the belongs to many.
-	 *
-	 * @return  string
-	 */
-	protected function getBelongsToManyCaller()
-	{
-		$self = __FUNCTION__;
-
-		$caller = array_first(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), function($key, $trace) use ($self)
-		{
-			$caller = $trace['function'];
-
-			return (! in_array($caller, Model::$manyMethods) && $caller != $self);
-		});
-
-		return ! is_null($caller) ? $caller['function'] : null;
 	}
 
 	/**
