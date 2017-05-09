@@ -123,5 +123,15 @@ class HasOne extends Relation
 
 		return $models;
 	}
+
+	/**
+	 * Get the key for comparing against the parent key in "has" query.
+	 *
+	 * @return string
+	 */
+	public function getHasCompareKey()
+	{
+		return $this->getForeignKey();
+	}
 }
 

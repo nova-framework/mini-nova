@@ -4,6 +4,7 @@ namespace Mini\Database\ORM;
 
 use Mini\Database\ORM\Relations\BelongsTo;
 use Mini\Database\ORM\Relations\HasMany;
+use Mini\Database\ORM\Relations\HasManyThrough;
 use Mini\Database\ORM\Relations\HasOne;
 use Mini\Database\ORM\Relations\Relation;
 use Mini\Database\ORM\Builder;
@@ -778,6 +779,29 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 		$model = new $related;
 
 		return new HasMany($model, $this, $foreignKey, $localKey);
+	}
+
+	/**
+	 * Define a has-many-through relationship.
+	 *
+	 * @param  string  $related
+	 * @param  string  $through
+	 * @param  string|null  $firstKey
+	 * @param  string|null  $secondKey
+	 * @return \Mini\Database\ORM\Relations\HasManyThrough
+	 */
+	public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null)
+	{
+		$through = new $through;
+
+		$firstKey = $firstKey ?: $this->getForeignKey();
+
+		$secondKey = $secondKey ?: $through->getForeignKey();
+
+		//
+		$model = new $related;
+
+		return new HasManyThrough($model, $this, $through, $firstKey, $secondKey);
 	}
 
 	/**

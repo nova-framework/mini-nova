@@ -9,36 +9,36 @@ use Mini\Database\ORM\Model;
 
 class HasMany extends Relation
 {
-    /**
-     * The foreign key of the parent model.
-     *
-     * @var string
-     */
-    protected $foreignKey;
+	/**
+	 * The foreign key of the parent model.
+	 *
+	 * @var string
+	 */
+	protected $foreignKey;
 
-    /**
-     * The local key of the parent model.
-     *
-     * @var string
-     */
-    protected $localKey;
+	/**
+	 * The local key of the parent model.
+	 *
+	 * @var string
+	 */
+	protected $localKey;
 
-    /**
-     * Create a new has many relationship instance.
-     *
-     * @param  \Nova\Database\ORM\Builder  $query
-     * @param  \Nova\Database\ORM\Model  $parent
-     * @param  string  $foreignKey
-     * @param  string  $localKey
-     * @return void
-     */
-    public function __construct(Model $related, Model $parent, $foreignKey, $localKey)
-    {
-        $this->localKey   = $localKey;
-        $this->foreignKey = $foreignKey;
+	/**
+	 * Create a new has many relationship instance.
+	 *
+	 * @param  \Nova\Database\ORM\Builder  $query
+	 * @param  \Nova\Database\ORM\Model  $parent
+	 * @param  string  $foreignKey
+	 * @param  string  $localKey
+	 * @return void
+	 */
+	public function __construct(Model $related, Model $parent, $foreignKey, $localKey)
+	{
+		$this->localKey   = $localKey;
+		$this->foreignKey = $foreignKey;
 
-        parent::__construct($related, $parent);
-    }
+		parent::__construct($related, $parent);
+	}
 
 	/**
 	 * Get the result(s) of the relationship.
@@ -122,5 +122,15 @@ class HasMany extends Relation
 		}
 
 		return $models;
+	}
+
+	/**
+	 * Get the key for comparing against the parent key in "has" query.
+	 *
+	 * @return string
+	 */
+	public function getHasCompareKey()
+	{
+		return $this->getForeignKey();
 	}
 }
