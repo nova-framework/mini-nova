@@ -204,6 +204,16 @@ class BelongsTo extends Relation
 	}
 
 	/**
+	 * Get the foreign key of the relationship.
+	 *
+	 * @return string
+	 */
+	public function getForeignKey()
+	{
+		return $this->foreignKey;
+	}
+
+	/**
 	 * Get the fully qualified foreign key of the relationship.
 	 *
 	 * @return string
@@ -213,6 +223,16 @@ class BelongsTo extends Relation
 		return $this->parent->getTable() .'.' .$this->foreignKey;
 	}
 
+	/**
+	 * Get the associated key of the relationship.
+	 *
+	 * @return string
+	 */
+	public function getOtherKey()
+	{
+		return $this->otherKey;
+	}
+	
 	/**
 	 * Get the fully qualified associated key of the relationship.
 	 *

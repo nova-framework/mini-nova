@@ -163,6 +163,16 @@ class HasMany extends Relation
 	}
 
 	/**
+	 * Get the foreign key for the relationship.
+	 *
+	 * @return string
+	 */
+	public function getForeignKey()
+	{
+		return $this->foreignKey;
+	}
+
+	/**
 	 * Get the plain foreign key.
 	 *
 	 * @return string
@@ -182,5 +192,15 @@ class HasMany extends Relation
 	public function getParentKey()
 	{
 		return $this->parent->getAttribute($this->localKey);
+	}
+
+	/**
+	 * Get the fully qualified parent key name.
+	 *
+	 * @return string
+	 */
+	public function getQualifiedParentKeyName()
+	{
+		return $this->parent->getTable().'.'.$this->localKey;
 	}
 }

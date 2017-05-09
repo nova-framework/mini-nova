@@ -491,7 +491,7 @@ class Builder
 	 * @param  string  $column
 	 * @param  string  $operator
 	 * @param  mixed   $value
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function orWhere($column, $operator = null, $value = null)
 	{
@@ -506,7 +506,7 @@ class Builder
 	 * @param  int	 $count
 	 * @param  string  $boolean
 	 * @param  \Closure|null  $callback
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', Closure $callback = null)
 	{
@@ -531,7 +531,7 @@ class Builder
 	 * @param  int	 $count
 	 * @param  string  $boolean
 	 * @param  \Closure  $callback
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	protected function hasNested($relations, $operator = '>=', $count = 1, $boolean = 'and', $callback = null)
 	{
@@ -555,7 +555,7 @@ class Builder
 	 * @param  string  $relation
 	 * @param  string  $boolean
 	 * @param  \Closure|null  $callback
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function doesntHave($relation, $boolean = 'and', Closure $callback = null)
 	{
@@ -569,7 +569,7 @@ class Builder
 	 * @param  \Closure  $callback
 	 * @param  string	$operator
 	 * @param  int	   $count
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function whereHas($relation, Closure $callback, $operator = '>=', $count = 1)
 	{
@@ -581,7 +581,7 @@ class Builder
 	 *
 	 * @param  string  $relation
 	 * @param  \Closure|null  $callback
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function whereDoesntHave($relation, Closure $callback = null)
 	{
@@ -594,7 +594,7 @@ class Builder
 	 * @param  string  $relation
 	 * @param  string  $operator
 	 * @param  int	 $count
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function orHas($relation, $operator = '>=', $count = 1)
 	{
@@ -608,7 +608,7 @@ class Builder
 	 * @param  \Closure  $callback
 	 * @param  string	$operator
 	 * @param  int	   $count
-	 * @return \Nova\Database\ORM\Builder|static
+	 * @return \Mini\Database\ORM\Builder|static
 	 */
 	public function orWhereHas($relation, Closure $callback, $operator = '>=', $count = 1)
 	{
@@ -618,12 +618,12 @@ class Builder
 	/**
 	 * Add the "has" condition where clause to the query.
 	 *
-	 * @param  \Nova\Database\ORM\Builder  $hasQuery
-	 * @param  \Nova\Database\ORM\Relations\Relation  $relation
+	 * @param  \Mini\Database\ORM\Builder  $hasQuery
+	 * @param  \Mini\Database\ORM\Relations\Relation  $relation
 	 * @param  string  $operator
 	 * @param  int  $count
 	 * @param  string  $boolean
-	 * @return \Nova\Database\ORM\Builder
+	 * @return \Mini\Database\ORM\Builder
 	 */
 	protected function addHasWhere(Builder $hasQuery, Relation $relation, $operator, $count, $boolean)
 	{
@@ -639,8 +639,8 @@ class Builder
 	/**
 	 * Merge the "wheres" from a relation query to a has query.
 	 *
-	 * @param  \Nova\Database\ORM\Builder  $hasQuery
-	 * @param  \Nova\Database\ORM\Relations\Relation  $relation
+	 * @param  \Mini\Database\ORM\Builder  $hasQuery
+	 * @param  \Mini\Database\ORM\Relations\Relation  $relation
 	 * @return void
 	 */
 	protected function mergeWheresToHas(Builder $hasQuery, Relation $relation)
@@ -660,7 +660,7 @@ class Builder
 	 * Get the "has relation" base query instance.
 	 *
 	 * @param  string  $relation
-	 * @return \Nova\Database\ORM\Builder
+	 * @return \Mini\Database\ORM\Builder
 	 */
 	protected function getHasRelationQuery($relation)
 	{

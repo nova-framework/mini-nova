@@ -649,14 +649,14 @@ class BelongsToMany extends Relation
 	{
 		if ($ids instanceof Model) {
 			$ids = (array) $ids->getKey();
+		} else {
+			$ids = (array) $ids;
 		}
-
-		$ids = (array) $ids;
 
 		$query = $this->newPivotQuery();
 
 		if (count($ids) > 0) {
-			$query->whereIn($this->otherKey, (array) $ids);
+			$query->whereIn($this->otherKey, $ids);
 		}
 
 		if ($touch) {
@@ -694,8 +694,8 @@ class BelongsToMany extends Relation
 	{
 		$query = $this->newPivotStatement();
 
-		foreach ($this->pivotWheres as $whereArgs) {
-			call_user_func_array([$query, 'where'], $whereArgs);
+		foreach ($this->pivotWheres as $parameters) {
+			call_user_func_array(array($query, 'where'), $parameters);
 		}
 
 		return $query->where($this->foreignKey, $this->parent->getKey());
