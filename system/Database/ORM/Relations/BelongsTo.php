@@ -85,6 +85,19 @@ class BelongsTo extends Relation
 	 */
 	public function addEagerConstraints(array $models)
 	{
+		$key = $this->related->getTable() .'.' .$this->otherKey;
+
+		$this->query->whereIn($key, $this->getEagerModelKeys($models));
+	}
+
+	/**
+	 * Gather the keys from an array of related models.
+	 *
+	 * @param  array  $models
+	 * @return array
+	 */
+	protected function getEagerModelKeys(array $models)
+	{
 		$keys = array();
 
 		foreach ($models as $model) {
@@ -94,15 +107,10 @@ class BelongsTo extends Relation
 		}
 
 		if (count($keys) == 0) {
-			$keys = array(0);
-		} else {
-			$keys = array_values(array_unique($keys));
+			return array(0);
 		}
 
-		//
-		$key = $this->related->getTable() .'.' .$this->otherKey;
-
-		$this->query->whereIn($key, $keys);
+		return array_values(array_unique($keys));
 	}
 
 	/**
