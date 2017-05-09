@@ -2,44 +2,13 @@
 
 namespace Mini\Database\ORM\Relations;
 
-use Mini\Database\ORM\Relations\Relation;
+use Mini\Database\ORM\Relations\HasMany;
 use Mini\Database\ORM\Collection;
 use Mini\Database\ORM\Model;
 
 
 class HasOne extends Relation
 {
-   /**
-     * The foreign key of the parent model.
-     *
-     * @var string
-     */
-    protected $foreignKey;
-
-    /**
-     * The local key of the parent model.
-     *
-     * @var string
-     */
-    protected $localKey;
-
-    /**
-     * Create a new has many relationship instance.
-     *
-     * @param  \Nova\Database\ORM\Builder  $query
-     * @param  \Nova\Database\ORM\Model  $parent
-     * @param  string  $foreignKey
-     * @param  string  $localKey
-     * @return void
-     */
-    public function __construct(Model $related, Model $parent, $foreignKey, $localKey)
-    {
-        $this->localKey   = $localKey;
-        $this->foreignKey = $foreignKey;
-
-        parent::__construct($related, $parent);
-    }
-
 	/**
 	 * Get the result(s) of the relationship.
 	 *
@@ -48,33 +17,6 @@ class HasOne extends Relation
 	public function getResults()
 	{
 		return $this->query->first();
-	}
-
-	/**
-	 * Set the base constraints on the relation query.
-	 *
-	 * @return void
-	 */
-	public function addConstraints()
-	{
-		if (static::$constraints) {
-			$value = $this->parent->getAttribute($this->localKey);
-
-			$this->query->where($this->foreignKey, '=', $value);
-		}
-	}
-
-	/**
-	 * Set the constraints for an eager load of the relation.
-	 *
-	 * @param  array  $models
-	 * @return void
-	 */
-	public function addEagerConstraints(array $models)
-	{
-		$keys = $this->getKeys($models, $this->localKey);
-
-		$this->query->whereIn($this->foreignKey, $keys);
 	}
 
 	/**
@@ -122,29 +64,6 @@ class HasOne extends Relation
 		}
 
 		return $models;
-	}
-
-	/**
-	 * Attach a model instance to the parent model.
-	 *
-	 * @param  \Mini\Database\ORM\Model  $model
-	 * @return \Mini\Database\ORM\Model
-	 */
-	public function save(Model $model)
-	{
-		$model->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
-
-		return $model->save() ? $model : false;
-	}
-
-	/**
-	 * Get the key for comparing against the parent key in "has" query.
-	 *
-	 * @return string
-	 */
-	public function getHasCompareKey()
-	{
-		return $this->getForeignKey();
 	}
 }
 

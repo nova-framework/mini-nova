@@ -117,7 +117,7 @@ class HasMany extends Relation
 			if (isset($dictionary[$key])) {
 				$value = $dictionary[$key];
 
-				$model->setRelation($relation, $this->getRelated()->newCollection($value));
+				$model->setRelation($relation, $this->related->newCollection($value));
 			}
 		}
 
