@@ -179,6 +179,31 @@ class BelongsTo extends Relation
 	}
 
 	/**
+	 * Associate the model instance to the given parent.
+	 *
+	 * @param  \Mini\Database\ORM\Model  $model
+	 * @return \Mini\Database\ORM\Model
+	 */
+	public function associate(Model $model)
+	{
+		$this->parent->setAttribute($this->foreignKey, $model->getAttribute($this->otherKey));
+
+		return $this->parent->setRelation($this->relation, $model);
+	}
+
+	/**
+	 * Dissociate previously associated model from the given parent.
+	 *
+	 * @return \Mini\Database\ORM\Model
+	 */
+	public function dissociate()
+	{
+		$this->parent->setAttribute($this->foreignKey, null);
+
+		return $this->parent->setRelation($this->relation, null);
+	}
+
+	/**
 	 * Get the fully qualified foreign key of the relationship.
 	 *
 	 * @return string

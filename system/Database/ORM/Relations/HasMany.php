@@ -26,8 +26,8 @@ class HasMany extends Relation
 	/**
 	 * Create a new has many relationship instance.
 	 *
-	 * @param  \Nova\Database\ORM\Builder  $query
-	 * @param  \Nova\Database\ORM\Model  $parent
+	 * @param  \Mini\Database\ORM\Builder  $query
+	 * @param  \Mini\Database\ORM\Model  $parent
 	 * @param  string  $foreignKey
 	 * @param  string  $localKey
 	 * @return void
@@ -97,7 +97,7 @@ class HasMany extends Relation
 	 * Match the eagerly loaded results to their parents.
 	 *
 	 * @param  array   $models
-	 * @param  \Nova\Database\ORM\Collection  $results
+	 * @param  \Mini\Database\ORM\Collection  $results
 	 * @param  string  $relation
 	 * @return array
 	 */
@@ -122,6 +122,19 @@ class HasMany extends Relation
 		}
 
 		return $models;
+	}
+
+	/**
+	 * Attach a model instance to the parent model.
+	 *
+	 * @param  \Mini\Database\ORM\Model  $model
+	 * @return \Mini\Database\ORM\Model
+	 */
+	public function save(Model $model)
+	{
+		$model->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+
+		return $model->save() ? $model : false;
 	}
 
 	/**

@@ -125,6 +125,19 @@ class HasOne extends Relation
 	}
 
 	/**
+	 * Attach a model instance to the parent model.
+	 *
+	 * @param  \Mini\Database\ORM\Model  $model
+	 * @return \Mini\Database\ORM\Model
+	 */
+	public function save(Model $model)
+	{
+		$model->setAttribute($this->getPlainForeignKey(), $this->getParentKey());
+
+		return $model->save() ? $model : false;
+	}
+
+	/**
 	 * Get the key for comparing against the parent key in "has" query.
 	 *
 	 * @return string
