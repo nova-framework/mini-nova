@@ -10,70 +10,70 @@ use Closure;
 
 class StartSession
 {
-    /**
-     * The session store.
-     *
-     * @var \Mini\Session\Store
-     */
-    protected $sessionStore;
+	/**
+	 * The session store.
+	 *
+	 * @var \Mini\Session\Store
+	 */
+	protected $sessionStore;
 
 
-    /**
-     * Create a new session middleware.
-     *
-     * @param  \Mini\Session\Store  $session
-     * @return void
-     */
-    public function __construct(SessionStore $store)
-    {
-        $this->sessionStore = $store;
-    }
+	/**
+	 * Create a new session middleware.
+	 *
+	 * @param  \Mini\Session\Store  $session
+	 * @return void
+	 */
+	public function __construct(SessionStore $store)
+	{
+		$this->sessionStore = $store;
+	}
 
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Mini\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
-    public function handle($request, Closure $next)
-    {
-        $session = $this->startSession($request);
+	/**
+	 * Handle an incoming request.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  \Closure  $next
+	 * @return mixed
+	 */
+	public function handle($request, Closure $next)
+	{
+		$session = $this->startSession($request);
 
-        $request->setSession($session);
+		$request->setSession($session);
 
-        $response = $next($request);
+		$response = $next($request);
 
-        //
-        $this->storeCurrentUrl($request, $session);
+		//
+		$this->storeCurrentUrl($request, $session);
 
-        return $response;
-    }
+		return $response;
+	}
 
-    /**
-     * Start the session for the given request.
-     *
-     * @param  \Mini\Http\Request  $request
-     * @return \Mini\Session\Store
-     */
-    protected function startSession(Request $request)
-    {
-        $this->sessionStore->start();
+	/**
+	 * Start the session for the given request.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @return \Mini\Session\Store
+	 */
+	protected function startSession(Request $request)
+	{
+		$this->sessionStore->start();
 
-        return $this->sessionStore;
-    }
+		return $this->sessionStore;
+	}
 
-    /**
-     * Store the current URL for the request if necessary.
-     *
-     * @param  \Mini\Http\Request  $request
-     * @param  \Mini\Session\SessionInterface  $session
-     * @return void
-     */
-    protected function storeCurrentUrl(Request $request, $session)
-    {
-        if (($request->method() === 'GET') && $request->route() && ! $request->ajax()) {
-            $session->setPreviousUrl($request->fullUrl());
-        }
-    }
+	/**
+	 * Store the current URL for the request if necessary.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  \Mini\Session\SessionInterface  $session
+	 * @return void
+	 */
+	protected function storeCurrentUrl(Request $request, $session)
+	{
+		if (($request->method() === 'GET') && $request->route() && ! $request->ajax()) {
+			$session->setPreviousUrl($request->fullUrl());
+		}
+	}
 }

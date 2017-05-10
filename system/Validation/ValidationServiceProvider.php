@@ -16,77 +16,77 @@ use Mini\Support\ServiceProvider;
 
 class ValidationServiceProvider extends ServiceProvider
 {
-    /**
-     * Indicates if loading of the Provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
+	/**
+	 * Indicates if loading of the Provider is deferred.
+	 *
+	 * @var bool
+	 */
+	protected $defer = true;
 
 
-    /**
-     * Register the Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $this->registerTranslator();
+	/**
+	 * Register the Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$this->registerTranslator();
 
-        $this->registerPresenceVerifier();
+		$this->registerPresenceVerifier();
 
-        $this->app->bindShared('validator', function($app)
-        {
-            $translator = $app['validation.translator'];
+		$this->app->bindShared('validator', function($app)
+		{
+			$translator = $app['validation.translator'];
 
-            // Get a Validation Factory instance.
-            $validator = new Factory($translator);
+			// Get a Validation Factory instance.
+			$validator = new Factory($translator);
 
-            if (isset($app['validation.presence'])) {
-                $presenceVerifier = $app['validation.presence'];
+			if (isset($app['validation.presence'])) {
+				$presenceVerifier = $app['validation.presence'];
 
-                $validator->setPresenceVerifier($presenceVerifier);
-            }
+				$validator->setPresenceVerifier($presenceVerifier);
+			}
 
-            return $validator;
-        });
-    }
+			return $validator;
+		});
+	}
 
-    /**
-     * Register the Database Presence Verifier.
-     *
-     * @return void
-     */
-    protected function registerPresenceVerifier()
-    {
-        $this->app->bindShared('validation.presence', function($app)
-        {
-            $connection = $app['db']->connection();
+	/**
+	 * Register the Database Presence Verifier.
+	 *
+	 * @return void
+	 */
+	protected function registerPresenceVerifier()
+	{
+		$this->app->bindShared('validation.presence', function($app)
+		{
+			$connection = $app['db']->connection();
 
-            return new DatabasePresenceVerifier($connection);
-        });
-    }
+			return new DatabasePresenceVerifier($connection);
+		});
+	}
 
-    /**
-     * Register the Database Presence Verifier.
-     *
-     * @return void
-     */
-    protected function registerTranslator()
-    {
-        $this->app->bindShared('validation.translator', function($app)
-        {
-            return new Translator();
-        });
-    }
+	/**
+	 * Register the Database Presence Verifier.
+	 *
+	 * @return void
+	 */
+	protected function registerTranslator()
+	{
+		$this->app->bindShared('validation.translator', function($app)
+		{
+			return new Translator();
+		});
+	}
 
-    /**
-     * Get the services provided by the Provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return array('validator');
-    }
+	/**
+	 * Get the services provided by the Provider.
+	 *
+	 * @return array
+	 */
+	public function provides()
+	{
+		return array('validator');
+	}
 }

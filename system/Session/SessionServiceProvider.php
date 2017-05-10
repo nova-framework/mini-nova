@@ -15,30 +15,30 @@ use Mini\Support\ServiceProvider;
 class SessionServiceProvider extends ServiceProvider
 {
 
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        //
-    }
+	/**
+	 * Bootstrap the application events.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		//
+	}
 
-    /**
-     * Register the Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $this->app->bindShared('session.store', function($app)
-        {
-            $name = $app['config']->get('session.cookie');
+	/**
+	 * Register the Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$this->app->bindShared('session.store', function($app)
+		{
+			$name = $app['config']->get('session.cookie');
 
-            return new SessionStore($name);
-        });
-    }
+			return new SessionStore($name);
+		});
+	}
 
 }
 

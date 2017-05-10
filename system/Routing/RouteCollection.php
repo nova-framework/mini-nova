@@ -19,208 +19,208 @@ use IteratorAggregate;
 
 class RouteCollection implements Countable, IteratorAggregate
 {
-    /**
-     * All of the routes that have been registered.
-     *
-     * @var array
-     */
-    protected $routes = array();
+	/**
+	 * All of the routes that have been registered.
+	 *
+	 * @var array
+	 */
+	protected $routes = array();
 
-    /**
-     * An flattened array of all of the routes.
-     *
-     * @var array
-     */
-    protected $allRoutes = array();
+	/**
+	 * An flattened array of all of the routes.
+	 *
+	 * @var array
+	 */
+	protected $allRoutes = array();
 
 
-    /**
-     * Add a route to the router.
-     *
-     * @param  \Mini\Routing\Route  $route
-     * @return void
-     */
-    public function addRoute($route)
-    {
-        $uri = $route->getUri();
+	/**
+	 * Add a route to the router.
+	 *
+	 * @param  \Mini\Routing\Route  $route
+	 * @return void
+	 */
+	public function addRoute($route)
+	{
+		$uri = $route->getUri();
 
-        foreach ($route->getMethods() as $method) {
-            $this->routes[$method][$uri] = $route;
-        }
+		foreach ($route->getMethods() as $method) {
+			$this->routes[$method][$uri] = $route;
+		}
 
-        $this->allRoutes[] = $route;
+		$this->allRoutes[] = $route;
 
-        return $route;
-    }
+		return $route;
+	}
 
-    /**
-     * Add a route to the controller action dictionary.
-     *
-     * @param  array  $action
-     * @param  \Nova\Routing\Route  $route
-     * @return void
-     */
-    protected function addToActionList($action, $route)
-    {
-        if (! isset($this->actionList[$action])) {
-            $this->actionList[$action] = $route;
-        }
-    }
+	/**
+	 * Add a route to the controller action dictionary.
+	 *
+	 * @param  array  $action
+	 * @param  \Nova\Routing\Route  $route
+	 * @return void
+	 */
+	protected function addToActionList($action, $route)
+	{
+		if (! isset($this->actionList[$action])) {
+			$this->actionList[$action] = $route;
+		}
+	}
 
-    /**
-     * Iterate through every route to find a matching route.
-     *
-     * @param \Mini\Http\Request $request
-     *
-     * @return \Mini\Routing\Route|null
-     */
-    public function match(Request $request)
-    {
-        $routes = $this->get($request->getMethod());
+	/**
+	 * Iterate through every route to find a matching route.
+	 *
+	 * @param \Mini\Http\Request $request
+	 *
+	 * @return \Mini\Routing\Route|null
+	 */
+	public function match(Request $request)
+	{
+		$routes = $this->get($request->getMethod());
 
-        if (! is_null($route = $this->check($routes, $request))) {
-            return $route;
-        }
+		if (! is_null($route = $this->check($routes, $request))) {
+			return $route;
+		}
 
-        // No Route match found; check for the alternate HTTP Methods.
-        $others = $this->checkForAlternateMethods($request);
+		// No Route match found; check for the alternate HTTP Methods.
+		$others = $this->checkForAlternateMethods($request);
 
-        if (count($others) > 0) {
-            return $this->getOtherMethodsRoute($request, $others);
-        }
+		if (count($others) > 0) {
+			return $this->getOtherMethodsRoute($request, $others);
+		}
 
-        throw new NotFoundHttpException();
-    }
+		throw new NotFoundHttpException();
+	}
 
-    /**
-     * Determine if any routes match on another HTTP verb.
-     *
-     * @param  \Nova\Http\Request  $request
-     * @return array
-     */
-    protected function checkForAlternateMethods($request)
-    {
-        $methods = array_diff(Router::$methods, array($request->getMethod()));
+	/**
+	 * Determine if any routes match on another HTTP verb.
+	 *
+	 * @param  \Nova\Http\Request  $request
+	 * @return array
+	 */
+	protected function checkForAlternateMethods($request)
+	{
+		$methods = array_diff(Router::$methods, array($request->getMethod()));
 
-        //
-        $others = array();
+		//
+		$others = array();
 
-        foreach ($methods as $method) {
-            if (! is_null($route = $this->check($this->get($method), $request, false))) {
-                $others[] = $method;
-            }
-        }
+		foreach ($methods as $method) {
+			if (! is_null($route = $this->check($this->get($method), $request, false))) {
+				$others[] = $method;
+			}
+		}
 
-        return $others;
-    }
+		return $others;
+	}
 
-    /**
-     * Get a route (if necessary) that responds when other available methods are present.
-     *
-     * @param  \Nova\Http\Request  $request
-     * @param  array  $others
-     * @return \Nova\Routing\Route
-     *
-     * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedHttpException
-     */
-    protected function getOtherMethodsRoute($request, array $others)
-    {
-        if ($request->method() == 'OPTIONS') {
-            return (new Route('OPTIONS', $request->path(), function() use ($others)
-            {
-                return new Response('', 200, array('Allow' => implode(',', $others)));
-            }));
-        }
+	/**
+	 * Get a route (if necessary) that responds when other available methods are present.
+	 *
+	 * @param  \Nova\Http\Request  $request
+	 * @param  array  $others
+	 * @return \Nova\Routing\Route
+	 *
+	 * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedHttpException
+	 */
+	protected function getOtherMethodsRoute($request, array $others)
+	{
+		if ($request->method() == 'OPTIONS') {
+			return (new Route('OPTIONS', $request->path(), function() use ($others)
+			{
+				return new Response('', 200, array('Allow' => implode(',', $others)));
+			}));
+		}
 
-        $this->methodNotAllowed($others);
-    }
+		$this->methodNotAllowed($others);
+	}
 
-    /**
-     * Throw a method not allowed HTTP exception.
-     *
-     * @param  array  $others
-     * @return void
-     *
-     * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
-     */
-    protected function methodNotAllowed(array $others)
-    {
-        throw new MethodNotAllowedHttpException($others);
-    }
+	/**
+	 * Throw a method not allowed HTTP exception.
+	 *
+	 * @param  array  $others
+	 * @return void
+	 *
+	 * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
+	 */
+	protected function methodNotAllowed(array $others)
+	{
+		throw new MethodNotAllowedHttpException($others);
+	}
 
-    /**
-     * Determine if a route in the array matches the request.
-     *
-     * @param  array  $routes
-     * @param  \Nova\Http\Request  $request
-     * @param  bool  $includingMethod
-     * @return \Nova\Routing\Route|null
-     */
-    protected function check(array $routes, $request, $includingMethod = true)
-    {
-        $path = '/' .ltrim($request->path(), '/');
+	/**
+	 * Determine if a route in the array matches the request.
+	 *
+	 * @param  array  $routes
+	 * @param  \Nova\Http\Request  $request
+	 * @param  bool  $includingMethod
+	 * @return \Nova\Routing\Route|null
+	 */
+	protected function check(array $routes, $request, $includingMethod = true)
+	{
+		$path = '/' .ltrim($request->path(), '/');
 
-        if (! is_null($route = Arr::get($routes, $path))) {
-            // We have a direct URI match, and that's good, because is the faster way.
-            $route->compile(false);
+		if (! is_null($route = Arr::get($routes, $path))) {
+			// We have a direct URI match, and that's good, because is the faster way.
+			$route->compile(false);
 
-            return $route;
-        }
+			return $route;
+		}
 
-        return Arr::first($routes, function($uri, $route) use ($request, $includingMethod)
-        {
-            //if (preg_match('/\{([\w\?]+?)\}/', $uri) !== 1) {
-            if (strpos($uri, '{') === false) {
-                // The Routes with no named parameters was already checked previously.
-                return false;
-            }
+		return Arr::first($routes, function($uri, $route) use ($request, $includingMethod)
+		{
+			//if (preg_match('/\{([\w\?]+?)\}/', $uri) !== 1) {
+			if (strpos($uri, '{') === false) {
+				// The Routes with no named parameters was already checked previously.
+				return false;
+			}
 
-            return $route->matches($request, $includingMethod);
-        });
-    }
+			return $route->matches($request, $includingMethod);
+		});
+	}
 
-    /**
-     * Get all of the routes in the collection.
-     *
-     * @param  string|null  $method
-     * @return array
-     */
-    protected function get($method = null)
-    {
-        if (is_null($method)) {
-            return $this->getRoutes();
-        }
+	/**
+	 * Get all of the routes in the collection.
+	 *
+	 * @param  string|null  $method
+	 * @return array
+	 */
+	protected function get($method = null)
+	{
+		if (is_null($method)) {
+			return $this->getRoutes();
+		}
 
-        return Arr::get($this->routes, $method, array());
-    }
+		return Arr::get($this->routes, $method, array());
+	}
 
-    /**
-     * Get all of the registered routes.
-     *
-     * @return array
-     */
-    public function getRoutes()
-    {
-        return $this->allRoutes;
-    }
+	/**
+	 * Get all of the registered routes.
+	 *
+	 * @return array
+	 */
+	public function getRoutes()
+	{
+		return $this->allRoutes;
+	}
 
-    /**
-     * Get an iterator for the items.
-     *
-     * @return \ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->getRoutes());
-    }
+	/**
+	 * Get an iterator for the items.
+	 *
+	 * @return \ArrayIterator
+	 */
+	public function getIterator()
+	{
+		return new ArrayIterator($this->getRoutes());
+	}
 
-    /**
-     * Count the number of items in the collection.
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->getRoutes());
-    }
+	/**
+	 * Count the number of items in the collection.
+	 *
+	 * @return int
+	 */
+	public function count()
+	{
+		return count($this->getRoutes());
+	}
 }

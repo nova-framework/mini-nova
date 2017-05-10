@@ -20,156 +20,156 @@ use Closure;
 class Sample extends BaseController
 {
 
-    public function __construct()
-    {
-        $this->middleware('@testing', array(
-            'only' => 'index'
-        ));
-    }
+	public function __construct()
+	{
+		$this->middleware('@testing', array(
+			'only' => 'index'
+		));
+	}
 
-    public function testing($request, Closure $next)
-    {
-        echo sprintf('<pre style="margin: 10px;">BEFORE, on the [%s] Middleware!</pre>', str_replace('::', '@', __METHOD__));
+	public function testing($request, Closure $next)
+	{
+		echo sprintf('<pre style="margin: 10px;">BEFORE, on the [%s] Middleware!</pre>', str_replace('::', '@', __METHOD__));
 
-        return $next($request);
-    }
+		return $next($request);
+	}
 
-    public function index($name = null, $slug = null)
-    {
-        return $this->view()
-            ->shares('title', 'Sample')
-            ->with('name', $name)
-            ->with('slug', $slug);
-    }
+	public function index($name = null, $slug = null)
+	{
+		return $this->view()
+			->shares('title', 'Sample')
+			->with('name', $name)
+			->with('slug', $slug);
+	}
 
-    public function store()
-    {
-        //
-    }
+	public function store()
+	{
+		//
+	}
 
-    public function routes()
-    {
-        $routeCollection = Route::getRoutes();
+	public function routes()
+	{
+		$routeCollection = Route::getRoutes();
 
-        //
-        $content = '';
+		//
+		$content = '';
 
-        foreach($routeCollection->getRoutes() as $route) {
-            $route->compile();
+		foreach($routeCollection->getRoutes() as $route) {
+			$route->compile();
 
-            $action = array_filter($route->getAction(), function ($value)
-            {
-                return is_string($value);
+			$action = array_filter($route->getAction(), function ($value)
+			{
+				return is_string($value);
 
-            }, ARRAY_FILTER_USE_KEY);
+			}, ARRAY_FILTER_USE_KEY);
 
-            if ($action['uses'] instanceof Closure) {
-                $action['uses'] = 'Closure';
-            }
+			if ($action['uses'] instanceof Closure) {
+				$action['uses'] = 'Closure';
+			}
 
-            $result = array(
-                'methods' => $route->getMethods(),
-                'uri'     => $route->getUri(),
-                'action'  => $action,
-                'wheres'  => $route->getWheres(),
-                'regex'   => $route->getRegex(),
-            );
+			$result = array(
+				'methods' => $route->getMethods(),
+				'uri'	 => $route->getUri(),
+				'action'  => $action,
+				'wheres'  => $route->getWheres(),
+				'regex'   => $route->getRegex(),
+			);
 
-            $content .= '<pre>' .htmlentities(var_export($result, true)) .'</pre>';
-        }
+			$content .= '<pre>' .htmlentities(var_export($result, true)) .'</pre>';
+		}
 
-        return View::make('Default')
-            ->shares('title', 'Routes')
-            ->with('content', $content);
-    }
+		return View::make('Default')
+			->shares('title', 'Routes')
+			->with('content', $content);
+	}
 
-    public function session()
-    {
-        $data = Session::all();
+	public function session()
+	{
+		$data = Session::all();
 
-        Session::forget('test');
+		Session::forget('test');
 
-        //
-        $content = '<pre>' .htmlentities(var_export($data, true)) .'</pre>';
+		//
+		$content = '<pre>' .htmlentities(var_export($data, true)) .'</pre>';
 
-        return View::make('Default')
-            ->shares('title', 'Session')
-            ->with('content', $content);
-    }
+		return View::make('Default')
+			->shares('title', 'Session')
+			->with('content', $content);
+	}
 
-    public function redirect()
-    {
-        Session::set('test', 'This is a test!');
+	public function redirect()
+	{
+		Session::set('test', 'This is a test!');
 
-        return Redirect::to('sample/session');
-    }
+		return Redirect::to('sample/session');
+	}
 
-    public function pagination()
-    {
-        // Populate the items.
-        $items = array_map(function ($value)
-        {
-            $data = array(
-                'name' => 'Blog post #' .$value,
-                'url'  => 'posts/' .$value,
-                'body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum viverra aliquet. Cras sed auctor erat. Curabitur lobortis lacinia risus, et imperdiet dolor vehicula ac. Nullam venenatis lectus non nisl molestie iaculis. Pellentesque eleifend porta arcu et efficitur. Praesent pulvinar non nulla vitae consectetur. Curabitur a odio nec neque euismod luctus. Curabitur euismod felis sed lacus tempor pharetra.',
-            );
+	public function pagination()
+	{
+		// Populate the items.
+		$items = array_map(function ($value)
+		{
+			$data = array(
+				'name' => 'Blog post #' .$value,
+				'url'  => 'posts/' .$value,
+				'body' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum viverra aliquet. Cras sed auctor erat. Curabitur lobortis lacinia risus, et imperdiet dolor vehicula ac. Nullam venenatis lectus non nisl molestie iaculis. Pellentesque eleifend porta arcu et efficitur. Praesent pulvinar non nulla vitae consectetur. Curabitur a odio nec neque euismod luctus. Curabitur euismod felis sed lacus tempor pharetra.',
+			);
 
-            return $data;
+			return $data;
 
-        }, range(1, 100));
+		}, range(1, 100));
 
-        //
-        if (Input::get('mode', 'default') == 'simple') {
-            $defaultMode = false;
-        } else {
-            $defaultMode = true;
-        }
+		//
+		if (Input::get('mode', 'default') == 'simple') {
+			$defaultMode = false;
+		} else {
+			$defaultMode = true;
+		}
 
-        //
-        $page = Input::get('offset', 1);
+		//
+		$page = Input::get('offset', 1);
 
-        if (($page > count($items)) || ($page < 1)) {
-            $page = 1;
-        }
+		if (($page > count($items)) || ($page < 1)) {
+			$page = 1;
+		}
 
-        //
-        $perPage = 5;
+		//
+		$perPage = 5;
 
-        if ($defaultMode) {
-            // We use the Standard Pagination.
-            $offset = ($page * $perPage) - $perPage;
+		if ($defaultMode) {
+			// We use the Standard Pagination.
+			$offset = ($page * $perPage) - $perPage;
 
-            $slices = array_slice($items, $offset, $perPage);
+			$slices = array_slice($items, $offset, $perPage);
 
-            $posts = Paginator::make($slices, count($items), $perPage);
-        } else {
-            // We use the Simple Pagination.
-            $offset = ($page - 1) * $perPage;
+			$posts = Paginator::make($slices, count($items), $perPage);
+		} else {
+			// We use the Simple Pagination.
+			$offset = ($page - 1) * $perPage;
 
-            $slices = array_slice($items, $offset, $perPage + 1);
+			$slices = array_slice($items, $offset, $perPage + 1);
 
-            $posts = Paginator::make($slices, $perPage);
-        }
+			$posts = Paginator::make($slices, $perPage);
+		}
 
-        //
-        $posts->appends(array(
-            'mode' => $defaultMode ? 'default' : 'simple',
-        ));
+		//
+		$posts->appends(array(
+			'mode' => $defaultMode ? 'default' : 'simple',
+		));
 
-        $content = $posts->links();
+		$content = $posts->links();
 
-        foreach ($posts->getItems() as $post) {
-            $content .= '<h4><a href="/' .$post['url'] .'"><strong>' .$post['name'] .'</strong></a></h4>';
+		foreach ($posts->getItems() as $post) {
+			$content .= '<h4><a href="/' .$post['url'] .'"><strong>' .$post['name'] .'</strong></a></h4>';
 
-            $content .= '<p style="text-align: justify">' .$post['body'] .'</p><br>';
-        }
+			$content .= '<p style="text-align: justify">' .$post['body'] .'</p><br>';
+		}
 
-        $content .= $posts->links();
+		$content .= $posts->links();
 
-        return View::make('Default')
-            ->shares('title', 'Pagination')
-            ->with('content', $content);
-    }
+		return View::make('Default')
+			->shares('title', 'Pagination')
+			->with('content', $content);
+	}
 }
 

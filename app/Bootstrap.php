@@ -49,10 +49,10 @@ $app = new Application();
 //--------------------------------------------------------------------------
 
 $paths = array(
-    'base'    => BASEPATH,
-    'app'     => APPPATH,
-    'public'  => WEBPATH,
-    'storage' => STORAGE_PATH,
+	'base'	=> BASEPATH,
+	'app'	 => APPPATH,
+	'public'  => WEBPATH,
+	'storage' => STORAGE_PATH,
 );
 
 $app->bindInstallPaths($paths);
@@ -68,13 +68,13 @@ $app->instance('app', $app);
 //--------------------------------------------------------------------------
 
 $app->singleton(
-    'Mini\Http\Contracts\KernelInterface',
-    'App\Kernel'
+	'Mini\Http\Contracts\KernelInterface',
+	'App\Kernel'
 );
 
 $app->singleton(
-    'Mini\Foundation\Contracts\ExceptionHandlerInterface',
-    'App\Exceptions\Handler'
+	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
+	'App\Exceptions\Handler'
 );
 
 //--------------------------------------------------------------------------
@@ -90,7 +90,7 @@ Facade::setFacadeApplication($app);
 //--------------------------------------------------------------------------
 
 $app->instance('config', $config = new ConfigRepository(
-    $app->getConfigLoader()
+	$app->getConfigLoader()
 ));
 
 //--------------------------------------------------------------------------

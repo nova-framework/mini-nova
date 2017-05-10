@@ -31,7 +31,7 @@ $app = require_once APPPATH .'Bootstrap.php';
 $kernel = $app->make('Mini\Http\Contracts\KernelInterface');
 
 $response = $kernel->handle(
-    $request = Mini\Http\Request::capture()
+	$request = Mini\Http\Request::capture()
 );
 
 $response->send();

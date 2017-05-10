@@ -14,18 +14,18 @@ use Mini\Support\ServiceProvider;
 
 class CookieServiceProvider extends ServiceProvider
 {
-    /**
-     * Register the Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $this->app->bindShared('cookie', function($app)
-        {
-            $config = $app['config']['session'];
+	/**
+	 * Register the Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$this->app->bindShared('cookie', function($app)
+		{
+			$config = $app['config']['session'];
 
-            return (new CookieJar())->setDefaultPathAndDomain($config['path'], $config['domain']);
-        });
-    }
+			return (new CookieJar())->setDefaultPathAndDomain($config['path'], $config['domain']);
+		});
+	}
 }
