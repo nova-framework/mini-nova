@@ -63,12 +63,12 @@ class BaseController extends Controller
     }
 
     /**
-     * Return a default View instance.
+     * Create and return a default View instance.
      *
      * @return \Nova\View\View
      * @throws \BadMethodCallException
      */
-    protected function makeView(array $data = array())
+    protected function view(array $data = array())
     {
         // Get the currently called Action.
         list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
