@@ -19,7 +19,7 @@ define('APPPATH', BASEPATH .'app' .DS);
 require BASEPATH .'vendor/autoload.php';
 
 //--------------------------------------------------------------------------
-// Load the Application Bootstrap
+// Bootstrap the Framework and get the Application instance
 //--------------------------------------------------------------------------
 
 $app = require_once APPPATH .'Bootstrap.php';
