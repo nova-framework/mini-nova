@@ -3,6 +3,7 @@
 namespace Mini\View;
 
 use Mini\Support\Contracts\ArrayableInterface as Arrayable;
+use Mini\Support\Str;
 use Mini\View\View;
 
 use BadMethodCallException;
@@ -15,6 +16,16 @@ class Factory
 	 */
 	protected $shared = array();
 
+
+	/**
+	 * Create new View Factory instance.
+	 *
+	 * @return void
+	 */
+	function __construct()
+	{
+		$this->share('__env', $this);
+	}
 
 	/**
 	 * Create a View instance
@@ -86,6 +97,37 @@ class Factory
 	public function shared($key, $default = null)
 	{
 		return array_get($this->shared, $key, $default);
+	}
+
+	/**
+	 * Get the rendered contents of a partial from a loop.
+	 *
+	 * @param  string  $view
+	 * @param  array   $data
+	 * @param  string  $iterator
+	 * @param  string  $empty
+	 * @return string
+	 */
+	public function renderEach($view, array $data, $iterator, $empty = 'raw|')
+	{
+		if (count($data) > 0) {
+			$result = '';
+
+			foreach ($data as $key => $value) {
+				$data = array('key' => $key, $iterator => $value);
+
+				$result .= $this->make($view, $data)->render();
+			}
+		}
+
+		// There is no data in the array; we render the contents of the empty view.
+		else if (! Str::startsWith($empty, 'raw|')) {
+			$result = $this->make($empty)->render();
+		} else {
+			$result = substr($empty, 4);
+		}
+
+		return $result;
 	}
 
 	/**
