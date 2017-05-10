@@ -87,7 +87,7 @@ class BaseController extends Controller
     {
         list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        // Calculate the View name from called method, i.e: 'index' -> 'Index'
+        // Calculate the View name from called method, which is capitalized, i.e: 'index' -> 'Index'
         $view = ucfirst($caller['function']);
 
         if (preg_match('#^App\\\\Controllers\\\\(.*)$#s', static::class, $matches)) {
