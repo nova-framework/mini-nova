@@ -2,7 +2,6 @@
 
 namespace App\Core;
 
-use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Http\Response;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
@@ -92,13 +91,13 @@ class BaseController extends Controller
     /**
      * Server Side Processor for DataTables.
      *
-     * @param Mini\Database\Query\Builder $query
+     * @param Mini\Database\Query\Builder|Mini\Database\ORM\Builder $query
      * @param array $input
      * @param array $options
      *
      * @return array
      */
-    protected function dataTable(QueryBuilder $query, array $input, array $options)
+    protected function dataTable($query, array $input, array $options)
     {
         $columns = array_get($input, 'columns', array());
 
