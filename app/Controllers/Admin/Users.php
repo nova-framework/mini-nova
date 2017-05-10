@@ -4,11 +4,12 @@ namespace App\Controllers\Admin;
 
 use Mini\Support\Facades\View;
 
-use App\Core\Controller;
+use App\Core\BackendController;
 use App\Models\Role;
 use App\Models\User;
 
-class Users extends Controller
+
+class Users extends BackendController
 {
 
     public function index()

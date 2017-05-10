@@ -4,14 +4,16 @@ namespace App\Core;
 
 use Mini\Database\Query\Builder as QueryBuilder;
 use Mini\Http\Response;
-use Mini\Routing\Controller as BaseController;
+use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\View;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
+use BadMethodCallException;
 
-class Controller extends BaseController
+
+class BaseController extends Controller
 {
     /**
      * The currently used Layout.
@@ -59,6 +61,32 @@ class Controller extends BaseController
         }
 
         return $response;
+    }
+
+    /**
+     * Return a default View instance.
+     *
+     * @return \Nova\View\View
+     * @throws \BadMethodCallException
+     */
+    protected function makeView(array $data = array())
+    {
+        // Get the currently called Action.
+        list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $method = $caller['function'];
+
+         // Transform the complete class name on a path like variable.
+        $classPath = str_replace('\\', '/', static::class);
+
+        // Check for a valid controller on Application.
+        if (preg_match('#^(?:.+)/Controllers/(.*)$#s', $classPath, $matches)) {
+            $view = $matches[1] .'/' .ucfirst($method);
+
+            return View::make($view, $data);
+        }
+
+        throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
     }
 
     /**

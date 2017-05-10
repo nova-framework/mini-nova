@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Core\Controller;
+use App\Core\BaseController;
 
 use Mini\Routing\RouteCompiler;
 use Mini\Support\Facades\Input;
@@ -17,7 +17,7 @@ use Mini\Support\Str;
 use Closure;
 
 
-class Sample extends Controller
+class Sample extends BaseController
 {
 
     public function __construct()
@@ -36,7 +36,7 @@ class Sample extends Controller
 
     public function index($name = null, $slug = null)
     {
-        return View::make('Sample/Index')
+        return $this->makeView()
             ->shares('title', 'Sample')
             ->with('name', $name)
             ->with('slug', $slug);
