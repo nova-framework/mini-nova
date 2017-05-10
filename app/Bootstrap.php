@@ -15,24 +15,16 @@ use Closure;
 
 
 //--------------------------------------------------------------------------
-// Global Constants
+// Set The Framework Starting Time
 //--------------------------------------------------------------------------
 
 define('FRAMEWORK_START', microtime(true));
-
-/**
- * PREFER to be used in Database calls or storing Session data, default is 'mini_'
- */
-define('PREFIX', 'mini_');
 
 //--------------------------------------------------------------------------
 // Set PHP Error Reporting Options
 //--------------------------------------------------------------------------
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
-error_reporting(E_ALL);
+error_reporting(-1);
 
 //--------------------------------------------------------------------------
 // Set The System Path
@@ -41,10 +33,10 @@ error_reporting(E_ALL);
 define('SYSPATH', BASEPATH .'system');
 
 //--------------------------------------------------------------------------
-// Set The Storage Path
+// Load The Global Configuration
 //--------------------------------------------------------------------------
 
-defined('STORAGE_PATH') || define('STORAGE_PATH', BASEPATH .'storage' .DS);
+require APPPATH .'Config.php';
 
 //--------------------------------------------------------------------------
 // Create New Application
@@ -134,7 +126,9 @@ $app->booted( function() use ($app)
 // Load The Global Application Script
 //--------------------------------------------------------------------------
 
-require APPPATH .'Global.php';
+$path = APPPATH .'Global.php';
+
+if (is_readable($path)) require $path;
 
 });
 
