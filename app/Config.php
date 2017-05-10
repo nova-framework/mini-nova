@@ -10,4 +10,4 @@ defined('STORAGE_PATH') || define('STORAGE_PATH', BASEPATH .'storage' .DS);
 // Set The Global Prefix
 //--------------------------------------------------------------------------
 
-define('PREFIX', 'nova_');
+define('PREFIX', 'mini_');
