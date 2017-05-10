@@ -4,7 +4,7 @@
 // Set The Storage Path
 //--------------------------------------------------------------------------
 
-defined('STORAGE_PATH') || define('STORAGE_PATH', BASEPATH .'storage' .DS);
+define('STORAGE_PATH', BASEPATH .'storage' .DS);
 
 //--------------------------------------------------------------------------
 // Set The Global Prefix
