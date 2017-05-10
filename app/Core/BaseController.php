@@ -222,4 +222,14 @@ class BaseController extends Controller
             "data"            => $data
         );
     }
+
+    /**
+     * Return the current Layout.
+     *
+     * @return string
+     */
+    public function getLayout()
+    {
+        return $this->layout;
+    }
 }
