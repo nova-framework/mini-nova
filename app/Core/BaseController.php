@@ -85,19 +85,16 @@ class BaseController extends Controller
      */
     protected function view(array $data = array())
     {
-        // Get the currently called Action.
         list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $method = $caller['function'];
+        // Calculate the View name from called method, i.e: 'index' -> 'Index'
+        $view = ucfirst($caller['function']);
 
-         // Transform the complete class name on a path like variable.
-        $classPath = str_replace('\\', '/', static::class);
+        if (preg_match('#^App\\\\Controllers\\\\(.*)$#s', static::class, $matches)) {
+            // The path inside the Views folder, i.e: 'App\Controllers\Admin\Users' -> 'Admin/Users'
+            $path = str_replace('\\', '/', $matches[1]);
 
-        // Check for a valid controller on Application.
-        if (preg_match('#^(?:.+)/Controllers/(.*)$#s', $classPath, $matches)) {
-            $view = $matches[1] .'/' .ucfirst($method);
-
-            return View::make($view, $data);
+            return View::make($path .'/' .$view, $data);
         }
 
         throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);

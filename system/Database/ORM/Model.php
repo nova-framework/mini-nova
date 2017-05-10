@@ -785,7 +785,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
 	{
 		if (is_null($relation)) {
-			list(, $caller) = debug_backtrace(false, 2);
+			list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
 			$relation = $caller['function'];
 		}
@@ -849,7 +849,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	public function belongsToMany($related, $table = null, $foreignKey = null, $otherKey = null, $relation = null)
 	{
 		if (is_null($relation)) {
-			list(, $caller) = debug_backtrace(false, 2);
+			list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
 			$relation = $caller['function'];
 		}
