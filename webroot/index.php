@@ -22,7 +22,7 @@ require BASEPATH .'vendor/autoload.php';
 // Load the Application Bootstrap
 //--------------------------------------------------------------------------
 
-$app = require_once APPPATH .'Start.php';
+$app = require_once APPPATH .'Bootstrap.php';
 
 //--------------------------------------------------------------------------
 // Run the Application
