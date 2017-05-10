@@ -18,7 +18,7 @@ use Closure;
 // Global Constants
 //--------------------------------------------------------------------------
 
-define('MINIME_START', microtime(true));
+define('FRAMEWORK_START', microtime(true));
 
 /**
  * PREFER to be used in Database calls or storing Session data, default is 'mini_'
