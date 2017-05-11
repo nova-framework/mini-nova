@@ -13,7 +13,7 @@ class Kernel extends HttpKernel
 	 * @var array
 	 */
 	protected $middleware = array(
-		'App\Middleware\InsertStatistics',
+		'App\Middleware\HandleProfiling',
 		'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
 		'Mini\Session\Middleware\StartSession',
 		'Mini\Foundation\Http\Middleware\SetupLanguage',
