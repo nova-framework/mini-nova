@@ -140,31 +140,11 @@ class View implements ArrayAccess, RenderableInterface
 	 *
 	 * @param  string  $key
 	 * @param  mixed   $value
-	 * @return void
-	 */
-	public static function share($key, $value)
-	{
-		if (! is_array($key)) {
-			static::$shared[$key] = $value;
-
-			return;
-		}
-
-		foreach ($key as $innerKey => $innerValue) {
-			static::share($innerKey, $innerValue);
-		}
-	}
-
-	/**
-	 * Add a key / value pair to the shared view data.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
 	 * @return View
 	 */
 	public function shares($key, $value)
 	{
-		static::share($key, $value);
+		$this->factory->share($key, $value);
 
 		return $this;
 	}
