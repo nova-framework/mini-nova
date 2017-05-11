@@ -191,6 +191,7 @@ return array(
 		'Log'			=> 'Mini\Support\Facades\Log',
 		'Mail'			=> 'Mini\Support\Facades\Mail',
 		'Paginator'		=> 'Mini\Support\Facades\Paginator',
+		'Redirect'		=> 'Mini\Support\Facades\Redirect',
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',
 		'Route'			=> 'Mini\Support\Facades\Route',
