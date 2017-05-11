@@ -3,7 +3,6 @@
  * Cache configuration
  *
  * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
  */
 
 
@@ -18,22 +17,36 @@ return array(
 	| using the Caching library. Of course, you may use other drivers any
 	| time you wish. This is the default when another is not specified.
 	|
-	| Supported: "file"
+	| Supported: "file", "database"
 	*/
 
 	'driver' => 'file',
 
 	/*
 	|--------------------------------------------------------------------------
-	| File Cache Location
+	| Database Cache Connection
 	|--------------------------------------------------------------------------
 	|
-	| When using the "file" cache driver, we need a location where the cache
-	| files may be stored. A sensible default has been specified, but you
-	| are free to change it to any other place on disk that you desire.
+	| When using the "database" cache driver you may specify the connection
+	| that should be used to store the cached items. When this option is
+	| null the default database connection will be utilized for cache.
+	|
 	*/
 
-	'path' => STORAGE_PATH .'cache',
+	'connection' => null,
+
+	/*
+	|--------------------------------------------------------------------------
+	| Database Cache Table
+	|--------------------------------------------------------------------------
+	|
+	| When using the "database" cache driver we need to know the table that
+	| should be used to store the cached items. A default table name has
+	| been provided but you're free to change it however you deem fit.
+	|
+	*/
+
+	'table' => 'cache',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -45,6 +58,6 @@ return array(
 	| value to get prefixed to all our keys so we can avoid collisions.
 	*/
 
-	'prefix' => 'nova',
+	'prefix' => 'mini',
 
 );

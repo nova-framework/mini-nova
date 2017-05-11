@@ -22,6 +22,37 @@ class CacheManager extends Manager
 	}
 
 	/**
+	 * Create an instance of the database cache driver.
+	 *
+	 * @return \Mini\Cache\DatabaseStore
+	 */
+	protected function createDatabaseDriver()
+	{
+		$connection = $this->getDatabaseConnection();
+
+		$encrypter = $this->app['encrypter'];
+
+		//
+		$table = $this->app['config']['cache.table'];
+
+		$prefix = $this->getPrefix();
+
+		return $this->repository(new DatabaseStore($connection, $encrypter, $table, $prefix));
+	}
+
+	/**
+	 * Get the database connection for the database driver.
+	 *
+	 * @return \Mini\Database\Connection
+	 */
+	protected function getDatabaseConnection()
+	{
+		$connection = $this->app['config']['cache.connection'];
+
+		return $this->app['db']->connection($connection);
+	}
+
+	/**
 	 * Get the cache "prefix" value.
 	 *
 	 * @return string
