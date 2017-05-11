@@ -2,7 +2,7 @@
 
 namespace Mini\Mail;
 
-use Mini\Mail\Transport\LogTransport;
+use Mini\Mail\LogTransport;
 use Mini\Support\ServiceProvider;
 
 use Swift_Mailer;

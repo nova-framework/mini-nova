@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Mail\Transport;
+namespace Mini\Mail;
 
 use Swift_Transport;
 use Swift_Mime_Message;
