@@ -11,8 +11,6 @@ use Mini\Support\Facades\Facade;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-use Closure;
-
 
 //--------------------------------------------------------------------------
 // Set The Framework Starting Time
