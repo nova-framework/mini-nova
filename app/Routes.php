@@ -23,10 +23,10 @@ $router->group(array('prefix' => 'sample'), function ($router)
 
 	$router->get('{name}/{slug?}', array('middleware' => 'test', 'prefix' => 'test', 'uses' => 'Sample@index'));
 
-	$router->get('routes',	 'Sample@routes');
-	$router->get('session',	'Sample@session');
-	$router->get('redirect',   'Sample@redirect');
-	$router->get('pagination', 'Sample@pagination');
+	$router->get('routes',		'Sample@routes');
+	$router->get('session',		'Sample@session');
+	$router->get('redirect',	'Sample@redirect');
+	$router->get('pagination',	'Sample@pagination');
 });
 
 $router->post('sample', 'Sample@store');
