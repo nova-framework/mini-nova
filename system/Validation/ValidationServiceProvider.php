@@ -8,7 +8,7 @@
 
 namespace Mini\Validation;
 
-use Mini\Validation\DatabasePresenceVerifier;
+use Mini\Validation\Presence\DatabasePresenceVerifier;
 use Mini\Validation\Factory;
 use Mini\Validation\Language\Translator;
 use Mini\Support\ServiceProvider;
