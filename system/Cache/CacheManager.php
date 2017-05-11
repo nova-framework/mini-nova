@@ -10,6 +10,16 @@ class CacheManager extends Manager
 {
 
 	/**
+	 * Create an instance of the array cache driver.
+	 *
+	 * @return \Nova\Cache\ArrayStore
+	 */
+	protected function createArrayDriver()
+	{
+		return $this->repository(new ArrayStore);
+	}
+	
+	/**
 	 * Create an instance of the file cache driver.
 	 *
 	 * @return \Mini\Cache\FileStore
