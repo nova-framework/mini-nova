@@ -54,7 +54,7 @@ class HandleProfiling
 		$debug = $config->get('app.debug', false);
 
 		if ($debug && $this->canPatchContent($response)) {
-			$withDatabase = $config->get('profiler', 'withDatabase', false);
+			$withDatabase = $config->get('profiler.withDatabase', false);
 
 			$content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
 				$this->getInfo($request, $withDatabase),
