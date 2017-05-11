@@ -5,7 +5,7 @@ namespace Mini\Http;
 use Mini\Http\ResponseTrait;
 use Mini\Session\Store as SessionStore;
 use Mini\Support\MessageBag;
-use Nova\Support\ViewErrorBag;
+use Mini\Support\ViewErrorBag;
 use Mini\Support\Contracts\MessageProviderInterface;
 use Mini\Support\Str;
 
