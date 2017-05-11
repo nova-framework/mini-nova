@@ -13,7 +13,7 @@ class ViewServiceProvider extends ServiceProvider
 	 *
 	 * @var bool
 	 */
-	protected $defer = true;
+	protected $defer = false;
 
 	/**
 	 * Register the Service Provider.
