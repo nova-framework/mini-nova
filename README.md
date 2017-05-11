@@ -24,6 +24,8 @@ Assets should be placed inside the `webroot` folder.
 
 Layouts files exist in `App\Views\Layouts` this folder is where all layout files should be placed.
 
+->withStatus() removed when `Redirect::to('route')->withStatus('message')`
+
 `$this->getView()` has been replaced with `$this->view()`
 
 
