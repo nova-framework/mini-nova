@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Session;
+namespace Mini\Session\Contracts;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface as BaseSessionInterface;

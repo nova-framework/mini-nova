@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Session;
+namespace Mini\Session\Contracts;
 
 interface ExistenceAwareInterface
 {

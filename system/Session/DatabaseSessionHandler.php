@@ -3,9 +3,12 @@
 namespace Mini\Session;
 
 use Mini\Database\Connection;
+use Mini\Session\Contracts\ExistenceAwareInterface;
+
+use SessionHandlerInterface;
 
 
-class DatabaseSessionHandler implements \SessionHandlerInterface, ExistenceAwareInterface
+class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareInterface
 {
 	/**
 	 * The database connection instance.
@@ -64,8 +67,7 @@ class DatabaseSessionHandler implements \SessionHandlerInterface, ExistenceAware
 	{
 		$session = (object) $this->getQuery()->find($sessionId);
 
-		if (isset($session->payload))
-		{
+		if (isset($session->payload)) {
 			$this->exists = true;
 
 			return base64_decode($session->payload);

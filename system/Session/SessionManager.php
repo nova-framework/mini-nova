@@ -2,6 +2,9 @@
 
 namespace Mini\Session;
 
+use Mini\Session\DatabaseSessionHandler;
+use Mini\Session\FileSessionHandler;
+use Mini\Session\Store;
 use Mini\Support\Manager;
 
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NullSessionHandler;

@@ -2,6 +2,8 @@
 
 namespace Mini\Session;
 
+use Mini\Session\Contracts\SessionInterface;
+use Mini\Session\Contracts\ExistenceAwareInterface;
 use Mini\Support\Arr;
 use Mini\Support\Str;
 
@@ -220,7 +222,9 @@ class Store implements SessionInterface
 
 		$this->setExists(false);
 
-		$this->id = $this->generateSessionId(); return true;
+		$this->id = $this->generateSessionId();
+
+		return true;
 	}
 
 	/**
@@ -255,8 +259,7 @@ class Store implements SessionInterface
 	 */
 	protected function addBagDataToSession()
 	{
-		foreach (array_merge($this->bags, array($this->metaBag)) as $bag)
-		{
+		foreach (array_merge($this->bags, array($this->metaBag)) as $bag) {
 			$this->put($bag->getStorageKey(), $this->bagData[$bag->getStorageKey()]);
 		}
 	}
@@ -337,7 +340,7 @@ class Store implements SessionInterface
 	 */
 	public function set($name, $value)
 	{
-		array_set($this->attributes, $name, $value);
+		Arr::set($this->attributes, $name, $value);
 	}
 
 	/**

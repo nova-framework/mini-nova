@@ -6,8 +6,10 @@ use Mini\Filesystem\Filesystem;
 
 use Symfony\Component\Finder\Finder;
 
+use SessionHandlerInterface;
 
-class FileSessionHandler implements \SessionHandlerInterface
+
+class FileSessionHandler implements SessionHandlerInterface
 {
 	/**
 	 * The filesystem instance.

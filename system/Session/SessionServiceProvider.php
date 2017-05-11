@@ -2,6 +2,7 @@
 
 namespace Mini\Session;
 
+use Mini\Session\SessionManager;
 use Mini\Support\ServiceProvider;
 
 
