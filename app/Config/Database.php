@@ -53,8 +53,8 @@ return array(
 	'connections' => array(
 		'primary' => array(
 			'host'	  => 'localhost',
-			'database'  => 'minime',
-			'username'  => 'minime',
+			'database'  => 'mininova',
+			'username'  => 'mininova',
 			'password'  => 'password',
 			'prefix'	=> PREFIX,
 			'charset'   => 'utf8',

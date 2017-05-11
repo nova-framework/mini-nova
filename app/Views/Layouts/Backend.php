@@ -11,7 +11,7 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
 
 	<!-- Local customizations -->
-	<link rel="stylesheet" type="text/css" href="http://www.mini-me.dev/css/style.css">
+	<link rel="stylesheet" type="text/css" href="<?= site_url('css/style.css'); ?>">
 </head>
 <body>
 
@@ -54,7 +54,7 @@
 	<div class="container-fluid">
 		<div class="row" style="margin: 15px 0 0;">
 			<div class="col-lg-4">
-				<strong>Mini-me!</strong>
+				<strong>Mini-Nova</strong>
 			</div>
 			<div class="col-lg-8">
 				<p class="text-muted pull-right">
