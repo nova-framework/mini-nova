@@ -20,7 +20,7 @@
 	<div class="container-fluid">
 		<div class="row" style="margin: 15px 0 0;">
 			<div class="col-lg-4">
-				<strong>Mini-Nova</strong>
+				Mini-Nova <strong><?= App::version(); ?></strong>
 			</div>
 			<div class="col-lg-8">
 				<p class="text-muted pull-right">
