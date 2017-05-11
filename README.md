@@ -11,7 +11,7 @@ Mini-Nova is a smaller version of Nova and twice the speed. Perfect for simple s
 
 ## Notable Changes 
 
-Assets should be plaed inside the `webroot` folder.
+Assets should be placed inside the `webroot` folder.
 
 Layouts files exist in `App\Views\Layouts` this folder is where all layout files should be placed.
 
