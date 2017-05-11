@@ -17,6 +17,7 @@ class Kernel extends HttpKernel
 		'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
 		'Mini\Session\Middleware\StartSession',
 		'Mini\Foundation\Http\Middleware\SetupLanguage',
+		'Mini\View\Middleware\ShareErrorsFromSession',
 		'App\Middleware\VerifyCsrfToken',
 	);
 
