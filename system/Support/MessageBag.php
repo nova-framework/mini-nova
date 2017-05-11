@@ -34,8 +34,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 	 */
 	public function __construct(array $messages = array())
 	{
-		foreach ($messages as $key => $value)
-		{
+		foreach ($messages as $key => $value) {
 			$this->messages[$key] = (array) $value;
 		}
 	}
@@ -49,8 +48,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 	 */
 	public function add($key, $message)
 	{
-		if ($this->isUnique($key, $message))
-		{
+		if ($this->isUnique($key, $message)) {
 			$this->messages[$key][] = $message;
 		}
 
@@ -65,8 +63,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 	 */
 	public function merge($messages)
 	{
-		if ($messages instanceof MessageProviderInterface)
-		{
+		if ($messages instanceof MessageProviderInterface) {
 			$messages = $messages->getMessageBag()->getMessages();
 		}
 
@@ -128,8 +125,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 		// If the message exists in the container, we will transform it and return
 		// the message. Otherwise, we'll return an empty array since the entire
 		// methods is to return back an array of messages in the first place.
-		if (array_key_exists($key, $this->messages))
-		{
+		if (array_key_exists($key, $this->messages)) {
 			return $this->transform($this->messages[$key], $format, $key);
 		}
 
@@ -148,8 +144,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 
 		$all = array();
 
-		foreach ($this->messages as $key => $messages)
-		{
+		foreach ($this->messages as $key => $messages) {
 			$all = array_merge($all, $this->transform($messages, $format, $key));
 		}
 
@@ -171,8 +166,7 @@ class MessageBag implements ArrayableInterface, Countable, JsonableInterface, Me
 		// We will simply spin through the given messages and transform each one
 		// replacing the :message place holder with the real message allowing
 		// the messages to be easily formatted to each developer's desires.
-		foreach ($messages as &$message)
-		{
+		foreach ($messages as &$message) {
 			$replace = array(':message', ':key');
 
 			$message = str_replace($replace, array($message, $messageKey), $format);

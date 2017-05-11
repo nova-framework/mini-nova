@@ -100,7 +100,7 @@ class RedirectResponse extends SymfonyRedirectResponse
 		$value = $this->parseErrors($provider);
 
 		$this->session->flash(
-			'errors', $this->session->get('errors', new ViewErrorBag)->put($key, $value)
+			'errors', $this->session->get('errors', new ViewErrorBag)->add($key, $value)
 		);
 
 		return $this;
