@@ -14,7 +14,7 @@ use Closure;
 use PDOException;
 
 
-class HandleStatistics
+class InsertStatistics
 {
 	/**
 	 * The application implementation.
