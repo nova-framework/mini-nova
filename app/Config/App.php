@@ -194,6 +194,7 @@ return array(
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',
 		'Route'			=> 'Mini\Support\Facades\Route',
+		'Session'		=> 'Mini\Support\Facades\Session',
 		'Validator'		=> 'Mini\Support\Facades\Validator',
 		'View'			=> 'Mini\Support\Facades\View',
 	),
