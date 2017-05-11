@@ -34,6 +34,24 @@ class RedirectResponse extends SymfonyRedirectResponse
 
 
 	/**
+	 * Flash a piece of data to the session.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return \Mini\Http\RedirectResponse
+	 */
+	public function with($key, $value = null)
+	{
+		$key = is_array($key) ? $key : [$key => $value];
+
+		foreach ($key as $k => $v) {
+			$this->session->flash($k, $v);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Add multiple cookies to the response.
 	 *
 	 * @param  array  $cookie

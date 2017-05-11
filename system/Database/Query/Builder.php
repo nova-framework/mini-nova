@@ -1411,7 +1411,7 @@ class Builder
 			$bindings = array_merge($bindings, array_values($record));
 		}
 
-		$sql = $this->grammar->compileInsert($values);
+		$sql = $this->grammar->compileInsert($this, $values);
 
 		$bindings = $this->cleanBindings($bindings);
 
@@ -1426,7 +1426,7 @@ class Builder
 	 */
 	public function insertGetId(array $values)
 	{
-		$sql = $this->grammar->compileInsert($values);
+		$sql = $this->grammar->compileInsert($this, $values);
 
 		$values = $this->cleanBindings($values);
 
@@ -1447,7 +1447,7 @@ class Builder
 	{
 		$bindings = array_values(array_merge($values, $this->bindings));
 
-		$sql = $this->grammar->compileUpdate($values);
+		$sql = $this->grammar->compileUpdate($this, $values);
 
 		return $this->connection->update($sql, $this->cleanBindings($bindings));
 	}
@@ -1498,7 +1498,7 @@ class Builder
 			$this->where('id', '=', $id);
 		}
 
-		$sql = $this->grammar->compileDelete();
+		$sql = $this->grammar->compileDelete($this);
 
 		return $this->connection->delete($sql, $this->bindings);
 	}
@@ -1510,7 +1510,7 @@ class Builder
 	 */
 	public function truncate()
 	{
-		foreach ($this->grammar->compileTruncate() as $sql => $bindings) {
+		foreach ($this->grammar->compileTruncate($this) as $sql => $bindings) {
 			$this->connection->statement($sql, $bindings);
 		}
 	}

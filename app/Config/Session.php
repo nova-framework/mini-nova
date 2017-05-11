@@ -38,6 +38,20 @@ return array(
 
 	/*
 	|--------------------------------------------------------------------------
+	| Session Lifetime
+	|--------------------------------------------------------------------------
+	|
+	| Here you may specify the number of minutes that you wish the session
+	| to be allowed to remain idle before it expires. If you want them
+	| to immediately expire on the browser closing, set that option.
+	|
+	*/
+
+	'lifetime'	  => 180,
+	'expireOnClose' => false,
+
+	/*
+	|--------------------------------------------------------------------------
 	| Session File Location
 	|--------------------------------------------------------------------------
 	|
@@ -48,6 +62,19 @@ return array(
 	*/
 
 	'files' => STORAGE_PATH .'sessions',
+
+	/*
+	|--------------------------------------------------------------------------
+	| Session Sweeping Lottery
+	|--------------------------------------------------------------------------
+	|
+	| Some session drivers must manually sweep their storage location to get
+	| rid of old sessions from storage. Here are the chances that it will
+	| happen on a given request. By default, the odds are 2 out of 100.
+	|
+	*/
+
+	'lottery' => array(2, 100),
 
 	/*
 	|--------------------------------------------------------------------------

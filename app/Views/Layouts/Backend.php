@@ -12,6 +12,8 @@
 
 	<!-- Local customizations -->
 	<link rel="stylesheet" type="text/css" href="<?= asset('css/style.css'); ?>">
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
 <body>
 
@@ -65,7 +67,6 @@
 	</div>
 </footer>
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <!-- DataTables -->

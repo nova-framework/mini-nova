@@ -17,6 +17,7 @@ use Mini\Database\ConnectionResolverInterface as Resolver;
 use Mini\Events\Dispatcher;
 use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\JsonableInterface;
+use Mini\Support\Arr;
 use Mini\Support\Str;
 
 use Carbon\Carbon;
@@ -1327,6 +1328,16 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	}
 
 	/**
+	 * Get the value of the model's primary key.
+	 *
+	 * @return mixed
+	 */
+	public function getKey()
+	{
+		return $this->getAttribute($this->getKeyName());
+	}
+
+	/**
 	 * Get the Primary Key for the Model.
 	 *
 	 * @return string
@@ -1556,7 +1567,7 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 
 		$builder = $this->newBuilder($query);
 
-		return $builder->setModel($this);
+		return $builder->setModel($this)->with($this->with);
 	}
 
 	/**

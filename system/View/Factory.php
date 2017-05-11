@@ -3,6 +3,7 @@
 namespace Mini\View;
 
 use Mini\Support\Contracts\ArrayableInterface as Arrayable;
+use Mini\Support\Arr;
 use Mini\Support\Str;
 use Mini\View\View;
 
@@ -80,7 +81,9 @@ class Factory
 	 */
 	public function share($key, $value = null)
 	{
-		if ( ! is_array($key)) return $this->shared[$key] = $value;
+		if (! is_array($key)) {
+			return $this->shared[$key] = $value;
+		}
 
 		foreach ($key as $innerKey => $innerValue) {
 			$this->share($innerKey, $innerValue);
@@ -96,7 +99,7 @@ class Factory
 	 */
 	public function shared($key, $default = null)
 	{
-		return array_get($this->shared, $key, $default);
+		return Arr::get($this->shared, $key, $default);
 	}
 
 	/**

@@ -344,7 +344,6 @@ class Filesystem
 				}
 			} else if (! $this->copy($item->getPathname(), $target)) {
 					return false;
-				}
 			}
 		}
 

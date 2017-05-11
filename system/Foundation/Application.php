@@ -102,19 +102,8 @@ class Application extends Container
 	}
 
 	/**
-	 * Create a new request instance from the request class.
-	 *
-	 * @return \Mini\Http\Request
-	 */
-	protected function createNewRequest()
-	{
-		return Request::createFromGlobals();
-	}
-
-	/**
 	 * Register the basic bindings into the container.
 	 *
-	 * @param  \Mini\Http\Request  $request
 	 * @return void
 	 */
 	protected function registerBaseBindings()
@@ -133,9 +122,9 @@ class Application extends Container
 	 */
 	protected function registerBaseServiceProviders()
 	{
-		foreach (array('Event', 'Routing') as $name) {
-			$this->{"register{$name}Provider"}();
-		}
+		$this->registerEventProvider();
+
+		$this->registerRoutingProvider();
 	}
 
 	/**
@@ -316,6 +305,8 @@ class Application extends Container
 	 */
 	public function make($abstract)
 	{
+		$abstract = $this->getAlias($abstract);
+
 		if (isset($this->deferredServices[$abstract])) {
 			$this->loadDeferredProvider($abstract);
 		}
@@ -513,6 +504,7 @@ class Application extends Container
 			'cookie'		=> array('Mini\Cookie\CookieJar'),
 			'encrypter'	 	=> array('Mini\Encryption\Encrypter'),
 			'router'		=> array('Mini\Routing\Router'),
+			'session'		=> array('Mini\Session\SessionManager'),
 			'session.store'	=> array('Mini\Session\Store'),
 			'view'			=> array('Mini\View\Factory'),
 		);

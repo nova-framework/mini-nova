@@ -2,6 +2,8 @@
 
 namespace Mini\Support;
 
+use Mini\Foundation\Application;
+
 use Closure;
 
 
@@ -34,7 +36,7 @@ abstract class Manager
 	 * @param  \Mini\Foundation\Application  $app
 	 * @return void
 	 */
-	public function __construct($app)
+	public function __construct(Application $app)
 	{
 		$this->app = $app;
 	}
@@ -85,7 +87,7 @@ abstract class Manager
 	 */
 	protected function callCustomCreator($driver)
 	{
-		return $this->customCreators[$driver]($this->app);
+		return call_user_func($this->customCreators[$driver], $this->app);
 	}
 
 	/**

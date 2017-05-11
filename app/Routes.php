@@ -17,6 +17,40 @@ $router->any('/', function()
 	return View::make('Layouts/Default')->with('content', $view);
 });
 
+// The Adminstration Routes.
+$router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($router)
+{
+	// The User's Profile.
+	//$router->get( 'profile', array('middleware' => 'auth', 'uses' => 'Profile@index'));
+	//$router->post('profile', array('middleware' => 'auth', 'uses' => 'Profile@update'));
+
+	// Server Side Processor for Users DataTable.
+	$router->post('users/data', array('middleware' => 'auth', 'uses' => 'Users@data'));
+
+	// The Users CRUD.
+	$router->get( 'users',			  array('middleware' => 'auth', 'uses' => 'Users@index'));
+	$router->get( 'users/create',	   array('middleware' => 'auth', 'uses' => 'Users@create'));
+	$router->post('users',			  array('middleware' => 'auth', 'uses' => 'Users@store'));
+	$router->get( 'users/{id}',		 array('middleware' => 'auth', 'uses' => 'Users@show'));
+	$router->get( 'users/{id}/edit',	array('middleware' => 'auth', 'uses' => 'Users@edit'));
+	$router->post('users/{id}',		 array('middleware' => 'auth', 'uses' => 'Users@update'));
+	$router->post('users/{id}/destroy', array('middleware' => 'auth', 'uses' => 'Users@destroy'));
+
+	/*
+	// Server Side Processor for Roles DataTable.
+	$router->post('roles/data', array('middleware' => 'auth', 'uses' => 'Roles@data'));
+
+	// The Roles CRUD.
+	$router->get( 'roles',			  array('middleware' => 'auth', 'uses' => 'Roles@index'));
+	$router->get( 'roles/create',	   array('middleware' => 'auth', 'uses' => 'Roles@create'));
+	$router->post('roles',			  array('middleware' => 'auth', 'uses' => 'Roles@store'));
+	$router->get( 'roles/{id}',		 array('middleware' => 'auth', 'uses' => 'Roles@show'));
+	$router->get( 'roles/{id}/edit',	array('middleware' => 'auth', 'uses' => 'Roles@edit'));
+	$router->post('roles/{id}',		 array('middleware' => 'auth', 'uses' => 'Roles@update'));
+	$router->post('roles/{id}/destroy', array('middleware' => 'auth', 'uses' => 'Roles@destroy'));
+	*/
+});
+
 $router->group(array('prefix' => 'sample'), function ($router)
 {
 	$router->get('/', 'Sample@index');

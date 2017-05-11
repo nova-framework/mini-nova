@@ -188,6 +188,10 @@ class Kernel implements KernelInterface
 	 */
 	public function bootstrap()
 	{
+		Facade::clearResolvedInstances();
+
+		Facade::setFacadeApplication($this->app);
+
 		$this->app->boot();
 	}
 

@@ -517,7 +517,7 @@ if (! function_exists('csrf_token'))
 	 */
 	function csrf_token()
 	{
-		$session = app('session.store');
+		$session = app('session');
 
 		if (isset($session)) {
 			return $session->token();

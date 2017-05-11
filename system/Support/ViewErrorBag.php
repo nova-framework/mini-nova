@@ -2,6 +2,7 @@
 
 namespace Mini\Support;
 
+use Mini\Support\Arr;
 use Mini\Support\MessageBag;
 
 use Countable;
@@ -36,7 +37,7 @@ class ViewErrorBag implements Countable
 	 */
 	public function getBag($key)
 	{
-		return array_get($this->bags, $key, new MessageBag);
+		return Arr::get($this->bags, $key, new MessageBag);
 	}
 
 	/**

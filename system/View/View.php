@@ -110,7 +110,7 @@ class View implements ArrayAccess, RenderableInterface
 	 */
 	protected function gatherData()
 	{
-		$data = array_merge(static::$shared, $this->data);
+		$data = array_merge($this->factory->getShared(), $this->data);
 
 		// All nested Views are evaluated before the main View.
 		foreach ($data as $key => $value) {
@@ -229,7 +229,7 @@ class View implements ArrayAccess, RenderableInterface
 	{
 		$this->path = $path;
 	}
-	
+
 	/**
 	 * Implementation of the ArrayAccess offsetExists method.
 	 */

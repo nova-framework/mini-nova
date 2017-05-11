@@ -36,7 +36,7 @@ class SetupLanguage
 	 */
 	public function handle($request, Closure $next)
 	{
-		$session = $this->app['session.store'];
+		$session = $this->app['session'];
 
 		if (! $session->has('language')) {
 			$cookie = $request->cookie(PREFIX .'language', null);

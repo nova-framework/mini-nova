@@ -56,12 +56,6 @@ $paths = array(
 $app->bindInstallPaths($paths);
 
 //--------------------------------------------------------------------------
-// Bind The Application In The Container
-//--------------------------------------------------------------------------
-
-$app->instance('app', $app);
-
-//--------------------------------------------------------------------------
 // Bind Important Interfaces
 //--------------------------------------------------------------------------
 
@@ -74,14 +68,6 @@ $app->singleton(
 	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
 	'App\Exceptions\Handler'
 );
-
-//--------------------------------------------------------------------------
-// Load The Framework Facades
-//--------------------------------------------------------------------------
-
-Facade::clearResolvedInstances();
-
-Facade::setFacadeApplication($app);
 
 //--------------------------------------------------------------------------
 // Register The Config Manager

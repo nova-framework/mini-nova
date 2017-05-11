@@ -39,7 +39,7 @@ class Grammar
 	/**
 	 * Compile a select query into SQL.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return string
 	 */
 	public function compileSelect(Builder $query)
@@ -54,7 +54,7 @@ class Grammar
 	/**
 	 * Compile the components necessary for a select clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return array
 	 */
 	protected function compileComponents(Builder $query)
@@ -75,7 +75,7 @@ class Grammar
 	/**
 	 * Compile an aggregated select clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $aggregate
 	 * @return string
 	 */
@@ -93,7 +93,7 @@ class Grammar
 	/**
 	 * Compile the "SELECT *" portion of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $columns
 	 * @return string
 	 */
@@ -111,7 +111,7 @@ class Grammar
 	/**
 	 * Compile the "FROM" portion of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  string  $table
 	 * @return string
 	 */
@@ -123,7 +123,7 @@ class Grammar
 	/**
 	 * Compile the "JOIN" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $joins
 	 * @return string
 	 */
@@ -172,7 +172,7 @@ class Grammar
 	/**
 	 * Compile the "WHERE" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return string
 	 */
 	protected function compileWheres(Builder $query)
@@ -253,7 +253,7 @@ class Grammar
 	/**
 	 * Compile a where exists clause.
 	 *
-	 * @param  \Nova\Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -265,7 +265,7 @@ class Grammar
 	/**
 	 * Compile a where exists clause.
 	 *
-	 * @param  \Nova\Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -351,7 +351,7 @@ class Grammar
 	/**
 	 * Compile a "WHERE DAY" clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -363,7 +363,7 @@ class Grammar
 	/**
 	 * Compile a "WHERE MONTH" clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -375,7 +375,7 @@ class Grammar
 	/**
 	 * Compile a "WHERE YEAR" clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -388,7 +388,7 @@ class Grammar
 	 * Compile a date based where clause.
 	 *
 	 * @param  string  $type
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -402,7 +402,7 @@ class Grammar
 	/**
 	 * Compile a raw "WHERE" clause.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $where
 	 * @return string
 	 */
@@ -425,7 +425,7 @@ class Grammar
 	/**
 	 * Compile the "HAVING" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $havings
 	 * @return string
 	 */
@@ -469,7 +469,7 @@ class Grammar
 	/**
 	 * Compile the "ORDER BY" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $orders
 	 * @return string
 	 */
@@ -487,7 +487,7 @@ class Grammar
 	/**
 	 * Compile the "LIMIT" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  int  $limit
 	 * @return string
 	 */
@@ -499,7 +499,7 @@ class Grammar
 	/**
 	 * Compile the "OFFSET" portions of the query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  int  $offset
 	 * @return string
 	 */
@@ -511,7 +511,7 @@ class Grammar
 	/**
 	 * Compile the "UNION" queries attached to the main query.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return string
 	 */
 	protected function compileUnions(Builder $query)
@@ -541,12 +541,13 @@ class Grammar
 	/**
 	 * Compile an insert statement into SQL.
 	 *
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $values
 	 * @return string
 	 */
-	public function compileInsert(array $values)
+	public function compileInsert(Builder $query, array $values)
 	{
-		$table = $this->wrapTable($this->from);
+		$table = $this->wrapTable($query->from);
 
 		if (! is_array(reset($values))) {
 			$values = array($values);
@@ -566,12 +567,13 @@ class Grammar
 	/**
 	 * Compile an update statement into SQL.
 	 *
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @param  array  $values
 	 * @return string
 	 */
-	public function compileUpdate($values)
+	public function compileUpdate(Builder $query, $values)
 	{
-		$table = $this->wrapTable($this->from);
+		$table = $this->wrapTable($query->from);
 
 		$columns = array();
 
@@ -582,21 +584,21 @@ class Grammar
 		$columns = implode(', ', $columns);
 
 		if (isset($this->joins)) {
-			$joins = ' ' .$this->compileJoins($this, $this->joins);
+			$joins = ' ' .$this->compileJoins($query, $query->joins);
 		} else {
 			$joins = '';
 		}
 
-		$where = $this->compileWheres($this);
+		$where = $this->compileWheres($query);
 
 		$sql = trim("UPDATE {$table}{$joins} SET $columns $where");
 
 		if (isset($this->orders)) {
-			$sql .= ' ' .$this->compileOrders($this, $this->orders);
+			$sql .= ' ' .$this->compileOrders($query, $query->orders);
 		}
 
 		if (isset($this->limit)) {
-			$sql .= ' ' .$this->compileLimit($this, $this->limit);
+			$sql .= ' ' .$this->compileLimit($query, $query->limit);
 		}
 
 		return rtrim($sql);
@@ -605,18 +607,19 @@ class Grammar
 	/**
 	 * Compile a delete statement into SQL.
 	 *
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return string
 	 */
-	public function compileDelete()
+	public function compileDelete(Builder $query)
 	{
-		$table = $this->wrapTable($this->from);
+		$table = $this->wrapTable($query->from);
 
-		$where = is_array($this->wheres) ? $this->compileWheres($this) : '';
+		$where = is_array($query->wheres) ? $this->compileWheres($query) : '';
 
 		$sql = trim("DELETE FROM $table " .$where);
 
 		if (isset($this->limit)) {
-			$sql .= ' ' .$this->compileLimit($this, $this->limit);
+			$sql .= ' ' .$this->compileLimit($query, $query->limit);
 		}
 
 		return rtrim($sql);
@@ -625,12 +628,12 @@ class Grammar
 	/**
 	 * Compile a truncate table statement into SQL.
 	 *
-	 * @param  \Database\Query\Builder  $query
+	 * @param  \Mini\Database\Query\Builder  $query
 	 * @return array
 	 */
-	public function compileTruncate()
+	public function compileTruncate(Builder $query)
 	{
-		return array('TRUNCATE ' .$this->wrapTable($this->from) => array());
+		return array('TRUNCATE ' .$this->wrapTable($query->from) => array());
 	}
 
 	/**

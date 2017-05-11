@@ -1,22 +1,18 @@
 <?php
-/**
- * Store - A Class which implements a Session Store.
- *
- * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
- */
 
 namespace Mini\Session;
 
 use Mini\Support\Arr;
 use Mini\Support\Str;
 
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 
+use SessionHandlerInterface;
 
-class Store implements SessionInterface, \ArrayAccess
+
+class Store implements SessionInterface
 {
 	/**
 	 * The session ID.
@@ -61,6 +57,13 @@ class Store implements SessionInterface, \ArrayAccess
 	protected $bagData = array();
 
 	/**
+	 * The session handler implementation.
+	 *
+	 * @var \SessionHandlerInterface
+	 */
+	protected $handler;
+
+	/**
 	 * Session store started status.
 	 *
 	 * @var bool
@@ -68,89 +71,83 @@ class Store implements SessionInterface, \ArrayAccess
 	protected $started = false;
 
 	/**
-	 * Session store closed status.
-	 *
-	 * @var bool
-	 */
-	protected $closed = false;
-
-
-	/**
-	 * Create a new Session Store instance.
+	 * Create a new session instance.
 	 *
 	 * @param  string  $name
+	 * @param  \SessionHandlerInterface  $handler
+	 * @param  string|null  $id
 	 * @return void
 	 */
-	public function __construct($name)
+	public function __construct($name, SessionHandlerInterface $handler, $id = null)
 	{
-		$this->setName($name);
+		$this->setId($id);
 
-		$this->metaBag = new MetadataBag();
+		$this->name = $name;
+		$this->handler = $handler;
+
+		$this->metaBag = new MetadataBag;
 	}
 
 	/**
-	 * Load the session with attributes.
-	 *
-	 * @param array|null $session
-	 */
-	protected function loadSession(array &$session = null)
-	{
-		if (is_null($session)) {
-			$session = &$_SESSION;
-		}
-
-		$bags = array_merge($this->bags, array($this->metaBag));
-
-		foreach ($bags as $bag) {
-			$key = $bag->getStorageKey();
-
-			$value = Arr::get($session, $key, array());
-
-			//
-			$session[$key] = $value;
-
-			$bag->initialize($value);
-		}
-
-		$this->started = true;
-		$this->closed = false;
-	}
-
-	/**
-	 * Start the Session.
-	 *
-	 * @return \Session\Store
-	 * @throws \RuntimeException
+	 * {@inheritdoc}
 	 */
 	public function start()
 	{
-		if ($this->started) {
-			return true;
-		}
-
-		if (\PHP_SESSION_ACTIVE === session_status()) {
-			throw new \RuntimeException('Failed to start the session: already started by PHP.');
-		}
-
-		session_start();
-
 		$this->loadSession();
 
 		if (! $this->has('_token')) {
 			$this->regenerateToken();
 		}
 
-		return true;
+		return $this->started = true;
 	}
 
 	/**
-	 * Get the current Session id.
+	 * Load the session data from the handler.
 	 *
-	 * @return string
+	 * @return void
+	 */
+	protected function loadSession()
+	{
+		$this->attributes = $this->readFromHandler();
+
+		foreach (array_merge($this->bags, array($this->metaBag)) as $bag)
+		{
+			$this->initializeLocalBag($bag);
+
+			$bag->initialize($this->bagData[$bag->getStorageKey()]);
+		}
+	}
+
+	/**
+	 * Read the session data from the handler.
+	 *
+	 * @return array
+	 */
+	protected function readFromHandler()
+	{
+		$data = $this->handler->read($this->getId());
+
+		return $data ? unserialize($data) : array();
+	}
+
+	/**
+	 * Initialize a bag in storage if it doesn't exist.
+	 *
+	 * @param  \Symfony\Component\HttpFoundation\Session\SessionBagInterface  $bag
+	 * @return void
+	 */
+	protected function initializeLocalBag($bag)
+	{
+		$this->bagData[$bag->getStorageKey()] = $this->pull($bag->getStorageKey(), array());
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function getId()
 	{
-		return session_id();
+		return $this->id;
 	}
 
 	/**
@@ -163,8 +160,6 @@ class Store implements SessionInterface, \ArrayAccess
 		}
 
 		$this->id = $id;
-
-		return session_id($id);
 	}
 
 	/**
@@ -189,44 +184,43 @@ class Store implements SessionInterface, \ArrayAccess
 	}
 
 	/**
-	 * Get the current Session name.
-	 *
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function getName()
 	{
-		return session_name();
+		return $this->name;
 	}
 
 	/**
-	 * Set the current Session name.
-	 *
-	 * @param  string  $name
-	 * @return string
+	 * {@inheritdoc}
 	 */
 	public function setName($name)
 	{
 		$this->name = $name;
-
-		return session_name($name);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function invalidate($lifeTime = null)
+	public function invalidate($lifetime = null)
 	{
-		$this->clear();
+		$this->attributes = array();
 
-		return $this->migrate(true, $lifeTime);
+		$this->migrate();
+
+		return true;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function migrate($destroy = false, $lifeTime = null)
+	public function migrate($destroy = false, $lifetime = null)
 	{
-		return $this->regenerate($destroy, $lifeTime);
+		if ($destroy) $this->handler->destroy($this->getId());
+
+		$this->setExists(false);
+
+		$this->id = $this->generateSessionId(); return true;
 	}
 
 	/**
@@ -235,27 +229,9 @@ class Store implements SessionInterface, \ArrayAccess
 	 * @param  bool  $destroy
 	 * @return bool
 	 */
-	public function regenerate($destroy = false, $lifeTime = null)
+	public function regenerate($destroy = false)
 	{
-		if (\PHP_SESSION_ACTIVE !== session_status()) {
-			return false;
-		}
-
-		if (! is_nulol($lifeTime)) {
-			ini_set('session.cookie_lifetime', $lifeTime);
-		}
-
-		if ($destroy) {
-			$this->metaBag->stampNew();
-		}
-
-		$isRegenerated = session_regenerate_id($destroy);
-
-		// The reference to $_SESSION in session bags is lost in PHP7 and we need to re-create it.
-		// @see https://bugs.php.net/bug.php?id=70013
-		$this->loadSession();
-
-		return $isRegenerated;
+		return $this->migrate($destroy);
 	}
 
 	/**
@@ -263,26 +239,46 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function save()
 	{
-		$bags = array_merge($this->bags, array($this->metaBag));
+		$this->addBagDataToSession();
 
-		foreach ($bags as $bag)  {
-			$key = $bag->getStorageKey();
+		$this->ageFlashData();
 
-			$this->put($key, $this->bagData[$key]);
-		}
-
-		//
-		session_write_close();
+		$this->handler->write($this->getId(), serialize($this->attributes));
 
 		$this->started = false;
-		$this->closed  = true;
 	}
 
 	/**
-	 * Determine if an item exists in the Session.
+	 * Merge all of the bag data into the session.
 	 *
-	 * @param  string  $name
-	 * @return mixed
+	 * @return void
+	 */
+	protected function addBagDataToSession()
+	{
+		foreach (array_merge($this->bags, array($this->metaBag)) as $bag)
+		{
+			$this->put($bag->getStorageKey(), $this->bagData[$bag->getStorageKey()]);
+		}
+	}
+
+	/**
+	 * Age the flash data for the session.
+	 *
+	 * @return void
+	 */
+	public function ageFlashData()
+	{
+		foreach ($this->get('flash.old', array()) as $old) {
+			$this->forget($old);
+		}
+
+		$this->put('flash.old', $this->get('flash.new', array()));
+
+		$this->put('flash.new', array());
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function has($name)
 	{
@@ -290,15 +286,11 @@ class Store implements SessionInterface, \ArrayAccess
 	}
 
 	/**
-	 * Retrieve an item from the Session.
-	 *
-	 * @param  string  $name
-	 * @param  mixed   $default
-	 * @return mixed
+	 * {@inheritdoc}
 	 */
 	public function get($name, $default = null)
 	{
-		return Arr::get($_SESSION, $name, $default);
+		return Arr::get($this->attributes, $name, $default);
 	}
 
 	/**
@@ -310,7 +302,7 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function pull($key, $default = null)
 	{
-		return Arr::pull($this->attributes, $key, $default);
+		return array_pull($this->attributes, $key, $default);
 	}
 
 	/**
@@ -323,7 +315,7 @@ class Store implements SessionInterface, \ArrayAccess
 	{
 		$old = $this->getOldInput($key);
 
-		return is_null($key) ? (count($old) > 0) : ! is_null($old);
+		return is_null($key) ? count($old) > 0 : ! is_null($old);
 	}
 
 	/**
@@ -345,17 +337,125 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function set($name, $value)
 	{
-		Arr::set($_SESSION, $name, $value);
+		array_set($this->attributes, $name, $value);
 	}
 
 	/**
-	 * Retrieve all items from the Session.
+	 * Put a key / value pair or array of key / value pairs in the session.
 	 *
-	 * @return array
+	 * @param  string|array  $key
+	 * @param  mixed|null	   $value
+	 * @return void
+	 */
+	public function put($key, $value = null)
+	{
+		if (! is_array($key)) $key = array($key => $value);
+
+		foreach ($key as $arrayKey => $arrayValue) {
+			$this->set($arrayKey, $arrayValue);
+		}
+	}
+
+	/**
+	 * Push a value onto a session array.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function push($key, $value)
+	{
+		$array = $this->get($key, array());
+
+		$array[] = $value;
+
+		$this->put($key, $array);
+	}
+
+	/**
+	 * Flash a key / value pair to the session.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function flash($key, $value)
+	{
+		$this->put($key, $value);
+
+		$this->push('flash.new', $key);
+
+		$this->removeFromOldFlashData(array($key));
+	}
+
+	/**
+	 * Flash an input array to the session.
+	 *
+	 * @param  array  $value
+	 * @return void
+	 */
+	public function flashInput(array $value)
+	{
+		$this->flash('_old_input', $value);
+	}
+
+	/**
+	 * Reflash all of the session flash data.
+	 *
+	 * @return void
+	 */
+	public function reflash()
+	{
+		$this->mergeNewFlashes($this->get('flash.old', array()));
+
+		$this->put('flash.old', array());
+	}
+
+	/**
+	 * Reflash a subset of the current flash data.
+	 *
+	 * @param  array|mixed  $keys
+	 * @return void
+	 */
+	public function keep($keys = null)
+	{
+		$keys = is_array($keys) ? $keys : func_get_args();
+
+		$this->mergeNewFlashes($keys);
+
+		$this->removeFromOldFlashData($keys);
+	}
+
+	/**
+	 * Merge new flash keys into the new flash array.
+	 *
+	 * @param  array  $keys
+	 * @return void
+	 */
+	protected function mergeNewFlashes(array $keys)
+	{
+		$values = array_unique(array_merge($this->get('flash.new', array()), $keys));
+
+		$this->put('flash.new', $values);
+	}
+
+	/**
+	 * Remove the given keys from the old flash data.
+	 *
+	 * @param  array  $keys
+	 * @return void
+	 */
+	protected function removeFromOldFlashData(array $keys)
+	{
+		$this->put('flash.old', array_diff($this->get('flash.old', array()), $keys));
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function all()
 	{
-		return $_SESSION;
+		return $this->attributes;
 	}
 
 	/**
@@ -373,18 +473,18 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function remove($name)
 	{
-		return Arr::pull($_SESSION, $name);
+		return array_pull($this->attributes, $name);
 	}
 
 	/**
-	 * Remove an item from the Session.
+	 * Remove an item from the session.
 	 *
 	 * @param  string  $key
 	 * @return void
 	 */
 	public function forget($key)
 	{
-		Arr::forget($_SESSION, $key);
+		array_forget($this->attributes, $key);
 	}
 
 	/**
@@ -392,13 +492,21 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function clear()
 	{
+		$this->attributes = array();
+
 		foreach ($this->bags as $bag) {
 			$bag->clear();
 		}
+	}
 
-		$_SESSION = array();
-
-		$this->loadSession();
+	/**
+	 * Remove all of the items from the session.
+	 *
+	 * @return void
+	 */
+	public function flush()
+	{
+		$this->clear();
 	}
 
 	/**
@@ -414,9 +522,7 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function registerBag(SessionBagInterface $bag)
 	{
-		$key = $bag->getStorageKey();
-
-		$this->bags[$key] = $bag;
+		$this->bags[$bag->getStorageKey()] = $bag;
 	}
 
 	/**
@@ -446,100 +552,27 @@ class Store implements SessionInterface, \ArrayAccess
 	 */
 	public function getBagData($name)
 	{
-		return array_get($this->bagData, $name, array());
+		return Arr::get($this->bagData, $name, array());
 	}
 
 	/**
-	 * Remove all of the items from the session.
+	 * Get the CSRF token value.
 	 *
-	 * @return void
-	 */
-	public function flush()
-	{
-		$this->clear();
-	}
-
-	/**
-	 * Set a key / value pair or array of key / value pairs in the Session.
-	 *
-	 * @param  string|array  $key
-	 * @param  mixed|null	$value
-	 * @return void
-	 */
-	public function put($key, $value = null)
-	{
-		if (! is_array($key)) {
-			$key = array($key => $value);
-		}
-
-		foreach ($key as $arrayKey => $arrayValue) {
-			$this->set($arrayKey, $arrayValue);
-		}
-	}
-
-	/**
-	 * Push a value onto an array Session value.
-	 *
-	 * @param  string  $key
-	 * @param  string  $value
-	 * @return void
-	 */
-	public function push($key, $value)
-	{
-		$array = $this->get($key, array());
-
-		$array[] = $value;
-
-		$this->put($key, $array);
-	}
-
-	/**
-	 * Flash a key / value pair to the Session.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return void
-	 */
-	public function flash($key, $value)
-	{
-		$this->put($key, $value);
-
-		$this->push('flash', $key);
-	}
-
-	/**
-	 * Flash an input array to the session.
-	 *
-	 * @param  array  $value
-	 * @return void
-	 */
-	public function flashInput(array $value)
-	{
-		$this->flash('_old_input', $value);
-	}
-
-	/**
-	 * Delete all the flashed data.
-	 *
-	 * @return void
-	 */
-	public function clearFlash()
-	{
-		foreach ($this->get('flash', array()) as $key) {
-			$this->forget($key);
-		}
-
-		$this->put('flash', array());
-	}
-
-	/**
-	 * Get CSRF token value.
-	 *
-	 * @return void
+	 * @return string
 	 */
 	public function token()
 	{
 		return $this->get('_token');
+	}
+
+	/**
+	 * Get the CSRF token value.
+	 *
+	 * @return string
+	 */
+	public function getToken()
+	{
+		return $this->token();
 	}
 
 	/**
@@ -574,47 +607,46 @@ class Store implements SessionInterface, \ArrayAccess
 	}
 
 	/**
-	 * Determine if the given configuration option exists.
+	 * Set the existence of the session on the handler if applicable.
 	 *
-	 * @param  string  $key
+	 * @param  bool  $value
+	 * @return void
+	 */
+	public function setExists($value)
+	{
+		if ($this->handler instanceof ExistenceAwareInterface) {
+			$this->handler->setExists($value);
+		}
+	}
+
+	/**
+	 * Get the underlying session handler implementation.
+	 *
+	 * @return \SessionHandlerInterface
+	 */
+	public function getHandler()
+	{
+		return $this->handler;
+	}
+
+	/**
+	 * Determine if the session handler needs a request.
+	 *
 	 * @return bool
 	 */
-	public function offsetExists($key)
+	public function handlerNeedsRequest()
 	{
-		return $this->has($key);
+		return false;
 	}
 
 	/**
-	 * Get a configuration option.
+	 * Set the request on the handler instance.
 	 *
-	 * @param  string  $key
-	 * @return mixed
-	 */
-	public function offsetGet($key)
-	{
-		return $this->get($key);
-	}
-
-	/**
-	 * Set a configuration option.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
+	 * @param  \Symfony\Component\HttpFoundation\Request  $request
 	 * @return void
 	 */
-	public function offsetSet($key, $value)
+	public function setRequestOnHandler(Request $request)
 	{
-		$this->put($key, $value);
-	}
-
-	/**
-	 * Unset a configuration option.
-	 *
-	 * @param  string  $key
-	 * @return void
-	 */
-	public function offsetUnset($key)
-	{
-		$this->delete($key);
+		//
 	}
 }

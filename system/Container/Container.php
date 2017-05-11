@@ -561,7 +561,7 @@ class Container implements ArrayAccess
 	{
 		static::$instance = $container;
 	}
-	
+
 	/**
 	 * Sets a parameter or an object.
 	 *

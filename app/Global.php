@@ -9,3 +9,9 @@ Route::middleware('test', function($request, Closure $next)
 
 	return $next($request);
 });
+
+// A fake Auth Middleware.
+Route::middleware('auth', function($request, Closure $next)
+{
+	return $next($request);
+});
