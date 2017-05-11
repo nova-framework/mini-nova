@@ -4,10 +4,19 @@ Mini-Nova is a smaller version of Nova and twice the speed. Perfect for simple s
 
 ## Not included with Mini-Nova 
 * Asset Routing
+* Cron
 * Encrypted cookies and sessions (Cookies and Sessions are included)
-* Modules 
+* Exception Service
+* Forensics
+* HTML (class)
+* Implicit Controllers into Routing
+* Modules
+* Morphing into ORM
+* Resource Routes
+* Support for SQLite, PostgreSQL and SQL Server
 * Templating Engine
 * Themes
+* Whoops! (replaced by a simpler Handler)
 
 ## Notable Changes 
 
