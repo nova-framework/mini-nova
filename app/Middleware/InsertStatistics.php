@@ -8,6 +8,7 @@ use Mini\Support\Facades\Config;
 use Mini\Support\Facades\DB;
 use Mini\Support\Str;
 
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 use Closure;
@@ -55,7 +56,10 @@ class InsertStatistics
 		if ($debug && $this->canPatchContent($response)) {
 			$withDatabase = $config->get('profiler', 'withDatabase', false);
 
-			$content = str_replace('<!-- DO NOT DELETE! - Profiler -->', $this->getInfo($request, $withDatabase), $response->getContent());
+			$content = str_replace('<!-- DO NOT DELETE! - Profiler -->',
+				$this->getInfo($request, $withDatabase),
+				$response->getContent()
+			);
 
 			$response->setContent($content);
 		}
@@ -74,7 +78,7 @@ class InsertStatistics
 		return Str::is('text/html*', $contentType);
 	}
 
-	protected function getInfo($request, $withDatabase)
+	protected function getInfo(SymfonyRequest $request, $withDatabase)
 	{
 		$requestTime = $request->server('REQUEST_TIME_FLOAT');
 
@@ -86,26 +90,26 @@ class InsertStatistics
 		//
 		$umax = sprintf("%0d", intval(25 / $elapsedTime));
 
-		if ($withDatabase) {
-			$queries = $this->getSqlQueries();
-
-			$result = __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | SQL: <b>{2}</b> {3, plural, one{query} other{queries}} | UMAX: <b>{4}</b>', $elapsedTime, $memoryUsage, $queries, $queries, $umax);
-		} else {
-			$result = __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | UMAX: <b>{2}</b>', $elapsedTime, $memoryUsage, $umax);
+		if (! $withDatabase) {
+			return __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | UMAX: <b>{2}</b>', $elapsedTime, $memoryUsage, $umax);
 		}
 
-		return $result;
+		$queryLog = $this->getQueryLog();
+
+		$queries = count($queryLog);
+
+		return __('Elapsed Time: <b>{0}</b> sec | Memory Usage: <b>{1}</b> | SQL: <b>{2}</b> {3, plural, one{query} other{queries}} | UMAX: <b>{4}</b>', $elapsedTime, $memoryUsage, $queries, $queries, $umax);
 	}
 
-	protected function getSqlQueries()
+	protected function getQueryLog()
 	{
 		try {
-			$queryLog = $this->app['db']->connection()->getQueryLog();
+			$connection = $this->app['db']->connection();
 
-			return count($queryLog);
+			return $connection->getQueryLog();
 		}
 		catch (PDOException $e) {
-			return 0;
+			return array();
 		}
 	}
 
