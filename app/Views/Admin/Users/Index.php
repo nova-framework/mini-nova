@@ -2,6 +2,8 @@
 
 #usersTable td {
 	vertical-align: middle;
+	text-align: center;
+	padding: 5px;
 }
 
 #usersTable_paginate .pagination {
@@ -41,9 +43,9 @@ tfoot input {
 				<th width='12%'><?= __('Role'); ?></th>
 				<th width='13%'><?= __('First Name'); ?></th>
 				<th width='13%'><?= __('Last Name'); ?></th>
-				<th width='18%'><?= __('E-mail'); ?></th>
-				<th width='13%'><?= __('Created At'); ?></th>
-				<th width='13%'><?= __('Actions'); ?></th>
+				<th width='20%'><?= __('E-mail'); ?></th>
+				<th width='14%'><?= __('Created At'); ?></th>
+				<th width='10%'><?= __('Actions'); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -104,11 +106,11 @@ $(function () {
 		columns: [
 			{ data: 'userid',   orderable: true,  searchable: false },
 			{ data: 'username', orderable: true,  searchable: true  },
-			{ data: 'role',	 orderable: true,  searchable: false },
-			{ data: 'name',	 orderable: true,  searchable: true  },
+			{ data: 'role',	 	orderable: true,  searchable: false },
+			{ data: 'name',	 	orderable: true,  searchable: true  },
 			{ data: 'surname',  orderable: true,  searchable: true  },
 			{ data: 'email',	orderable: true,  searchable: true  },
-			{ data: 'date',	 orderable: true,  searchable: false },
+			{ data: 'date',	 	orderable: true,  searchable: false },
 			{ data: 'actions',  orderable: false, searchable: false },
 		],
 
