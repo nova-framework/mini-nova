@@ -11,7 +11,7 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
 
 	<!-- Local customizations -->
-	<link rel="stylesheet" type="text/css" href="<?= site_url('css/style.css'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= asset('css/style.css'); ?>">
 </head>
 <body>
 
