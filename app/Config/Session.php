@@ -8,46 +8,46 @@
 
 return array(
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default Session Driver
-    |--------------------------------------------------------------------------
-    |
-    | This option controls the default session "driver" that will be used on
-    | requests. By default, we will use the lightweight native driver but
-    | you may specify any of the other wonderful drivers provided here.
-    |
-    | Supported: "file" or "database"
-    |
-    */
+	/*
+	|--------------------------------------------------------------------------
+	| Default Session Driver
+	|--------------------------------------------------------------------------
+	|
+	| This option controls the default session "driver" that will be used on
+	| requests. By default, we will use the lightweight native driver but
+	| you may specify any of the other wonderful drivers provided here.
+	|
+	| Supported: "file" or "database"
+	|
+	*/
 
-    'driver' => 'file',
+	'driver' => 'file',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Session Table
-    |--------------------------------------------------------------------------
-    |
-    | This table keeps track of all the session data and it's connection used
-    | by the driver.
-    |
-    */
+	/*
+	|--------------------------------------------------------------------------
+	| Session Table
+	|--------------------------------------------------------------------------
+	|
+	| This table keeps track of all the session data and it's connection used
+	| by the driver.
+	|
+	*/
 
-    'table'      => 'sessions',
-    'connection' => null,
+	'table'	  => 'sessions',
+	'connection' => null,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Session File Location
-    |--------------------------------------------------------------------------
-    |
-    | When using the native session driver, we need a location where session
-    | files may be stored. A default has been set for you but a different
-    | location may be specified. This is only needed for file sessions.
-    |
-    */
+	/*
+	|--------------------------------------------------------------------------
+	| Session File Location
+	|--------------------------------------------------------------------------
+	|
+	| When using the native session driver, we need a location where session
+	| files may be stored. A default has been set for you but a different
+	| location may be specified. This is only needed for file sessions.
+	|
+	*/
 
-    'files' => STORAGE_PATH .'sessions',
+	'files' => STORAGE_PATH .'sessions',
 
 	/*
 	|--------------------------------------------------------------------------
