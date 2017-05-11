@@ -7,6 +7,7 @@ use Mini\Support\Fluent;
 use Mini\Support\MessageBag;
 use Mini\Support\Contracts\MessageProviderInterface;
 use Mini\Support\Str;
+use Mini\Validation\Presence\PresenceVerifierInterface;
 
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Translation\TranslatorInterface;
