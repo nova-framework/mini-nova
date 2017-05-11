@@ -67,17 +67,6 @@ class HandleProfiling
 		return $response;
 	}
 
-	protected function canPatchContent(SymfonyResponse $response)
-	{
-		if ((! $response instanceof Response) && is_subclass_of($response, 'Symfony\Component\Http\Foundation\Response')) {
-			return false;
-		}
-
-		$contentType = $response->headers->get('Content-Type');
-
-		return Str::is('text/html*', $contentType);
-	}
-
 	protected function getInfo(SymfonyRequest $request, $withDatabase)
 	{
 		$requestTime = $request->server('REQUEST_TIME_FLOAT');
@@ -111,6 +100,17 @@ class HandleProfiling
 		catch (PDOException $e) {
 			return array();
 		}
+	}
+
+	protected function canPatchContent(SymfonyResponse $response)
+	{
+		if ((! $response instanceof Response) && is_subclass_of($response, 'Symfony\Component\Http\Foundation\Response')) {
+			return false;
+		}
+
+		$contentType = $response->headers->get('Content-Type');
+
+		return Str::is('text/html*', $contentType);
 	}
 
 	protected static function formatSize($bytes, $decimals = 2)
