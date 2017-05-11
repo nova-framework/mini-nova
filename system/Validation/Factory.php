@@ -10,6 +10,7 @@ namespace Mini\Validation;
 
 use Mini\Support\Str;
 use Mini\Validation\Language\Translator;
+use Mini\Validation\Presence\DatabasePresenceVerifier;
 
 use Closure;
 
