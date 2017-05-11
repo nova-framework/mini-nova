@@ -507,14 +507,14 @@ class Application extends Container
 	public function registerCoreContainerAliases()
 	{
 		$aliases = array(
-			'app'		   => array('Mini\Foundation\Application', 'Mini\Container\Container'),
-			'log'		   => array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
+			'app'			=> array('Mini\Foundation\Application', 'Mini\Container\Container'),
+			'log'			=> array('Mini\Log\Writer', 'Psr\Log\LoggerInterface'),
 			'config'		=> array('Mini\Config\Repository'),
 			'cookie'		=> array('Mini\Cookie\CookieJar'),
-			'encrypter'	 => array('Mini\Encryption\Encrypter'),
+			'encrypter'	 	=> array('Mini\Encryption\Encrypter'),
 			'router'		=> array('Mini\Routing\Router'),
-			'session.store' => array('Mini\Session\Store'),
-
+			'session.store'	=> array('Mini\Session\Store'),
+			'view'			=> array('Mini\View\Factory'),
 		);
 
 		foreach ($aliases as $key => $aliases) {
