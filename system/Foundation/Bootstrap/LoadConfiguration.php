@@ -23,7 +23,7 @@ class LoadConfiguration
 			$app->getConfigLoader()
 		));
 
-		// Set the default Timezone from configuration.
+		// Set the default Timezone.
 		date_default_timezone_set($config['app.timezone']);
 
 		// Register the Facades.
