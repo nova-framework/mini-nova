@@ -18,6 +18,17 @@
 
 <!-- Main content -->
 <div class="row">
+	<h3><?= __('Manage the Roles'); ?></h3>
+	<br>
+
+	<a class='btn btn-success' href='<?= site_url('admin/roles/create'); ?>'><i class='fa fa-plus-square'></i> <?= __('Create a new Role'); ?></a>
+	<hr>
+</div>
+
+<div class="row">
+	<h3><?= __('Registered Roles'); ?></h3>
+	<br>
+
 	<table id='rolesTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>
 		<tr >
@@ -33,9 +44,6 @@
 		</tbody>
 	</table>
 
-	<hr style="margin-top: 8px;">
-
-	<a class='btn btn-success' href='<?= site_url('admin/roles/create'); ?>'><i class='fa fa-plus-square'></i> <?= __('Create a new Role'); ?></a>
 	<br>
 </div>
 

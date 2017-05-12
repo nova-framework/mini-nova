@@ -34,6 +34,17 @@ tfoot input {
 
 <!-- Main content -->
 <div class="row">
+	<h3><?= __('Manage the Users'); ?></h3>
+	<br>
+
+	<a class='btn btn-success' href='<?= site_url('admin/users/create'); ?>'><i class='fa fa-user-plus'></i> <?= __('Create a new User'); ?></a>
+	<hr>
+</div>
+
+<div class="row">
+	<h3><?= __('Registered Users'); ?></h3>
+	<br>
+
 	<table id='usersTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>
 			<tr>
@@ -51,9 +62,6 @@ tfoot input {
 		</tbody>
 	</table>
 
-	<hr style="margin-top: 8px;">
-
-	<a class='btn btn-success' href='<?= site_url('admin/users/create'); ?>'><i class='fa fa-user-plus'></i> <?= __('Create a new User'); ?></a>
 	<br>
 </div>
 
