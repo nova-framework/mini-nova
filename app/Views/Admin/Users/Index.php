@@ -32,6 +32,7 @@ tfoot input {
 
 <?= View::fetch('Partials/Messages'); ?>
 
+<!-- Main content -->
 <div class="row">
 	<table id='usersTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>

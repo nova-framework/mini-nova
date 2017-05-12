@@ -1,3 +1,11 @@
+<style>
+
+#rolesTable_paginate .pagination {
+	margin: 5px 0 -3px;
+}
+
+</style>
+
 <div class="row">
 	<h1><?= __('Roles'); ?></h1>
 	<ol class="breadcrumb">
@@ -9,14 +17,6 @@
 <?= View::fetch('Partials/Messages'); ?>
 
 <!-- Main content -->
-<style>
-
-#rolesTable_paginate .pagination {
-	margin: 5px 0 -3px;
-}
-
-</style>
-
 <div class="row">
 	<table id='rolesTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>
