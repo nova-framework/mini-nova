@@ -22,7 +22,7 @@
 </style>
 
 <div class="row">
-	<table id='rolesTable' class='table table-striped table-hover responsive' style="width: 100%;">
+	<table id='rolesTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>
 		<tr >
 			<th width='5%'><?= __('ID'); ?></th>
