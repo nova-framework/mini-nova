@@ -178,6 +178,19 @@ class Application extends Container
 	}
 
 	/**
+	 * Register all of the configured providers..
+	 *
+	 * @return void
+	 */
+	public function registerConfiguredProviders()
+	{
+		$config = $this->make('config');
+
+		with(new ProviderRepository($this, $config['app.manifest']))
+			->load($config['app.providers']);
+	}
+
+	/**
 	 * Register a service provider with the application.
 	 *
 	 * @param  \Mini\Support\ServiceProvider|string  $provider
@@ -526,18 +539,6 @@ class Application extends Container
 				$this->alias($key, $alias);
 			}
 		}
-	}
-
-	/**
-	 * Get the service provider repository instance.
-	 *
-	 * @return \Mini\Foundation\ProviderRepository
-	 */
-	public function getProviderRepository()
-	{
-		$manifest = $this['config']['app.manifest'];
-
-		return new ProviderRepository($this, $manifest);
 	}
 
 	/**

@@ -1,19 +1,10 @@
 <?php
 
-use Mini\Foundation\Application;
-
-
 //--------------------------------------------------------------------------
-// Set The Framework Starting Time
+// Use Internally The UTF-8 Encoding
 //--------------------------------------------------------------------------
 
-define('FRAMEWORK_START', microtime(true));
-
-//--------------------------------------------------------------------------
-// Set The System Path
-//--------------------------------------------------------------------------
-
-define('SYSPATH', BASEPATH .'system');
+mb_internal_encoding('UTF-8');
 
 //--------------------------------------------------------------------------
 // Load The Global Configuration
@@ -25,7 +16,18 @@ require APPPATH .'Config.php';
 // Create New Application
 //--------------------------------------------------------------------------
 
-$app = new Application();
+$app = new Mini\Foundation\Application();
+
+//--------------------------------------------------------------------------
+// Bind Paths
+//--------------------------------------------------------------------------
+
+$app->bindInstallPaths(array(
+    'base'    => BASEPATH,
+    'app'     => APPPATH,
+    'public'  => WEBPATH,
+    'storage' => STORAGE_PATH,
+));
 
 //--------------------------------------------------------------------------
 // Bind Important Interfaces

@@ -50,8 +50,10 @@ class Kernel implements KernelInterface
 	 * @var array
 	 */
 	protected $bootstrappers = array(
-		'Mini\Foundation\Bootstrap\CommonSetup',
+		'Mini\Foundation\Bootstrap\LoadConfiguration',
+		'Mini\Foundation\Bootstrap\RegisterProviders',
 		'Mini\Foundation\Bootstrap\HandleExceptions',
+		'Mini\Foundation\Bootstrap\RegisterFacades',
 		'Mini\Foundation\Bootstrap\BootProviders',
 	);
 
