@@ -6,6 +6,13 @@ namespace Mini\Foundation;
 class ProviderRepository
 {
 	/**
+	 * The application instance.
+	 *
+	 * @var \Mini\Foundation\Application
+	 */
+	protected $app;
+
+	/**
 	 * The path to the manifest.
 	 *
 	 * @var string
@@ -18,8 +25,10 @@ class ProviderRepository
 	 * @param  string  $manifestPath
 	 * @return void
 	 */
-	public function __construct($manifestPath)
+	public function __construct(Application $app, $manifestPath)
 	{
+		$this->app = $app;
+
 		$this->manifestPath = $manifestPath;
 	}
 
@@ -30,34 +39,33 @@ class ProviderRepository
 	 * @param  string  $path
 	 * @return void
 	 */
-	public function load(Application $app, array $providers)
+	public function load(array $providers)
 	{
 		$manifest = $this->loadManifest();
 
 		if ($this->shouldRecompile($manifest, $providers)) {
-			$manifest = $this->compileManifest($app, $providers);
+			$manifest = $this->compileManifest($providers);
 		}
 
 		foreach ($manifest['eager'] as $provider) {
-			$app->register($this->createProvider($app, $provider));
+			$this->app->register($this->createProvider($provider));
 		}
 
-		$app->setDeferredServices($manifest['deferred']);
+		$this->app->setDeferredServices($manifest['deferred']);
 	}
 
 	/**
 	 * Compile the application manifest file.
 	 *
-	 * @param  \Mini\Foundation\Application  $app
 	 * @param  array  $providers
 	 * @return array
 	 */
-	protected function compileManifest(Application $app, $providers)
+	protected function compileManifest($providers)
 	{
 		$manifest = $this->freshManifest($providers);
 
 		foreach ($providers as $provider) {
-			$instance = $this->createProvider($app, $provider);
+			$instance = $this->createProvider($provider);
 
 			if ($instance->isDeferred()) {
 				foreach ($instance->provides() as $service) {
@@ -74,13 +82,12 @@ class ProviderRepository
 	/**
 	 * Create a new provider instance.
 	 *
-	 * @param  \Mini\Foundation\Application  $app
 	 * @param  string  $provider
 	 * @return \Mini\Support\ServiceProvider
 	 */
-	public function createProvider(Application $app, $provider)
+	public function createProvider($provider)
 	{
-		return new $provider($app);
+		return new $provider($this->app);
 	}
 
 	/**

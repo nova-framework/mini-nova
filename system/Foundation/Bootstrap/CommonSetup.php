@@ -38,7 +38,7 @@ class CommonSetup
 		date_default_timezone_set($config['app.timezone']);
 
 		// Register the core Service Providers.
-		$app->getProviderRepository()->load($app, $config['app.providers']);
+		$app->getProviderRepository()->load($config['app.providers']);
 
 		// Register the Facades.
 		Facade::clearResolvedInstances();

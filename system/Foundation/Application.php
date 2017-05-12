@@ -537,7 +537,7 @@ class Application extends Container
 	{
 		$manifest = $this['config']['app.manifest'];
 
-		return new ProviderRepository($manifest);
+		return new ProviderRepository($this, $manifest);
 	}
 
 	/**

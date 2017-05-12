@@ -31,11 +31,11 @@ class HandleExceptions
 		//
 		error_reporting(-1);
 
-		set_error_handler([$this, 'handleError']);
+		set_error_handler(array($this, 'handleError'));
 
-		set_exception_handler([$this, 'handleException']);
+		set_exception_handler(array($this, 'handleException'));
 
-		register_shutdown_function([$this, 'handleShutdown']);
+		register_shutdown_function(array($this, 'handleShutdown'));
 
 		ini_set('display_errors', 'Off');
 	}
@@ -52,7 +52,7 @@ class HandleExceptions
 	 *
 	 * @throws \ErrorException
 	 */
-	public function handleError($level, $message, $file = '', $line = 0, $context = [])
+	public function handleError($level, $message, $file = '', $line = 0, $context = array())
 	{
 		if (error_reporting() & $level) {
 			throw new ErrorException($message, 0, $level, $file, $line);
@@ -121,7 +121,7 @@ class HandleExceptions
 	 */
 	protected function isFatal($type)
 	{
-		return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
+		return in_array($type, array(E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE));
 	}
 
 	/**
