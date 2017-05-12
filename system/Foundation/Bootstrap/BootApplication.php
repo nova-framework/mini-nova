@@ -5,7 +5,7 @@ namespace Mini\Foundation\Bootstrap;
 use Mini\Foundation\Application;
 
 
-class RegisterProviders
+class BootApplication
 {
 	/**
 	 * Bootstrap the given application.
@@ -16,5 +16,7 @@ class RegisterProviders
 	public function bootstrap(Application $app)
 	{
 		$app->registerConfiguredProviders();
+
+		$app->boot();
 	}
 }
