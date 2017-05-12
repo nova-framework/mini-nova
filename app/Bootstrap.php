@@ -1,15 +1,6 @@
 <?php
 
-use Mini\Config\Repository as ConfigRepository;
-use Mini\Foundation\AliasLoader;
 use Mini\Foundation\Application;
-use Mini\Helpers\Profiler;
-use Mini\Http\Request;
-use Mini\Http\Response;
-use Mini\Routing\Router;
-use Mini\Support\Facades\Facade;
-
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
 //--------------------------------------------------------------------------
@@ -17,12 +8,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 //--------------------------------------------------------------------------
 
 define('FRAMEWORK_START', microtime(true));
-
-//--------------------------------------------------------------------------
-// Set PHP Error Reporting Options
-//--------------------------------------------------------------------------
-
-error_reporting(-1);
 
 //--------------------------------------------------------------------------
 // Set The System Path
@@ -43,19 +28,6 @@ require APPPATH .'Config.php';
 $app = new Application();
 
 //--------------------------------------------------------------------------
-// Bind Paths
-//--------------------------------------------------------------------------
-
-$paths = array(
-	'base'	=> BASEPATH,
-	'app'	 => APPPATH,
-	'public'  => WEBPATH,
-	'storage' => STORAGE_PATH,
-);
-
-$app->bindInstallPaths($paths);
-
-//--------------------------------------------------------------------------
 // Bind Important Interfaces
 //--------------------------------------------------------------------------
 
@@ -70,50 +42,14 @@ $app->singleton(
 );
 
 //--------------------------------------------------------------------------
-// Register The Config Manager
+// Register The After Booting Handler
 //--------------------------------------------------------------------------
 
-$app->instance('config', $config = new ConfigRepository(
-	$app->getConfigLoader()
-));
-
-//--------------------------------------------------------------------------
-// Set The Default Timezone From Configuration
-//--------------------------------------------------------------------------
-
-$config = $app['config']['app'];
-
-date_default_timezone_set($config['timezone']);
-
-//--------------------------------------------------------------------------
-// Register The Alias Loader
-//--------------------------------------------------------------------------
-
-$aliases = $config['aliases'];
-
-AliasLoader::getInstance($aliases)->register();
-
-//--------------------------------------------------------------------------
-// Register The Core Service Providers
-//--------------------------------------------------------------------------
-
-$app->getProviderRepository()->load($app, $config['providers']);
-
-//--------------------------------------------------------------------------
-// Load The Application Start Script
-//--------------------------------------------------------------------------
-
-$app->booted( function() use ($app)
+$app->booted(function () use ($app)
 {
+	$path = APPPATH .'Global.php';
 
-//--------------------------------------------------------------------------
-// Load The Global Application Script
-//--------------------------------------------------------------------------
-
-$path = APPPATH .'Global.php';
-
-if (is_readable($path)) require $path;
-
+	if (is_readable($path)) require $path;
 });
 
 //--------------------------------------------------------------------------

@@ -44,6 +44,17 @@ class Kernel implements KernelInterface
 	 */
 	protected $routeMiddleware = array();
 
+	/**
+	 * The bootstrap classes for the application.
+	 *
+	 * @var array
+	 */
+	protected $bootstrappers = array(
+		'Mini\Foundation\Bootstrap\CommonSetup',
+		'Mini\Foundation\Bootstrap\HandleExceptions',
+		'Mini\Foundation\Bootstrap\BootProviders',
+	);
+
 
 	/**
 	 * Create a new HTTP kernel instance.
@@ -188,11 +199,9 @@ class Kernel implements KernelInterface
 	 */
 	public function bootstrap()
 	{
-		Facade::clearResolvedInstances();
-
-		Facade::setFacadeApplication($this->app);
-
-		$this->app->boot();
+		if (! $this->app->hasBeenBootstrapped()) {
+			$this->app->bootstrapWith($this->bootstrappers);
+		}
 	}
 
 	/**
@@ -236,7 +245,7 @@ class Kernel implements KernelInterface
 	 */
 	public function getExceptionHandler()
 	{
-		return $this->app['Mini\Foundation\Contracts\ExceptionHandlerInterface'];
+		return $this->app->make('Mini\Foundation\Contracts\ExceptionHandlerInterface');
 	}
 
 	/**

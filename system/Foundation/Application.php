@@ -35,6 +35,13 @@ class Application extends Container
 	protected $booted = false;
 
 	/**
+	 * Indicates if the application has been bootstrapped before.
+	 *
+	 * @var bool
+	 */
+	protected $hasBeenBootstrapped = false;
+
+	/**
 	 * The array of booting callbacks.
 	 *
 	 * @var array
@@ -122,29 +129,34 @@ class Application extends Container
 	 */
 	protected function registerBaseServiceProviders()
 	{
-		$this->registerEventProvider();
+		$this->register(new EventServiceProvider($this));
 
-		$this->registerRoutingProvider();
-	}
-
-	/**
-	 * Register the routing service provider.
-	 *
-	 * @return void
-	 */
-	protected function registerRoutingProvider()
-	{
 		$this->register(new RoutingServiceProvider($this));
 	}
 
 	/**
-	 * Register the event service provider.
+	 * Run the given array of bootstrap classes.
 	 *
+	 * @param  array  $bootstrappers
 	 * @return void
 	 */
-	protected function registerEventProvider()
+	public function bootstrapWith(array $bootstrappers)
 	{
-		$this->register(new EventServiceProvider($this));
+		$this->hasBeenBootstrapped = true;
+
+		foreach ($bootstrappers as $bootstrapper) {
+			$this->make($bootstrapper)->bootstrap($this);
+		}
+	}
+
+	/**
+	 * Determine if the application has been bootstrapped before.
+	 *
+	 * @return bool
+	 */
+	public function hasBeenBootstrapped()
+	{
+		return $this->hasBeenBootstrapped;
 	}
 
 	/**
