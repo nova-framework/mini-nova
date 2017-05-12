@@ -3,7 +3,6 @@
  * Users - A Controller for managing the Users Authentication.
  *
  * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
  */
 
 namespace App\Controllers\Admin;
@@ -147,7 +146,7 @@ class Users extends BackendController
 	{
 		$langInfo = Language::info();
 
-		return $this->view()
+		return $this->getView()
 			->shares('title', __('Users'))
 			->with('langInfo', $langInfo);
 	}
@@ -157,7 +156,7 @@ class Users extends BackendController
 		// Get all available User Roles.
 		$roles = Role::all();
 
-		return $this->view()
+		return $this->getView()
 			->shares('title', __('Create User'))
 			->with('roles', $roles);
 	}
@@ -212,7 +211,7 @@ class Users extends BackendController
 			return Redirect::to('admin/users')->with('warning', $status);
 		}
 
-		return $this->view()
+		return $this->getView()
 			->shares('title', __('Show User'))
 			->with('user', $user);
 	}
@@ -232,7 +231,7 @@ class Users extends BackendController
 		// Get all available User Roles.
 		$roles = Role::all();
 
-		return $this->view()
+		return $this->getView()
 			->shares('title', __('Edit User'))
 			->with('roles', $roles)
 			->with('user', $user);

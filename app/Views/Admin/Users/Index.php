@@ -34,7 +34,7 @@ tfoot input {
 <?= View::fetch('Partials/Messages'); ?>
 
 <div class="row">
-	<table id='usersTable' class='table table-stripped table-hover responsive' style="width: 100%;">
+	<table id='usersTable' class='table table-striped table-hover responsive' style="width: 100%;">
 		<thead>
 			<tr>
 				<th width='5%'><?= __('ID'); ?></th>

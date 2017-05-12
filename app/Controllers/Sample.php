@@ -36,7 +36,7 @@ class Sample extends BaseController
 
 	public function index($name = null, $slug = null)
 	{
-		return $this->view()
+		return $this->getView()
 			->shares('title', 'Sample')
 			->with('name', $name)
 			->with('slug', $slug);

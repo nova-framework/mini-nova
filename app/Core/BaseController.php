@@ -83,7 +83,7 @@ class BaseController extends Controller
 	 * @return \Nova\View\View
 	 * @throws \BadMethodCallException
 	 */
-	protected function view(array $data = array())
+	protected function getView(array $data = array())
 	{
 		list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
