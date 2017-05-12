@@ -7,9 +7,9 @@
 	</ol>
 </div>
 
-<!-- Main content -->
 <?= View::fetch('Partials/Messages'); ?>
 
+<!-- Main content -->
 <div class="row">
 	<h4><?= __('User Account : <b>{0}</b>', $user->username); ?></h4>
 
