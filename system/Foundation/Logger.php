@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Log;
+namespace Mini\Foundation;
 
 use Mini\Events\DispatcherInterface;
 use Mini\Support\Contracts\JsonableInterface as Jsonable;
@@ -20,7 +20,7 @@ use RuntimeException;
 use InvalidArgumentException;
 
 
-class Writer implements PsrLoggerInterface
+class Logger implements PsrLoggerInterface
 {
 	/**
 	 * The Monolog logger instance.
