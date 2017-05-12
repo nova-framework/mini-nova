@@ -11,10 +11,6 @@
 <!-- Main content -->
 <style>
 
-#rolesTable td {
-	padding: 5px;
-}
-
 #rolesTable_paginate .pagination {
 	margin: 5px 0 -3px;
 }

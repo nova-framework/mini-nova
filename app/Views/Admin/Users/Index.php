@@ -2,7 +2,6 @@
 
 #usersTable td {
 	vertical-align: middle;
-	padding: 5px;
 }
 
 #usersTable_paginate .pagination {
