@@ -42,13 +42,13 @@ class Logger implements PsrLoggerInterface
 	 * @var array
 	 */
 	protected $levels = [
-		'debug'	 => MonologLogger::DEBUG,
-		'info'	  => MonologLogger::INFO,
+		'debug'	 	=> MonologLogger::DEBUG,
+		'info'	  	=> MonologLogger::INFO,
 		'notice'	=> MonologLogger::NOTICE,
 		'warning'   => MonologLogger::WARNING,
-		'error'	 => MonologLogger::ERROR,
+		'error'	 	=> MonologLogger::ERROR,
 		'critical'  => MonologLogger::CRITICAL,
-		'alert'	 => MonologLogger::ALERT,
+		'alert'	 	=> MonologLogger::ALERT,
 		'emergency' => MonologLogger::EMERGENCY,
 	];
 
@@ -244,7 +244,7 @@ class Logger implements PsrLoggerInterface
 	 * @param  string  $level
 	 * @return \Psr\Log\LoggerInterface
 	 */
-	public function useSyslog($name = 'mini-me', $level = 'debug')
+	public function useSyslog($name = 'mini-nova', $level = 'debug')
 	{
 		return $this->monolog->pushHandler(new SyslogHandler($name, LOG_USER, $level));
 	}
@@ -279,7 +279,7 @@ class Logger implements PsrLoggerInterface
 			throw new RuntimeException('Events dispatcher has not been set.');
 		}
 
-		$this->dispatcher->listen('mini-me.log', $callback);
+		$this->dispatcher->listen('framework.log', $callback);
 	}
 
 	/**
@@ -293,7 +293,7 @@ class Logger implements PsrLoggerInterface
 	protected function fireLogEvent($level, $message, array $context = array())
 	{
 		if (isset($this->dispatcher)) {
-			$this->dispatcher->fire('mini-me.log', compact('level', 'message', 'context'));
+			$this->dispatcher->fire('framework.log', compact('level', 'message', 'context'));
 		}
 	}
 
