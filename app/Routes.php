@@ -20,6 +20,9 @@ $router->any('/', function()
 // The Adminstration Routes.
 $router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($router)
 {
+	// The User's Dashboard
+	$router->get('dashboard',				array('middleware' => 'auth', 'uses' => 'Dashboard@index'));
+
 	// The User's Profile.
 	//$router->get( 'profile',				array('middleware' => 'auth', 'uses' => 'Profile@index'));
 	//$router->post('profile',				array('middleware' => 'auth', 'uses' => 'Profile@update'));
@@ -36,7 +39,7 @@ $router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($rou
 	$router->post('users/{id}',				array('middleware' => 'auth', 'uses' => 'Users@update'));
 	$router->post('users/{id}/destroy',		array('middleware' => 'auth', 'uses' => 'Users@destroy'));
 
-/*
+
 	// Server Side Processor for Roles DataTable.
 	$router->post('roles/data', 			array('middleware' => 'auth', 'uses' => 'Roles@data'));
 
@@ -48,7 +51,6 @@ $router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($rou
 	$router->get( 'roles/{id}/edit',		array('middleware' => 'auth', 'uses' => 'Roles@edit'));
 	$router->post('roles/{id}',				array('middleware' => 'auth', 'uses' => 'Roles@update'));
 	$router->post('roles/{id}/destroy',		array('middleware' => 'auth', 'uses' => 'Roles@destroy'));
-*/
 });
 
 $router->group(array('prefix' => 'sample'), function ($router)
