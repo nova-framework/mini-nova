@@ -46,11 +46,9 @@
 					<ul class="dropdown-menu" role="menu">
 						<li>
 							<a href="<?= site_url('auth/logout'); ?>"
-							   onclick="event.preventDefault();
-										document.getElementById('logout-form').submit();">
+								onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
 								<?= __('Logout'); ?>
 							</a>
-
 							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;">
 								<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
 							</form>
