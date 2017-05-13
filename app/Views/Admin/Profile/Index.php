@@ -2,7 +2,6 @@
 	<h1><?= __('User Profile : <b>{0}</b>', $user->username); ?></h1>
 	<ol class="breadcrumb">
 		<li><a href='<?= site_url('users/dashboard'); ?>'><?= __('Dashboard'); ?></a></li>
-		<li><a href='<?= site_url('admin/users'); ?>'><?= __('Users'); ?></a></li>
 		<li><?= __('User Profile'); ?></li>
 	</ol>
 </div>
