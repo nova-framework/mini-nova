@@ -113,8 +113,7 @@ class Store implements SessionInterface
 	{
 		$this->attributes = $this->readFromHandler();
 
-		foreach (array_merge($this->bags, array($this->metaBag)) as $bag)
-		{
+		foreach (array_merge($this->bags, array($this->metaBag)) as $bag) {
 			$this->initializeLocalBag($bag);
 
 			$bag->initialize($this->bagData[$bag->getStorageKey()]);
