@@ -38,7 +38,7 @@ return array(
 		),
 		'api' => array(
 			'driver' => 'token',
-			'model'  => 'App\Models\User',
+			'table'  => 'users',
 		),
 	),
 

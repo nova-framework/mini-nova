@@ -159,10 +159,9 @@ class AuthManager
 	 */
 	public function createTokenDriver($name, $config)
 	{
-		$guard = new TokenGuard(
-			$config['model'],
-			$this->app['request']
-		);
+        $connection = $this->app['db']->connection();
+
+		$guard = new TokenGuard($connection, $this->app['request'], $config['table']);
 
 		$this->app->refresh('request', $guard, 'setRequest');
 
