@@ -139,6 +139,10 @@ class AuthManager
 			$guard->setDispatcher($this->app['events']);
 		}
 
+		if (method_exists($guard, 'setEncrypter')) {
+			$guard->setEncrypter($this->app['encrypter']);
+		}
+
 		if (method_exists($guard, 'setRequest')) {
 			$guard->setRequest($this->app->refresh('request', $guard, 'setRequest'));
 		}

@@ -10,6 +10,9 @@ namespace Mini\Auth;
 use Mini\Auth\GuardInterface;
 use Mini\Auth\GuardTrait;
 use Mini\Cookie\CookieJar;
+use Mini\Encryption\DecryptException;
+use Mini\Encryption\Encrypter;
+use Mini\Encryption\EncryptException;
 use Mini\Events\Dispatcher;
 use Mini\Hashing\HasherInterface;
 use Mini\Http\Request;
@@ -63,7 +66,7 @@ class SessionGuard implements GuardInterface
 	 *
 	 * @var \Mini\Cookie\CookieJar
 	 */
-	protected $cookieJar;
+	protected $cookie;
 
 	/**
 	 * The request instance.
@@ -78,6 +81,13 @@ class SessionGuard implements GuardInterface
 	 * @var \Mini\Hashing\HasherInterface
 	 */
 	protected $hasher;
+
+	/**
+	 * The Nova encrypter service.
+	 *
+	 * @var \Mini\Encryption\Encrypter
+	 */
+	protected $encrypter;
 
 	/**
 	 * The event dispatcher instance.
@@ -306,9 +316,9 @@ class SessionGuard implements GuardInterface
 		$this->session->forget($this->getName());
 
 		// Create and queue a Forget Cookie.
-		$cookie = $this->cookieJar->forget($this->getRecallerName());
+		$cookie = $this->getCookieJar()->forget($this->getRecallerName());
 
-		$this->cookieJar->queue($cookie);
+		$this->getCookieJar()->queue($cookie);
 
 		// Reset the instance information.
 		$this->user = null;
@@ -420,9 +430,15 @@ class SessionGuard implements GuardInterface
 	{
 		$value = $user->getAuthIdentifier() .'|' .$user->getRememberToken();
 
-		$cookie = $this->cookieJar->forever($this->getRecallerName(), $value);
+		try {
+			$value = $this->getEncrypter()->encrypt($value);
+		} catch (EncryptException $e) {
+			return;
+		}
 
-		$this->cookieJar->queue($cookie);
+		$cookie = $this->getCookieJar()->forever($this->getRecallerName(), $value);
+
+		$this->getCookieJar()->queue($cookie);
 	}
 
 	/**
@@ -468,9 +484,17 @@ class SessionGuard implements GuardInterface
 	 */
 	protected function getRecaller()
 	{
-		$name = $this->getRecallerName();
+		$cookie = $this->request->cookies->get($this->getRecallerName());
 
-		return $this->request->cookies->get($name);
+		if (is_null($cookie)) {
+			return;
+		}
+
+		try {
+			return $this->getEncrypter()->decrypt($cookie);
+		} catch (DecryptException $e) {
+			//
+		}
 	}
 
 	/**
@@ -519,22 +543,49 @@ class SessionGuard implements GuardInterface
 	 */
 	public function getCookieJar()
 	{
-		if (! isset($this->cookieJar)) {
+		if (! isset($this->cookie)) {
 			throw new \RuntimeException("Cookie jar has not been set.");
 		}
 
-		return $this->cookieJar;
+		return $this->cookie;
 	}
 
 	/**
 	 * Set the cookie creator instance used by the guard.
 	 *
-	 * @param  \Cookie\CookieJar  $cookie
+	 * @param  \Mini\Cookie\CookieJar  $cookie
 	 * @return void
 	 */
 	public function setCookieJar(CookieJar $cookie)
 	{
-		$this->cookieJar = $cookie;
+		$this->cookie = $cookie;
+	}
+
+	/**
+	 * Get the encrypter instance used by the guard.
+	 *
+	 * @return \Mini\Encryption\Encrypter
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function getEncrypter()
+	{
+		if (! isset($this->encrypter)) {
+			throw new \RuntimeException("Encrypter has not been set.");
+		}
+
+		return $this->encrypter;
+	}
+
+	/**
+	 * Set the encrypter instance used by the guard.
+	 *
+	 * @param  \Mini\Encryption\Encrypter  $encrypter
+	 * @return void
+	 */
+	public function setEncrypter(Encrypter $encrypter)
+	{
+		$this->encrypter = $encrypter;
 	}
 
 	/**

@@ -43,7 +43,7 @@ class Authorize extends BackendController
 		$credentials = Input::only('username', 'password');
 
 		// Prepare the 'remember' parameter.
-		$remember = (Input::get('remember') == 'on');
+		$remember = (Input::get('remember') == 'remember');
 
 		// Make an attempt to login the Guest with the given credentials.
 		if(! Auth::attempt($credentials, $remember)) {
