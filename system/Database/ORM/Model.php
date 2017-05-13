@@ -659,6 +659,18 @@ class Model implements ArrayAccess, ArrayableInterface, JsonableInterface, JsonS
 	}
 
 	/**
+	 * Update the model's update timestamp.
+	 *
+	 * @return bool
+	 */
+	public function touch()
+	{
+		$this->updateTimestamps();
+
+		return $this->save();
+	}
+	
+	/**
 	 * Update the creation and update timestamps.
 	 *
 	 * @return void

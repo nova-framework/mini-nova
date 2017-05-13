@@ -2,10 +2,13 @@
 
 namespace App\Core;
 
-use Mini\Http\Response;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
+use Mini\Support\Facades\Redirect;
+use Mini\Support\Facades\Request;
+use Mini\Support\Facades\Response;
 use Mini\Support\Facades\View;
+use Mini\Validation\ValidationException;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -42,10 +45,13 @@ class BaseController extends Controller
 	 */
 	public function callAction($method, array $parameters = array())
 	{
-		$response = $this->before();
+		$this->before();
 
-		if (is_null($response)) {
+		try {
 			$response = call_user_func_array(array($this, $method), $parameters);
+		}
+		catch (ValidationException $exception) {
+			$response = $this->handleValidationException($exception);
 		}
 
 		return $this->after($response);
@@ -69,12 +75,27 @@ class BaseController extends Controller
 				$content = $response->render();
 			}
 
-			return new Response($content);
+			return Response::make($content);
 		} else if (! $response instanceof SymfonyResponse) {
-			$response = new Response($response);
+			return Response::make($response);
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Handle a ValidationException instance.
+	 *
+	 * @param \Mini\Validation\ValidationException $exception
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function handleValidationException(ValidationException $exception)
+	{
+		if(Request::ajax() || Request::wantsJson()) {
+			return Response::json(array('errors' => $exception->errors()), 422);
+		}
+
+		return Redirect::back()->withInput()->withErrors($exception->errors());
 	}
 
 	/**

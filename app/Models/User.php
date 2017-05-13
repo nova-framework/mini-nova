@@ -25,4 +25,13 @@ class User extends BaseModel implements UserInterface
 	{
 		return $this->belongsTo('App\Models\Role', 'role_id', 'id', 'role');
 	}
+
+	public function messages()
+	{
+		return $this->hasMany('App\Models\Message', 'sender_id', 'id');
+	}
+
+	public function name() {
+		return trim($this->first_name .' ' .$this->last_name);
+	}
 }

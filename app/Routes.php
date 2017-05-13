@@ -43,12 +43,21 @@ $router->post('auth/logout', array('middleware' => 'auth',  'uses' => 'Authorize
 $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' => 'Admin'), function($router)
 {
 	// The User's Dashboard
-	$router->get('/',					'Dashboard@index');
-	$router->get('dashboard',			'Dashboard@index');
+	$router->get('/',			'Dashboard@index');
+	$router->get('dashboard',	'Dashboard@index');
 
 	// The User's Profile.
-	$router->get( 'profile',			'Profile@index');
-	$router->post('profile',			'Profile@update');
+	$router->get( 'profile',	'Profile@index');
+	$router->post('profile',	'Profile@update');
+
+	// The User's Messages.
+	$router->get( 'messages',					'Messages@index');
+	$router->get( 'messages/create', 			'Messages@create');
+	$router->post('messages',					'Messages@store');
+	$router->get( 'messages/{threadId}',		'Messages@show');
+	//$router->post('messages/{postId}/destroy',	'Messages@destroy');
+
+	$router->post('messages/{threadId}',		'Messages@reply');
 
 	// Server Side Processor for Users DataTable.
 	$router->post('users/data',			'Users@data');

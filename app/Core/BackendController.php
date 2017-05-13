@@ -2,7 +2,11 @@
 
 namespace App\Core;
 
+use Mini\Support\Facades\Auth;
+use Mini\Support\Facades\View;
+
 use App\Core\BaseController;
+use App\Models\Message;
 
 
 class BackendController extends BaseController
@@ -14,6 +18,24 @@ class BackendController extends BaseController
 	 */
 	protected $layout = 'Backend';
 
+
+	/**
+	 * Method executed before any action.
+	 */
+	protected function before()
+	{
+		if (! Auth::check()) {
+			// The User is not authenticated; nothing to do.
+			return;
+		}
+
+		$user = Auth::user();
+
+		//
+		$messages = Message::where('receiver_id', $user->id)->unread()->count();
+
+		View::share('privateMessageCount', $messages);
+	}
 
 	/**
 	 * Server Side Processor for DataTables.

@@ -44,6 +44,12 @@
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
+				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>
+					<a href="<?= site_url('admin/messages'); ?>">
+						<i class='fa fa-envelope'></i>  <span class="hidden-xs"><?= __('Messages'); ?></span>
+						<?php if (isset($privateMessageCount) && ($privateMessageCount > 0)) echo '<span class="label label-success">' .$privateMessageCount .'</span>'; ?>
+					</a>
+				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 						<i class='fa fa-language'></i> <?= Language::name() ?>
