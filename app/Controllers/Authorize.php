@@ -18,7 +18,7 @@ use App\Core\BackendController;
 
 class Authorize extends BackendController
 {
-	protected $layout = 'Default';
+	protected $layout = 'Authorize';
 
 
 	/**

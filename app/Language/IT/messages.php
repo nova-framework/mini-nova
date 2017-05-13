@@ -11,6 +11,7 @@ return array (
   'Change Password' => '',
   'Choose a Role' => '',
   'Confirm Password' => '',
+  'Control Panel' => '',
   'Create Role' => '',
   'Create User' => '',
   'Create a new Role' => '',

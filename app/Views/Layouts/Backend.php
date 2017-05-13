@@ -27,7 +27,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> Control Panel</a>
+			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <?= __('Control Panel'); ?></a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
