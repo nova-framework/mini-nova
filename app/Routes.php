@@ -17,6 +17,23 @@ $router->any('/', function()
 	return View::make('Layouts/Default')->with('content', $view);
 });
 
+// The Language Changer.
+$router->get('language/{language}', array('middleware' => 'referer', function($language)
+{
+	$languages = Config::get('languages');
+
+	if (in_array($language, array_keys($languages))) {
+		Session::set('language', $language);
+
+		// Store also the current Language in a Cookie lasting five years.
+		Cookie::queue(PREFIX .'language', $language, 2628000);
+	}
+
+	return Redirect::back();
+
+}))->where('language', '([a-z]{2})');
+
+
 // The default Auth Routes.
 $router->get( 'auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@login'));
 $router->post('auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@postLogin'));

@@ -1,14 +1,17 @@
 <?php
 
-
-// A sample Middleware.
-Route::middleware('test', function($request, Closure $next)
+// Route Middleware for checking the Request's referrer.
+Route::middleware('referer', function($request, Closure $next)
 {
-	//echo '<pre>' .var_export($request, true) .'</pre>';
-	echo '<pre style="margin: 10px;">BEFORE, on the Routing\'s [test] Middleware!</pre>';
+	$referrer = $request->header('referer');
+
+	if (! Str::startsWith($referrer, Config::get('app.url'))) {
+		return Redirect::back();
+	}
 
 	return $next($request);
 });
+
 
 // Add a Listener Closure to the Event 'router.matched'.
 Event::listen('router.matched', function($route, $request)
