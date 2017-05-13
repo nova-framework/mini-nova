@@ -1,53 +1,56 @@
 <?php
 
-/** Define Route Middleware. */
+//--------------------------------------------------------------------------
+// Load The Options
+//--------------------------------------------------------------------------
 
-/**
- * Permit the access only to Administrators.
- */
-Route::middleware('admin', function($request, Closure $next, $guard = null)
-{
-    $guard = $guard ?: Config::get('auth.default', 'web');
+use App\Models\Option;
 
-    $user = Auth::guard($guard)->user();
+if (CONFIG_STORE === 'database') {
+    // Retrieve the Option items, caching them for 24 hours.
+    $options = Cache::remember('system_options', 1440, function()
+    {
+        return Option::all();
+    });
 
-    if (! is_null($user) && ! $user->hasRole('administrator')) {
-        if ($request->ajax() || $request->wantsJson()) {
-            // On an AJAX Request; just return Error 403 (Access denied)
-            return Response::make('Forbidden', 403);
+    foreach ($options as $option) {
+        $key = $option->group;
+
+        if (! empty($option->item)) {
+            $key .= '.' .$option->item;
         }
 
-        $uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
-
-        $status = __('You are not authorized to access this resource.');
-
-        return Redirect::to($uri)->with('warning', $status);
+        Config::set($key, $option->value);
     }
+} else if(CONFIG_STORE !== 'files') {
+    throw new InvalidArgumentException('Invalid Config Store type.');
+}
 
-    return $next($request);
-});
+//--------------------------------------------------------------------------
+// Additional Middlewares And Event Listeners
+//--------------------------------------------------------------------------
 
 /**
  * Role-based Authorization Middleware.
  */
 Route::middleware('role', function($request, Closure $next, $role)
 {
-    $roles = array_slice(func_get_args(), 2);
+	$roles = array_slice(func_get_args(), 2);
 
-    //
-    $guard = Config::get('auth.default', 'web');
+	//
+	$guard = Config::get('auth.default', 'web');
 
-    $user = Auth::guard($guard)->user();
+	$user = Auth::guard($guard)->user();
 
-    if (! is_null($user) && ! $user->hasRole($roles)) {
-        $uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
+	if (! is_null($user) && ! $user->hasRole($roles)) {
+		$uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
 
-        $status = __('You are not authorized to access this resource.');
+		$status = __('You are not authorized to access this resource.');
 
-        return Redirect::to($uri)->with('warning', $status);
-    }
+		return Redirect::to($uri)->with('warning', $status);
+	}
 
-    return $next($request);
+	return $next($request);
 });
 
 /**

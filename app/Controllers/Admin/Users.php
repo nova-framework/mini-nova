@@ -19,20 +19,19 @@ use Mini\Support\Facades\Session;
 use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
-use App\Core\BackendController;
-
+use App\Controllers\Admin\BaseController;
 use App\Models\User;
 use App\Models\Role;
 
 use Carbon\Carbon;
 
 
-class Users extends BackendController
+class Users extends BaseController
 {
 
 	public function __construct()
 	{
-		$this->middleware('admin');
+		$this->middleware('role:administrator');
 	}
 
 	protected function validator(array $data, $id = null)

@@ -15,17 +15,16 @@ use Mini\Support\Facades\Response;
 use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
-use App\Core\BackendController;
-
+use App\Controllers\Admin\BaseController;
 use App\Models\Role;
 
 
-class Roles extends BackendController
+class Roles extends BaseController
 {
 
 	public function __construct()
 	{
-		$this->middleware('admin');
+		$this->middleware('role:administrator');
 	}
 
 	protected function validator(array $data, $id = null)

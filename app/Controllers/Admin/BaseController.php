@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Core;
+namespace App\Controllers\Admin;
 
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\View;
 
-use App\Core\BaseController;
+use App\Controllers\BaseController as Controller;
 use App\Models\Message;
 
 
-class BackendController extends BaseController
+class BaseController extends Controller
 {
 	/**
 	 * The currently used Layout.

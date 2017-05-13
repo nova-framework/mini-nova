@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core;
+namespace App\Controllers;
 
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
