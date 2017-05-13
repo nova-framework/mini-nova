@@ -203,7 +203,7 @@ return array(
 		'File'			=> 'Mini\Support\Facades\File',
 		'Hash'			=> 'Mini\Support\Facades\Hash',
 		'Input'			=> 'Mini\Support\Facades\Input',
-		'Langauge'		=> 'Mini\Support\Facades\Language',
+		'Language'		=> 'Mini\Support\Facades\Language',
 		'Log'			=> 'Mini\Support\Facades\Log',
 		'Mail'			=> 'Mini\Support\Facades\Mail',
 		'Paginator'		=> 'Mini\Support\Facades\Paginator',

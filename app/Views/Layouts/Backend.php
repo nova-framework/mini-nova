@@ -34,20 +34,21 @@
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav">
 				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('admin/dashboard'); ?>"><?= __('Dashboard'); ?></a>
+					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __('Dashboard'); ?></a>
 				</li>
 				<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('admin/roles'); ?>"><?= __('Roles'); ?></a>
+					<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-gears'></i> <?= __('Roles'); ?></a>
 				</li>
 				<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('admin/users'); ?>"><?= __('Users'); ?></a>
+					<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-users'></i> <?= __('Users'); ?></a>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
+				<?= View::fetch('Partials/LanguageChanger'); ?>
 				<!-- Authentication Links -->
 				<li class="dropdown <?= ($baseUri == 'admin/profile') ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-						<?= Auth::user()->username ?> <span class="caret"></span>
+						<i class='fa fa-user'></i> <?= Auth::user()->username ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
