@@ -125,7 +125,7 @@ class TokenGuard implements GuardInterface
 	{
 		$model = '\\' .ltrim($this->model, '\\');
 
-		return (new $model)->newQuery()
+		return with(new $model)->newQuery()
 			->where($this->storageKey, $token)
 			->first();
 	}
