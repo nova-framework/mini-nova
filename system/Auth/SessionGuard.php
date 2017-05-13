@@ -260,7 +260,7 @@ class SessionGuard implements GuardInterface
 
 		$plain = $credentials['password'];
 
-		return $this->hasher->verify($plain, $user->getAuthPassword());
+		return $this->hasher->check($plain, $user->getAuthPassword());
 	}
 
 	/**

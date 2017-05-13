@@ -34,12 +34,28 @@
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav">
 				<li>
-					<a href="#">Dashboard</a>
+					<a href="<?= site_url('admin/dashboard'); ?>"><?= __('Dashboard'); ?></a>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
-				<li>
-					<a href="#">Profile</a>
+				<!-- Authentication Links -->
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+						<?= Auth::user()->username ?> <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li>
+							<a href="<?= site_url('auth/logout'); ?>"
+							   onclick="event.preventDefault();
+										document.getElementById('logout-form').submit();">
+								<?= __('Logout'); ?>
+							</a>
+
+							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;">
+								<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
+							</form>
+						</li>
+					</ul>
 				</li>
 			</ul>
 		</div>

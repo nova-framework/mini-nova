@@ -1,6 +1,6 @@
 <?php
 
-namespace Nova\Auth;
+namespace Mini\Auth;
 
 interface UserInterface
 {

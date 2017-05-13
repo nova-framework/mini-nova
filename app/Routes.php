@@ -17,14 +17,10 @@ $router->any('/', function()
 	return View::make('Layouts/Default')->with('content', $view);
 });
 
-$router->any('auth/login', array('middleware' => 'guest', 'uses' => function()
-{
-	$view = View::make('Default')
-		->shares('title', 'Login')
-		->with('content', 'There will be dragons.');
-
-	return View::make('Layouts/Default')->with('content', $view);
-}));
+// The default Auth Routes.
+$router->get( 'auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@login'));
+$router->post('auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@postLogin'));
+$router->post('auth/logout', array('middleware' => 'auth',  'uses' => 'Authorize@logout'));
 
 // The Adminstration Routes.
 $router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($router)
