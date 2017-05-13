@@ -31,6 +31,8 @@ class BackendController extends BaseController
 
 		$user = Auth::user();
 
+		View::share('currentUser', $user);
+
 		//
 		$messages = Message::where('receiver_id', $user->id)->unread()->count();
 

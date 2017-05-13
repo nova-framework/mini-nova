@@ -26,6 +26,26 @@ class User extends BaseModel implements UserInterface
 		return $this->belongsTo('App\Models\Role', 'role_id', 'id', 'role');
 	}
 
+	public function hasRole($roles, $strict = false)
+	{
+		$this->load('role');
+
+		$slug = strtolower($this->role->slug);
+
+		// Check if the User has a Root role.
+		if (($slug === 'root') && ! $strict) {
+			return true;
+		}
+
+		foreach ((array) $roles as $role) {
+			if (strtolower($role) == $role) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function messages()
 	{
 		return $this->hasMany('App\Models\Message', 'sender_id', 'id');

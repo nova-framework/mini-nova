@@ -1,6 +1,58 @@
 <?php
 
-// Route Middleware for checking the Request's referrer.
+/** Define Route Middleware. */
+
+/**
+ * Permit the access only to Administrators.
+ */
+Route::middleware('admin', function($request, Closure $next, $guard = null)
+{
+    $guard = $guard ?: Config::get('auth.default', 'web');
+
+    $user = Auth::guard($guard)->user();
+
+    if (! is_null($user) && ! $user->hasRole('administrator')) {
+        if ($request->ajax() || $request->wantsJson()) {
+            // On an AJAX Request; just return Error 403 (Access denied)
+            return Response::make('Forbidden', 403);
+        }
+
+        $uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
+
+        $status = __('You are not authorized to access this resource.');
+
+        return Redirect::to($uri)->with('warning', $status);
+    }
+
+    return $next($request);
+});
+
+/**
+ * Role-based Authorization Middleware.
+ */
+Route::middleware('role', function($request, Closure $next, $role)
+{
+    $roles = array_slice(func_get_args(), 2);
+
+    //
+    $guard = Config::get('auth.default', 'web');
+
+    $user = Auth::guard($guard)->user();
+
+    if (! is_null($user) && ! $user->hasRole($roles)) {
+        $uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
+
+        $status = __('You are not authorized to access this resource.');
+
+        return Redirect::to($uri)->with('warning', $status);
+    }
+
+    return $next($request);
+});
+
+/**
+ * Request's Referer Middleware.
+*/
 Route::middleware('referer', function($request, Closure $next)
 {
 	$referrer = $request->header('referer');

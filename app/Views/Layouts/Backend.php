@@ -36,12 +36,24 @@
 				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?>>
 					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __('Dashboard'); ?></a>
 				</li>
-				<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-gears'></i> <?= __('Roles'); ?></a>
+				<?php if ($currentUser->hasRole('administrator')) { ?>
+				<li class="dropdown <?= (($baseUri == 'admin/settings') || ($baseUri == 'admin/roles')) ? 'active' : ''; ?>">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+						<i class='fa fa-server'></i> <?= __('Platform'); ?> <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li <?= ($baseUri == 'admin/settings') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-gears'></i> <?= __('Settings'); ?></a>
+						</li>
+						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-users'></i> <?= __('User Roles'); ?></a>
+						</li>
+					</ul>
 				</li>
 				<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
 					<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-users'></i> <?= __('Users'); ?></a>
 				</li>
+				<?php } ?>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
 				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>

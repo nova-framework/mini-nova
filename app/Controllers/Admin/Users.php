@@ -32,7 +32,7 @@ class Users extends BackendController
 
 	public function __construct()
 	{
-		//$this->middleware('admin');
+		$this->middleware('admin');
 	}
 
 	protected function validator(array $data, $id = null)

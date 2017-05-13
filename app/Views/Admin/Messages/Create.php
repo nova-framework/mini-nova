@@ -65,6 +65,6 @@
 
 <div class="row">
 	<hr>
-	<a class='btn btn-primary' href='<?= site_url('messages'); ?>'><?= __('<< Previous Page'); ?></a>
+	<a class='btn btn-primary' href='<?= site_url('admin/messages'); ?>'><?= __('<< Previous Page'); ?></a>
 	<br>
 </div>
