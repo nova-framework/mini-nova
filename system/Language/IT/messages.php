@@ -47,4 +47,5 @@ return array (
   'The :attribute must have at least :min items.' => ':attribute deve contenere almeno :min elementi.',
   'The :attribute must have between :min and :max items.' => ':attribute deve contenere un numero di elementi compreso tra :min e :max.',
   'The selected :attribute is invalid.' => ':attribute non è valido.',
+  'This action is unauthorized.' => '',
 );

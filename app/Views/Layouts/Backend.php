@@ -33,23 +33,27 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav">
-				<li>
+				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?>>
 					<a href="<?= site_url('admin/dashboard'); ?>"><?= __('Dashboard'); ?></a>
 				</li>
-				<li>
+				<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
 					<a href="<?= site_url('admin/roles'); ?>"><?= __('Roles'); ?></a>
 				</li>
-				<li>
+				<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
 					<a href="<?= site_url('admin/users'); ?>"><?= __('Users'); ?></a>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
 				<!-- Authentication Links -->
-				<li class="dropdown">
+				<li class="dropdown <?= ($baseUri == 'admin/profile') ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 						<?= Auth::user()->username ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
+						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/profile'); ?>"><?= __('Profile'); ?></a>
+						</li>
+						<li role="separator" class="divider"></li>
 						<li>
 							<a href="<?= site_url('auth/logout'); ?>"
 								onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

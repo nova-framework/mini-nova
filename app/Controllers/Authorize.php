@@ -83,10 +83,7 @@ class Authorize extends BackendController
 	{
 		Auth::logout();
 
-		// Prepare the flash message.
-		$status = __('You have successfully logged out.');
-
-		return Redirect::to('auth/login')->with('success', $status);
+		return Redirect::to('auth/login');
 	}
 
 }
