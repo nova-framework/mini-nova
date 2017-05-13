@@ -40,11 +40,11 @@ class Language
 	/**
 	 * The current Language information.
 	 */
-	private $code	  = 'en';
-	private $info	  = 'English';
-	private $name	  = 'English';
-	private $locale	= 'en-US';
-	private $direction = 'ltr';
+	private $code		= 'en';
+	private $info		= 'English';
+	private $name		= 'English';
+	private $locale		= 'en-US';
+	private $direction	= 'ltr';
 
 
 	/**
@@ -64,10 +64,10 @@ class Language
 			$this->code = $code;
 
 			//
-			$this->info	  = $info['info'];
-			$this->name	  = $info['name'];
-			$this->locale	= $info['locale'];
-			$this->direction = $info['dir'];
+			$this->info			= $info['info'];
+			$this->name			= $info['name'];
+			$this->locale		= $info['locale'];
+			$this->direction	= $info['dir'];
 		} else {
 			$code = 'en';
 		}
