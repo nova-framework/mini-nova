@@ -2,6 +2,7 @@
 
 namespace Mini\Auth;
 
+use Mini\Auth\GenericUser;
 use Mini\Auth\GuardInterface;
 use Mini\Auth\GuardTrait;
 use Mini\Database\Connection;
@@ -12,12 +13,12 @@ class TokenGuard implements GuardInterface
 {
 	use GuardTrait;
 
-    /**
-     * The active database connection.
-     *
-     * @var \Mini\Database\Connection
-     */
-    protected $connection;
+	/**
+	 * The active database connection.
+	 *
+	 * @var \Mini\Database\Connection
+	 */
+	protected $connection;
 
 	/**
 	 * The table containing the users.
@@ -51,7 +52,7 @@ class TokenGuard implements GuardInterface
 	/**
 	 * Create a new authentication guard.
 	 *
-     * @param  \Mini\Database\Connection  $connection
+	 * @param  \Mini\Database\Connection  $connection
 	 * @param  \Mini\Http\Request  $request
 	 * @param  string  $table
 	 * @return void
@@ -59,8 +60,8 @@ class TokenGuard implements GuardInterface
 	public function __construct(Connection $connection, Request $request, $table)
 	{
 		$this->connection = $connection;
-		$this->request    = $request;
-		$this->table      = $table;
+		$this->request	= $request;
+		$this->table	  = $table;
 
 		$this->inputKey   = 'api_token';
 		$this->storageKey = 'api_token';
@@ -133,9 +134,11 @@ class TokenGuard implements GuardInterface
 	 */
 	public function retrieveUserByToken($token)
 	{
-		return $this->newQuery()
-			->where($this->storageKey, $token)
-			->first();
+		$user = $this->newQuery()->where($this->storageKey, $token)->first();
+
+		if (! is_null($user)) {
+			return new GenericUser((array) $user);
+		}
 	}
 
 	/**
