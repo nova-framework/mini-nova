@@ -36,6 +36,12 @@
 				<li>
 					<a href="<?= site_url('admin/dashboard'); ?>"><?= __('Dashboard'); ?></a>
 				</li>
+				<li>
+					<a href="<?= site_url('admin/roles'); ?>"><?= __('Roles'); ?></a>
+				</li>
+				<li>
+					<a href="<?= site_url('admin/users'); ?>"><?= __('Users'); ?></a>
+				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
 				<!-- Authentication Links -->
