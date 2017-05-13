@@ -36,7 +36,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * The user we last attempted to retrieve.
 	 *
-	 * @var \Nova\Auth\UserInterface
+	 * @var \Mini\Auth\UserInterface
 	 */
 	protected $lastAttempted;
 
@@ -201,6 +201,98 @@ class SessionGuard implements GuardInterface
 	}
 
 	/**
+	 * Get a user by its recaller ID.
+	 *
+	 * @param  string $recaller
+	 * @return mixed
+	 */
+	protected function getUserByRecaller($recaller)
+	{
+		if ($this->validRecaller($recaller) && ! $this->tokenRetrievalAttempted) {
+			$this->tokenRetrievalAttempted = true;
+
+			list($id, $token) = explode('|', $recaller, 2);
+
+			$this->viaRemember = ! is_null($user = $this->retrieveUserByToken($id, $token));
+
+			return $user;
+		}
+	}
+
+	/**
+	 * Get the decrypted Recaller cookie.
+	 *
+	 * @return string|null
+	 */
+	protected function getRecaller()
+	{
+		$cookie = $this->request->cookies->get($this->getRecallerName());
+
+		return ! is_null($cookie) ? $this->decryptCookie($cookie) : null;
+	}
+
+	/**
+	 * Decrypt the given cookie and return the value.
+	 *
+	 * @param  string  $cookie
+	 * @return string|null
+	 */
+	protected function decryptCookie($cookie)
+	{
+		try {
+			return $this->getEncrypter()->decrypt($cookie);
+		} catch (DecryptException $e) {
+			//
+		}
+	}
+
+	/**
+	 * Get the user ID from the recaller Cookie.
+	 *
+	 * @return string
+	 */
+	protected function getRecallerId()
+	{
+		if ($this->validRecaller($recaller = $this->getRecaller())) {
+			return reset(explode('|', $recaller));
+		}
+	}
+
+	/**
+	 * Determine if the recaller Cookie is in a valid format.
+	 *
+	 * @param  string $recaller
+	 * @return bool
+	 */
+	protected function validRecaller($recaller)
+	{
+		if (is_string($recaller) && (strpos($recaller, '|') !== false)) {
+			$segments = explode('|', $recaller);
+
+			return (count($segments) == 2) && (trim($segments[0]) !== '') && (trim($segments[1]) !== '');
+		}
+
+		return false;
+	}
+
+	/**
+	 * Log a user into the application without sessions or cookies.
+	 *
+	 * @param  array  $credentials
+	 * @return bool
+	 */
+	public function once(array $credentials = array())
+	{
+		if ($this->validate($credentials)) {
+			$this->setUser($this->lastAttempted);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Attempt to authenticate a User, using the given credentials.
 	 *
 	 * @param  array $credentials
@@ -285,13 +377,14 @@ class SessionGuard implements GuardInterface
 		$this->updateSession($user->getAuthIdentifier());
 
 		if ($remember) {
+			// Create a new remember token for the user if one doesn't already exist.
 			$rememberToken = $user->getRememberToken();
 
 			if (empty($rememberToken)) {
 				$this->refreshRememberToken($user);
 			}
 
-			$this->setRecallerCookie($user);
+			$this->queueRecallerCookie($user);
 		}
 
 		if (isset($this->events)) {
@@ -302,28 +395,16 @@ class SessionGuard implements GuardInterface
 	}
 
 	/**
-	 * Log the user out.
+	 * Update the Session with the given ID.
 	 *
+	 * @param  string $id
 	 * @return void
 	 */
-	public function logout()
+	protected function updateSession($id)
 	{
-		if (! is_null($this->user)) {
-			$this->refreshRememberToken($this->user);
-		}
+		$this->session->put($this->getName(), $id);
 
-		// Destroy the Session and Cookie variables.
-		$this->session->forget($this->getName());
-
-		// Create and queue a Forget Cookie.
-		$cookie = $this->getCookieJar()->forget($this->getRecallerName());
-
-		$this->getCookieJar()->queue($cookie);
-
-		// Reset the instance information.
-		$this->user = null;
-
-		$this->loggedOut = true;
+		$this->session->migrate(true);
 	}
 
 	/**
@@ -331,13 +412,13 @@ class SessionGuard implements GuardInterface
 	 *
 	 * @param  mixed  $id
 	 * @param  bool   $remember
-	 * @return \Nova\Auth\UserInterface
+	 * @return \Mini\Auth\UserInterface
 	 */
 	public function loginUsingId($id, $remember = false)
 	{
 		$this->session->put($this->getName(), $id);
 
-		$user = $this->provider->retrieveById($id);
+		$user = $this->retrieveUserById($id);
 
 		$this->login($user, $remember);
 
@@ -345,50 +426,80 @@ class SessionGuard implements GuardInterface
 	}
 
 	/**
-	 * Retrieve a user by the given credentials.
+	 * Log the given user ID into the application without sessions or cookies.
 	 *
-	 * @param  array $credentials
-	 * @return \Nova\Auth\UserInterface|null
+	 * @param  mixed  $id
+	 * @return bool
 	 */
-	public function retrieveUser(array $credentials)
+	public function onceUsingId($id)
 	{
-		$query = $this->createModel()->newQuery();
+		$user = $this->retrieveUserById($id);
 
-		foreach ($credentials as $key => $value) {
-			if (! Str::contains($key, 'password')) {
-				$query->where($key, $value);
-			}
+		$this->setUser($user);
+
+		return ($user instanceof UserInterface);
+	}
+
+	/**
+	 * Set the recaller Cookie.
+	 *
+	 * @param  \Mini\Auth\UserInterface $user
+	 * @return void
+	 */
+	protected function queueRecallerCookie(UserInterface $user)
+	{
+		$value = $user->getAuthIdentifier() .'|' .$user->getRememberToken();
+
+		try {
+			$value = $this->getEncrypter()->encrypt($value);
+		} catch (EncryptException $e) {
+			return;
 		}
 
-		return $query->first();
+		$cookie = $this->createRecaller($value);
+
+		$this->getCookieJar()->queue($cookie);
 	}
 
 	/**
-	 * Retrieve a user by their unique identifier.
+	 * Create a remember me cookie for a given ID.
 	 *
-	 * @param  mixed  $identifier
-	 * @return \Nova\Auth\UserInterface|null
+	 * @param  string  $value
+	 * @return \Symfony\Component\HttpFoundation\Cookie
 	 */
-	public function retrieveUserById($identifier)
+	protected function createRecaller($value)
 	{
-		return $this->createModel()->newQuery()->find($identifier);
+		return $this->getCookieJar()->forever($this->getRecallerName(), $value);
 	}
 
 	/**
-	 * Retrieve a user by their unique identifier and "remember me" token.
+	 * Log the user out.
 	 *
-	 * @param  mixed  $identifier
-	 * @param  string  $token
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return void
 	 */
-	protected function retrieveUserByToken($identifier, $token)
+	public function logout()
 	{
-		$model = $this->createModel();
+		$user = $this->user();
 
-		return $model->newQuery()
-			->where($model->getKeyName(), $identifier)
-			->where($model->getRememberTokenName(), $token)
-			->first();
+		// Remove the user data from the session and cookies.
+		$this->session->forget($this->getName());
+
+		$cookies = $this->getCookieJar();
+
+		$cookies->queue($cookies->forget($this->getRecallerName()));
+
+		if (! is_null($user)) {
+			$this->refreshRememberToken($this->user);
+		}
+
+		if (isset($this->events)) {
+			$this->events->fire('auth.logout', array($user));
+		}
+
+		// Reset the instance information.
+		$this->user = null;
+
+		$this->loggedOut = true;
 	}
 
 	/**
@@ -408,111 +519,54 @@ class SessionGuard implements GuardInterface
 	}
 
 	/**
-	 * Update the Session with the given ID.
+	 * Retrieve a user by the given credentials.
 	 *
-	 * @param  string $id
-	 * @return void
+	 * @param  array $credentials
+	 * @return \Mini\Auth\UserInterface|null
 	 */
-	protected function updateSession($id)
+	public function retrieveUser(array $credentials)
 	{
-		$this->session->put($this->getName(), $id);
+		$query = $this->newQuery();
 
-		$this->session->migrate(true);
+		foreach ($credentials as $key => $value) {
+			if (! Str::contains($key, 'password')) {
+				$query->where($key, $value);
+			}
+		}
+
+		return $query->first();
 	}
 
 	/**
-	 * Set the recaller Cookie.
+	 * Retrieve a user by their unique identifier.
 	 *
-	 * @param  \Mini\Auth\UserInterface $user
-	 * @return void
+	 * @param  mixed  $identifier
+	 * @return \Mini\Auth\UserInterface|null
 	 */
-	protected function setRecallerCookie(UserInterface $user)
+	public function retrieveUserById($identifier)
 	{
-		$value = $user->getAuthIdentifier() .'|' .$user->getRememberToken();
-
-		try {
-			$value = $this->getEncrypter()->encrypt($value);
-		} catch (EncryptException $e) {
-			return;
-		}
-
-		$cookie = $this->getCookieJar()->forever($this->getRecallerName(), $value);
-
-		$this->getCookieJar()->queue($cookie);
+		return $this->newQuery()->find($identifier);
 	}
 
 	/**
-	 * Get a user by its recaller ID.
+	 * Retrieve a user by their unique identifier and "remember me" token.
 	 *
-	 * @param  string $recaller
-	 * @return mixed
+	 * @param  mixed  $identifier
+	 * @param  string  $token
+	 * @return \Mini\Auth\UserInterface|null
 	 */
-	protected function getUserByRecaller($recaller)
+	protected function retrieveUserByToken($identifier, $token)
 	{
-		if ($this->validRecaller($recaller) && ! $this->tokenRetrievalAttempted) {
-			$this->tokenRetrievalAttempted = true;
-
-			list($id, $token) = explode('|', $recaller, 2);
-
-			$this->viaRemember = ! is_null($user = $this->retrieveUserByToken($id, $token));
-
-			return $user;
-		}
-	}
-
-	/**
-	 * Determine if the recaller Cookie is in a valid format.
-	 *
-	 * @param  string $recaller
-	 * @return bool
-	 */
-	protected function validRecaller($recaller)
-	{
-		if (is_string($recaller) && (strpos($recaller, '|') !== false)) {
-			$segments = explode('|', $recaller);
-
-			return ((count($segments) == 2) && (trim($segments[0]) !== '') && (trim($segments[1]) !== ''));
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get the decrypted Recaller cookie.
-	 *
-	 * @return string|null
-	 */
-	protected function getRecaller()
-	{
-		$cookie = $this->request->cookies->get($this->getRecallerName());
-
-		if (is_null($cookie)) {
-			return;
-		}
-
-		try {
-			return $this->getEncrypter()->decrypt($cookie);
-		} catch (DecryptException $e) {
-			//
-		}
-	}
-
-	/**
-	 * Get the user ID from the recaller Cookie.
-	 *
-	 * @return string
-	 */
-	protected function getRecallerId()
-	{
-		if ($this->validRecaller($recaller = $this->getRecaller())) {
-			return reset(explode('|', $recaller));
-		}
+		return $this->newQuery()
+			->where($model->getKeyName(), $identifier)
+			->where($model->getRememberTokenName(), $token)
+			->first();
 	}
 
 	/**
 	 * Return the currently cached user of the application.
 	 *
-	 * @return \Nova\Auth\UserInterface|null
+	 * @return \Mini\Auth\UserInterface|null
 	 */
 	public function getUser()
 	{
@@ -601,7 +655,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Set the event dispatcher instance.
 	 *
-	 * @param  \Nova\Events\Dispatcher
+	 * @param  \Mini\Events\Dispatcher
 	 * @return void
 	 */
 	public function setDispatcher(Dispatcher $events)
@@ -683,15 +737,15 @@ class SessionGuard implements GuardInterface
 	}
 
 	/**
-	 * Create a new instance of the model.
+	 * Create a new instance of the model's Query Buider.
 	 *
-	 * @return \Mini\Database\ORM\Model
+	 * @return \Mini\Database\ORM\Builder
 	 */
-	public function createModel()
+	public function newQuery()
 	{
-		$className = '\\' .ltrim($this->model, '\\');
+		$model = '\\' .ltrim($this->model, '\\');
 
-		return new $className;
+		return with(new $model)->newQuery();
 	}
 
 }

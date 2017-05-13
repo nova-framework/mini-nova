@@ -172,7 +172,7 @@ class Store implements SessionInterface
 	 */
 	public function isValidId($id)
 	{
-		return (is_string($id) && preg_match('/^[a-f0-9]{40}$/', $id));
+		return is_string($id) && preg_match('/^[a-f0-9]{40}$/', $id);
 	}
 
 	/**
