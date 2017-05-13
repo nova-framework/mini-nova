@@ -15,11 +15,11 @@ use Mini\Support\Facades\Response;
 use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
-use App\Controllers\Admin\BaseController;
+use App\Controllers\Admin\Controller;
 use App\Models\Role;
 
 
-class Roles extends BaseController
+class Roles extends Controller
 {
 
 	public function __construct()

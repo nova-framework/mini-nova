@@ -13,11 +13,11 @@ use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
 
-use App\Controllers\Admin\BaseController;
+use App\Controllers\Admin\Controller;
 use App\Models\User;
 
 
-class Profile extends BaseController
+class Profile extends Controller
 {
 
 	protected function validator(array $data, User $user)
