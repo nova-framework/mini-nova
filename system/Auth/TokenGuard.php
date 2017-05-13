@@ -123,11 +123,9 @@ class TokenGuard implements GuardInterface
 	 */
 	public function retrieveUserByToken($token)
 	{
-		$className = '\\' .ltrim($this->model, '\\');
+		$model = '\\' .ltrim($this->model, '\\');
 
-		$model = new $className;
-
-		return $model->newQuery()
+		return (new $model)->newQuery()
 			->where($this->storageKey, $token)
 			->first();
 	}
