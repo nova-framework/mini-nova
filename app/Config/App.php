@@ -144,6 +144,7 @@ return array(
 		'Mini\Routing\RoutingServiceProvider',
 		'Mini\Cookie\CookieServiceProvider',
 		'Mini\Session\SessionServiceProvider',
+		'Mini\Auth\AuthServiceProvider',
 		'Mini\View\ViewServiceProvider',
 		'Mini\Encryption\EncryptionServiceProvider',
 		'Mini\Hashing\HashServiceProvider',
@@ -192,6 +193,7 @@ return array(
 
 		// The Support Facades.
 		'App'			=> 'Mini\Support\Facades\App',
+		'Auth'		  => 'Mini\Support\Facades\Auth',
 		'Cache'			=> 'Mini\Support\Facades\Cache',
 		'Cookie'		=> 'Mini\Support\Facades\Cookie',
 		'Config'		=> 'Mini\Support\Facades\Config',

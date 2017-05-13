@@ -17,6 +17,15 @@ $router->any('/', function()
 	return View::make('Layouts/Default')->with('content', $view);
 });
 
+$router->any('auth/login', function()
+{
+	$view = View::make('Default')
+		->shares('title', 'Login')
+		->with('content', 'There will be dragons.');
+
+	return View::make('Layouts/Default')->with('content', $view);
+});
+
 // The Adminstration Routes.
 $router->group(array('prefix' => 'admin', 'namespace' => 'Admin'), function($router)
 {

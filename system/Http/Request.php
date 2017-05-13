@@ -30,6 +30,13 @@ class Request extends SymfonyRequest implements ArrayAccess
 	protected $convertedFiles;
 
 	/**
+	 * The user resolver callback.
+	 *
+	 * @var \Closure
+	 */
+	protected $userResolver;
+
+	/**
 	 * The route resolver callback.
 	 *
 	 * @var \Closure
@@ -39,7 +46,7 @@ class Request extends SymfonyRequest implements ArrayAccess
 	/**
 	 * The Nova session store implementation.
 	 *
-	 * @var \Nova\Session\Store
+	 * @var \Mini\Session\Store
 	 */
 	protected $sessionStore;
 
@@ -667,11 +674,21 @@ class Request extends SymfonyRequest implements ArrayAccess
 	}
 
 	/**
+	 * Get the user making the request.
+	 *
+	 * @return mixed
+	 */
+	public function user()
+	{
+		return call_user_func($this->getUserResolver());
+	}
+
+	/**
 	 * Get the route handling the request.
 	 *
 	 * @param string|null $param
 	 *
-	 * @return \Nova\Routing\Route|object|string
+	 * @return \Mini\Routing\Route|object|string
 	 */
 	public function route($param = null)
 	{
@@ -685,16 +702,36 @@ class Request extends SymfonyRequest implements ArrayAccess
 	}
 
 	/**
+	 * Get the user resolver callback.
+	 *
+	 * @return \Closure
+	 */
+	public function getUserResolver()
+	{
+		return $this->userResolver ?: function() {};
+	}
+
+	/**
+	 * Set the user resolver callback.
+	 *
+	 * @param  \Closure  $callback
+	 * @return $this
+	 */
+	public function setUserResolver(Closure $callback)
+	{
+		$this->userResolver = $callback;
+
+		return $this;
+	}
+
+	/**
 	 * Get the route resolver callback.
 	 *
 	 * @return \Closure
 	 */
 	public function getRouteResolver()
 	{
-		return $this->routeResolver ?: function()
-		{
-			//
-		};
+		return $this->routeResolver ?: function() {};
 	}
 
 	/**
