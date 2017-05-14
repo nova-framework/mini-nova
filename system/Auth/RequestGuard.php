@@ -2,7 +2,7 @@
 
 namespace Mini\Auth;
 
-use Mini\Auth\GuardInterface;
+use Mini\Auth\Contracts\GuardInterface;
 use Mini\Auth\GuardTrait;
 use Mini\Http\Request;
 
@@ -42,7 +42,7 @@ class RequestGuard implements GuardInterface
 	/**
 	 * Get the currently authenticated user.
 	 *
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	public function user()
 	{

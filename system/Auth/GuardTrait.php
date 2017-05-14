@@ -3,7 +3,7 @@
 namespace Mini\Auth;
 
 use Mini\Auth\AuthenticationException;
-use Mini\Auth\UserInterface;
+use Mini\Auth\Contracts\UserInterface;
 
 
 /**
@@ -54,7 +54,7 @@ trait GuardTrait
 	/**
 	 * Set the current user.
 	 *
-	 * @param  \Mini\Auth\UserInterface  $user
+	 * @param  \Mini\Auth\Contracts\UserInterface  $user
 	 * @return $this
 	 */
 	public function setUser(UserInterface $user)

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Mini\Auth\UserTrait;
-use Mini\Auth\UserInterface;
+use Mini\Auth\Contracts\UserInterface;
 use Mini\Database\ORM\Model as BaseModel;
 
 

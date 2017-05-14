@@ -7,7 +7,8 @@
 
 namespace Mini\Auth;
 
-use Mini\Auth\GuardInterface;
+use Mini\Auth\Contracts\GuardInterface;
+use Mini\Auth\Contracts\UserInterface;
 use Mini\Auth\GuardTrait;
 use Mini\Cookie\CookieJar;
 use Mini\Encryption\DecryptException;
@@ -25,7 +26,7 @@ class SessionGuard implements GuardInterface
 	use GuardTrait;
 
 	/**
-	 * The name of the Guard. Typically "session".
+	 * The name of the Guard.
 	 *
 	 * Corresponds to driver name in authentication configuration.
 	 *
@@ -36,7 +37,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * The user we last attempted to retrieve.
 	 *
-	 * @var \Mini\Auth\UserInterface
+	 * @var \Mini\Auth\Contracts\UserInterface
 	 */
 	protected $lastAttempted;
 
@@ -125,42 +126,43 @@ class SessionGuard implements GuardInterface
 								$model,
 								SessionStore $session,
 								HasherInterface $hasher,
+								Encrypter $encrypter,
+								CookieJar $cookie,
+								Dispatcher $events,
 								Request $request = null)
 	{
 		$this->name  = $name;
 		$this->model = $model;
 
-		$this->session  = $session;
-		$this->hasher   = $hasher;
-		$this->request  = $request;
+		$this->session		= $session;
+		$this->hasher		= $hasher;
+		$this->encrypter	= $encrypter;
+		$this->cookie		= $cookie;
+		$this->events		= $events;
+
+		$this->request = $request;
 	}
 
 	/**
 	 * Get the authenticated user.
 	 *
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	public function user()
 	{
-		if ($this->loggedOut) {
-			return;
-		}
-
-		if (! is_null($this->user)) {
+		if ($this->loggedOut || ! is_null($this->user)) {
 			return $this->user;
 		}
+
+		$user = null;
 
 		$id = $this->session->get($this->getName());
 
 		if (! is_null($id)) {
 			$user = $this->retrieveUserById($id);
-		} else {
-			$user = null;
 		}
 
-		$recaller = $this->getRecaller();
-
-		if (is_null($user) && ! is_null($recaller)) {
+		if (is_null($user) && ! is_null($recaller = $this->getRecaller())) {
 			$user = $this->getUserByRecaller($recaller);
 
 			if (! is_null($user)) {
@@ -179,7 +181,7 @@ class SessionGuard implements GuardInterface
 	public function id()
 	{
 		if ($this->loggedOut) {
-			return;
+			return null;
 		}
 
 		$id = $this->session->get($this->getName(), $this->getRecallerId());
@@ -232,15 +234,22 @@ class SessionGuard implements GuardInterface
 
 		$value = $this->request->cookies->get($cookie);
 
-		if (is_null($value)) {
-			return;
+		if (! is_null($value)) {
+			return $this->decryptCookie($value);
 		}
+	}
 
-		// Decrypt the cookie value and return it.
-
+	/**
+	 * Decrypt a cookie string.
+	 *
+	 * @param string $cookie
+	 * @return string|null
+	 */
+	protected function decryptCookie($cookie)
+	{
 		try {
-			return $this->getEncrypter()->decrypt($value);
-		} catch (DecryptException $e) {
+			return $this->getEncrypter()->decrypt($cookie);
+		} catch (EncryptException $e) {
 			//
 		}
 	}
@@ -326,11 +335,9 @@ class SessionGuard implements GuardInterface
 	 */
 	protected function fireAttemptEvent(array $credentials, $remember, $login)
 	{
-		if ($this->events) {
-			$payload = array($credentials, $remember, $login);
+		$payload = array($credentials, $remember, $login);
 
-			$this->events->fire('auth.attempt', $payload);
-		}
+		$this->events->fire('auth.attempt', $payload);
 	}
 
 	/**
@@ -341,9 +348,7 @@ class SessionGuard implements GuardInterface
 	 */
 	public function attempting($callback)
 	{
-		if ($this->events) {
-			$this->events->listen('auth.attempt', $callback);
-		}
+		$this->events->listen('auth.attempt', $callback);
 	}
 
 	/**
@@ -367,7 +372,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Log a User in.
 	 *
-	 * @param  \Mini\Auth\UserInterface $user
+	 * @param  \Mini\Auth\Contracts\UserInterface $user
 	 * @param  bool $remember
 	 * @return void
 	 */
@@ -386,9 +391,7 @@ class SessionGuard implements GuardInterface
 			$this->queueRecallerCookie($user);
 		}
 
-		if (isset($this->events)) {
-			$this->events->fire('auth.login', array($user, $remember));
-		}
+		$this->events->fire('auth.login', array($user, $remember));
 
 		$this->setUser($user);
 	}
@@ -411,7 +414,7 @@ class SessionGuard implements GuardInterface
 	 *
 	 * @param  mixed  $id
 	 * @param  bool   $remember
-	 * @return \Mini\Auth\UserInterface
+	 * @return \Mini\Auth\Contracts\UserInterface
 	 */
 	public function loginUsingId($id, $remember = false)
 	{
@@ -442,24 +445,33 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Set the recaller Cookie.
 	 *
-	 * @param  \Mini\Auth\UserInterface $user
+	 * @param  \Mini\Auth\Contracts\UserInterface $user
 	 * @return void
 	 */
 	protected function queueRecallerCookie(UserInterface $user)
 	{
 		$value = $user->getAuthIdentifier() .'|' .$user->getRememberToken();
 
-		// Encrypt the cookie value before enqueing it.
+		if (! is_null($cookie = $this->encryptCookie($value))) {
+			$cookies = $this->getCookieJar();
 
-		try {
-			$cookie = $this->getEncrypter()->encrypt($value);
-		} catch (EncryptException $e) {
-			return;
+			$cookies->queue($cookies->forever($this->getRecallerName(), $cookie));
 		}
+	}
 
-		$cookies = $this->getCookieJar();
-
-		$cookies->queue($cookies->forever($this->getRecallerName(), $cookie));
+	/**
+	 * Encrypt a cookie string.
+	 *
+	 * @param string $cookie
+	 * @return string|null
+	 */
+	protected function encryptCookie($cookie)
+	{
+		try {
+			return $this->getEncrypter()->encrypt($cookie);
+		} catch (EncryptException $e) {
+			//
+		}
 	}
 
 	/**
@@ -495,7 +507,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Refresh the "Remember me" Token for the User.
 	 *
-	 * @param  \Mini\Auth\UserInterface $user
+	 * @param  \Mini\Auth\Contracts\UserInterface $user
 	 * @return void
 	 */
 	protected function refreshRememberToken(UserInterface $user)
@@ -512,7 +524,7 @@ class SessionGuard implements GuardInterface
 	 * Retrieve a user by the given credentials.
 	 *
 	 * @param  array $credentials
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	public function retrieveUser(array $credentials)
 	{
@@ -534,7 +546,7 @@ class SessionGuard implements GuardInterface
 	 * Retrieve a user by their unique identifier.
 	 *
 	 * @param  mixed  $identifier
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	public function retrieveUserById($identifier)
 	{
@@ -548,7 +560,7 @@ class SessionGuard implements GuardInterface
 	 *
 	 * @param  mixed  $identifier
 	 * @param  string  $token
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	protected function retrieveUserByToken($identifier, $token)
 	{
@@ -563,7 +575,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Return the currently cached user of the application.
 	 *
-	 * @return \Mini\Auth\UserInterface|null
+	 * @return \Mini\Auth\Contracts\UserInterface|null
 	 */
 	public function getUser()
 	{
@@ -594,22 +606,7 @@ class SessionGuard implements GuardInterface
 	 */
 	public function getCookieJar()
 	{
-		if (! isset($this->cookie)) {
-			throw new \RuntimeException("Cookie jar has not been set.");
-		}
-
 		return $this->cookie;
-	}
-
-	/**
-	 * Set the cookie creator instance used by the guard.
-	 *
-	 * @param  \Mini\Cookie\CookieJar  $cookie
-	 * @return void
-	 */
-	public function setCookieJar(CookieJar $cookie)
-	{
-		$this->cookie = $cookie;
 	}
 
 	/**
@@ -621,22 +618,7 @@ class SessionGuard implements GuardInterface
 	 */
 	public function getEncrypter()
 	{
-		if (! isset($this->encrypter)) {
-			throw new \RuntimeException("Encrypter has not been set.");
-		}
-
 		return $this->encrypter;
-	}
-
-	/**
-	 * Set the encrypter instance used by the guard.
-	 *
-	 * @param  \Mini\Encryption\Encrypter  $encrypter
-	 * @return void
-	 */
-	public function setEncrypter(Encrypter $encrypter)
-	{
-		$this->encrypter = $encrypter;
 	}
 
 	/**
@@ -647,17 +629,6 @@ class SessionGuard implements GuardInterface
 	public function getDispatcher()
 	{
 		return $this->events;
-	}
-
-	/**
-	 * Set the event dispatcher instance.
-	 *
-	 * @param  \Mini\Events\Dispatcher
-	 * @return void
-	 */
-	public function setDispatcher(Dispatcher $events)
-	{
-		$this->events = $events;
 	}
 
 	/**
@@ -696,7 +667,7 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Get the last user we attempted to authenticate.
 	 *
-	 * @return \Mini\Auth\UserInterface
+	 * @return \Mini\Auth\Contracts\UserInterface
 	 */
 	public function getLastAttempted()
 	{

@@ -50,7 +50,7 @@ class AuthServiceProvider extends ServiceProvider
 	 */
 	protected function registerUserResolver()
 	{
-		$this->app->bind('Mini\Auth\UserInterface', function ($app)
+		$this->app->bind('Mini\Auth\Contracts\UserInterface', function ($app)
 		{
 			$callback = $app['auth']->userResolver();
 

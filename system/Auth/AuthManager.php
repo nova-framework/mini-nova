@@ -129,19 +129,10 @@ class AuthManager
 	 */
 	public function createSessionDriver($name, array $config)
 	{
-		$guard = new SessionGuard($name, $config['model'], $this->app['session.store'], $this->app['hash']);
-
-		if (method_exists($guard, 'setCookieJar')) {
-			$guard->setCookieJar($this->app['cookie']);
-		}
-
-		if (method_exists($guard, 'setDispatcher')) {
-			$guard->setDispatcher($this->app['events']);
-		}
-
-		if (method_exists($guard, 'setEncrypter')) {
-			$guard->setEncrypter($this->app['encrypter']);
-		}
+		$guard = new SessionGuard(
+			$name, $config['model'],
+			$this->app['session.store'], $this->app['hash'], $this->app['encrypter'], $this->app['cookie'], $this->app['events']
+		);
 
 		if (method_exists($guard, 'setRequest')) {
 			$guard->setRequest($this->app->refresh('request', $guard, 'setRequest'));
@@ -220,10 +211,10 @@ class AuthManager
 	 * Register a new callback based request guard.
 	 *
 	 * @param  string  $driver
-	 * @param  callable  $callback
+	 * @param  \Closure  $callback
 	 * @return $this
 	 */
-	public function viaRequest($driver, callable $callback)
+	public function viaRequest($driver, Closure $callback)
 	{
 		return $this->extend($driver, function () use ($callback)
 		{

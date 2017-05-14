@@ -1,6 +1,6 @@
 <?php
 
-namespace Mini\Auth;
+namespace Mini\Auth\Contracts;
 
 interface UserInterface
 {

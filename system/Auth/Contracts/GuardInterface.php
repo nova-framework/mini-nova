@@ -1,8 +1,8 @@
 <?php
 
-namespace Mini\Auth;
+namespace Mini\Auth\Contracts;
 
-use Mini\Auth\UserInterface;
+use Mini\Auth\Contracts\UserInterface;
 
 
 interface GuardInterface
@@ -24,7 +24,7 @@ interface GuardInterface
 	/**
 	 * Get the currently authenticated user.
 	 *
-	 * @return \Nova\Auth\UserInterface|null
+	 * @return \Nova\Auth\Contracts\UserInterface|null
 	 */
 	public function user();
 
@@ -46,7 +46,7 @@ interface GuardInterface
 	/**
 	 * Set the current user.
 	 *
-	 * @param  \Nova\Auth\UserInterface  $user
+	 * @param  \Nova\Auth\Contracts\UserInterface  $user
 	 * @return void
 	 */
 	public function setUser(UserInterface $user);
