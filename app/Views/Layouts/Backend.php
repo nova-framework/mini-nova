@@ -50,7 +50,7 @@
 				</li>
 				<li class="dropdown <?= (($baseUri == 'admin/users') || ($baseUri == 'admin/roles')) ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="<?= __('Manage the Users'); ?>">
-						<i class='fa fa-server'></i> <?= __('Users'); ?> <span class="caret"></span>
+						<i class='fa fa-users'></i> <?= __('Users'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
