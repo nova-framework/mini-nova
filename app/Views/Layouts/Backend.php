@@ -27,19 +27,19 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <?= __('Control Panel'); ?></a>
+			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <strong><?= __('Control Panel'); ?></strong></a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav">
-				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?>>
+				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?> title="<?= __('Your Dashboard'); ?>">
 					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __('Dashboard'); ?></a>
 				</li>
 				<?php if ($currentUser->hasRole('administrator')) { ?>
 
 				<li class="dropdown <?= ($baseUri == 'admin/settings') ? 'active' : ''; ?>">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="<?= __('Manage the Platform'); ?>">
 						<i class='fa fa-server'></i> <?= __('Platform'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
@@ -49,7 +49,7 @@
 					</ul>
 				</li>
 				<li class="dropdown <?= (($baseUri == 'admin/users') || ($baseUri == 'admin/roles')) ? 'active' : ''; ?>">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="<?= __('Manage the Users'); ?>">
 						<i class='fa fa-server'></i> <?= __('Users'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
@@ -73,33 +73,33 @@
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
 				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>
-					<a href="<?= site_url('admin/messages'); ?>">
-						<i class='fa fa-envelope'></i>  <span class="hidden-xs"><?= __('Messages'); ?></span>
+					<a href="<?= site_url('admin/messages'); ?>" title="<?= __('Your Messages'); ?>">
+						<i class='fa fa-envelope'></i>
 						<?php if (isset($privateMessageCount) && ($privateMessageCount > 0)) echo '<span class="label label-success">' .$privateMessageCount .'</span>'; ?>
 					</a>
 				</li>
 				<li <?php if($baseUri == 'admin/notifications') echo 'class="active"'; ?>>
-					<a href="<?= site_url('admin/notifications'); ?>">
-						<i class='fa fa-bell'></i>  <span class="hidden-xs"><?= __('Notifications'); ?></span>
+					<a href="<?= site_url('admin/notifications'); ?>" title="<?= __('Your Notifications'); ?>">
+						<i class='fa fa-bell'></i>
 						<?php if (isset($notificationCount) && ($notificationCount > 0)) echo '<span class="label label-success">' .$notificationCount .'</span>'; ?>
 					</a>
 				</li>
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-						<i class='fa fa-language'></i> <?= Language::name() ?>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="<?= Language::name(); ?>">
+						<i class='fa fa-language'></i> <?= strtoupper(Language::code()); ?>
 					</a>
 					<ul class="dropdown-menu">
 					<?php foreach (Config::get('languages') as $code => $info) { ?>
 						<li <?= ($code == Language::code()) ? 'class="active"' : ''; ?>>
-							<a href='<?= site_url('language/' .$code) ?>' title='<?= $info['info'] ?>'><?= $info['name'] ?></a>
+							<a href='<?= site_url('language/' .$code) ?>' title='<?= $info['info'] ?>'><i class='fa fa-circle-o'></i> <?= $info['name'] ?></a>
 						</li>
 					<?php } ?>
 					</ul>
 				</li>
 				<!-- Authentication Links -->
 				<li class="dropdown <?= ($baseUri == 'admin/profile') ? 'active' : ''; ?>">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-						<i class='fa fa-user'></i> <?= Auth::user()->username ?> <span class="caret"></span>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="<?= $currentUser->name() ?>">
+						<i class='fa fa-user'></i> <?= $currentUser->username ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
@@ -111,6 +111,7 @@
 								onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
 								<i class='fa fa-sign-out'></i> <?= __('Logout'); ?>
 							</a>
+
 							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;">
 								<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
 							</form>
