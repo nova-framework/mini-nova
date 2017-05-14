@@ -17,11 +17,11 @@ use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
-use App\Controllers\Admin\BaseController;
+use App\Controllers\BackendController;
 use App\Models\Option;
 
 
-class Settings extends BaseController
+class Settings extends BackendController
 {
 
 	public function __construct()

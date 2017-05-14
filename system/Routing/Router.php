@@ -11,6 +11,7 @@ use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
 
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -63,9 +64,11 @@ class Router
 	protected $routes;
 
 	/**
-	 * Array of Route Groups.
+	 * The registered route value binders.
+	 *
+	 * @var array
 	 */
-	protected $groupStack = array();
+	protected $binders = array();
 
 	/**
 	 * All of the wheres that have been registered.
@@ -73,6 +76,11 @@ class Router
 	 * @var array
 	 */
 	protected $patterns = array();
+
+	/**
+	 * Array of Route Groups.
+	 */
+	protected $groupStack = array();
 
 	/**
 	 * An array of HTTP request methods.
@@ -144,32 +152,6 @@ class Router
 	}
 
 	/**
-	 * Merge the given group attributes.
-	 *
-	 * @param  array  $new
-	 * @param  array  $old
-	 * @return array
-	 */
-	protected static function mergeGroup($new, $old)
-	{
-		if (isset($new['namespace']) && isset($old['namespace'])) {
-			$new['namespace'] = trim(Arr::get($old, 'namespace'), '\\') .'\\' .trim($new['namespace'], '\\');
-		} else {
-			$new['namespace'] = isset($new['namespace']) ? trim($new['namespace'], '\\') : Arr::get($old, 'namespace');
-		}
-
-		if (isset($new['prefix']) && isset($old['prefix'])) {
-			$new['prefix'] = trim(Arr::get($old, 'prefix'), '/') .'/' .trim($new['prefix'], '/');
-		} else {
-			$new['prefix'] = isset($new['prefix']) ? trim($new['prefix'], '/') : Arr::get($old, 'prefix');
-		}
-
-		$new['where'] = array_merge(Arr::get($old, 'where', array()), Arr::get($new, 'where', array()));
-
-		return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where')), $new);
-	}
-
-	/**
 	 * Add a route to the router.
 	 *
 	 * @param  string|array  $method
@@ -178,6 +160,21 @@ class Router
 	 * @return void
 	 */
 	protected function addRoute($method, $uri, $action)
+	{
+		$route = $this->createRoute($method, $uri, $action);
+
+		return $this->routes->addRoute($route);
+	}
+
+	/**
+	 * Create a new route instance.
+	 *
+	 * @param  array|string  $methods
+	 * @param  string  $uri
+	 * @param  mixed   $action
+	 * @return \Nova\Routing\Route
+	 */
+	protected function createRoute($methods, $uri, $action)
 	{
 		// When the Action references a Controller, convert it to a Controller Action.
 		if ($this->routingToController($action)) {
@@ -201,25 +198,61 @@ class Router
 			$action = static::mergeGroup($action, end($this->groupStack));
 		}
 
-		return $this->createRoute($method, $uri, $action);
+		return $this->newRoute($methods, $uri, $action);
 	}
 
 	/**
-	 * Create a new route instance.
+	 * Create a new Route object.
 	 *
-	 * @param  array|string  $method
+	 * @param  array|string  $methods
 	 * @param  string  $uri
-	 * @param  mixed   $action
-	 * @return \Nova\Routing\Route
+	 * @param  mixed  $action
+	 * @return \Mini\Routing\Route
 	 */
-	protected function createRoute($method, $uri, $action)
+	protected function newRoute($methods, $uri, $action)
 	{
 		$patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
-		//
-		$route = new Route($method, $uri, $action, $patterns);
+		$route = new Route($methods, $uri, $action, $patterns);
 
-		return $this->routes->addRoute($route);
+		return $route->setContainer($this->container);
+	}
+
+	/**
+	 * Merge the given group attributes.
+	 *
+	 * @param  array  $new
+	 * @param  array  $old
+	 * @return array
+	 */
+	protected static function mergeGroup($new, $old)
+	{
+		if (isset($new['namespace'])) {
+			$new['namespace'] = isset($old['namespace'])
+				? trim($old['namespace'], '\\') .'\\' .trim($new['namespace'], '\\')
+				: trim($new['namespace'], '\\');
+		} else {
+			$new['namespace'] = isset($old['namespace']) ? $old['namespace'] : null;
+		}
+
+		if (isset($new['prefix'])) {
+			$new['prefix'] = isset($old['prefix'])
+				? trim($old['prefix'], '/') .'/' .trim($new['prefix'], '/')
+				: trim($new['prefix'], '/');
+		} else {
+			$new['prefix'] = isset($old['prefix']) ? $old['prefix'] : null;
+		}
+
+		$new['where'] = array_merge(
+			isset($old['where']) ? $old['where'] : array(),
+			isset($new['where']) ? $new['where'] : array()
+		);
+
+		if (isset($old['as'])) {
+			$new['as'] = $old['as'] . (isset($new['as']) ? $new['as'] : '');
+		}
+
+		return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where', 'as')), $new);
 	}
 
 	/**
@@ -382,23 +415,48 @@ class Router
 	{
 		$this->current = $route = $this->routes->match($request);
 
-		return $route->setContainer($this->container);
+		return $this->substituteBindings($route);
 	}
 
 	/**
-	 * Create a response instance from the given value.
+	 * Substitute the route bindings onto the route.
 	 *
-	 * @param  \Symfony\Component\HttpFoundation\Request  $request
-	 * @param  mixed  $response
-	 * @return \Nova\Http\Response
+	 * @param  \Nova\Routing\Route  $route
+	 * @return \Nova\Routing\Route
 	 */
-	public function prepareResponse($request, $response)
+	protected function substituteBindings($route)
 	{
-		if (! $response instanceof SymfonyResponse) {
-			$response = new Response($response);
+		foreach ($route->parameters() as $key => $value) {
+			if (isset($this->binders[$key])) {
+				$route->setParameter($key, $this->performBinding($key, $value, $route));
+			}
 		}
 
-		return $response->prepare($request);
+		return $route;
+	}
+
+	/**
+	 * Call the binding callback for the given key.
+	 *
+	 * @param  string  $key
+	 * @param  string  $value
+	 * @param  \Nova\Routing\Route  $route
+	 * @return mixed
+	 */
+	protected function performBinding($key, $value, $route)
+	{
+		return call_user_func($this->binders[$key], $value, $route);
+	}
+
+	/**
+	 * Register a route matched event listener.
+	 *
+	 * @param  string|callable  $callback
+	 * @return void
+	 */
+	public function matched($callback)
+	{
+		$this->events->listen('router.matched', $callback);
 	}
 
 	/**
@@ -423,6 +481,88 @@ class Router
 		$this->middleware[$name] = $middleware;
 
 		return $this;
+	}
+
+	/**
+	 * Register a model binder for a wildcard.
+	 *
+	 * @param  string  $key
+	 * @param  string  $model
+	 * @param  \Closure  $callback
+	 * @return void
+	 *
+	 * @throws NotFoundHttpException
+	 */
+	public function model($key, $model, Closure $callback = null)
+	{
+		$this->bind($key, function($value) use ($className, $callback)
+		{
+			if (is_null($value)) {
+				return null;
+			}
+
+			if ($model = call_user_func(array($model, 'find'), $value)) {
+				return $model;
+			} else if ($callback instanceof Closure) {
+				return call_user_func($callback);
+			}
+
+			throw new NotFoundHttpException;
+		});
+	}
+
+	/**
+	 * Add a new route parameter binder.
+	 *
+	 * @param  string  $key
+	 * @param  string|callable  $binder
+	 * @return void
+	 */
+	public function bind($key, $binder)
+	{
+		if (is_string($binder)) {
+			$binder = $this->createClassBinding($binder);
+		}
+
+		$key = str_replace('-', '_', $key);
+
+		$this->binders[$key] = $binder;
+	}
+
+	/**
+	 * Create a class based binding using the IoC container.
+	 *
+	 * @param  string	$binding
+	 * @return \Closure
+	 */
+	public function createClassBinding($binding)
+	{
+		return function($value, $route) use ($binding)
+		{
+			$segments = explode('@', $binding);
+
+			$method = (count($segments) == 2) ? $segments[1] : 'bind';
+
+			$callable = array($this->container->make($segments[0]), $method);
+
+			return call_user_func($callable, $value, $route);
+		};
+	}
+
+	/**
+	 * Create a response instance from the given value.
+	 *
+	 * @param  \Symfony\Component\HttpFoundation\Request  $request
+	 * @param  mixed  $response
+	 * @return \Nova\Http\Response
+	 */
+	public function prepareResponse($request, $response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			$response = new Response($response);
+		}
+
+		return $response->prepare($request);
 	}
 
 	/**

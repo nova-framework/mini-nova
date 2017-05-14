@@ -10,7 +10,7 @@ use ReflectionParameter;
 use ReflectionFunctionAbstract;
 
 
-trait RouteDependencyResolverTrait
+trait RouteDependencyTrait
 {
 	/**
 	 * Call a class method with the resolved dependencies.
@@ -21,9 +21,9 @@ trait RouteDependencyResolverTrait
 	 */
 	protected function callWithDependencies($instance, $method)
 	{
-		return call_user_func_array(
-			array($instance, $method), $this->resolveClassMethodDependencies(array(), $instance, $method)
-		);
+		$parameters = $this->resolveClassMethodDependencies(array(), $instance, $method);
+
+		return call_user_func_array(array($instance, $method), $parameters);
 	}
 
 	/**
@@ -57,9 +57,7 @@ trait RouteDependencyResolverTrait
 		$originalParameters = $parameters;
 
 		foreach ($reflector->getParameters() as $key => $parameter) {
-			$instance = $this->transformDependency(
-				$parameter, $parameters, $originalParameters
-			);
+			$instance = $this->transformDependency($parameter, $parameters);
 
 			if (! is_null($instance)) {
 				$this->spliceIntoParameters($parameters, $key, $instance);
@@ -74,10 +72,9 @@ trait RouteDependencyResolverTrait
 	 *
 	 * @param  \ReflectionParameter  $parameter
 	 * @param  array  $parameters
-	 * @param  array  $originalParameters
 	 * @return mixed
 	 */
-	protected function transformDependency(ReflectionParameter $parameter, $parameters, $originalParameters)
+	protected function transformDependency(ReflectionParameter $parameter, $parameters)
 	{
 		$class = $parameter->getClass();
 

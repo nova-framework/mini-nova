@@ -6,7 +6,7 @@ use Mini\Container\Container;
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
 use Mini\Routing\RouteCompiler;
-use Mini\Routing\RouteDependencyResolverTrait;
+use Mini\Routing\RouteDependencyTrait;
 use Mini\Support\Arr;
 
 use ReflectionFunction;
@@ -14,7 +14,7 @@ use ReflectionFunction;
 
 class Route
 {
-	use RouteDependencyResolverTrait;
+	use RouteDependencyTrait;
 
 	/**
 	 * The URI pattern the route responds to.
