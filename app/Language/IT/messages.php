@@ -12,7 +12,7 @@ return array (
   'Cancel' => '',
   'Change Password' => '',
   'Choose a Role' => '',
-  'Choose a User' => '',
+  'Choose an User' => '',
   'Confirm Password' => '',
   'Control Panel' => '',
   'Create Role' => '',

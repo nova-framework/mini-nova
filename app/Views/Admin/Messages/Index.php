@@ -65,5 +65,5 @@ if (! $messages->isEmpty()) {
 
 <div class="row">
 	<hr>
-	<a class='btn btn-success' href='<?= site_url('admin/messages/create'); ?>'><i class='fa fa-send'></i> <?= __('Send a new Message'); ?></a>
+	<a class='btn btn-success col-sm-2' href='<?= site_url('admin/messages/create'); ?>'><i class='fa fa-send'></i> <?= __('Send a new Message'); ?></a>
 </div>

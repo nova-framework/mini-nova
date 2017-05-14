@@ -11,10 +11,13 @@
 
 <!-- Main content -->
 <div class="row">
-	<h3><strong><?= $message->subject; ?></strong></h3>
-	<hr style="margin-top: 0;">
+	<div class="col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2">
+		<div class="panel panel-default">
+			<div class="panel-body" style="padding-top: 0;">
 
-	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
+				<h3><?= $message->subject; ?></h3>
+				<hr style="margin-top: 0;">
+
 		<!-- Status -->
 		<div class="media">
 			<div class="pull-left">
@@ -63,9 +66,11 @@
 		</form>
 	</div>
 </div>
+</div>
+</div>
 
 <div class="row">
 	<hr>
-	<a class='btn btn-primary' href='<?= site_url('admin/messages'); ?>'><?= __('<< Previous Page'); ?></a>
+	<a class='btn btn-primary col-sm-2' href='<?= site_url('admin/messages'); ?>'><?= __('<< Previous Page'); ?></a>
 	<br>
 </div>
