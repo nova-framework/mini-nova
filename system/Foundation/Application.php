@@ -530,6 +530,7 @@ class Application extends Container
 			'config'		=> array('Mini\Config\Repository'),
 			'cookie'		=> array('Mini\Cookie\CookieJar'),
 			'encrypter'	 	=> array('Mini\Encryption\Encrypter'),
+			'request'		=> array('Mini\Http\Request'),
 			'router'		=> array('Mini\Routing\Router'),
 			'session'		=> array('Mini\Session\SessionManager'),
 			'session.store'	=> array('Mini\Session\Store'),

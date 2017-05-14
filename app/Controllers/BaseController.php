@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use Mini\Foundation\Validation\ValidatesRequestsTrait;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\Redirect;
@@ -17,6 +18,8 @@ use BadMethodCallException;
 
 class BaseController extends Controller
 {
+	use ValidatesRequestsTrait;
+
 	/**
 	 * The currently used Layout.
 	 *
@@ -47,12 +50,7 @@ class BaseController extends Controller
 	{
 		$this->before();
 
-		try {
-			$response = call_user_func_array(array($this, $method), $parameters);
-		}
-		catch (ValidationException $exception) {
-			$response = $this->handleValidationException($exception);
-		}
+		$response = call_user_func_array(array($this, $method), $parameters);
 
 		return $this->after($response);
 	}

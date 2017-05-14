@@ -5,6 +5,7 @@ namespace Mini\Routing;
 use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Pipeline\Pipeline;
+use Mini\Routing\RouteDependencyResolverTrait;
 use Mini\Routing\Router;
 use Mini\Support\Str;
 
@@ -13,6 +14,8 @@ use Closure;
 
 class ControllerDispatcher
 {
+	use RouteDependencyResolverTrait;
+
 	/**
 	 * The routing filterer implementation.
 	 *
@@ -91,13 +94,17 @@ class ControllerDispatcher
 	 * Call the given controller instance method.
 	 *
 	 * @param  \Nova\Routing\Controller $instance
-	 * @param  \Nova\Routing\Route	  $route
-	 * @param  string				   $method
+	 * @param  \Nova\Routing\Route	  	$route
+	 * @param  string					$method
 	 * @param  array					$parameters
 	 * @return mixed
 	 */
 	protected function call($instance, $request, $method, $parameters)
 	{
+		$parameters = $this->resolveClassMethodDependencies(
+			$parameters, $instance, $method
+		);
+
 		$response = $instance->callAction($method, $parameters);
 
 		return $this->router->prepareResponse($request, $response);

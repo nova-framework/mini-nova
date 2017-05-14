@@ -30,17 +30,11 @@ trait AuthenticatesUsersTrait
 	 * @param  \Mini\Http\Request  $request
 	 * @return \Mini\Http\Response
 	 */
-	public function postLogin()
+	public function postLogin(Request $request)
 	{
-		$request = App::make('request');
-
-		$validator = Validator::make($request->all(), array(
+		$this->validate($request, array(
 			$this->loginUsername() => 'required', 'password' => 'required',
 		));
-
-		if ($validator->fails()) {
-			throw new ValidationException($validator);
-		}
 
 		$throttles = $this->isUsingThrottlesLoginsTrait();
 

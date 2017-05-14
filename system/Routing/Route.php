@@ -6,11 +6,16 @@ use Mini\Container\Container;
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
 use Mini\Routing\RouteCompiler;
+use Mini\Routing\RouteDependencyResolverTrait;
 use Mini\Support\Arr;
+
+use ReflectionFunction;
 
 
 class Route
 {
+	use RouteDependencyResolverTrait;
+
 	/**
 	 * The URI pattern the route responds to.
 	 *
@@ -120,10 +125,11 @@ class Route
 	 */
 	protected function runCallable(Request $request)
 	{
-		$parameters = $this->parameters();
-
-		//
 		$callable = $this->action['uses'];
+
+		$parameters = $this->resolveMethodDependencies(
+			$this->parameters(), new ReflectionFunction($callable)
+		);
 
 		return call_user_func_array($callable, $parameters);
 	}
@@ -138,10 +144,11 @@ class Route
 	 */
 	protected function runController(Request $request)
 	{
-		$parameters = $this->parameters();
-
-		//
 		list($controller, $method) = explode('@', $this->action['uses']);
+
+		$parameters = $this->resolveClassMethodDependencies(
+			$this->parameters(), $class, $method
+		);
 
 		if (! method_exists($instance = $this->container->make($controller), $method)) {
 			throw new NotFoundHttpException();
@@ -353,7 +360,7 @@ class Route
 	{
 		return in_array('https', $this->action, true);
 	}
-	
+
 	/**
 	 * Get the regular expression requirements on the route.
 	 *

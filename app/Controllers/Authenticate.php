@@ -14,7 +14,7 @@ use Mini\Foundation\Auth\ThrottlesLoginsTrait;
 use App\Controllers\BaseController;
 
 
-class Authorize extends BaseController
+class Authenticate extends BaseController
 {
 	use AuthenticatesUsersTrait, ThrottlesLoginsTrait;
 
