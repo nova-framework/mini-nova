@@ -130,6 +130,7 @@ return array (
   'User Roles' => '',
   'Username' => '',
   'Users' => '',
+  'Users List' => '',
   'Verify the new Password' => '',
   'View the Message(s)' => '',
   'View this message and its replies' => '',

@@ -37,6 +37,7 @@
 					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __('Dashboard'); ?></a>
 				</li>
 				<?php if ($currentUser->hasRole('administrator')) { ?>
+
 				<li class="dropdown <?= ($baseUri == 'admin/settings') ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 						<i class='fa fa-server'></i> <?= __('Platform'); ?> <span class="caret"></span>
@@ -52,20 +53,22 @@
 						<i class='fa fa-server'></i> <?= __('Users'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
+						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
+						</li>
 						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Users List'); ?></a>
 						</li>
-						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
+						<li role="separator" class="divider"></li>
+						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
 						</li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('User Roles'); ?></a>
 						</li>
-						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
-						</li>
 					</ul>
 				<li>
+
 				<?php } ?>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
