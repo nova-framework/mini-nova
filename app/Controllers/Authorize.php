@@ -13,10 +13,10 @@ use Mini\Support\Facades\Hash;
 use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Redirect;
 
-use App\Controllers\Controller;
+use App\Controllers\BaseController;
 
 
-class Authorize extends Controller
+class Authorize extends BaseController
 {
 	protected $layout = 'Authorize';
 

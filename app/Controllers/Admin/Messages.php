@@ -9,13 +9,13 @@ use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
 use Mini\Validation\ValidationException;
 
-use App\Controllers\Admin\Controller;
+use App\Controllers\Admin\BaseController;
 
 use App\Models\Message;
 use App\Models\User;
 
 
-class Messages extends Controller
+class Messages extends BaseController
 {
 
 	protected function validateInput(array $data, array $rules, array $messages = array(), array $attributes = array())

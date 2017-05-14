@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use Mini\Routing\Controller as BaseController;
+use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Request;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use BadMethodCallException;
 
 
-class Controller extends BaseController
+class BaseController extends Controller
 {
 	/**
 	 * The currently used Layout.

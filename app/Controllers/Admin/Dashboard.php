@@ -10,10 +10,10 @@ namespace App\Controllers\Admin;
 use Nova\Support\Facades\Config;
 use Nova\Support\Facades\View;
 
-use App\Controllers\Admin\Controller;
+use App\Controllers\Admin\BaseController;
 
 
-class Dashboard extends Controller
+class Dashboard extends BaseController
 {
 
 	public function index()

@@ -5,11 +5,11 @@ namespace App\Controllers\Admin;
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\View;
 
-use App\Controllers\Controller as BaseController;
+use App\Controllers\BaseController as Controller;
 use App\Models\Message;
 
 
-class Controller extends BaseController
+class BaseController extends Controller
 {
 	/**
 	 * The currently used Layout.

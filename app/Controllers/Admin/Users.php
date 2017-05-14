@@ -19,14 +19,14 @@ use Mini\Support\Facades\Session;
 use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
-use App\Controllers\Admin\Controller;
+use App\Controllers\Admin\BaseController;
 use App\Models\User;
 use App\Models\Role;
 
 use Carbon\Carbon;
 
 
-class Users extends Controller
+class Users extends BaseController
 {
 
 	public function __construct()
