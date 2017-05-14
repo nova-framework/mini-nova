@@ -10,7 +10,7 @@ use ReflectionParameter;
 use ReflectionFunctionAbstract;
 
 
-trait RouteDependencyTrait
+trait DependencyResolverTrait
 {
 	/**
 	 * Call a class method with the resolved dependencies.

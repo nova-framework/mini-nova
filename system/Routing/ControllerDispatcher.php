@@ -5,7 +5,7 @@ namespace Mini\Routing;
 use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Pipeline\Pipeline;
-use Mini\Routing\RouteDependencyTrait;
+use Mini\Routing\DependencyResolverTrait;
 use Mini\Routing\Router;
 use Mini\Support\Str;
 
@@ -14,7 +14,7 @@ use Closure;
 
 class ControllerDispatcher
 {
-	use RouteDependencyTrait;
+	use DependencyResolverTrait;
 
 	/**
 	 * The routing filterer implementation.
