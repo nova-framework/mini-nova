@@ -296,14 +296,7 @@ class Router
 
 		$this->events->fire('router.matched', array($route, $request));
 
-		// Gather the route middleware.
-		$middleware = $this->gatherRouteMiddlewares($route);
-
-		if (empty($middleware)) {
-			$response = $route->run($request);
-		} else {
-			$response = $this->runRouteWithinStack($route, $request, $middleware);
-		}
+		$response = $this->runRouteWithinStack($route, $request);
 
 		return $this->prepareResponse($request, $response);
 	}
@@ -312,19 +305,22 @@ class Router
 	 * Run the given route within a Stack "onion" instance.
 	 *
 	 * @param  \Illuminate\Routing\Route	$route
-	 * @param  \Illuminate\Http\Request	 $request
-	 * @param  array						$middleware
+	 * @param  \Illuminate\Http\Request		$request
 	 * @return mixed
 	 */
-	protected function runRouteWithinStack(Route $route, Request $request, array $middleware)
+	protected function runRouteWithinStack(Route $route, Request $request)
 	{
+		$middleware = $this->gatherRouteMiddlewares($route);
+
+		if (empty($middleware)) {
+			return $route->run($request);
+		}
+
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
 		{
-			$response = $route->run($request);
-
-			return $this->prepareResponse($request, $response);
+			return $route->run($request);
 		});
 	}
 

@@ -55,59 +55,45 @@ class ControllerDispatcher
 	 */
 	public function dispatch(Route $route, Request $request, $controller, $method)
 	{
-		$parameters = $route->parameters();
+		$instance = $this->makeController($controller);
 
-		// Create a Controller instance using the IoC container.
-		$instance = $this->container->make($controller);
+		return $this->callWithinStack($instance, $route, $request, $method);
+	}
 
-		// Gather the controller's middleware.
+	/**
+	 * Make a controller instance via the IoC container.
+	 *
+	 * @param  string  $controller
+	 * @return mixed
+	 */
+	protected function makeController($controller)
+	{
+		return $this->container->make($controller);
+	}
+
+	/**
+	 * Call the given controller instance method.
+	 *
+	 * @param  \Mini\Routing\Controller	$instance
+	 * @param  \Mini\Routing\Route		$instance
+	 * @param  \Mini\Http\Request		$request
+	 * @param  string					$method
+	 * @return mixed
+	 */
+	protected function callWithinStack($instance, $route, $request, $method)
+	{
 		$middleware = $this->getMiddleware($instance, $method);
 
-		if (empty($middleware)) {
-			return $this->call($instance, $request, $method, $parameters);
+		if (empty($middleware) {
+			return $this->call($instance, $route, $method);
 		}
 
-		return $this->callWithinStack($instance, $request, $middleware, $method, $parameters);
-	}
-
-	/**
-	 * Call the given controller instance method.
-	 *
-	 * @param  \Mini\Routing\Controller $instance
-	 * @param  \Mini\Http\Request	   $request
-	 * @param  array					$middleware
-	 * @param  string				   $method
-	 * @param  array					$parameters
-	 * @return mixed
-	 */
-	protected function callWithinStack($instance, $request, $middleware, $method, $parameters)
-	{
 		$pipeline = new Pipeline($this->container);
 
-		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($instance, $method, $parameters)
+		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($instance, $route, $method)
 		{
-			return $this->call($instance, $request, $method, $parameters);
+			return $this->call($instance, $route, $method);
 		});
-	}
-
-	/**
-	 * Call the given controller instance method.
-	 *
-	 * @param  \Nova\Routing\Controller $instance
-	 * @param  \Nova\Routing\Route	  	$route
-	 * @param  string					$method
-	 * @param  array					$parameters
-	 * @return mixed
-	 */
-	protected function call($instance, $request, $method, $parameters)
-	{
-		$parameters = $this->resolveClassMethodDependencies(
-			$parameters, $instance, $method
-		);
-
-		$response = $instance->callAction($method, $parameters);
-
-		return $this->router->prepareResponse($request, $response);
 	}
 
 	/**
@@ -168,4 +154,20 @@ class ControllerDispatcher
 			   (! empty($options['except']) && in_array($method, (array) $options['except']));
 	}
 
+	/**
+	 * Call the given controller instance method.
+	 *
+	 * @param  \Nova\Routing\Controller $instance
+	 * @param  \Nova\Routing\Route	  	$route
+	 * @param  string					$method
+	 * @return mixed
+	 */
+	protected function call($instance, $route, $method)
+	{
+		$parameters = $this->resolveClassMethodDependencies(
+			$route->parameters(), $instance, $method
+		);
+
+		return $instance->callAction($method, $parameters);
+	}
 }
