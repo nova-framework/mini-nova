@@ -52,11 +52,11 @@ trait AuthenticatesUsersTrait
 			$this->incrementLoginAttempts($request);
 		}
 
+		$errors = array($this->loginUsername() => $this->getFailedLoginMessage());
+
 		return Redirect::to($this->loginPath())
 			->withInput($request->only($this->loginUsername(), 'remember'))
-			->withErrors(array(
-				$this->loginUsername() => $this->getFailedLoginMessage(),
-			));
+			->withErrors($errors);
 	}
 
 	/**

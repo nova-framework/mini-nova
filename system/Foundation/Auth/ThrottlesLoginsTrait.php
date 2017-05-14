@@ -66,11 +66,11 @@ trait ThrottlesLoginsTrait
 
 		$seconds = $rateLimiter->availableIn($this->getThrottleKey($request));
 
+		$errors = array($this->loginUsername() => $this->getLockoutErrorMessage($seconds));
+
 		return Redirect::back()
 			->withInput($request->only($this->loginUsername(), 'remember'))
-			->withErrors(array(
-				$this->loginUsername() => $this->getLockoutErrorMessage($seconds),
-			));
+			->withErrors($errors);
 	}
 
 	/**
