@@ -106,9 +106,9 @@ class Presenter
 	public function render()
 	{
 		if ($this->paginator->isQuickPaginating()) {
-			$previous = __d('core', '&laquo; Previous');
+			$previous = __d('nova', '&laquo; Previous');
 
-			$next = __d('core', 'Next &raquo;');
+			$next = __d('nova', 'Next &raquo;');
 
 			$content = $this->getPrevious($previous) .$this->getNext($next);
 
