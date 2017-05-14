@@ -56,13 +56,13 @@
 							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Users List'); ?></a>
 						</li>
 						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
+							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
 						</li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('User Roles'); ?></a>
 						</li>
-						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
+						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
 						</li>
 					</ul>
 				<li>
