@@ -54,7 +54,7 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->get( 'profile',	'Profile@index');
 	$router->post('profile',	'Profile@update');
 
-	// The User's Messages.
+	// Messages.
 	$router->get( 'messages',					'Messages@index');
 	$router->get( 'messages/create', 			'Messages@create');
 	$router->post('messages',					'Messages@store');
@@ -62,6 +62,9 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	//$router->post('messages/{postId}/destroy',	'Messages@destroy');
 
 	$router->post('messages/{threadId}',		'Messages@reply');
+
+    // Notifications
+    $router->get('notifications',		'Notifications@index');
 
 	// Server Side Processor for Users DataTable.
 	$router->post('users/data',			'Users@data');

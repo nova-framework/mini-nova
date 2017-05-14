@@ -7,6 +7,7 @@ use Mini\Support\Facades\View;
 
 use App\Controllers\BaseController;
 use App\Models\Message;
+use App\Models\Notification;
 
 
 class BackendController extends BaseController
@@ -32,6 +33,11 @@ class BackendController extends BaseController
 		$user = Auth::user();
 
 		View::share('currentUser', $user);
+
+        //
+        $notifications = Notification::where('user_id', $user->id)->unread()->count();
+
+        View::share('notificationCount', $notifications);
 
 		//
 		$messages = Message::where('receiver_id', $user->id)->unread()->count();

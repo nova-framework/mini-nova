@@ -78,6 +78,12 @@
 						<?php if (isset($privateMessageCount) && ($privateMessageCount > 0)) echo '<span class="label label-success">' .$privateMessageCount .'</span>'; ?>
 					</a>
 				</li>
+				<li <?php if($baseUri == 'admin/notifications') echo 'class="active"'; ?>>
+					<a href="<?= site_url('admin/notifications'); ?>">
+						<i class='fa fa-bell'></i>  <span class="hidden-xs"><?= __('Notifications'); ?></span>
+						<?php if (isset($notificationCount) && ($notificationCount > 0)) echo '<span class="label label-success">' .$notificationCount .'</span>'; ?>
+					</a>
+				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 						<i class='fa fa-language'></i> <?= Language::name() ?>
