@@ -3,6 +3,7 @@
 return array (
   '%d %b %Y, %H:%M' => '',
   '<< Previous Page' => '',
+  '<b>{0}</b>, you have successfully logged in.' => '',
   'Actions' => '',
   'Apply the changes' => '',
   'Are you sure you want to remove this Role, the operation being irreversible?' => '',
