@@ -10,8 +10,8 @@
 
 <!-- Main content -->
 <div class="row">
-	<h4 class="box-title"><?= __('Change Password'); ?></h4>
-	<hr>
+	<h3 class="box-title"><?= __('Change Password'); ?></h3>
+	<hr style="margin-top: 0;">
 
 	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
 		<form method='post' role="form">
