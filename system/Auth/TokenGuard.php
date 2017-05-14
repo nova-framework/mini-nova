@@ -136,7 +136,7 @@ class TokenGuard implements GuardInterface
 	{
 		$result = $this->newQuery()->where($this->storageKey, $token)->first();
 
-		if (! is_null($user)) {
+		if (! is_null($result)) {
 			return new GenericUser((array) $result);
 		}
 	}
