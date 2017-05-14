@@ -33,6 +33,19 @@ class RouteCollection implements Countable, IteratorAggregate
 	 */
 	protected $allRoutes = array();
 
+	/**
+	 * A look-up table of routes by their names.
+	 *
+	 * @var array
+	 */
+	protected $nameList = array();
+
+	/**
+	 * A look-up table of routes by controller action.
+	 *
+	 * @var array
+	 */
+	protected $actionList = array();
 
 	/**
 	 * Add a route to the router.
@@ -50,20 +63,32 @@ class RouteCollection implements Countable, IteratorAggregate
 
 		$this->allRoutes[] = $route;
 
+		//
+		$this->addLookups($route);
+
 		return $route;
 	}
 
 	/**
-	 * Add a route to the controller action dictionary.
+	 * Add the route to any look-up tables if necessary.
 	 *
-	 * @param  array  $action
-	 * @param  \Nova\Routing\Route  $route
+	 * @param  \Mini\Routing\Route  $route
 	 * @return void
 	 */
-	protected function addToActionList($action, $route)
+	protected function addLookups($route)
 	{
-		if (! isset($this->actionList[$action])) {
-			$this->actionList[$action] = $route;
+		$action = $route->getAction();
+
+		if (isset($action['as'])) {
+			$this->nameList[$action['as']] = $route;
+		}
+
+		if (isset($action['controller'])) {
+			$controller = $action['controller'];
+
+			if (! isset($this->actionList[$controller])) {
+				$this->actionList[$controller] = $route;
+			}
 		}
 	}
 
@@ -95,7 +120,7 @@ class RouteCollection implements Countable, IteratorAggregate
 	/**
 	 * Determine if any routes match on another HTTP verb.
 	 *
-	 * @param  \Nova\Http\Request  $request
+	 * @param  \Mini\Http\Request  $request
 	 * @return array
 	 */
 	protected function checkForAlternateMethods($request)
@@ -117,9 +142,9 @@ class RouteCollection implements Countable, IteratorAggregate
 	/**
 	 * Get a route (if necessary) that responds when other available methods are present.
 	 *
-	 * @param  \Nova\Http\Request  $request
+	 * @param  \Mini\Http\Request  $request
 	 * @param  array  $others
-	 * @return \Nova\Routing\Route
+	 * @return \Mini\Routing\Route
 	 *
 	 * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedHttpException
 	 */
@@ -152,9 +177,9 @@ class RouteCollection implements Countable, IteratorAggregate
 	 * Determine if a route in the array matches the request.
 	 *
 	 * @param  array  $routes
-	 * @param  \Nova\Http\Request  $request
+	 * @param  \Mini\Http\Request  $request
 	 * @param  bool  $includingMethod
-	 * @return \Nova\Routing\Route|null
+	 * @return \Mini\Routing\Route|null
 	 */
 	protected function check(array $routes, $request, $includingMethod = true)
 	{
@@ -192,6 +217,39 @@ class RouteCollection implements Countable, IteratorAggregate
 		}
 
 		return Arr::get($this->routes, $method, array());
+	}
+
+	/**
+	 * Determine if the route collection contains a given named route.
+	 *
+	 * @param  string  $name
+	 * @return bool
+	 */
+	public function hasNamedRoute($name)
+	{
+		return ! is_null($this->getByName($name));
+	}
+
+	/**
+	 * Get a route instance by its name.
+	 *
+	 * @param  string  $name
+	 * @return \Mini\Routing\Route|null
+	 */
+	public function getByName($name)
+	{
+		return isset($this->nameList[$name]) ? $this->nameList[$name] : null;
+	}
+
+	/**
+	 * Get a route instance by its controller action.
+	 *
+	 * @param  string  $action
+	 * @return \Mini\Routing\Route|null
+	 */
+	public function getByAction($action)
+	{
+		return isset($this->actionList[$action]) ? $this->actionList[$action] : null;
 	}
 
 	/**

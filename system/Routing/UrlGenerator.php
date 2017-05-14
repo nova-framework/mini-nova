@@ -3,6 +3,7 @@
 namespace Mini\Routing;
 
 use Mini\Http\Request;
+use Mini\Support\Arr;
 use Mini\Support\Str;
 
 use InvalidArgumentException;
@@ -208,6 +209,195 @@ class UrlGenerator
 	}
 
 	/**
+	 * Get the URL to a named route.
+	 *
+	 * @param  string  $name
+	 * @param  mixed   $parameters
+	 * @param  bool  $absolute
+	 * @param  \Nova\Routing\Route  $route
+	 * @return string
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	public function route($name, $parameters = array(), $absolute = true, $route = null)
+	{
+		$route = $route ?: $this->routes->getByName($name);
+
+		$parameters = (array) $parameters;
+
+		if (! is_null($route)) {
+			return $this->toRoute($route, $parameters, $absolute);
+		}
+
+		throw new InvalidArgumentException("Route [{$name}] not defined.");
+	}
+
+	/**
+	 * Get the URL for a given route instance.
+	 *
+	 * @param  \Nova\Routing\Route  $route
+	 * @param  array  $parameters
+	 * @param  bool  $absolute
+	 * @return string
+	 *
+	 * @throws \BadMethodCallException
+	 */
+	protected function toRoute($route, array $parameters, $absolute)
+	{
+		$pattern = $route->uri();
+
+		$uri = strtr(rawurlencode($this->trimUrl(
+			$root = $this->replaceRoot($route, $parameters),
+			$this->replaceRouteParameters($pattern, $parameters)
+		)), $this->dontEncode) .$this->getRouteQueryString($parameters);
+
+		return $absolute ? $uri : '/' .ltrim(str_replace($root, '', $uri), '/');
+	}
+
+	/**
+	 * Replace the parameters on the root path.
+	 *
+	 * @param  \Nova\Routing\Route  $route
+	 * @param  array  $parameters
+	 * @return string
+	 */
+	protected function replaceRoot($route, &$parameters)
+	{
+		return $this->replaceRouteParameters($this->getRouteRoot($route), $parameters);
+	}
+
+	/**
+	 * Replace all of the wildcard parameters for a route path.
+	 *
+	 * @param  string  $path
+	 * @param  array  $parameters
+	 * @return string
+	 */
+	protected function replaceRouteParameters($path, array &$parameters)
+	{
+		if (count($parameters) > 0) {
+			$path = preg_replace_callback('/\{.*?\}/', function($matches) use (&$parameters)
+			{
+				return array_shift($parameters);
+
+			}, $this->replaceNamedParameters($path, $parameters));
+		}
+
+		return trim(preg_replace('/\{.*?\?\}/', '', $path), '/');
+	}
+
+	/**
+	 * Replace all of the named parameters in the path.
+	 *
+	 * @param  string  $path
+	 * @param  array  $parameters
+	 * @return string
+	 */
+	protected function replaceNamedParameters($path, &$parameters)
+	{
+		return preg_replace_callback('/\{(.*?)\??\}/', function($matches) use (&$parameters)
+		{
+			return isset($parameters[$matches[1]]) ? Arr::pull($parameters, $matches[1]) : $matches[0];
+
+		}, $path);
+	}
+
+	/**
+	 * Get the query string for a given route.
+	 *
+	 * @param  array  $parameters
+	 * @return string
+	 */
+	protected function getRouteQueryString(array $parameters)
+	{
+		if (count($parameters) == 0) {
+			return '';
+		}
+
+		$query = http_build_query(
+			$keyed = $this->getStringParameters($parameters)
+		);
+
+		if (count($keyed) < count($parameters)) {
+			$query .= '&' .implode('&', $this->getNumericParameters($parameters));
+		}
+
+		return '?' .trim($query, '&');
+	}
+
+	/**
+	 * Get the string parameters from a given list.
+	 *
+	 * @param  array  $parameters
+	 * @return array
+	 */
+	protected function getStringParameters(array $parameters)
+	{
+		return Arr::where($parameters, function($key, $vvalue)
+		{
+			return is_string($key);
+		});
+	}
+
+	/**
+	 * Get the numeric parameters from a given list.
+	 *
+	 * @param  array  $parameters
+	 * @return array
+	 */
+	protected function getNumericParameters(array $parameters)
+	{
+		return Arr::where($parameters, function($key, $value)
+		{
+			return is_numeric($key);
+		});
+	}
+
+	/**
+	 * Get the root of the route URL.
+	 *
+	 * @param  \Nova\Routing\Route  $route
+	 * @param  string  $domain
+	 * @return string
+	 */
+	protected function getRouteRoot($route)
+	{
+		$scheme = $this->getRouteScheme($route);
+
+		return $this->getRootUrl($scheme);
+	}
+
+	/**
+	 * Get the scheme for the given route.
+	 *
+	 * @param  \Nova\Routing\Route  $route
+	 * @return string
+	 */
+	protected function getRouteScheme($route)
+	{
+		if ($route->httpOnly()) {
+			return $this->getScheme(false);
+		} else if ($route->httpsOnly()) {
+			return $this->getScheme(true);
+		}
+
+		return $this->getScheme(null);
+	}
+
+	/**
+	 * Get the URL to a controller action.
+	 *
+	 * @param  string  $action
+	 * @param  mixed   $parameters
+	 * @param  bool	$absolute
+	 * @return string
+	 */
+	public function action($action, $parameters = array(), $absolute = true)
+	{
+		return $this->route($action, $parameters, $absolute, $this->routes->getByAction($action));
+	}
+
+	/**
 	 * Get the base URL for the request.
 	 *
 	 * @param  string  $scheme
@@ -292,7 +482,9 @@ class UrlGenerator
 	{
 		$session = $this->getSession();
 
-		return $session ? $session->previousUrl() : null;
+		if (! is_null($session)) {
+			return $session->previousUrl();
+		}
 	}
 
 	/**

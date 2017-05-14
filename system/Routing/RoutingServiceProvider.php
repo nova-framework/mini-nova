@@ -35,7 +35,7 @@ class RoutingServiceProvider extends ServiceProvider
 	 */
 	protected function registerRouter()
 	{
-		$this->app['router'] = $this->app->share(function($app)
+		$this->app['router'] = $this->app->share(function ($app)
 		{
 			return new Router($app['events'], $app);
 		});
@@ -61,7 +61,7 @@ class RoutingServiceProvider extends ServiceProvider
 	 */
 	protected function registerUrlGenerator()
 	{
-		$this->app['url'] = $this->app->share(function($app)
+		$this->app['url'] = $this->app->share(function ($app)
 		{
 			$routes = $app['router']->getRoutes();
 
@@ -87,7 +87,7 @@ class RoutingServiceProvider extends ServiceProvider
 	 */
 	protected function registerRedirector()
 	{
-		$this->app['redirect'] = $this->app->share(function($app)
+		$this->app['redirect'] = $this->app->share(function ($app)
 		{
 			$redirector = new Redirector($app['url']);
 
