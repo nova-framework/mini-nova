@@ -37,22 +37,35 @@
 					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __('Dashboard'); ?></a>
 				</li>
 				<?php if ($currentUser->hasRole('administrator')) { ?>
-				<li class="dropdown <?= (($baseUri == 'admin/settings') || ($baseUri == 'admin/roles')) ? 'active' : ''; ?>">
+				<li class="dropdown <?= ($baseUri == 'admin/settings') ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 						<i class='fa fa-server'></i> <?= __('Platform'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/settings') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-gears'></i> <?= __('Settings'); ?></a>
-						</li>
-						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-users'></i> <?= __('User Roles'); ?></a>
+							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-circle-o'></i> <?= __('Settings'); ?></a>
 						</li>
 					</ul>
 				</li>
-				<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-users'></i> <?= __('Users'); ?></a>
-				</li>
+				<li class="dropdown <?= (($baseUri == 'admin/users') || ($baseUri == 'admin/roles')) ? 'active' : ''; ?>">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+						<i class='fa fa-server'></i> <?= __('Users'); ?> <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Users List'); ?></a>
+						</li>
+						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
+						</li>
+						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('User Roles'); ?></a>
+						</li>
+						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
+						</li>
+					</ul>
+				<li>
 				<?php } ?>
 			</ul>
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 0;">
@@ -81,13 +94,13 @@
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/profile'); ?>"><?= __('Profile'); ?></a>
+							<a href="<?= site_url('admin/profile'); ?>"><i class='fa fa-circle-o'></i> <?= __('Profile'); ?></a>
 						</li>
 						<li role="separator" class="divider"></li>
 						<li>
 							<a href="<?= site_url('auth/logout'); ?>"
 								onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-								<?= __('Logout'); ?>
+								<i class='fa fa-sign-out'></i> <?= __('Logout'); ?>
 							</a>
 							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;">
 								<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
