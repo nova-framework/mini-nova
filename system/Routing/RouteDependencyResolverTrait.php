@@ -36,7 +36,7 @@ trait RouteDependencyResolverTrait
 	 */
 	protected function resolveClassMethodDependencies(array $parameters, $instance, $method)
 	{
-		if (! method_exists($instance, $method)) {
+		if (! method_exists($instance, $method) || empty($parameters)) {
 			return $parameters;
 		}
 
