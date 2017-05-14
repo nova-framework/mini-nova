@@ -46,6 +46,10 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->get('/',			'Dashboard@index');
 	$router->get('dashboard',	'Dashboard@index');
 
+	// The Platform Settings.
+	$router->get( 'settings',	'Settings@index');
+	$router->post('settings',	'Settings@store');
+
 	// The User's Profile.
 	$router->get( 'profile',	'Profile@index');
 	$router->post('profile',	'Profile@update');

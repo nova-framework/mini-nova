@@ -326,6 +326,15 @@ class Builder
 	 */
 	public function where($column, $operator = null, $value = null, $boolean = 'and')
 	{
+		if (is_array($column)) {
+			return $this->whereNested(function($query) use ($column)
+			{
+				foreach ($column as $key => $value) {
+					$query->where($key, '=', $value);
+				}
+			}, $boolean);
+		}
+		
 		if (func_num_args() == 2) {
 			list($value, $operator) = array($operator, '=');
 		} else if ($this->invalidOperatorAndValue($operator, $value)) {
