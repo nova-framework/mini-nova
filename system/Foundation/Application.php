@@ -524,7 +524,9 @@ class Application extends Container
 	{
 		$aliases = array(
 			'app'			=> array('Mini\Foundation\Application', 'Mini\Container\Container'),
-			'log'			=> array('Mini\Foundation\Logger', 'Psr\Log\LoggerInterface'),
+			'cache'			=> array('Mini\Cache\CacheManager'),
+			'cache.store'	=> array('Mini\Cache\Repository'),
+			'log'			=> array('Mini\Log\Writter', 'Psr\Log\LoggerInterface'),
 			'config'		=> array('Mini\Config\Repository'),
 			'cookie'		=> array('Mini\Cookie\CookieJar'),
 			'encrypter'	 	=> array('Mini\Encryption\Encrypter'),

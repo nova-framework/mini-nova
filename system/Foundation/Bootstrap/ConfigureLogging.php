@@ -3,7 +3,7 @@
 namespace Mini\Foundation\Bootstrap;
 
 use Mini\Foundation\Application;
-use Mini\Foundation\Logger;
+use Mini\Log\Writter;
 
 use Monolog\Logger as Monolog;
 
@@ -27,11 +27,11 @@ class ConfigureLogging
 	 * Register the logger instance in the container.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @return \Mini\Foundation\Logger
+	 * @return \Mini\Log\Writter
 	 */
 	protected function registerLogger(Application $app)
 	{
-		$app->instance('log', $log = new Logger(
+		$app->instance('log', $log = new Writter(
 			new Monolog('mini-nova'), $app['events'])
 		);
 
@@ -42,10 +42,10 @@ class ConfigureLogging
 	 * Configure the Monolog handlers for the application.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @param  \Mini\Foundation\Logger  $log
+	 * @param  \Mini\Log\Writter  $log
 	 * @return void
 	 */
-	protected function configureHandlers(Application $app, Logger $log)
+	protected function configureHandlers(Application $app, Writter $log)
 	{
 		$method = 'configure' .ucfirst($app['config']['app.log']) .'Handler';
 
@@ -56,10 +56,10 @@ class ConfigureLogging
 	 * Configure the Monolog handlers for the application.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @param  \Mini\Foundation\Logger  $log
+	 * @param  \Mini\Log\Writter  $log
 	 * @return void
 	 */
-	protected function configureSingleHandler(Application $app, Logger $log)
+	protected function configureSingleHandler(Application $app, Writter $log)
 	{
 		$log->useFiles($app->make('path.storage') .DS .'logs' .DS .'framework.log');
 	}
@@ -68,10 +68,10 @@ class ConfigureLogging
 	 * Configure the Monolog handlers for the application.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @param  \Mini\Foundation\Logger  $log
+	 * @param  \Mini\Log\Writter  $log
 	 * @return void
 	 */
-	protected function configureDailyHandler(Application $app, Logger $log)
+	protected function configureDailyHandler(Application $app, Writter $log)
 	{
 		$log->useDailyFiles(
 			$app->make('path.storage') .DS .'logs' .DS .'framework.log',
@@ -83,10 +83,10 @@ class ConfigureLogging
 	 * Configure the Monolog handlers for the application.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @param  \Mini\Foundation\Logger  $log
+	 * @param  \Mini\Log\Writter  $log
 	 * @return void
 	 */
-	protected function configureSyslogHandler(Application $app, Logger $log)
+	protected function configureSyslogHandler(Application $app, Writter $log)
 	{
 		$log->useSyslog('mini-nova');
 	}
@@ -95,10 +95,10 @@ class ConfigureLogging
 	 * Configure the Monolog handlers for the application.
 	 *
 	 * @param  \Mini\Foundation\Application  $app
-	 * @param  \Mini\Foundation\Logger  $log
+	 * @param  \Mini\Log\Writter  $log
 	 * @return void
 	 */
-	protected function configureErrorlogHandler(Application $app, Logger $log)
+	protected function configureErrorlogHandler(Application $app, Writter $log)
 	{
 		$log->useErrorLog();
 	}
