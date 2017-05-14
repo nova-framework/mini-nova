@@ -64,7 +64,7 @@
 							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
 						</li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('User Roles'); ?></a>
+							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('Roles List'); ?></a>
 						</li>
 					</ul>
 				<li>

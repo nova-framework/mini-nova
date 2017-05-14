@@ -26,9 +26,30 @@ class User extends BaseModel implements UserInterface
 		return $this->belongsTo('App\Models\Role', 'role_id', 'id', 'role');
 	}
 
+	public function messages()
+	{
+		return $this->hasMany('App\Models\Message', 'sender_id', 'id');
+	}
+
+	public function notifications()
+	{
+		return $this->hasMany('App\Models\Notification', 'user_id');
+	}
+
+	public function newNotification()
+	{
+		$notification = new Notification();
+
+		$notification->user()->associate($this);
+
+		return $notification;
+	}
+
 	public function hasRole($roles, $strict = false)
 	{
-		$this->load('role');
+		if (! array_key_exists('role', $this->relations)) {
+			$this->load('role');
+		}
 
 		$slug = strtolower($this->role->slug);
 
@@ -38,17 +59,12 @@ class User extends BaseModel implements UserInterface
 		}
 
 		foreach ((array) $roles as $role) {
-			if (strtolower($role) == $role) {
+			if (strtolower($role) == $slug) {
 				return true;
 			}
 		}
 
 		return false;
-	}
-
-	public function messages()
-	{
-		return $this->hasMany('App\Models\Message', 'sender_id', 'id');
 	}
 
 	public function name() {
