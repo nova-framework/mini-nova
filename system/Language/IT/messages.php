@@ -47,5 +47,8 @@ return array (
   'The :attribute must have at least :min items.' => ':attribute deve contenere almeno :min elementi.',
   'The :attribute must have between :min and :max items.' => ':attribute deve contenere un numero di elementi compreso tra :min e :max.',
   'The selected :attribute is invalid.' => ':attribute non è valido.',
+  'These credentials do not match our records.' => '',
   'This action is unauthorized.' => '',
+  'Too many login attempts. Please try again in {0} seconds.' => '',
+  'User Login' => '',
 );

@@ -84,7 +84,7 @@ class ControllerDispatcher
 	{
 		$middleware = $this->getMiddleware($instance, $method);
 
-		if (empty($middleware) {
+		if (empty($middleware)) {
 			return $this->call($instance, $route, $method);
 		}
 

@@ -3,7 +3,6 @@
 return array (
   '%d %b %Y, %H:%M' => '',
   '<< Previous Page' => '',
-  '<b>{0}</b>, you have successfully logged in.' => '',
   'Actions' => '',
   'Apply the changes' => '',
   'Are you sure you want to remove this Role, the operation being irreversible?' => '',
@@ -135,7 +134,6 @@ return array (
   'View this message and its replies' => '',
   'Whether or not is used a external SMTP Server to send the E-mails.' => '',
   'Whether or not is used the Cryptography for connecting to the external SMTP Server.' => '',
-  'Wrong username or password.' => '',
   'You are not authorized to access this resource.' => '',
   'You have no messages sent or received.' => '',
   'You have successfully updated your Password.' => '',
