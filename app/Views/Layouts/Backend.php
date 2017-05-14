@@ -53,18 +53,18 @@
 						<i class='fa fa-server'></i> <?= __('Users'); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
-						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
-						</li>
 						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __('Users List'); ?></a>
 						</li>
-						<li role="separator" class="divider"></li>
-						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
+						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new User'); ?></a>
 						</li>
+						<li role="separator" class="divider"></li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __('Roles List'); ?></a>
+						</li>
+						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __('Create a new Role'); ?></a>
 						</li>
 					</ul>
 				<li>
