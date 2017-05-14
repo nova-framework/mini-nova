@@ -138,22 +138,24 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Get the authenticated user.
 	 *
-	 * @return \stdClass|null
+	 * @return \Mini\Auth\UserInterface|null
 	 */
 	public function user()
 	{
 		if ($this->loggedOut) {
-			return null;
-		} else if (! is_null($this->user)) {
-			return $this->user;
+			return;
 		}
 
-		$user = null;
+		if (! is_null($this->user)) {
+			return $this->user;
+		}
 
 		$id = $this->session->get($this->getName());
 
 		if (! is_null($id)) {
 			$user = $this->retrieveUserById($id);
+		} else {
+			$user = null;
 		}
 
 		$recaller = $this->getRecaller();
@@ -226,21 +228,18 @@ class SessionGuard implements GuardInterface
 	 */
 	protected function getRecaller()
 	{
-		$cookie = $this->request->cookies->get($this->getRecallerName());
+		$cookie = $this->getRecallerName();
 
-		return ! is_null($cookie) ? $this->decryptCookie($cookie) : null;
-	}
+		$value = $this->request->cookies->get($cookie);
 
-	/**
-	 * Decrypt the given cookie and return the value.
-	 *
-	 * @param  string  $cookie
-	 * @return string|null
-	 */
-	protected function decryptCookie($cookie)
-	{
+		if (is_null($value)) {
+			return;
+		}
+
+		// Decrypt the cookie value and return it.
+
 		try {
-			return $this->getEncrypter()->decrypt($cookie);
+			return $this->getEncrypter()->decrypt($value);
 		} catch (DecryptException $e) {
 			//
 		}
@@ -450,26 +449,17 @@ class SessionGuard implements GuardInterface
 	{
 		$value = $user->getAuthIdentifier() .'|' .$user->getRememberToken();
 
+		// Encrypt the cookie value before enqueing it.
+
 		try {
-			$value = $this->getEncrypter()->encrypt($value);
+			$cookie = $this->getEncrypter()->encrypt($value);
 		} catch (EncryptException $e) {
 			return;
 		}
 
-		$cookie = $this->createRecaller($value);
+		$cookies = $this->getCookieJar();
 
-		$this->getCookieJar()->queue($cookie);
-	}
-
-	/**
-	 * Create a remember me cookie for a given ID.
-	 *
-	 * @param  string  $value
-	 * @return \Symfony\Component\HttpFoundation\Cookie
-	 */
-	protected function createRecaller($value)
-	{
-		return $this->getCookieJar()->forever($this->getRecallerName(), $value);
+		$cookies->queue($cookies->forever($this->getRecallerName(), $cookie));
 	}
 
 	/**
@@ -526,7 +516,10 @@ class SessionGuard implements GuardInterface
 	 */
 	public function retrieveUser(array $credentials)
 	{
-		$query = $this->newQuery();
+		$model = $this->createModel();
+
+		//
+		$query = $model->newQuery();
 
 		foreach ($credentials as $key => $value) {
 			if (! Str::contains($key, 'password')) {
@@ -545,7 +538,9 @@ class SessionGuard implements GuardInterface
 	 */
 	public function retrieveUserById($identifier)
 	{
-		return $this->newQuery()->find($identifier);
+		$model = $this->createModel();
+
+		return $model->newQuery()->find($identifier);
 	}
 
 	/**
@@ -557,7 +552,9 @@ class SessionGuard implements GuardInterface
 	 */
 	protected function retrieveUserByToken($identifier, $token)
 	{
-		return $this->newQuery()
+		$model = $this->createModel();
+
+		return $model->newQuery()
 			->where($model->getKeyName(), $identifier)
 			->where($model->getRememberTokenName(), $token)
 			->first();
@@ -739,13 +736,13 @@ class SessionGuard implements GuardInterface
 	/**
 	 * Create a new instance of the model's Query Buider.
 	 *
-	 * @return \Mini\Database\ORM\Builder
+	 * @return \Mini\Database\ORM\Model
 	 */
-	public function newQuery()
+	public function createModel()
 	{
 		$model = '\\' .ltrim($this->model, '\\');
 
-		return with(new $model)->newQuery();
+		return new $model;
 	}
 
 }

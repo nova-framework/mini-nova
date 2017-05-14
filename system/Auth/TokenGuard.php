@@ -134,10 +134,10 @@ class TokenGuard implements GuardInterface
 	 */
 	public function retrieveUserByToken($token)
 	{
-		$user = $this->newQuery()->where($this->storageKey, $token)->first();
+		$result = $this->newQuery()->where($this->storageKey, $token)->first();
 
 		if (! is_null($user)) {
-			return new GenericUser((array) $user);
+			return new GenericUser((array) $result);
 		}
 	}
 
