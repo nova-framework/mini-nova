@@ -152,6 +152,43 @@ class Router
 	}
 
 	/**
+	 * Merge the given group attributes.
+	 *
+	 * @param  array  $new
+	 * @param  array  $old
+	 * @return array
+	 */
+	protected static function mergeGroup($new, $old)
+	{
+		if (isset($new['namespace'])) {
+			$new['namespace'] = isset($old['namespace'])
+				? trim($old['namespace'], '\\') .'\\' .trim($new['namespace'], '\\')
+				: trim($new['namespace'], '\\');
+		} else {
+			$new['namespace'] = isset($old['namespace']) ? $old['namespace'] : null;
+		}
+
+		if (isset($new['prefix'])) {
+			$new['prefix'] = isset($old['prefix'])
+				? trim($old['prefix'], '/') .'/' .trim($new['prefix'], '/')
+				: trim($new['prefix'], '/');
+		} else {
+			$new['prefix'] = isset($old['prefix']) ? $old['prefix'] : null;
+		}
+
+		$new['where'] = array_merge(
+			isset($old['where']) ? $old['where'] : array(),
+			isset($new['where']) ? $new['where'] : array()
+		);
+
+		if (isset($old['as'])) {
+			$new['as'] = $old['as'] . (isset($new['as']) ? $new['as'] : '');
+		}
+
+		return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where', 'as')), $new);
+	}
+
+	/**
 	 * Add a route to the router.
 	 *
 	 * @param  string|array  $method
@@ -216,43 +253,6 @@ class Router
 		$route = new Route($methods, $uri, $action, $patterns);
 
 		return $route->setContainer($this->container);
-	}
-
-	/**
-	 * Merge the given group attributes.
-	 *
-	 * @param  array  $new
-	 * @param  array  $old
-	 * @return array
-	 */
-	protected static function mergeGroup($new, $old)
-	{
-		if (isset($new['namespace'])) {
-			$new['namespace'] = isset($old['namespace'])
-				? trim($old['namespace'], '\\') .'\\' .trim($new['namespace'], '\\')
-				: trim($new['namespace'], '\\');
-		} else {
-			$new['namespace'] = isset($old['namespace']) ? $old['namespace'] : null;
-		}
-
-		if (isset($new['prefix'])) {
-			$new['prefix'] = isset($old['prefix'])
-				? trim($old['prefix'], '/') .'/' .trim($new['prefix'], '/')
-				: trim($new['prefix'], '/');
-		} else {
-			$new['prefix'] = isset($old['prefix']) ? $old['prefix'] : null;
-		}
-
-		$new['where'] = array_merge(
-			isset($old['where']) ? $old['where'] : array(),
-			isset($new['where']) ? $new['where'] : array()
-		);
-
-		if (isset($old['as'])) {
-			$new['as'] = $old['as'] . (isset($new['as']) ? $new['as'] : '');
-		}
-
-		return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where', 'as')), $new);
 	}
 
 	/**
