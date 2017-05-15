@@ -7,6 +7,7 @@ use Mini\Events\DispatcherInterface;
 use Mini\Pipeline\Pipeline;
 use Mini\Http\Request;
 use Mini\Http\Response;
+use Mini\Routing\ControllerInspector;
 use Mini\Routing\ResourceRegistrar;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
@@ -72,6 +73,13 @@ class Router
 	protected $binders = array();
 
 	/**
+	 * The controller inspector instance.
+	 *
+	 * @var \Mini\Routing\ControllerInspector
+	 */
+	protected $inspector;
+
+	/**
 	 * All of the wheres that have been registered.
 	 *
 	 * @var array
@@ -117,6 +125,42 @@ class Router
 		$methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
 
 		return $this->addRoute($methods, $route, $action);
+	}
+
+	/**
+	 * Route a controller to a URI with wildcard routing.
+	 *
+	 * @param  string  $uri
+	 * @param  string  $controller
+	 * @param  array   $names
+	 * @return void
+	 */
+	public function controller($uri, $controller, $names = array())
+	{
+		$prepended = $controller;
+
+		if (! empty($this->groupStack)) {
+			$prepended = $this->prependGroupUses($controller);
+		}
+
+		$routable = $this->getInspector()->getRoutable($prepended, $uri);
+
+		foreach ($routable as $method => $routes) {
+			foreach ($routes as $route) {
+				$action = array('uses' => $controller .'@' .$method);
+
+				if (isset($names[$method])) {
+					$action['as'] = $names[$method];
+				}
+
+				$this->addRoute($route['verb'], $route['uri'], $action);
+			}
+		}
+
+		// Add the fallthrough Route
+		$missing = $this->any($uri .'/{_missing}', $controller .'@missingMethod');
+
+		$missing->where('_missing', '(.*)');
 	}
 
 	/**
@@ -297,16 +341,25 @@ class Router
 		}
 
 		if (! empty($this->groupStack)) {
-			$group = end($this->groupStack);
-
-			if (isset($group['namespace'])) {
-				$action['uses'] = $group['namespace'] .'\\' .$action['uses'];
-			}
+			$action['uses'] = $this->prependGroupUses($action['uses']);
 		}
 
 		$action['controller'] = $action['uses'];
 
 		return $action;
+	}
+
+	/**
+	 * Prepend the last group uses onto the use clause.
+	 *
+	 * @param  string  $uses
+	 * @return string
+	 */
+	protected function prependGroupUses($uses)
+	{
+		$group = last($this->groupStack);
+
+		return isset($group['namespace']) ? $group['namespace'] .'\\' .$uses : $uses;
 	}
 
 	/**
@@ -691,6 +744,16 @@ class Router
 	public function getRoutes()
 	{
 		return $this->routes;
+	}
+
+	/**
+	 * Get a controller inspector instance.
+	 *
+	 * @return \Nova\Routing\ControllerInspector
+	 */
+	public function getInspector()
+	{
+		return $this->inspector ?: $this->inspector = new ControllerInspector;
 	}
 
 	/**

@@ -17,6 +17,18 @@ $router->get('/', function()
 	return View::make('Layouts/Default')->with('content', $view);
 });
 
+$router->get('test/{param1}/{param2?}', function($param1, $param2)
+{
+	$content = '<pre>' .var_export($param1, true) .' ' .var_export($param2, true) .'</pre>';
+
+	$view = View::make('Default')
+		->shares('title', 'test')
+		->with('content', $content);
+
+	return View::make('Layouts/Default')->with('content', $view);
+
+})->defaults('param2', 'default');
+
 // The Language Changer.
 $router->get('language/{language}', array('middleware' => 'referer', function($language)
 {

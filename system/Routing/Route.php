@@ -38,6 +38,13 @@ class Route
 	protected $action;
 
 	/**
+	 * The default values for the route.
+	 *
+	 * @var array
+	 */
+	protected $defaults = array();
+
+	/**
 	 * The regular expression requirements.
 	 *
 	 * @var array
@@ -50,6 +57,13 @@ class Route
 	 * @var array
 	 */
 	protected $parameters = array();
+
+	/**
+	 * The parameter names for the route.
+	 *
+	 * @var array|null
+	 */
+	protected $parameterNames;
 
 	/**
 	 * The regex pattern the route responds to.
@@ -85,10 +99,10 @@ class Route
 		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
 
 		//
-		$this->uri	 = $uri;
-		$this->methods = $methods;
-		$this->action  = $action;
-		$this->wheres  = $wheres;
+		$this->uri		= $uri;
+		$this->methods	= $methods;
+		$this->action	= $action;
+		$this->wheres	= $wheres;
 	}
 
 	/**
@@ -170,7 +184,7 @@ class Route
 	/**
 	 * Send the request and route to a custom dispatcher for handling.
 	 *
-	 * @param  \Nova\Http\Request  $request
+	 * @param  \Mini\Http\Request  $request
 	 * @return mixed
 	 */
 	protected function runWithCustomDispatcher(Request $request)
@@ -185,7 +199,7 @@ class Route
 	/**
 	 * Checks if a Request matches the Route pattern.
 	 *
-	 * @param \Http\Request $request The dispatched Request instance
+	 * @param \Mini\Http\Request $request The dispatched Request instance
 	 * @param bool $includingMethod Wheter or not is matched the HTTP Method
 	 * @return bool Match status
 	 */
@@ -201,27 +215,14 @@ class Route
 		$pattern = $this->compile();
 
 		if (preg_match($pattern, $path, $matches) === 1) {
-			$this->parameters = $this->gatherParameters($matches);
+			$parameters = $this->matchToKeys($matches);
+
+			$this->parameters = $this->replaceDefaults($parameters);
 
 			return true;
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get the string key parameters from a given list.
-	 *
-	 * @param  array  $items
-	 * @return array
-	 */
-	protected function gatherParameters(array $items)
-	{
-		return array_filter($items, function ($value)
-		{
-			return is_string($value);
-
-		}, ARRAY_FILTER_USE_KEY);
 	}
 
 	/**
@@ -299,6 +300,83 @@ class Route
 			return is_string($value) ? rawurldecode($value) : $value;
 
 		}, $this->parameters);
+	}
+
+	/**
+	 * Get all of the parameter names for the route.
+	 *
+	 * @return array
+	 */
+	public function parameterNames()
+	{
+		if (isset($this->parameterNames)) {
+			return $this->parameterNames;
+		}
+
+		preg_match_all('/\{(.*?)\}/', $this->uri, $matches);
+
+		return $this->parameterNames = array_map(function ($value)
+		{
+			return trim($value, '?');
+
+		}, $matches[1]);
+	}
+
+	/**
+	 * Combine a set of parameter matches with the route's keys.
+	 *
+	 * @param  array  $matches
+	 * @return array
+	 */
+	protected function matchToKeys(array $matches)
+	{
+		$parameterNames = $this->parameterNames();
+
+		if (count($parameterNames) == 0) {
+			return array();
+		}
+
+		$parameters = array_intersect_key($matches, array_flip($parameterNames));
+
+		return array_filter($parameters, function($value)
+		{
+			return is_string($value) && (strlen($value) > 0);
+		});
+	}
+
+	/**
+	 * Replace null parameters with their defaults.
+	 *
+	 * @param  array  $parameters
+	 * @return array
+	 */
+	protected function replaceDefaults(array $parameters)
+	{
+		$parameterNames = $this->parameterNames();
+
+		foreach ($this->defaults as $key => $value) {
+			if (isset($parameters[$key])) {
+				// No need for defaults.
+			} else if (in_array($key, $parameterNames) && isset($value)) {
+				$parameters[$key] = $value;
+			}
+		}
+
+		return $parameters;
+	}
+
+	/**
+	 * Set a default value for the route.
+	 *
+	 * @param  string  $key
+	 * @param  mixed  $value
+	 * @return $this
+	 */
+	public function defaults($key, $value)
+	{
+		$this->defaults[$key] = $value;
+
+		return $this;
 	}
 
 	/**
