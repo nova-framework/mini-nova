@@ -144,7 +144,7 @@ class Router
 	public function group($attributes, Closure $callback)
 	{
 		if (! empty($this->groupStack)) {
-			$attributes = static::mergeGroup($attributes, end($this->groupStack));
+			$attributes = $this->mergeGroup($attributes, end($this->groupStack));
 		}
 
 		$this->groupStack[] = $attributes;
@@ -161,7 +161,7 @@ class Router
 	 * @param  array  $old
 	 * @return array
 	 */
-	protected static function mergeGroup($new, $old)
+	protected function mergeGroup($new, $old)
 	{
 		if (isset($new['namespace'])) {
 			$new['namespace'] = isset($old['namespace'])
@@ -228,14 +228,11 @@ class Router
 
 		// When the 'uses' is not defined into Action, find the Closure in the array.
 		else if (! isset($action['uses'])) {
-			$action['uses'] = Arr::first($action, function($key, $value)
-			{
-				return is_callable($value);
-			});
+			$action['uses'] = $this->findActionClosure($action);
 		}
 
 		if (! empty($this->groupStack)) {
-			$action = static::mergeGroup($action, end($this->groupStack));
+			$action = $this->mergeGroup($action, end($this->groupStack));
 		}
 
 		return $this->newRoute($methods, $uri, $action);
@@ -256,6 +253,20 @@ class Router
 		$route = new Route($methods, $uri, $action, $patterns);
 
 		return $route->setContainer($this->container);
+	}
+
+	/**
+	 * Find the Closure in an action array.
+	 *
+	 * @param  array  $action
+	 * @return \Closure
+	 */
+	protected function findActionClosure(array $action)
+	{
+		return Arr::first($action, function($key, $value)
+		{
+			return is_callable($value);
+		});
 	}
 
 	/**
