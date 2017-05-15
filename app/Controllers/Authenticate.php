@@ -22,11 +22,4 @@ class Authenticate extends BaseController
 	//
 	protected $layout = 'Authorize';
 
-
-	protected function authenticated(Request $request, $user)
-	{
-		$status = __('<b>{0}</b>, you have successfully logged in.', $user->username);
-
-		return Redirect::intended($this->redirectPath())->with('success', $status);
-	}
 }

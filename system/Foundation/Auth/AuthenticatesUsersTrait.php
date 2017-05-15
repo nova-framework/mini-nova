@@ -4,7 +4,6 @@ namespace Mini\Foundation\Auth;
 
 use Mini\Foundation\Auth\ThrottlesLoginsTrait;
 use Mini\Http\Request;
-use Mini\Support\Facades\App;
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
