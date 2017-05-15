@@ -90,13 +90,6 @@ class Router
 	 */
 	public static $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
 
-	/**
-	 * The resource registrar instance.
-	 *
-	 * @var \Mini\Routing\ResourceRegistrar
-	 */
-	protected $registrar;
-
 
 	/**
 	 * Construct a new Router instance.
@@ -149,7 +142,7 @@ class Router
 	 */
 	public function resource($name, $controller, array $options = array())
 	{
-		$registrar = $this->getRegistrar();
+		$registrar = new ResourceRegistrar($this);
 
 		$registrar->register($name, $controller, $options);
 	}
@@ -586,16 +579,6 @@ class Router
 		}
 
 		return $response->prepare($request);
-	}
-
-	/**
-	 * Get a Resource Registrar instance.
-	 *
-	 * @return \Mini\Routing\ResourceRegistrar
-	 */
-	public function getRegistrar()
-	{
-		return $this->registrar ?: $this->registrar = new ResourceRegistrar($this);
 	}
 
 	/**

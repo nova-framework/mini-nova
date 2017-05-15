@@ -1,6 +1,6 @@
 <?php
 /**
- * Authorize - A Controller for managing the User Authentication.
+ * Authenticate - A Controller for managing the User Authentication.
  *
  * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
  * @version 3.0
