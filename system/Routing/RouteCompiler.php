@@ -28,19 +28,19 @@ class RouteCompiler
 	 */
 	public static function compile($uri, $patterns)
 	{
-		$uri = '/' .ltrim($uri, '/');
+		$path = '/' .ltrim($uri, '/');
 
 		$variables = array();
 
 		// The optional parameters count.
 		$optionals = 0;
 
-		$regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $patterns, &$optionals, &$variables)
+		$regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($path, $patterns, &$optionals, &$variables)
 		{
 			@list(, $name, $optional) = $matches;
 
 			if (in_array($name, $variables)) {
-				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $uri, $name);
+				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $path, $name);
 
 				throw new LogicException($message);
 			}
@@ -55,7 +55,7 @@ class RouteCompiler
 
 				$optionals++;
 			} else if ($optionals > 0) {
-				$message = sprintf('Route pattern [%s] cannot reference variable [%s] after one or more optionals.', $uri, $name);
+				$message = sprintf('Route pattern [%s] cannot reference variable [%s] after one or more optionals.', $path, $name);
 
 				throw new LogicException($message);
 			}
@@ -64,7 +64,7 @@ class RouteCompiler
 
 			return sprintf('%s/(?P<%s>%s)', $prefix, $name, $pattern);
 
-		}, $uri);
+		}, $path);
 
 		// Adjust the pattern when we have optional parameters.
 		if ($optionals > 0) {
