@@ -63,8 +63,8 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 
 	$router->post('messages/{threadId}',		'Messages@reply');
 
-    // Notifications
-    $router->get('notifications',		'Notifications@index');
+	// Notifications
+	$router->get('notifications',		'Notifications@index');
 
 	// Server Side Processor for Users DataTable.
 	$router->post('users/data',			'Users@data');

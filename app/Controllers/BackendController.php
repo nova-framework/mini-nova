@@ -34,10 +34,10 @@ class BackendController extends BaseController
 
 		View::share('currentUser', $user);
 
-        //
-        $notifications = Notification::where('user_id', $user->id)->unread()->count();
+		//
+		$notifications = Notification::where('user_id', $user->id)->unread()->count();
 
-        View::share('notificationCount', $notifications);
+		View::share('notificationCount', $notifications);
 
 		//
 		$messages = Message::where('receiver_id', $user->id)->unread()->count();

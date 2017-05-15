@@ -7,6 +7,7 @@ use Mini\Events\DispatcherInterface;
 use Mini\Pipeline\Pipeline;
 use Mini\Http\Request;
 use Mini\Http\Response;
+use Mini\Routing\ResourceRegistrar;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
@@ -45,7 +46,7 @@ class Router
 	/**
 	 * The request currently being dispatched.
 	 *
-	 * @var \Nova\Http\Request
+	 * @var \Mini\Http\Request
 	 */
 	protected $currentRequest;
 
@@ -59,7 +60,7 @@ class Router
 	/**
 	 * The instance of RouteCollection.
 	 *
-	 * @var \Nova\Routing\RouteCollection;
+	 * @var \Mini\Routing\RouteCollection;
 	 */
 	protected $routes;
 
@@ -89,6 +90,13 @@ class Router
 	 */
 	public static $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
 
+	/**
+	 * The resource registrar instance.
+	 *
+	 * @var \Mini\Routing\ResourceRegistrar
+	 */
+	protected $registrar;
+
 
 	/**
 	 * Construct a new Router instance.
@@ -109,7 +117,7 @@ class Router
 	 *
 	 * @param  string  $uri
 	 * @param  \Closure|array|string  $action
-	 * @return \Nova\Routing\Route
+	 * @return \Mini\Routing\Route
 	 */
 	public function any($route, $action)
 	{
@@ -129,6 +137,21 @@ class Router
 	public function match($methods, $route, $action)
 	{
 		return $this->addRoute($methods, $uri, $action);
+	}
+
+	/**
+	 * Route a resource to a controller.
+	 *
+	 * @param  string  $name
+	 * @param  string  $controller
+	 * @param  array   $options
+	 * @return void
+	 */
+	public function resource($name, $controller, array $options = array())
+	{
+		$registrar = $this->getRegistrar();
+
+		$registrar->register($name, $controller, $options);
 	}
 
 	/**
@@ -209,7 +232,7 @@ class Router
 	 * @param  array|string  $methods
 	 * @param  string  $uri
 	 * @param  mixed   $action
-	 * @return \Nova\Routing\Route
+	 * @return \Mini\Routing\Route
 	 */
 	protected function createRoute($methods, $uri, $action)
 	{
@@ -421,8 +444,8 @@ class Router
 	/**
 	 * Substitute the route bindings onto the route.
 	 *
-	 * @param  \Nova\Routing\Route  $route
-	 * @return \Nova\Routing\Route
+	 * @param  \Mini\Routing\Route  $route
+	 * @return \Mini\Routing\Route
 	 */
 	protected function substituteBindings($route)
 	{
@@ -440,7 +463,7 @@ class Router
 	 *
 	 * @param  string  $key
 	 * @param  string  $value
-	 * @param  \Nova\Routing\Route  $route
+	 * @param  \Mini\Routing\Route  $route
 	 * @return mixed
 	 */
 	protected function performBinding($key, $value, $route)
@@ -554,7 +577,7 @@ class Router
 	 *
 	 * @param  \Symfony\Component\HttpFoundation\Request  $request
 	 * @param  mixed  $response
-	 * @return \Nova\Http\Response
+	 * @return \Mini\Http\Response
 	 */
 	public function prepareResponse($request, $response)
 	{
@@ -563,6 +586,16 @@ class Router
 		}
 
 		return $response->prepare($request);
+	}
+
+	/**
+	 * Get a Resource Registrar instance.
+	 *
+	 * @return \Mini\Routing\ResourceRegistrar
+	 */
+	public function getRegistrar()
+	{
+		return $this->registrar ?: $this->registrar = new ResourceRegistrar($this);
 	}
 
 	/**
@@ -666,7 +699,7 @@ class Router
 	/**
 	 * Get the request currently being dispatched.
 	 *
-	 * @return \Nova\Http\Request
+	 * @return \Mini\Http\Request
 	 */
 	public function getCurrentRequest()
 	{
@@ -676,7 +709,7 @@ class Router
 	/**
 	 * Return the available Routes.
 	 *
-	 * @return \Nova\Routing\RouteCollection
+	 * @return \Mini\Routing\RouteCollection
 	 */
 	public function getRoutes()
 	{
@@ -692,8 +725,12 @@ class Router
 	 */
 	public function __call($method, $parameters)
 	{
-		array_unshift($parameters, $method);
+		if (in_array(strtoupper($method), static::$methods)) {
+			array_unshift($parameters, $method);
 
-		return call_user_func_array(array($this, 'addRoute'), $parameters);
+			return call_user_func_array(array($this, 'addRoute'), $parameters);
+		}
+
+		throw new BadMethodCallException("Method [$method] does not exist.");
 	}
 }
