@@ -105,7 +105,7 @@ trait ThrottlesLoginsTrait
 	 */
 	protected function getThrottleKey(Request $request)
 	{
-		return mb_strtolower($request->input($this->loginUsername())) .'|' .$request->ip();
+		return mb_strtolower($request->input($this->username())) .'|' .$request->ip();
 	}
 
 	/**

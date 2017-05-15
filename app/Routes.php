@@ -37,7 +37,7 @@ $router->get('language/{language}', array('middleware' => 'referer', function($l
 // The default Auth Routes.
 $router->get( 'auth/login',  array('middleware' => 'guest', 'uses' => 'Authenticate@getLogin'));
 $router->post('auth/login',  array('middleware' => 'guest', 'uses' => 'Authenticate@postLogin'));
-$router->post('auth/logout', array('middleware' => 'auth',  'uses' => 'Authenticate@getLogout'));
+$router->post('auth/logout', array('middleware' => 'auth',  'uses' => 'Authenticate@logout'));
 
 // The Adminstration Routes.
 $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' => 'Admin'), function($router)

@@ -9,7 +9,6 @@
 namespace App\Controllers;
 
 use Mini\Foundation\Auth\AuthenticatesUsersTrait;
-use Mini\Foundation\Auth\ThrottlesLoginsTrait;
 use Mini\Http\Request;
 use Mini\Support\Facades\Redirect;
 
@@ -18,7 +17,7 @@ use App\Controllers\BaseController;
 
 class Authenticate extends BaseController
 {
-	use AuthenticatesUsersTrait, ThrottlesLoginsTrait;
+	use AuthenticatesUsersTrait;
 
 	//
 	protected $layout = 'Authorize';

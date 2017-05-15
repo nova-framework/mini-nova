@@ -2,6 +2,7 @@
 
 namespace Mini\Foundation\Auth;
 
+use Mini\Foundation\Auth\ThrottlesLoginsTrait;
 use Mini\Http\Request;
 use Mini\Support\Facades\App;
 use Mini\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Mini\Validation\ValidationException;
 
 trait AuthenticatesUsersTrait
 {
+	use ThrottlesLoginsTrait;
 
 	/**
 	 * Show the application login form.
@@ -32,31 +34,45 @@ trait AuthenticatesUsersTrait
 	 */
 	public function postLogin(Request $request)
 	{
-		$this->validate($request, array(
-			$this->loginUsername() => 'required', 'password' => 'required',
-		));
+		$this->validateLogin($request);
 
-		$throttles = $this->isUsingThrottlesLoginsTrait();
-
-		if ($throttles && $this->hasTooManyLoginAttempts($request)) {
+		if ($this->hasTooManyLoginAttempts($request)) {
 			return $this->sendLockoutResponse($request);
 		}
 
-		$credentials = $this->getCredentials($request);
-
-		if (Auth::attempt($credentials, $request->has('remember'))) {
-			return $this->handleUserWasAuthenticated($request, $throttles);
+		if ($this->attemptLogin($request)) {
+			return $this->sendLoginResponse($request);
 		}
 
-		if ($throttles) {
-			$this->incrementLoginAttempts($request);
-		}
+		$this->incrementLoginAttempts($request);
 
-		$errors = array($this->loginUsername() => $this->getFailedLoginMessage());
+		return $this->sendFailedLoginResponse($request);
+	}
 
-		return Redirect::to($this->loginPath())
-			->withInput($request->only($this->loginUsername(), 'remember'))
-			->withErrors($errors);
+	/**
+	 * Validate the user login request.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @return void
+	 */
+	protected function validateLogin(Request $request)
+	{
+		$this->validate($request, array(
+			$this->username() => 'required', 'password' => 'required',
+		));
+	}
+
+	/**
+	 * Attempt to log the user into the application.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @return bool
+	 */
+	protected function attemptLogin(Request $request)
+	{
+		$credentials = $this->credentials($request);
+
+		return $this->guard()->attempt($credentials, $request->has('remember'));
 	}
 
 	/**
@@ -66,17 +82,47 @@ trait AuthenticatesUsersTrait
 	 * @param  bool  $throttles
 	 * @return \Mini\Http\Response
 	 */
-	protected function handleUserWasAuthenticated(Request $request, $throttles)
+	protected function sendLoginResponse(Request $request)
 	{
-		if ($throttles) {
-			$this->clearLoginAttempts($request);
+		$request->session()->regenerate();
+
+		$this->clearLoginAttempts($request);
+
+		return $this->authenticated($request, $this->guard()->user())
+			?: Redirect::intended($this->redirectPath());
+	}
+
+	/**
+	 * The user has been authenticated.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  mixed  $user
+	 * @return mixed
+	 */
+	protected function authenticated(Request $request, $user)
+	{
+		//
+	}
+
+	/**
+	 * Get the failed login response instance.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @return \Mini\Http\RedirectResponse
+	 */
+	protected function sendFailedLoginResponse(Request $request)
+	{
+		$error = __d('nova', 'These credentials do not match our records.');
+
+		$errors = array($this->username() => $error);
+
+		if ($request->json() || $request->expectsJson()) {
+			return Response::json($errors, 422);
 		}
 
-		if (method_exists($this, 'authenticated')) {
-			return $this->authenticated($request, Auth::user());
-		}
-
-		return Redirect::intended($this->redirectPath());
+		return Redirect::back()
+			->withInput($request->only($this->username(), 'remember'))
+			->withErrors($errors);
 	}
 
 	/**
@@ -85,19 +131,9 @@ trait AuthenticatesUsersTrait
 	 * @param  \Mini\Http\Request  $request
 	 * @return array
 	 */
-	protected function getCredentials(Request $request)
+	protected function credentials(Request $request)
 	{
-		return $request->only($this->loginUsername(), 'password');
-	}
-
-	/**
-	 * Get the failed login message.
-	 *
-	 * @return string
-	 */
-	protected function getFailedLoginMessage()
-	{
-		return __d('nova', 'These credentials do not match our records.');
+		return $request->only($this->username(), 'password');
 	}
 
 	/**
@@ -105,13 +141,15 @@ trait AuthenticatesUsersTrait
 	 *
 	 * @return \Mini\Http\Response
 	 */
-	public function getLogout()
+	public function logout(Request $request)
 	{
-		Auth::logout();
+		$this->guard()->logout();
 
-		$uri = property_exists($this, 'redirectAfterLogout') ? $this->redirectAfterLogout : '/auth/login';
+		$request->session()->flush();
 
-		return Redirect::to($uri);
+		$request->session()->regenerate();
+
+		return Redirect::to($this->loginPath());
 	}
 
 	/**
@@ -129,9 +167,9 @@ trait AuthenticatesUsersTrait
 	 *
 	 * @return string
 	 */
-	public function loginUsername()
+	public function username()
 	{
-		return property_exists($this, 'username') ? $this->username : 'username';
+		return 'username';
 	}
 
 	/**
@@ -149,14 +187,13 @@ trait AuthenticatesUsersTrait
 	}
 
 	/**
-	 * Determine if the class is using the ThrottlesLogins trait.
+	 * Get the guard to be used during authentication.
 	 *
-	 * @return bool
+	 * @return \Mini\Auth\Contracts\GuardInterface
 	 */
-	protected function isUsingThrottlesLoginsTrait()
+	protected function guard()
 	{
-		return in_array(
-			'Mini\Foundation\Auth\ThrottlesLoginsTrait', class_uses_recursive(get_class($this))
-		);
+		return Auth::guard();
 	}
+
 }

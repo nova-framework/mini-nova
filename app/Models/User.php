@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use Mini\Auth\UserTrait;
-use Mini\Auth\Contracts\UserInterface;
-use Mini\Database\ORM\Model as BaseModel;
+use Mini\Foundation\Auth\User as BaseModel;
 
 
-class User extends BaseModel implements UserInterface
+class User extends BaseModel
 {
-	use UserTrait;
-
-	//
 	protected $table = 'users';
 
 	protected $primaryKey = 'id';
