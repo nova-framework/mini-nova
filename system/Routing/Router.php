@@ -120,19 +120,6 @@ class Router
 	}
 
 	/**
-	 * Register a route with the router.
-	 *
-	 * @param  string|array  $methods
-	 * @param  string		$route
-	 * @param  mixed		 $action
-	 * @return void
-	 */
-	public function match($methods, $route, $action)
-	{
-		return $this->addRoute($methods, $uri, $action);
-	}
-
-	/**
 	 * Route a resource to a controller.
 	 *
 	 * @param  string  $name
@@ -338,7 +325,7 @@ class Router
 	{
 		$route = $this->findRoute($request);
 
-		$request->setRouteResolver(function() use ($route)
+		$request->setRouteResolver(function () use ($route)
 		{
 			return $route;
 		});
@@ -710,10 +697,10 @@ class Router
 	{
 		if (in_array(strtoupper($method), static::$methods)) {
 			array_unshift($parameters, $method);
-
-			return call_user_func_array(array($this, 'addRoute'), $parameters);
+		} else if ($method !== 'match') {
+			throw new BadMethodCallException("Method [$method] does not exist.");
 		}
 
-		throw new BadMethodCallException("Method [$method] does not exist.");
+		return call_user_func_array(array($this, 'addRoute'), $parameters);
 	}
 }
