@@ -178,6 +178,16 @@ class Application extends Container
 	}
 
 	/**
+	 * Determine if we are running in the console.
+	 *
+	 * @return bool
+	 */
+	public function runningInConsole()
+	{
+		return php_sapi_name() == 'cli';
+	}
+
+	/**
 	 * Register all of the configured providers..
 	 *
 	 * @return void
@@ -478,16 +488,14 @@ class Application extends Container
 	}
 
 	/**
-	 * Call the "finish" and "shutdown" callbacks assigned to the application.
-	 *
-	 * @param  \Symfony\Component\HttpFoundation\Request  $request
-	 * @param  \Symfony\Component\HttpFoundation\Response  $response
+	 * Call the "terminating" callbacks assigned to the application.
+	*
 	 * @return void
 	 */
-	public function terminate(SymfonyRequest $request, SymfonyResponse $response)
+	public function terminate()
 	{
 		foreach ($this->terminatingCallbacks as $callback) {
-			call_user_func($callback, $request, $response);
+			call_user_func($callback);
 		}
 	}
 
@@ -514,6 +522,31 @@ class Application extends Container
 	{
 		$this->deferredServices = $services;
 	}
+
+    /**
+     * Get the current application locale.
+     *
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this['config']->get('app.locale');
+    }
+
+    /**
+     * Set the current application locale.
+     *
+     * @param  string  $locale
+     * @return void
+     */
+    public function setLocale($locale)
+    {
+        $this['config']->set('app.locale', $locale);
+
+        $this['language']->setLocale($locale);
+
+        $this['events']->fire('locale.changed', array($locale));
+    }
 
 	/**
 	 * Register the core class aliases in the container.
@@ -552,5 +585,19 @@ class Application extends Container
 	public function getConfigLoader()
 	{
 		return new FileLoader($this['path'] .DS .'Config');
+	}
+
+	/**
+	 * Get the used kernel object.
+	 *
+	 * @return \Nova\Console\Contracts\KernelInterface|\Nova\Http\Contracts\KernelInterface
+	 */
+	protected function getKernel()
+	{
+		$kernelInterface = $this->runningInConsole()
+			? 'Nova\Console\Contracts\KernelInterface'
+			: 'Nova\Http\Contracts\KernelInterface';
+
+		return $this->make($kernelInterface);
 	}
 }

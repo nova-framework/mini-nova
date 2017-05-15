@@ -39,6 +39,11 @@ $app->singleton(
 );
 
 $app->singleton(
+	'Nova\Console\Contracts\KernelInterface',
+	'App\Console\Kernel'
+);
+
+$app->singleton(
 	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
 	'App\Exceptions\Handler'
 );

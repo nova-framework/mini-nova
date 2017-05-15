@@ -158,7 +158,7 @@ class Kernel implements KernelInterface
 			}
 		}
 
-		$this->app->terminate($request, $response);
+		$this->app->terminate();
 	}
 
 	/**

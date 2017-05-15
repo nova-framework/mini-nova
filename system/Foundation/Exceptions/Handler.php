@@ -8,6 +8,7 @@ use Mini\Support\Facades\Config;
 use Mini\Support\Facades\Response;
 use Mini\View\View;
 
+use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Debug\Exception\FlattenException;
 use Symfony\Component\Debug\ExceptionHandler as SymfonyExceptionHandler;
@@ -136,4 +137,15 @@ class Handler implements ExceptionHandlerInterface
 		return SymfonyResponse::create($handler->getHtml($e), $e->getStatusCode(), $e->getHeaders());
 	}
 
+	/**
+	 * Render an exception to the console.
+	 *
+	 * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+	 * @param  \Exception  $e
+	 * @return void
+	 */
+	public function renderForConsole($output, Exception $e)
+	{
+		with(new ConsoleApplication)->renderException($e, $output);
+	}
 }
