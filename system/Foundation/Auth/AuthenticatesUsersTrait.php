@@ -20,7 +20,7 @@ trait AuthenticatesUsersTrait
 	 *
 	 * @return \Mini\Http\Response
 	 */
-	public function getLogin()
+	public function login()
 	{
 		return $this->getView()->shares('title', __d('nova', 'User Login'));
 	}
