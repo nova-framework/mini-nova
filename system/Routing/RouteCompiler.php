@@ -2,8 +2,6 @@
 
 namespace Mini\Routing;
 
-use Mini\Support\Arr;
-
 use DomainException;
 use LogicException;
 
@@ -23,83 +21,56 @@ class RouteCompiler
 	 * Compile an URI pattern to a valid regexp.
 	 *
 	 * @param  string   $uri
-	 * @param  array	$requirements
-	 * @return string
-	 */
-	public static function compile($uri, $requirements = array())
-	{
-		$uri = '/' .ltrim($uri, '/');
-
-		list($pattern, $optionals) = static::compilePattern($uri, $requirements);
-
-		return static::computeRegexp($pattern, $optionals);
-	}
-
-	/**
-	 * Compile an URI pattern.
-	 *
-	 * @param  string   $uri
-	 * @param  array	$requirements
+	 * @param  array	$patterns
 	 * @return string
 	 *
 	 * @throw \LogicException
 	 */
-	public static function compilePattern($uri, $requirements)
+	public static function compile($uri, $patterns)
 	{
-		$optionals = array();
+		$uri = '/' .ltrim($uri, '/');
 
-		//
-		$parameters = array();
+		$variables = array();
 
-		$regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $requirements, &$optionals, &$parameters)
+		// The optional parameters count.
+		$optionals = 0;
+
+		$regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($uri, $patterns, &$optionals, &$variables)
 		{
-			$prefix = '';
+			@list(, $name, $optional) = $matches;
 
-			@list(, $parameter, $optional) = $matches;
-
-			if (in_array($parameter, $parameters)) {
-				$message = sprintf('Route pattern [%s] cannot reference parameter name [%s] more than once.', $uri, $parameter);
+			if (in_array($name, $variables)) {
+				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $uri, $name);
 
 				throw new LogicException($message);
 			}
+
+			array_push($variables, $name);
 
 			// Handle the optional parameters.
-			if ($optional === '?') {
+			$prefix = '';
+
+			if ($optional) {
 				$prefix = '(?:';
 
-				array_push($optionals, $parameter);
-			} else if (count($optionals) > 0) {
-				$message = sprintf('Route pattern [%s] cannot reference standard parameter [%s] after optionals.', $uri, $parameter);
+				$optionals++;
+			} else if ($optionals > 0) {
+				$message = sprintf('Route pattern [%s] cannot reference variable [%s] after one or more optionals.', $uri, $name);
 
 				throw new LogicException($message);
 			}
 
-			$pattern = Arr::get($requirements, $parameter, self::DEFAULT_PATTERN);
+			$pattern = isset($patterns[$name]) ? $patterns[$name] : self::DEFAULT_PATTERN;
 
-			//
-			array_push($parameters, $parameter);
-
-			return sprintf('%s/(?P<%s>%s)', $prefix, $parameter, $pattern);
+			return sprintf('%s/(?P<%s>%s)', $prefix, $name, $pattern);
 
 		}, $uri);
 
-		return array($regexp, $optionals);
-	}
-
-	/**
-	 * Computes the regexp used to match a specific route pattern.
-	 *
-	 * @param  string   $pattern
-	 * @param  array	$optionals
-	 * @return string
-	 */
-	public static function computeRegexp($pattern, $optionals = array())
-	{
-		if (! empty($optionals)) {
-			// When the optionals are present, we just need to adjust the pattern.
-			$pattern .= str_repeat(')?', count($optionals));
+		// Adjust the pattern when we have optional parameters.
+		if ($optionals > 0) {
+			$regexp .= str_repeat(')?', $optionals);
 		}
 
-		return self::REGEX_DELIMITER .'^' .$pattern .'$' .self::REGEX_DELIMITER .'s';
+		return self::REGEX_DELIMITER .'^' .$regexp .'$' .self::REGEX_DELIMITER .'s';
 	}
 }

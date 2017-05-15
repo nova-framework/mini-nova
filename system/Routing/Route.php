@@ -198,9 +198,9 @@ class Route
 		$path = '/' .ltrim($request->path(), '/');
 
 		//
-		$this->compile();
+		$pattern = $this->compile();
 
-		if (preg_match($this->getRegex(), $path, $matches) === 1) {
+		if (preg_match($pattern, $path, $matches) === 1) {
 			$this->parameters = array_filter($matches, function ($value)
 			{
 				return is_string($value);
@@ -216,18 +216,16 @@ class Route
 	/**
 	 * Compile the Route pattern for matching and return it.
 	 *
-	 * @param bool $complete
 	 * @return string
 	 * @throws \LogicException
 	 */
-	public function compile($complete = true)
+	public function compile()
 	{
 		if (isset($this->regex)) {
 			return $this->regex;
 		}
 
-		return $this->regex = $complete ? RouteCompiler::compile($this->uri, $this->wheres)
-										: RouteCompiler::computeRegexp($this->uri);
+		return $this->regex = RouteCompiler::compile($this->uri, $this->wheres);
 	}
 
 	/**
@@ -239,7 +237,7 @@ class Route
 	public function middleware($middleware = null)
 	{
 		if (is_null($middleware)) {
-			return $this->getMiddleware();
+			return $this->gatherMiddleware();
 		}
 
 		if (is_string($middleware)) {
@@ -247,27 +245,17 @@ class Route
 		}
 
 		$this->action['middleware'] = array_merge(
-			(array) Arr::get($this->action, 'middleware', array()), $middleware
+			$this->gatherMiddleware(), $middleware
 		);
 
 		return $this;
 	}
 
-	protected function getMiddleware()
+	protected function gatherMiddleware()
 	{
-		$middleware = Arr::get($this->action, 'middleware');
-
-		if (is_null($middleware)) {
-			return array();
-		} else if (is_array($middleware)) {
-			return $middleware;
-		}
-
-		return explode('|', $middleware);
-
 		$middleware = Arr::get($this->action, 'middleware', array());
 
-		if (! is_array($middleware)) {
+		if (is_string($middleware)) {
 			return explode('|', $middleware);
 		}
 

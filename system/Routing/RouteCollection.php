@@ -47,6 +47,7 @@ class RouteCollection implements Countable, IteratorAggregate
 	 */
 	protected $actionList = array();
 
+
 	/**
 	 * Add a route to the router.
 	 *
@@ -63,7 +64,7 @@ class RouteCollection implements Countable, IteratorAggregate
 
 		$this->allRoutes[] = $route;
 
-		//
+		// Add the Route instance to lookup lists.
 		$this->addLookups($route);
 
 		return $route;
@@ -80,14 +81,16 @@ class RouteCollection implements Countable, IteratorAggregate
 		$action = $route->getAction();
 
 		if (isset($action['as'])) {
-			$this->nameList[$action['as']] = $route;
+			$name = $action['as'];
+
+			$this->nameList[$name] = $route;
 		}
 
 		if (isset($action['controller'])) {
-			$controller = $action['controller'];
+			$key = $action['controller'];
 
-			if (! isset($this->actionList[$controller])) {
-				$this->actionList[$controller] = $route;
+			if (! isset($this->actionList[$key])) {
+				$this->actionList[$key] = $route;
 			}
 		}
 	}
@@ -125,7 +128,9 @@ class RouteCollection implements Countable, IteratorAggregate
 	 */
 	protected function checkForAlternateMethods($request)
 	{
-		$methods = array_diff(Router::$methods, array($request->getMethod()));
+		$method = $request->getMethod();
+
+		$methods = array_diff(Router::$methods, array($method));
 
 		//
 		$others = array();
@@ -183,26 +188,12 @@ class RouteCollection implements Countable, IteratorAggregate
 	 */
 	protected function check(array $routes, $request, $includingMethod = true)
 	{
-		$path = '/' .ltrim($request->path(), '/');
-
-		if (! is_null($route = Arr::get($routes, $path))) {
-			// We have a direct URI match, and that's good, because is the faster way.
-			$route->compile(false);
-
-			return $route;
-		}
-
 		return Arr::first($routes, function($uri, $route) use ($request, $includingMethod)
 		{
-			//if (preg_match('/\{([\w\?]+?)\}/', $uri) !== 1) {
-			if (strpos($uri, '{') === false) {
-				// The Routes with no named parameters was already checked previously.
-				return false;
-			}
-
 			return $route->matches($request, $includingMethod);
 		});
 	}
+
 
 	/**
 	 * Get all of the routes in the collection.
