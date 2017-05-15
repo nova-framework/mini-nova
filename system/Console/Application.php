@@ -50,7 +50,7 @@ class Application extends SymfonyApplication
 	 */
 	public function __construct(Container $miniNova, Dispatcher $events, $version)
 	{
-		parent::__construct('Mini-Nova Framework', $version);
+		parent::__construct('Mini MVC Framework', $version);
 
 		$this->miniNova = $miniNova;
 
