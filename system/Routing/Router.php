@@ -359,10 +359,6 @@ class Router
 	{
 		$middleware = $this->gatherRouteMiddlewares($route);
 
-		if (empty($middleware)) {
-			return $route->run($request);
-		}
-
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
