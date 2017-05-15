@@ -8,7 +8,7 @@ $router->pattern('slug', '.*');
 //
 // The routes definition.
 
-$router->any('/', function()
+$router->get('/', function()
 {
 	$view = View::make('Default')
 		->shares('title', 'Welcome')
