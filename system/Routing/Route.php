@@ -215,7 +215,7 @@ class Route
 		$pattern = $this->compile();
 
 		if (preg_match($pattern, $path, $matches) === 1) {
-			$parameters = $this->matchToKeys($matches);
+			$parameters = $this->matchToParameters($matches);
 
 			$this->parameters = $this->replaceDefaults($parameters);
 
@@ -328,7 +328,7 @@ class Route
 	 * @param  array  $matches
 	 * @return array
 	 */
-	protected function matchToKeys(array $matches)
+	protected function matchToParameters(array $matches)
 	{
 		$parameterNames = $this->parameterNames();
 
