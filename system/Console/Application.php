@@ -3,6 +3,7 @@
 namespace Mini\Console;
 
 use Mini\Container\Container;
+use Mini\Console\Command;
 use Mini\Events\Dispatcher;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
@@ -31,33 +32,33 @@ class Application extends SymfonyApplication
 	 */
 	protected $miniNova;
 
-    /**
-     * The output from the previous command.
-     *
-     * @var \Symfony\Component\Console\Output\BufferedOutput
-     */
-    protected $lastOutput;
+	/**
+	 * The output from the previous command.
+	 *
+	 * @var \Symfony\Component\Console\Output\BufferedOutput
+	 */
+	protected $lastOutput;
 
 
-    /**
-     * Create a new Artisan console application.
-     *
-     * @param  \Illuminate\Contracts\Container\Container  $laravel
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-     * @param  string  $version
-     * @return void
-     */
-    public function __construct(Container $miniNova, Dispatcher $events, $version)
-    {
-        parent::__construct('Mini-Nova Framework', $version);
+	/**
+	 * Create a new Artisan console application.
+	 *
+	 * @param  \Illuminate\Contracts\Container\Container  $laravel
+	 * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+	 * @param  string  $version
+	 * @return void
+	 */
+	public function __construct(Container $miniNova, Dispatcher $events, $version)
+	{
+		parent::__construct('Mini-Nova Framework', $version);
 
-        $this->miniNova = $miniNova;
+		$this->miniNova = $miniNova;
 
-        $this->setAutoExit(false);
-        $this->setCatchExceptions(false);
+		$this->setAutoExit(false);
+		$this->setCatchExceptions(false);
 
-        $events->fire('forge.start', array($this));
-    }
+		$events->fire('forge.start', array($this));
+	}
 
 	/**
 	 * Run an Nova console command by name.
@@ -71,25 +72,28 @@ class Application extends SymfonyApplication
 	{
 		$parameters['command'] = $command;
 
+		//
 		$this->lastOutput = new BufferedOutput;
 
-        $this->setCatchExceptions(false);
+		$this->setCatchExceptions(false);
 
 		$result = $this->run(new ArrayInput($parameters), $this->lastOutput);
 
 		$this->setCatchExceptions(true);
+
+		return $result;
 	}
 
-    /**
-     * Get the output for the last run command.
-     *
-     * @return string
-     */
-    public function output()
-    {
-        return $this->lastOutput ? $this->lastOutput->fetch() : '';
-    }
-    
+	/**
+	 * Get the output for the last run command.
+	 *
+	 * @return string
+	 */
+	public function output()
+	{
+		return $this->lastOutput ? $this->lastOutput->fetch() : '';
+	}
+
 	/**
 	 * Add a command to the console.
 	 *
@@ -99,7 +103,7 @@ class Application extends SymfonyApplication
 	public function add(SymfonyCommand $command)
 	{
 		if ($command instanceof Command) {
-			$command->setNova($this->miniNova);
+			$command->setMiniNova($this->miniNova);
 		}
 
 		return $this->addToParent($command);
@@ -171,12 +175,12 @@ class Application extends SymfonyApplication
 	/**
 	 * Set the Laravel application instance.
 	 *
-	 * @param  \Mini\Foundation\Application  $nova
+	 * @param  \Mini\Foundation\Application  $miniNova
 	 * @return $this
 	 */
-	public function setNova($nova)
+	public function setMiniNova($miniNova)
 	{
-		$this->miniNova = $nova;
+		$this->miniNova = $miniNova;
 
 		return $this;
 	}

@@ -155,6 +155,7 @@ return array(
 		'Mini\Cache\CacheServiceProvider',
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
+		'Mini\Foundation\Providers\ForgeServiceProvider',
 
 		// The Application Providers.
 		'App\Providers\AppServiceProvider',

@@ -456,6 +456,16 @@ class Application extends Container
 	}
 
 	/**
+	 * Determine if the application is currently down for maintenance.
+	 *
+	 * @return bool
+	 */
+	public function isDownForMaintenance()
+	{
+		return file_exists($this['path.storage'] .DS .'down');
+	}
+
+	/**
 	 * Throw an HttpException with the given data.
 	 *
 	 * @param  int	 $code
@@ -523,30 +533,30 @@ class Application extends Container
 		$this->deferredServices = $services;
 	}
 
-    /**
-     * Get the current application locale.
-     *
-     * @return string
-     */
-    public function getLocale()
-    {
-        return $this['config']->get('app.locale');
-    }
+	/**
+	 * Get the current application locale.
+	 *
+	 * @return string
+	 */
+	public function getLocale()
+	{
+		return $this['config']->get('app.locale');
+	}
 
-    /**
-     * Set the current application locale.
-     *
-     * @param  string  $locale
-     * @return void
-     */
-    public function setLocale($locale)
-    {
-        $this['config']->set('app.locale', $locale);
+	/**
+	 * Set the current application locale.
+	 *
+	 * @param  string  $locale
+	 * @return void
+	 */
+	public function setLocale($locale)
+	{
+		$this['config']->set('app.locale', $locale);
 
-        $this['language']->setLocale($locale);
+		$this['language']->setLocale($locale);
 
-        $this['events']->fire('locale.changed', array($locale));
-    }
+		$this['events']->fire('locale.changed', array($locale));
+	}
 
 	/**
 	 * Register the core class aliases in the container.
@@ -557,17 +567,21 @@ class Application extends Container
 	{
 		$aliases = array(
 			'app'			=> array('Mini\Foundation\Application', 'Mini\Container\Container'),
-			'cache'			=> array('Mini\Cache\CacheManager'),
-			'cache.store'	=> array('Mini\Cache\Repository'),
+			'cache'			=> 'Mini\Cache\CacheManager',
+			'cache.store'	=> 'Mini\Cache\Repository',
 			'log'			=> array('Mini\Log\Writter', 'Psr\Log\LoggerInterface'),
-			'config'		=> array('Mini\Config\Repository'),
-			'cookie'		=> array('Mini\Cookie\CookieJar'),
-			'encrypter'	 	=> array('Mini\Encryption\Encrypter'),
-			'request'		=> array('Mini\Http\Request'),
-			'router'		=> array('Mini\Routing\Router'),
-			'session'		=> array('Mini\Session\SessionManager'),
-			'session.store'	=> array('Mini\Session\Store'),
-			'view'			=> array('Mini\View\Factory'),
+			'config'		=> 'Mini\Config\Repository',
+			'cookie'		=> 'Mini\Cookie\CookieJar',
+			'encrypter'	 	=> 'Mini\Encryption\Encrypter',
+			'events'		=> 'Mini\Events\Dispatcher',
+			'redirect'		=> 'Mini\Routing\Redirector',
+			'request'		=> 'Mini\Http\Request',
+			'router'		=> 'Mini\Routing\Router',
+			'session'		=> 'Mini\Session\SessionManager',
+			'session.store'	=> 'Mini\Session\Store',
+			'url'			=> 'Mini\Routing\UrlGenerator',
+			'validator'		=> 'Mini\Validation\Factory',
+			'view'			=> 'Mini\View\Factory',
 		);
 
 		foreach ($aliases as $key => $aliases) {

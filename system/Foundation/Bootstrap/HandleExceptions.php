@@ -74,23 +74,23 @@ class HandleExceptions
 		$this->getExceptionHandler()->report($e);
 
 		if ($this->app->runningInConsole()) {
-            $this->renderForConsole($e);
-        } else {
-            $this->renderHttpResponse($e);
-        }
+			$this->renderForConsole($e);
+		} else {
+			$this->renderHttpResponse($e);
+		}
 	}
 
-    /**
-     * Render an exception to the console.
-     *
-     * @param  \Exception  $e
-     * @return void
-     */
-    protected function renderForConsole($e)
-    {
-        $this->getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
-    }
-    
+	/**
+	 * Render an exception to the console.
+	 *
+	 * @param  \Exception  $e
+	 * @return void
+	 */
+	protected function renderForConsole($e)
+	{
+		$this->getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
+	}
+	
 	/**
 	 * Render an exception as an HTTP response and send it.
 	 *

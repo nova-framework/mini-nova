@@ -47,6 +47,10 @@ class ProviderRepository
 			$manifest = $this->compileManifest($providers);
 		}
 
+		if ($this->app->runningInConsole()) {
+			$manifest['eager'] = $manifest['providers'];
+		}
+
 		foreach ($manifest['eager'] as $provider) {
 			$this->app->register($this->createProvider($provider));
 		}

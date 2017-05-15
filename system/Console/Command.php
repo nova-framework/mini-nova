@@ -2,6 +2,7 @@
 
 namespace Mini\Console;
 
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -12,7 +13,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 
-class Command extends \Symfony\Component\Console\Command\Command
+class Command extends SymfonyCommand
 {
 	/**
 	 * The Laravel application instance.
@@ -364,7 +365,7 @@ class Command extends \Symfony\Component\Console\Command\Command
 	 *
 	 * @return \Mini\Foundation\Application
 	 */
-	public function getNova()
+	public function getMiniNova()
 	{
 		return $this->miniNova;
 	}
@@ -372,12 +373,12 @@ class Command extends \Symfony\Component\Console\Command\Command
 	/**
 	 * Set the Mini-Nova application instance.
 	 *
-	 * @param  \Mini\Foundation\Application  $nova
+	 * @param  \Mini\Foundation\Application  $miniNova
 	 * @return void
 	 */
-	public function setNova($nova)
+	public function setMiniNova($miniNova)
 	{
-		$this->miniNova = $nova;
+		$this->miniNova = $miniNova;
 	}
 
 }
