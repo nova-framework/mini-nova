@@ -241,6 +241,49 @@ class Route
 	}
 
 	/**
+	 * Combine a set of parameter matches with the route's keys.
+	 *
+	 * @param  array  $matches
+	 * @return array
+	 */
+	protected function matchToParameters(array $matches)
+	{
+		$parameterNames = $this->parameterNames();
+
+		if (count($parameterNames) == 0) {
+			return array();
+		}
+
+		$parameters = array_intersect_key($matches, array_flip($parameterNames));
+
+		return array_filter($parameters, function($value)
+		{
+			return is_string($value) && (strlen($value) > 0);
+		});
+	}
+
+	/**
+	 * Replace null parameters with their defaults.
+	 *
+	 * @param  array  $parameters
+	 * @return array
+	 */
+	protected function replaceDefaults(array $parameters)
+	{
+		$parameterNames = $this->parameterNames();
+
+		foreach ($this->defaults as $key => $value) {
+			if (isset($parameters[$key])) {
+				// No need for a default value.
+			} else if (in_array($key, $parameterNames) && isset($value)) {
+				$parameters[$key] = $value;
+			}
+		}
+
+		return $parameters;
+	}
+
+	/**
 	 * Get or set the middlewares attached to the route.
 	 *
 	 * @param  array|string|null $middleware
@@ -320,49 +363,6 @@ class Route
 			return trim($value, '?');
 
 		}, $matches[1]);
-	}
-
-	/**
-	 * Combine a set of parameter matches with the route's keys.
-	 *
-	 * @param  array  $matches
-	 * @return array
-	 */
-	protected function matchToParameters(array $matches)
-	{
-		$parameterNames = $this->parameterNames();
-
-		if (count($parameterNames) == 0) {
-			return array();
-		}
-
-		$parameters = array_intersect_key($matches, array_flip($parameterNames));
-
-		return array_filter($parameters, function($value)
-		{
-			return is_string($value) && (strlen($value) > 0);
-		});
-	}
-
-	/**
-	 * Replace null parameters with their defaults.
-	 *
-	 * @param  array  $parameters
-	 * @return array
-	 */
-	protected function replaceDefaults(array $parameters)
-	{
-		$parameterNames = $this->parameterNames();
-
-		foreach ($this->defaults as $key => $value) {
-			if (isset($parameters[$key])) {
-				// No need for defaults.
-			} else if (in_array($key, $parameterNames) && isset($value)) {
-				$parameters[$key] = $value;
-			}
-		}
-
-		return $parameters;
 	}
 
 	/**
