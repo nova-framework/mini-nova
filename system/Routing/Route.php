@@ -201,16 +201,27 @@ class Route
 		$pattern = $this->compile();
 
 		if (preg_match($pattern, $path, $matches) === 1) {
-			$this->parameters = array_filter($matches, function ($value)
-			{
-				return is_string($value);
-
-			}, ARRAY_FILTER_USE_KEY);
+			$this->parameters = $this->gatherParameters($matches);
 
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the string key parameters from a given list.
+	 *
+	 * @param  array  $items
+	 * @return array
+	 */
+	protected function gatherParameters(array $items)
+	{
+		return array_filter($items, function ($value)
+		{
+			return is_string($value);
+
+		}, ARRAY_FILTER_USE_KEY);
 	}
 
 	/**

@@ -333,7 +333,7 @@ class UrlGenerator
 	 */
 	protected function getStringParameters(array $parameters)
 	{
-		return Arr::where($parameters, function($key, $vvalue)
+		return Arr::where($parameters, function($key, $value)
 		{
 			return is_string($key);
 		});
