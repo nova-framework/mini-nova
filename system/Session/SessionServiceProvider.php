@@ -32,9 +32,9 @@ class SessionServiceProvider extends ServiceProvider
 	 */
 	protected function setupDefaultDriver()
 	{
-		//if ($this->app->runningInConsole()) {
-		//	$this->app['config']['session.driver'] = 'array';
-		//}
+		if ($this->app->runningInConsole()) {
+			$this->app['config']['session.driver'] = 'array';
+		}
 	}
 
 	/**
