@@ -20,4 +20,5 @@ class Authorize extends BaseController
 	//
 	protected $layout = 'Authorize';
 
+	protected $redirectTo = 'admin/dashboard';
 }
