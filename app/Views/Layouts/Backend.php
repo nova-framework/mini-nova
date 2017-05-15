@@ -86,7 +86,7 @@
 				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="<?= Language::name() .' (' .Language::code() .')'; ?>">
-						<i class='fa fa-language'></i> <?= Language::name(); ?>
+						<i class='fa fa-language'></i> <?= Language::name(); ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu">
 					<?php foreach (Config::get('languages') as $code => $info) { ?>
