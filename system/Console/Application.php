@@ -129,6 +129,32 @@ class Application extends SymfonyApplication
 	}
 
 	/**
+	 * Get the default input definitions for the applications.
+	 *
+	 * @return \Symfony\Component\Console\Input\InputDefinition
+	 */
+	protected function getDefaultInputDefinition()
+	{
+		$definition = parent::getDefaultInputDefinition();
+
+		$definition->addOption($this->getEnvironmentOption());
+
+		return $definition;
+	}
+
+	/**
+	 * Get the global environment option for the definition.
+	 *
+	 * @return \Symfony\Component\Console\Input\InputOption
+	 */
+	protected function getEnvironmentOption()
+	{
+		$message = 'The environment the command should run under.';
+
+		return new InputOption('--env', null, InputOption::VALUE_OPTIONAL, $message);
+	}
+
+	/**
 	 * Set the Laravel application instance.
 	 *
 	 * @param  \Mini\Foundation\Application  $container

@@ -23,7 +23,7 @@ $app = new Mini\Foundation\Application();
 //--------------------------------------------------------------------------
 
 $env = $app->detectEnvironment(array(
-    'local' => array('darkstar'),
+	'local' => array('darkstar'),
 ));
 
 //--------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 namespace Mini\Foundation;
 
+use Mini\Support\Arr;
 use Mini\Support\Str;
 
 use Closure;
