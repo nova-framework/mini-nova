@@ -18,9 +18,9 @@ class Command extends SymfonyCommand
 	/**
 	 * The Laravel application instance.
 	 *
-	 * @var \Mini\Foundation\Application
+	 * @var \Mini\Container\Container
 	 */
-	protected $nova;
+	protected $container;
 
 	/**
 	 * The input interface implementation.
@@ -49,6 +49,7 @@ class Command extends SymfonyCommand
 	 * @var string
 	 */
 	protected $description;
+
 
 	/**
 	 * Create a new console command instance.
@@ -365,20 +366,20 @@ class Command extends SymfonyCommand
 	 *
 	 * @return \Mini\Foundation\Application
 	 */
-	public function getMiniNova()
+	public function getContainer()
 	{
-		return $this->miniNova;
+		return $this->container;
 	}
 
 	/**
 	 * Set the Mini-Nova application instance.
 	 *
-	 * @param  \Mini\Foundation\Application  $miniNova
+	 * @param  \Mini\Foundation\Application  $container
 	 * @return void
 	 */
-	public function setMiniNova($miniNova)
+	public function setContainer($container)
 	{
-		$this->miniNova = $miniNova;
+		$this->container = $container;
 	}
 
 }

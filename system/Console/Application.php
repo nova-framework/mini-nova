@@ -19,18 +19,11 @@ use Exception;
 class Application extends SymfonyApplication
 {
 	/**
-	 * The exception handler instance.
-	 *
-	 * @var \Mini\Exception\Handler
-	 */
-	protected $exceptionHandler;
-
-	/**
 	 * The Nova application instance.
 	 *
-	 * @var \Mini\Foundation\Application
+	 * @var \Mini\Container\Container
 	 */
-	protected $miniNova;
+	protected $container;
 
 	/**
 	 * The output from the previous command.
@@ -43,16 +36,16 @@ class Application extends SymfonyApplication
 	/**
 	 * Create a new Artisan console application.
 	 *
-	 * @param  \Illuminate\Contracts\Container\Container  $laravel
-	 * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+	 * @param  \Mini\Container\Container  $container
+	 * @param  \Mini\Events\Dispatcher  $events
 	 * @param  string  $version
 	 * @return void
 	 */
-	public function __construct(Container $miniNova, Dispatcher $events, $version)
+	public function __construct(Container $container, Dispatcher $events, $version)
 	{
 		parent::__construct('Mini MVC Framework', $version);
 
-		$this->miniNova = $miniNova;
+		$this->container = $container;
 
 		$this->setAutoExit(false);
 		$this->setCatchExceptions(false);
@@ -103,20 +96,9 @@ class Application extends SymfonyApplication
 	public function add(SymfonyCommand $command)
 	{
 		if ($command instanceof Command) {
-			$command->setMiniNova($this->miniNova);
+			$command->setContainer($this->container);
 		}
 
-		return $this->addToParent($command);
-	}
-
-	/**
-	 * Add the command to the parent instance.
-	 *
-	 * @param  \Symfony\Component\Console\Command\Command  $command
-	 * @return \Symfony\Component\Console\Command\Command
-	 */
-	protected function addToParent(SymfonyCommand $command)
-	{
 		return parent::add($command);
 	}
 
@@ -128,7 +110,7 @@ class Application extends SymfonyApplication
 	 */
 	public function resolve($command)
 	{
-		return $this->add($this->miniNova[$command]);
+		return $this->add($this->container[$command]);
 	}
 
 	/**
@@ -147,40 +129,14 @@ class Application extends SymfonyApplication
 	}
 
 	/**
-	 * Get the default input definitions for the applications.
-	 *
-	 * @return \Symfony\Component\Console\Input\InputDefinition
-	 */
-	protected function getDefaultInputDefinition()
-	{
-		$definition = parent::getDefaultInputDefinition();
-
-		$definition->addOption($this->getEnvironmentOption());
-
-		return $definition;
-	}
-
-	/**
-	 * Get the global environment option for the definition.
-	 *
-	 * @return \Symfony\Component\Console\Input\InputOption
-	 */
-	protected function getEnvironmentOption()
-	{
-		$message = 'The environment the command should run under.';
-
-		return new InputOption('--env', null, InputOption::VALUE_OPTIONAL, $message);
-	}
-
-	/**
 	 * Set the Laravel application instance.
 	 *
-	 * @param  \Mini\Foundation\Application  $miniNova
+	 * @param  \Mini\Foundation\Application  $container
 	 * @return $this
 	 */
-	public function setMiniNova($miniNova)
+	public function setContainer($container)
 	{
-		$this->miniNova = $miniNova;
+		$this->container = $container;
 
 		return $this;
 	}

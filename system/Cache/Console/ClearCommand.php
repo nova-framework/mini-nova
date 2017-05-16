@@ -37,6 +37,7 @@ class ClearCommand extends Command
 	 */
 	protected $files;
 
+
 	/**
 	 * Create a new Cache Clear Command instance.
 	 *
@@ -61,7 +62,7 @@ class ClearCommand extends Command
 	{
 		$this->cache->flush();
 
-		$this->files->delete($this->miniNova['config']['app.manifest'] .DS .'services.php');
+		$this->files->delete($this->container['config']['app.manifest'] .DS .'services.php');
 
 		$this->info('Application cache cleared!');
 	}

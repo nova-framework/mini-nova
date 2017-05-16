@@ -28,9 +28,9 @@ class UpCommand extends Command
 	 */
 	public function fire()
 	{
-		$basePath = $this->miniNova['path.storage'];
+		$filePath = $this->container['path.storage'] .DS .'down';
 
-		@unlink($basePath .DS .'down');
+		@unlink($filePath);
 
 		$this->info('Application is now live.');
 	}

@@ -28,9 +28,9 @@ class DownCommand extends Command
 	 */
 	public function fire()
 	{
-		$basePath = $this->miniNova['path.storage'];
+		$filePath = $this->container['path.storage'] .DS .'down';
 
-		touch($basePath .DS .'down');
+		touch($filePath);
 
 		$this->comment('Application is now in maintenance mode.');
 	}

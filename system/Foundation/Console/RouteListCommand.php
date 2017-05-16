@@ -168,7 +168,7 @@ class RouteListCommand extends Command
 		list($controller, $method) = explode('@', $actionName);
 
 		return $this->getControllerMiddlewareFromInstance(
-			$this->miniNova->make($controller), $method
+			$this->container->make($controller), $method
 		);
 	}
 
