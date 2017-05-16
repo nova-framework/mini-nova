@@ -39,6 +39,7 @@ class RouteCompiler
 		{
 			@list(, $name, $optional) = $matches;
 
+			// Check if the parameter name is unique.
 			if (in_array($name, $variables)) {
 				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $path, $name);
 
@@ -47,7 +48,7 @@ class RouteCompiler
 
 			array_push($variables, $name);
 
-			// Handle the optional parameters.
+			// Process for the optional parameters.
 			$prefix = '';
 
 			if (! is_null($optional)) {
@@ -60,6 +61,7 @@ class RouteCompiler
 				throw new LogicException($message);
 			}
 
+			// Compute the parameter's pattern.
 			$pattern = isset($patterns[$name]) ? $patterns[$name] : self::DEFAULT_PATTERN;
 
 			return sprintf('%s/(?P<%s>%s)', $prefix, $name, $pattern);
