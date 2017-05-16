@@ -454,11 +454,15 @@ class Router
 	public function runRoute(Route $route, Request $request)
 	{
 		try {
-			if (! is_string($action = $route->getCallable())) {
-				return $this->runCallable($action, $route->parameters());
+			if (! is_string($callable = $route->getCallable())) {
+				$parameters = $this->resolveMethodDependencies(
+					$route->parameters(), new ReflectionFunction($callable)
+				);
+
+				return call_user_func_array($callable, $parameters);
 			}
 
-			return $this->dispatchController($action, $route, $request);
+			return $this->dispatchController($callable, $route, $request);
 		}
 		catch (HttpResponseException $e) {
 			return $e->getResponse();
@@ -466,23 +470,7 @@ class Router
 	}
 
 	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Closure	$callable
-	 * @param  array	$parameters
-	 * @return mixed
-	 */
-	protected function runCallable(Closure $callable, array $parameters)
-	{
-		$parameters = $this->resolveMethodDependencies(
-			$parameters, new ReflectionFunction($callable)
-		);
-
-		return call_user_func_array($callable, $parameters);
-	}
-
-	/**
-	 * Send the request and route to controller dispatcher for handling.
+	 * Send the callable, request and route to controller dispatcher for handling.
 	 *
 	 * @param string				$action
 	 * @param  \Mini\Routing\Route	$route
