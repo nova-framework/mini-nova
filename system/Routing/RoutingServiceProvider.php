@@ -4,6 +4,7 @@ namespace Mini\Routing;
 
 use Mini\Routing\ControllerDispatcher;
 use Mini\Routing\Redirector;
+use Mini\Routing\ResponseFactory;
 use Mini\Routing\Router;
 use Mini\Routing\UrlGenerator;
 use Mini\Support\ServiceProvider;
@@ -26,6 +27,8 @@ class RoutingServiceProvider extends ServiceProvider
 		$this->registerUrlGenerator();
 
 		$this->registerRedirector();
+
+		$this->registerResponseFactory();
 	}
 
 	/**
@@ -96,6 +99,19 @@ class RoutingServiceProvider extends ServiceProvider
 			}
 
 			return $redirector;
+		});
+	}
+
+	/**
+	 * Register the response factory implementation.
+	 *
+	 * @return void
+	 */
+	protected function registerResponseFactory()
+	{
+		$this->app->singleton('response.factory', function ($app)
+		{
+			return new ResponseFactory($app['redirect']);
 		});
 	}
 }
