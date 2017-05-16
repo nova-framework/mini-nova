@@ -2,6 +2,7 @@
 
 namespace Mini\Foundation\Bootstrap;
 
+use Mini\Config\EnvironmentVariables;
 use Mini\Config\Repository;
 use Mini\Foundation\AliasLoader;
 use Mini\Foundation\Application;

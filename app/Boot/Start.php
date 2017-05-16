@@ -1,5 +1,8 @@
 <?php
 
+use Mini\Config\EnvironmentVariables;
+use Mini\Foundation\Application;
+
 //--------------------------------------------------------------------------
 // Use Internally The UTF-8 Encoding
 //--------------------------------------------------------------------------
@@ -16,15 +19,7 @@ require APPPATH .'Config.php';
 // Create New Application
 //--------------------------------------------------------------------------
 
-$app = new Mini\Foundation\Application();
-
-//--------------------------------------------------------------------------
-// Detect The Application Environment
-//--------------------------------------------------------------------------
-
-$env = $app->detectEnvironment(array(
-	'local' => array('darkstar'),
-));
+$app = new Application();
 
 //--------------------------------------------------------------------------
 // Bind Paths
@@ -55,6 +50,28 @@ $app->singleton(
 	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
 	'App\Exceptions\Handler'
 );
+
+//--------------------------------------------------------------------------
+// Detect The Application Environment
+//--------------------------------------------------------------------------
+
+$env = $app->detectEnvironment(array(
+	'local' => array('darkstar'),
+));
+
+//--------------------------------------------------------------------------
+// Check For The Test Environment
+//--------------------------------------------------------------------------
+
+if (isset($unitTesting)) {
+    $app['env'] = $env = $testEnvironment;
+}
+
+//--------------------------------------------------------------------------
+// Register The Environment Variables.
+//--------------------------------------------------------------------------
+
+with($loader = new EnvironmentVariables())->load($env);
 
 //--------------------------------------------------------------------------
 // Register Booted Start Files
