@@ -1,88 +1,67 @@
 <?php
 
-//--------------------------------------------------------------------------
-// Use Internally The UTF-8 Encoding
-//--------------------------------------------------------------------------
-
-mb_internal_encoding('UTF-8');
-
-//--------------------------------------------------------------------------
-// Load The Global Configuration
-//--------------------------------------------------------------------------
-
-require APPPATH .'Config.php';
-
-//--------------------------------------------------------------------------
-// Create New Application
-//--------------------------------------------------------------------------
-
-$app = new Mini\Foundation\Application();
-
-//--------------------------------------------------------------------------
-// Detect The Application Environment
-//--------------------------------------------------------------------------
-
-$env = $app->detectEnvironment(array(
-	'local' => array('darkstar'),
-));
-
-//--------------------------------------------------------------------------
-// Bind Paths
-//--------------------------------------------------------------------------
-
-$app->bindInstallPaths(array(
-	'base'		=> BASEPATH,
-	'app'		=> APPPATH,
-	'public'	=> WEBPATH,
-	'storage'	=> STORAGE_PATH,
-));
-
-//--------------------------------------------------------------------------
-// Bind Important Interfaces
-//--------------------------------------------------------------------------
-
-$app->singleton(
-	'Mini\Http\Contracts\KernelInterface',
-	'App\Kernel'
-);
-
-$app->singleton(
-	'Nova\Console\Contracts\KernelInterface',
-	'App\Console\Kernel'
-);
-
-$app->singleton(
-	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
-	'App\Exceptions\Handler'
-);
-
-//--------------------------------------------------------------------------
-// Register Booted Start Files
-//--------------------------------------------------------------------------
-
-$app->booted(function () use ($app, $env)
+/**
+ * Role-based Authorization Middleware.
+ */
+Route::middleware('role', function($request, Closure $next, $role)
 {
+	$roles = array_slice(func_get_args(), 2);
 
-//--------------------------------------------------------------------------
-// Load The Application Start Script
-//--------------------------------------------------------------------------
+	//
+	$guard = Config::get('auth.default', 'web');
 
-$path = APPPATH .'Global.php';
+	$user = Auth::guard($guard)->user();
 
-if (is_readable($path)) require $path;
+	if (! is_null($user) && ! $user->hasRole($roles)) {
+		$uri = Config::get("auth.guards.{$guard}.paths.dashboard", 'admin/dashboard');
 
-//--------------------------------------------------------------------------
-// Load The Environment Start Script
-//--------------------------------------------------------------------------
+		$status = __('You are not authorized to access this resource.');
 
-$path = $app['path'] .DS .'Environment' .DS .ucfirst($env) .'.php';
+		return Redirect::to($uri)->with('warning', $status);
+	}
 
-if (is_readable($path)) require $path;
-
+	return $next($request);
 });
 
-//--------------------------------------------------------------------------
-// Return The Application
-//--------------------------------------------------------------------------
+/**
+ * Request's Referer Middleware.
+ */
+Route::middleware('referer', function($request, Closure $next)
+{
+	$referrer = $request->header('referer');
 
-return $app;
+	if (! Str::startsWith($referrer, Config::get('app.url'))) {
+		return Redirect::back();
+	}
+
+	return $next($request);
+});
+
+/**
+ * Listener Closure to the Event 'router.matched'.
+ */
+Event::listen('router.matched', function($route, $request)
+{
+	// Share the Views the current URI.
+	View::share('currentUri', $request->path());
+
+	// Share the Views the Backend's base URI.
+	$path = '';
+
+	$segments = $request->segments();
+
+	if(! empty($segments)) {
+		// Make the path equal with the first part if it exists, i.e. 'admin'
+		$path = array_shift($segments);
+
+		$segment = ! empty($segments) ? array_shift($segments) : '';
+
+		if (($path == 'admin') && empty($segment)) {
+			$path = 'admin/dashboard';
+		} else if (! empty($segment)) {
+			$path .= '/' .$segment;
+		}
+	}
+
+	View::share('baseUri', $path);
+});
