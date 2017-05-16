@@ -484,8 +484,8 @@ class Router
 	/**
 	 * Send the request and route to controller dispatcher for handling.
 	 *
-	 * @param  \Mini\Routing\Route	$route
 	 * @param string				$action
+	 * @param  \Mini\Routing\Route	$route
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
