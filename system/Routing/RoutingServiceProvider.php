@@ -2,7 +2,6 @@
 
 namespace Mini\Routing;
 
-use Mini\Routing\ControllerDispatcher;
 use Mini\Routing\Redirector;
 use Mini\Routing\ResponseFactory;
 use Mini\Routing\Router;
@@ -22,8 +21,6 @@ class RoutingServiceProvider extends ServiceProvider
 	{
 		$this->registerRouter();
 
-		$this->registerCustomDispatcher();
-
 		$this->registerUrlGenerator();
 
 		$this->registerRedirector();
@@ -41,19 +38,6 @@ class RoutingServiceProvider extends ServiceProvider
 		$this->app['router'] = $this->app->share(function ($app)
 		{
 			return new Router($app['events'], $app);
-		});
-	}
-
-	/**
-	 * Register the custom Controller dispatcher service.
-	 *
-	 * @return void
-	 */
-	protected function registerCustomDispatcher()
-	{
-		$this->app->singleton('framework.route.dispatcher', function ($app)
-		{
-			return new ControllerDispatcher($app['router'], $app);
 		});
 	}
 
@@ -81,7 +65,6 @@ class RoutingServiceProvider extends ServiceProvider
 			return $url;
 		});
 	}
-
 
 	/**
 	 * Register the Redirector service.

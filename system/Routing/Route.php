@@ -3,19 +3,15 @@
 namespace Mini\Routing;
 
 use Mini\Container\Container;
-use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
-use Mini\Routing\DependencyResolverTrait;
 use Mini\Routing\RouteCompiler;
 use Mini\Support\Arr;
 
-use ReflectionFunction;
+use Closure;
 
 
 class Route
 {
-	use DependencyResolverTrait;
-
 	/**
 	 * The URI pattern the route responds to.
 	 *
@@ -65,13 +61,6 @@ class Route
 	 */
 	protected $regex;
 
-	/**
-	 * The container instance used by the route.
-	 *
-	 * @var \Mini\Container\Container
-	 */
-	protected $container;
-
 
 	/**
 	 * Create a new Route instance.
@@ -87,95 +76,6 @@ class Route
 		$this->methods	= $methods;
 		$this->action	= $action;
 		$this->wheres	= $wheres;
-	}
-
-	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 * @return mixed
-	 */
-	public function run(Request $request)
-	{
-		$this->container = $this->container ?: new Container();
-
-		try {
-			if (! is_string($this->action['uses'])) {
-				return $this->runCallable($request);
-			} else if ($this->customDispatcherIsBound()) {
-				return $this->runWithCustomDispatcher($request);
-			}
-
-			return $this->runController($request);
-		}
-		catch (HttpResponseException $e) {
-			return $e->getResponse();
-		}
-	}
-
-	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 * @return mixed
-	 */
-	protected function runCallable(Request $request)
-	{
-		$callable = $this->action['uses'];
-
-		$parameters = $this->resolveMethodDependencies(
-			$this->parameters(), new ReflectionFunction($callable)
-		);
-
-		return call_user_func_array($callable, $parameters);
-	}
-
-	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 * @return mixed
-	 *
-	 * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-	 */
-	protected function runController(Request $request)
-	{
-		list($controller, $method) = explode('@', $this->action['uses']);
-
-		$parameters = $this->resolveClassMethodDependencies(
-			$this->parameters(), $class, $method
-		);
-
-		if (! method_exists($instance = $this->container->make($controller), $method)) {
-			throw new NotFoundHttpException();
-		}
-
-		return $instance->callAction($method, $parameters);
-	}
-
-	/**
-	 * Determine if a custom route dispatcher is bound in the container.
-	 *
-	 * @return bool
-	 */
-	protected function customDispatcherIsBound()
-	{
-		return $this->container->bound('framework.route.dispatcher');
-	}
-
-	/**
-	 * Send the request and route to a custom dispatcher for handling.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 * @return mixed
-	 */
-	protected function runWithCustomDispatcher(Request $request)
-	{
-		list($controller, $method) = explode('@', $this->action['uses']);
-
-		$dispatcher = $this->container->make('framework.route.dispatcher');
-
-		return $dispatcher->dispatch($this, $request, $controller, $method);
 	}
 
 	/**
@@ -198,6 +98,21 @@ class Route
 	}
 
 	/**
+	 * Get the Route parameters from the matches.
+	 *
+	 * @param  array  $matches
+	 * @return array
+	 */
+	protected function matchToParameters(array $matches)
+	{
+		return array_filter($matches, function($value, $key)
+		{
+			return is_string($key) && is_string($value) && (strlen($value) > 0);
+
+		}, ARRAY_FILTER_USE_BOTH);
+	}
+
+	/**
 	 * Compile the Route pattern for matching.
 	 *
 	 * @return string
@@ -210,21 +125,6 @@ class Route
 		}
 
 		return $this->regex = RouteCompiler::compile($this->uri, $this->wheres);
-	}
-
-	/**
-	 * Get the Route parameters from the matches.
-	 *
-	 * @param  array  $matches
-	 * @return array
-	 */
-	protected function matchToParameters(array $matches)
-	{
-		return array_filter($parameters, function($value, $key)
-		{
-			return is_string($key) && is_string($value) && (strlen($value) > 0);
-
-		}, ARRAY_FILTER_USE_BOTH);
 	}
 
 	/**
@@ -418,16 +318,13 @@ class Route
 	}
 
 	/**
-	 * Set the container instance on the route.
+	 * Get the action callable for the route.
 	 *
-	 * @param  \Mini\Container\Container  $container
-	 * @return $this
+	 * @return string
 	 */
-	public function setContainer(Container $container)
+	public function getCallable()
 	{
-		$this->container = $container;
-
-		return $this;
+		return $this->action['uses'];
 	}
 
 	/**

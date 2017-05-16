@@ -2,9 +2,6 @@
 
 namespace Mini\Routing;
 
-use Mini\Support\Arr;
-
-use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionFunctionAbstract;
@@ -12,19 +9,20 @@ use ReflectionFunctionAbstract;
 
 trait DependencyResolverTrait
 {
-	/**
-	 * Call a class method with the resolved dependencies.
-	 *
-	 * @param  object  $instance
-	 * @param  string  $method
-	 * @return mixed
-	 */
-	protected function callWithDependencies($instance, $method)
-	{
-		$parameters = $this->resolveClassMethodDependencies(array(), $instance, $method);
 
-		return call_user_func_array(array($instance, $method), $parameters);
-	}
+    /**
+     * Call a class method with the resolved dependencies.
+     *
+     * @param  object  $instance
+     * @param  string  $method
+     * @return mixed
+     */
+    protected function callWithDependencies($instance, $method)
+    {
+        return call_user_func_array(
+            array($instance, $method), $this->resolveClassMethodDependencies(array(), $instance, $method)
+        );
+    }
 
 	/**
 	 * Resolve the object method's type-hinted dependencies.
@@ -52,64 +50,39 @@ trait DependencyResolverTrait
 	 * @param  \ReflectionFunctionAbstract  $reflector
 	 * @return array
 	 */
-	public function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
+	protected function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
 	{
-		$originalParameters = $parameters;
+		$dependencies = array();
 
-		foreach ($reflector->getParameters() as $key => $parameter) {
-			$instance = $this->transformDependency($parameter, $parameters);
+		foreach ($reflector->getParameters() as $parameter) {
+			$this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
 
-			if (! is_null($instance)) {
-				$this->spliceIntoParameters($parameters, $key, $instance);
-			}
 		}
 
-		return $parameters;
+		return array_merge($dependencies, $parameters);
 	}
 
 	/**
-	 * Attempt to transform the given parameter into a class instance.
+	 * Get the dependency for the given call parameter.
 	 *
 	 * @param  \ReflectionParameter  $parameter
 	 * @param  array  $parameters
+	 * @param  array  $dependencies
 	 * @return mixed
 	 */
-	protected function transformDependency(ReflectionParameter $parameter, $parameters)
+	protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
 	{
-		$class = $parameter->getClass();
+		if (array_key_exists($parameter->name, $parameters)) {
+			$name = $parameter->name;
 
-		if ($class && ! $this->alreadyInParameters($class->name, $parameters)) {
-			return $this->container->make($class->name);
+			$dependencies[] = $parameters[$name];
+
+			unset($parameters[$name]);
+		} else if (! is_null($class = $parameter->getClass())) {
+			$dependencies[] = $this->container->make($class->name);
+		} else if ($parameter->isDefaultValueAvailable()) {
+			$dependencies[] = $parameter->getDefaultValue();
 		}
 	}
 
-	/**
-	 * Determine if an object of the given class is in a list of parameters.
-	 *
-	 * @param  string  $class
-	 * @param  array  $parameters
-	 * @return bool
-	 */
-	protected function alreadyInParameters($class, array $parameters)
-	{
-		$result = Arr::first($parameters, function ($key, $value) use ($class)
-		{
-			return ($value instanceof $class);
-		});
-
-		return ! is_null($result);
-	}
-
-	/**
-	 * Splice the given value into the parameter list.
-	 *
-	 * @param  array  $parameters
-	 * @param  string  $key
-	 * @param  mixed  $instance
-	 * @return void
-	 */
-	protected function spliceIntoParameters(array &$parameters, $key, $instance)
-	{
-		array_splice($parameters, $key, 0, array($instance));
-	}
 }

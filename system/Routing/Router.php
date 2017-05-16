@@ -5,8 +5,11 @@ namespace Mini\Routing;
 use Mini\Container\Container;
 use Mini\Events\DispatcherInterface;
 use Mini\Pipeline\Pipeline;
+use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
 use Mini\Http\Response;
+use Mini\Routing\ControllerDispatcher;
+use Mini\Routing\DependencyResolverTrait;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
@@ -17,10 +20,13 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 use BadMethodCallException;
 use Closure;
+use ReflectionFunction;
 
 
 class Router
 {
+	use DependencyResolverTrait;
+
 	/**
 	 * The event dispatcher instance.
 	 *
@@ -319,10 +325,7 @@ class Router
 		// Properly prefix the URI pattern.
 		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
 
-		//
-		$route = new Route($methods, $uri, $action, $patterns);
-
-		return $route->setContainer($this->container);
+		return new Route($methods, $uri, $action, $patterns);
 	}
 
 	/**
@@ -423,28 +426,83 @@ class Router
 	/**
 	 * Run the given route within a Stack "onion" instance.
 	 *
-	 * @param  \Illuminate\Routing\Route	$route
-	 * @param  \Illuminate\Http\Request		$request
+	 * @param  \Mini\Routing\Route	$route
+	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
 	protected function runRouteWithinStack(Route $route, Request $request)
 	{
 		if (empty($middleware = $this->gatherRouteMiddlewares($route))) {
-			return $route->run($request);
+			return $this->runRoute($route, $request);
 		}
 
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
 		{
-			return $route->run($request);
+			return $this->runRoute($route, $request);
 		});
+	}
+
+	/**
+	 * Run the route action and return the response.
+	 *
+	 * @param  \Mini\Routing\Route	$route
+	 * @param  \Mini\Http\Request	$request
+	 * @return mixed
+	 */
+	public function runRoute(Route $route, Request $request)
+	{
+		try {
+			if (! is_string($action = $route->getCallable())) {
+				return $this->runCallable($action, $route->parameters());
+			}
+
+			return $this->dispatchController($action, $route, $request);
+		}
+		catch (HttpResponseException $e) {
+			return $e->getResponse();
+		}
+	}
+
+	/**
+	 * Run the route action and return the response.
+	 *
+	 * @param  \Closure	$callable
+	 * @param  array	$parameters
+	 * @return mixed
+	 */
+	protected function runCallable(Closure $callable, array $parameters)
+	{
+		$parameters = $this->resolveMethodDependencies(
+			$parameters, new ReflectionFunction($callable)
+		);
+
+		return call_user_func_array($callable, $parameters);
+	}
+
+	/**
+	 * Send the request and route to controller dispatcher for handling.
+	 *
+	 * @param  \Mini\Routing\Route	$route
+	 * @param string				$action
+	 * @param  \Mini\Http\Request	$request
+	 * @return mixed
+	 */
+	protected function dispatchController($action, Route $route, Request $request)
+	{
+		list($controller, $method) = explode('@', $action);
+
+		// Create a new Controller Dispatcher instance.
+		$dispatcher = new ControllerDispatcher($this, $this->container);
+
+		return $dispatcher->dispatch($route, $request, $controller, $method);
 	}
 
 	/**
 	 * Gather the middleware for the given route.
 	 *
-	 * @param  \Illuminate\Routing\Route  $route
+	 * @param  \Mini\Routing\Route  $route
 	 * @return array
 	 */
 	public function gatherRouteMiddlewares(Route $route)
