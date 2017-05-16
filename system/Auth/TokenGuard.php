@@ -2,10 +2,8 @@
 
 namespace Mini\Auth;
 
-use Mini\Auth\GenericUser;
 use Mini\Auth\Contracts\GuardInterface;
 use Mini\Auth\GuardTrait;
-use Mini\Database\Connection;
 use Mini\Http\Request;
 
 
@@ -14,18 +12,11 @@ class TokenGuard implements GuardInterface
 	use GuardTrait;
 
 	/**
-	 * The active database connection.
-	 *
-	 * @var \Mini\Database\Connection
-	 */
-	protected $connection;
-
-	/**
-	 * The table containing the users.
+	 * The ORM user model.
 	 *
 	 * @var string
 	 */
-	protected $table;
+	protected $model;
 
 	/**
 	 * The request instance.
@@ -57,11 +48,10 @@ class TokenGuard implements GuardInterface
 	 * @param  string  $table
 	 * @return void
 	 */
-	public function __construct(Connection $connection, Request $request, $table)
+	public function __construct($model, Request $request)
 	{
-		$this->connection = $connection;
-		$this->request	= $request;
-		$this->table	  = $table;
+		$this->model   = $model;
+		$this->request = $request;
 
 		$this->inputKey   = 'api_token';
 		$this->storageKey = 'api_token';
@@ -113,32 +103,30 @@ class TokenGuard implements GuardInterface
 	 */
 	public function validate(array $credentials = array())
 	{
-		if (empty($credentials[$this->inputKey])) {
+		$key = $this->inputKey;
+
+		if (empty($credentials[$key)) {
 			return false;
 		}
 
-		$token = $credentials[$this->inputKey];
+		$user = $this->retrieveUserByToken($credentials[$key]);
 
-		if (! is_null($user = $this->retrieveUserByToken($token))) {
-			return true;
-		}
-
-		return false;
+		return ! is_null($user);
 	}
 
 	/**
 	 * Retrieve a user by the given credentials.
 	 *
 	 * @param  array $credentials
-	 * @return \Nova\Auth\UserInterface|null
+	 * @return \Nova\Auth\Contracts\UserInterface|null
 	 */
 	public function retrieveUserByToken($token)
 	{
-		$result = $this->newQuery()->where($this->storageKey, $token)->first();
+		$model = $this->createModel();
 
-		if (! is_null($result)) {
-			return new GenericUser((array) $result);
-		}
+		return $model->newQuery()
+			->where($this->storageKey, $token)
+			->first();
 	}
 
 	/**
@@ -155,12 +143,14 @@ class TokenGuard implements GuardInterface
 	}
 
 	/**
-	 * Get a new Query Builder instance.
+	 * Create a new instance of the model's Query Buider.
 	 *
-	 * @return \Mini\Database\Query\Builder
+	 * @return \Mini\Database\ORM\Model
 	 */
-	protected function newQuery()
+	public function createModel()
 	{
-		return $this->connection->table($this->table);
+		$model = '\\' .ltrim($this->model, '\\');
+
+		return new $model;
 	}
 }
