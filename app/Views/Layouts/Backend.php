@@ -112,9 +112,7 @@
 								<i class='fa fa-sign-out'></i> <?= __('Logout'); ?>
 							</a>
 
-							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;">
-								<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
-							</form>
+							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;"></form>
 						</li>
 					</ul>
 				</li>
