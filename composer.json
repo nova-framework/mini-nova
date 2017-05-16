@@ -43,6 +43,9 @@
         ],
         "post-update-cmd": [
             "@composer dump-autoload --optimize"
+        ],
+        "post-create-project-cmd": [
+            "php forge key:generate"
         ]
     }
 }
