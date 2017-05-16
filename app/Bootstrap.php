@@ -19,14 +19,22 @@ require APPPATH .'Config.php';
 $app = new Mini\Foundation\Application();
 
 //--------------------------------------------------------------------------
+// Detect The Application Environment
+//--------------------------------------------------------------------------
+
+$env = $app->detectEnvironment(array(
+    'local' => array('darkstar'),
+));
+
+//--------------------------------------------------------------------------
 // Bind Paths
 //--------------------------------------------------------------------------
 
 $app->bindInstallPaths(array(
-	'base'	=> BASEPATH,
-	'app'	 => APPPATH,
-	'public'  => WEBPATH,
-	'storage' => STORAGE_PATH,
+	'base'		=> BASEPATH,
+	'app'		=> APPPATH,
+	'public'	=> WEBPATH,
+	'storage'	=> STORAGE_PATH,
 ));
 
 //--------------------------------------------------------------------------
@@ -49,14 +57,28 @@ $app->singleton(
 );
 
 //--------------------------------------------------------------------------
-// Register The After Booting Handler
+// Register Booted Start Files
 //--------------------------------------------------------------------------
 
-$app->booted(function () use ($app)
+$app->booted(function () use ($app, $env)
 {
-	$path = APPPATH .'Global.php';
 
-	if (is_readable($path)) require $path;
+//--------------------------------------------------------------------------
+// Load The Application Start Script
+//--------------------------------------------------------------------------
+
+$path = APPPATH .'Global.php';
+
+if (is_readable($path)) require $path;
+
+//--------------------------------------------------------------------------
+// Load The Environment Start Script
+//--------------------------------------------------------------------------
+
+$path = $app['path'] .DS .'Environment' .DS .ucfirst($env) .'.php';
+
+if (is_readable($path)) require $path;
+
 });
 
 //--------------------------------------------------------------------------

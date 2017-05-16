@@ -118,9 +118,7 @@ class Route
 		try {
 			if (! is_string($this->action['uses'])) {
 				return $this->runCallable($request);
-			}
-
-			if ($this->customDispatcherIsBound()) {
+			} else if ($this->customDispatcherIsBound()) {
 				return $this->runWithCustomDispatcher($request);
 			}
 
@@ -197,21 +195,13 @@ class Route
 	}
 
 	/**
-	 * Checks if a Request matches the Route pattern.
+	 * Checks if a request path matches the Route pattern.
 	 *
-	 * @param \Mini\Http\Request $request The dispatched Request instance
-	 * @param bool $includingMethod Wheter or not is matched the HTTP Method
-	 * @return bool Match status
+	 * @param string $path
+	 * @return bool
 	 */
-	public function matches(Request $request, $includingMethod = true)
+	public function matches($path)
 	{
-		if ($includingMethod && ! in_array($request->method(), $this->methods)) {
-			return false;
-		}
-
-		$path = '/' .ltrim($request->path(), '/');
-
-		//
 		$pattern = $this->compile();
 
 		if (preg_match($pattern, $path, $matches) === 1) {
@@ -291,8 +281,10 @@ class Route
 	 */
 	public function middleware($middleware = null)
 	{
+		$availMiddleware = Arr::get($this->action, 'middleware', array());
+
 		if (is_null($middleware)) {
-			return $this->gatherMiddleware();
+			return $availMiddleware;
 		}
 
 		if (is_string($middleware)) {
@@ -300,21 +292,10 @@ class Route
 		}
 
 		$this->action['middleware'] = array_merge(
-			$this->gatherMiddleware(), $middleware
+			$availMiddleware, $middleware
 		);
 
 		return $this;
-	}
-
-	protected function gatherMiddleware()
-	{
-		$middleware = Arr::get($this->action, 'middleware', array());
-
-		if (is_string($middleware)) {
-			return explode('|', $middleware);
-		}
-
-		return $middleware;
 	}
 
 	/**

@@ -5,6 +5,7 @@ namespace Mini\Foundation;
 use Mini\Config\FileLoader;
 use Mini\Container\Container;
 use Mini\Events\EventServiceProvider;
+use Mini\Foundation\EnvironmentDetector;
 use Mini\Foundation\ProviderRepository;
 use Mini\Http\Request;
 use Mini\Routing\RoutingServiceProvider;
@@ -175,6 +176,44 @@ class Application extends Container
 		foreach ($paths as $key => $value) {
 			$this->instance("path.{$key}", realpath($value));
 		}
+	}
+
+	/**
+	 * Get or check the current application environment.
+	 *
+	 * @param  mixed
+	 * @return string
+	 */
+	public function environment()
+	{
+		if (count(func_get_args()) > 0) {
+			return in_array($this['env'], func_get_args());
+		}
+
+		return $this['env'];
+	}
+
+	/**
+	 * Determine if application is in local environment.
+	 *
+	 * @return bool
+	 */
+	public function isLocal()
+	{
+		return $this['env'] == 'local';
+	}
+
+	/**
+	 * Detect the application's current environment.
+	 *
+	 * @param  array|string  $envs
+	 * @return string
+	 */
+	public function detectEnvironment($envs)
+	{
+		$args = isset($_SERVER['argv']) ? $_SERVER['argv'] : null;
+
+		return $this['env'] = (new EnvironmentDetector())->detect($envs, $args);
 	}
 
 	/**

@@ -235,6 +235,10 @@ class Router
 			$action = $this->mergeGroup($action, end($this->groupStack));
 		}
 
+		if (isset($action['middleware']) && is_string($action['middleware'])) {
+			$action['middleware'] = explode('|', $action['middleware']);
+		}
+
 		return $this->newRoute($methods, $uri, $action);
 	}
 
@@ -279,9 +283,11 @@ class Router
 	{
 		if ($action instanceof Closure) {
 			return false;
+		} else if (is_string($action)) {
+			return true;
 		}
 
-		return is_string($action) || (isset($action['uses']) && is_string($action['uses']));
+		return isset($action['uses']) && is_string($action['uses']);
 	}
 
 	/**
@@ -297,25 +303,16 @@ class Router
 		}
 
 		if (! empty($this->groupStack)) {
-			$action['uses'] = $this->prependGroupUses($action['uses']);
+			$group = end($this->groupStack);
+
+			if (isset($group['namespace'])) {
+				$action['uses'] = $group['namespace'] .'\\' .$action['uses'];
+			}
 		}
 
 		$action['controller'] = $action['uses'];
 
 		return $action;
-	}
-
-	/**
-	 * Prepend the last group uses onto the use clause.
-	 *
-	 * @param  string  $uses
-	 * @return string
-	 */
-	protected function prependGroupUses($uses)
-	{
-		$group = last($this->groupStack);
-
-		return isset($group['namespace']) ? $group['namespace'] .'\\' .$uses : $uses;
 	}
 
 	/**
@@ -368,6 +365,10 @@ class Router
 	{
 		$middleware = $this->gatherRouteMiddlewares($route);
 
+		if (empty($middleware)) {
+			return $route->run($request);
+		}
+
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
@@ -384,11 +385,17 @@ class Router
 	 */
 	public function gatherRouteMiddlewares(Route $route)
 	{
+		$middleware = $route->middleware();
+
+		if (empty($middleware)) {
+			return array();
+		}
+
 		return array_map(function ($name)
 		{
 			return $this->resolveMiddleware($name);
 
-		}, $route->middleware());
+		}, $middleware);
 	}
 
 	/**

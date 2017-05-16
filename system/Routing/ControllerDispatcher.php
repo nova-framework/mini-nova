@@ -84,6 +84,10 @@ class ControllerDispatcher
 	{
 		$middleware = $this->getMiddleware($instance, $method);
 
+		if (empty($middleware)) {
+			return $this->call($instance, $route, $method);
+		}
+
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($instance, $route, $method)

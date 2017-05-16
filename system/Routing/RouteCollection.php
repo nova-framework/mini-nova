@@ -126,17 +126,14 @@ class RouteCollection implements Countable, IteratorAggregate
 	 * @param  \Mini\Http\Request  $request
 	 * @return array
 	 */
-	protected function checkForAlternateMethods($request)
+	protected function checkForAlternateMethods(Request $request)
 	{
-		$method = $request->getMethod();
+		$methods = array_diff(Router::$methods, (array) $request->getMethod());
 
-		$methods = array_diff(Router::$methods, array($method));
-
-		//
 		$others = array();
 
 		foreach ($methods as $method) {
-			if (! is_null($route = $this->check($this->get($method), $request, false))) {
+			if (! is_null($route = $this->check($this->get($method), $request))) {
 				$others[] = $method;
 			}
 		}
@@ -153,29 +150,16 @@ class RouteCollection implements Countable, IteratorAggregate
 	 *
 	 * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedHttpException
 	 */
-	protected function getOtherMethodsRoute($request, array $others)
+	protected function getOtherMethodsRoute(Request $request, array $others)
 	{
-		if ($request->method() == 'OPTIONS') {
-			return (new Route('OPTIONS', $request->path(), function() use ($others)
-			{
-				return new Response('', 200, array('Allow' => implode(',', $others)));
-			}));
+		if ($request->getMethod() !== 'OPTIONS') {
+			throw new MethodNotAllowedHttpException($others);
 		}
 
-		$this->methodNotAllowed($others);
-	}
-
-	/**
-	 * Throw a method not allowed HTTP exception.
-	 *
-	 * @param  array  $others
-	 * @return void
-	 *
-	 * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
-	 */
-	protected function methodNotAllowed(array $others)
-	{
-		throw new MethodNotAllowedHttpException($others);
+		return new Route('OPTIONS', $request->path(), function() use ($others)
+		{
+			return new Response('', 200, array('Allow' => implode(',', $others)));
+		});
 	}
 
 	/**
@@ -183,17 +167,21 @@ class RouteCollection implements Countable, IteratorAggregate
 	 *
 	 * @param  array  $routes
 	 * @param  \Mini\Http\Request  $request
-	 * @param  bool  $includingMethod
 	 * @return \Mini\Routing\Route|null
 	 */
-	protected function check(array $routes, $request, $includingMethod = true)
+	protected function check(array $routes, Request $request)
 	{
-		return Arr::first($routes, function($uri, $route) use ($request, $includingMethod)
+		$path = '/' .ltrim($request->path(), '/');
+
+		if (isset($routes[$path])) {
+			return $routes[$path];
+		}
+
+		return Arr::first($routes, function($uri, $route) use ($path)
 		{
-			return $route->matches($request, $includingMethod);
+			return $route->matches($path);
 		});
 	}
-
 
 	/**
 	 * Get all of the routes in the collection.
