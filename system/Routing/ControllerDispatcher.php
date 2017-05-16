@@ -10,6 +10,7 @@ use Mini\Routing\Router;
 use Mini\Support\Str;
 
 use Closure;
+use InvalidArgumentException;
 
 
 class ControllerDispatcher
@@ -132,7 +133,7 @@ class ControllerDispatcher
 	protected function resolveInstanceMiddleware($instance, $name)
 	{
 		if (! method_exists($instance, $method = substr($name, 1))) {
-			throw new \InvalidArgumentException("Middleware method [$name] does not exist.");
+			throw new InvalidArgumentException("Middleware method [$name] does not exist.");
 		}
 
 		return function ($passable, $stack) use ($instance, $method)

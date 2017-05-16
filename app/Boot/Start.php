@@ -64,7 +64,7 @@ $env = $app->detectEnvironment(array(
 //--------------------------------------------------------------------------
 
 if (isset($unitTesting)) {
-    $app['env'] = $env = $testEnvironment;
+	$app['env'] = $env = $testEnvironment;
 }
 
 //--------------------------------------------------------------------------

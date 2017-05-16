@@ -7,7 +7,6 @@ use Mini\Events\DispatcherInterface;
 use Mini\Pipeline\Pipeline;
 use Mini\Http\Request;
 use Mini\Http\Response;
-use Mini\Routing\ResourceRegistrar;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
@@ -106,6 +105,78 @@ class Router
 	}
 
 	/**
+	 * Register a new GET route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function get($route, $action)
+	{
+		return $this->match(array('GET', 'HEAD'), $route, $action);
+	}
+
+	/**
+	 * Register a new POST route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function post($route, $action)
+	{
+		return $this->match('POST', $route, $action);
+	}
+
+	/**
+	 * Register a new PUT route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function put($route, $action)
+	{
+		return $this->match('PUT', $route, $action);
+	}
+
+	/**
+	 * Register a new PATCH route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function patch($route, $action)
+	{
+		return $this->match('PATCH', $route, $action);
+	}
+
+	/**
+	 * Register a new DELETE route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function delete($route, $action)
+	{
+		return $this->match('DELETE', $route, $action);
+	}
+
+	/**
+	 * Register a new OPTIONS route with the router.
+	 *
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
+	 */
+	public function options($route, $action)
+	{
+		return $this->match('OPTIONS', $route, $action);
+	}
+
+	/**
 	 * Register a new route responding to all verbs.
 	 *
 	 * @param  string  $uri
@@ -116,22 +187,22 @@ class Router
 	{
 		$methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
 
-		return $this->addRoute($methods, $route, $action);
+		return $this->match($methods, $route, $action);
 	}
 
 	/**
-	 * Route a resource to a controller.
+	 * Register a new route with the given verbs.
 	 *
-	 * @param  string  $name
-	 * @param  string  $controller
-	 * @param  array   $options
-	 * @return void
+	 * @param  array|string  $methods
+	 * @param  string  $uri
+	 * @param  \Closure|array|string  $action
+	 * @return \Mini\Routing\Route
 	 */
-	public function resource($name, $controller, array $options = array())
+	public function match($methods, $route, $action)
 	{
-		$registrar = new ResourceRegistrar($this);
+		$route = $this->createRoute($methods, $route, $action);
 
-		$registrar->register($name, $controller, $options);
+		return $this->routes->addRoute($route);
 	}
 
 	/**
@@ -192,21 +263,6 @@ class Router
 	}
 
 	/**
-	 * Add a route to the router.
-	 *
-	 * @param  string|array  $method
-	 * @param  string		$uri
-	 * @param  mixed		 $action
-	 * @return void
-	 */
-	protected function addRoute($method, $uri, $action)
-	{
-		$route = $this->createRoute($method, $uri, $action);
-
-		return $this->routes->addRoute($route);
-	}
-
-	/**
 	 * Create a new route instance.
 	 *
 	 * @param  array|string  $methods
@@ -216,6 +272,12 @@ class Router
 	 */
 	protected function createRoute($methods, $uri, $action)
 	{
+		$methods = array_map('strtoupper', (array) $methods);
+
+		if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
+			array_push($methods, 'HEAD');
+		}
+
 		// When the Action references a Controller, convert it to a Controller Action.
 		if ($this->routingToController($action)) {
 			$action = $this->convertToControllerAction($action);
@@ -254,6 +316,10 @@ class Router
 	{
 		$patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
 
+		// Properly prefix the URI pattern.
+		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
+
+		//
 		$route = new Route($methods, $uri, $action, $patterns);
 
 		return $route->setContainer($this->container);
@@ -363,9 +429,7 @@ class Router
 	 */
 	protected function runRouteWithinStack(Route $route, Request $request)
 	{
-		$middleware = $this->gatherRouteMiddlewares($route);
-
-		if (empty($middleware)) {
+		if (empty($middleware = $this->gatherRouteMiddlewares($route))) {
 			return $route->run($request);
 		}
 
@@ -385,9 +449,7 @@ class Router
 	 */
 	public function gatherRouteMiddlewares(Route $route)
 	{
-		$middleware = $route->middleware();
-
-		if (empty($middleware)) {
+		if (empty($middleware = $route->middleware())) {
 			return array();
 		}
 
@@ -411,14 +473,11 @@ class Router
 		//
 		$callable = Arr::get($this->middleware, $name, $name);
 
-		if (is_string($callable)) {
-			$parameters = ! empty($parameters) ? ':' .$parameters : '';
+		if (empty($parameters)) {
+			return $callable;
+		} else if (is_string($callable)) {
+			$callable .= ! empty($parameters) ? ':' .$parameters : '';
 
-			return $callable .$parameters;
-		}
-
-		// A closure with no parameters do not need addditional processing.
-		else if (empty($parameters)) {
 			return $callable;
 		}
 
@@ -439,39 +498,7 @@ class Router
 	 */
 	protected function findRoute(Request $request)
 	{
-		$this->current = $route = $this->routes->match($request);
-
-		return $this->substituteBindings($route);
-	}
-
-	/**
-	 * Substitute the route bindings onto the route.
-	 *
-	 * @param  \Mini\Routing\Route  $route
-	 * @return \Mini\Routing\Route
-	 */
-	protected function substituteBindings($route)
-	{
-		foreach ($route->parameters() as $key => $value) {
-			if (isset($this->binders[$key])) {
-				$route->setParameter($key, $this->performBinding($key, $value, $route));
-			}
-		}
-
-		return $route;
-	}
-
-	/**
-	 * Call the binding callback for the given key.
-	 *
-	 * @param  string  $key
-	 * @param  string  $value
-	 * @param  \Mini\Routing\Route  $route
-	 * @return mixed
-	 */
-	protected function performBinding($key, $value, $route)
-	{
-		return call_user_func($this->binders[$key], $value, $route);
+		return $this->current = $this->routes->match($request);
 	}
 
 	/**
@@ -507,72 +534,6 @@ class Router
 		$this->middleware[$name] = $middleware;
 
 		return $this;
-	}
-
-	/**
-	 * Register a model binder for a wildcard.
-	 *
-	 * @param  string  $key
-	 * @param  string  $model
-	 * @param  \Closure  $callback
-	 * @return void
-	 *
-	 * @throws NotFoundHttpException
-	 */
-	public function model($key, $model, Closure $callback = null)
-	{
-		$this->bind($key, function($value) use ($className, $callback)
-		{
-			if (is_null($value)) {
-				return null;
-			}
-
-			if ($model = call_user_func(array($model, 'find'), $value)) {
-				return $model;
-			} else if ($callback instanceof Closure) {
-				return call_user_func($callback);
-			}
-
-			throw new NotFoundHttpException;
-		});
-	}
-
-	/**
-	 * Add a new route parameter binder.
-	 *
-	 * @param  string  $key
-	 * @param  string|callable  $binder
-	 * @return void
-	 */
-	public function bind($key, $binder)
-	{
-		if (is_string($binder)) {
-			$binder = $this->createClassBinding($binder);
-		}
-
-		$key = str_replace('-', '_', $key);
-
-		$this->binders[$key] = $binder;
-	}
-
-	/**
-	 * Create a class based binding using the IoC container.
-	 *
-	 * @param  string	$binding
-	 * @return \Closure
-	 */
-	public function createClassBinding($binding)
-	{
-		return function($value, $route) use ($binding)
-		{
-			$segments = explode('@', $binding);
-
-			$method = (count($segments) == 2) ? $segments[1] : 'bind';
-
-			$callable = array($this->container->make($segments[0]), $method);
-
-			return call_user_func($callable, $value, $route);
-		};
 	}
 
 	/**
@@ -707,23 +668,5 @@ class Router
 	public function getRoutes()
 	{
 		return $this->routes;
-	}
-
-	/**
-	 * Dynamically handle calls into Router instance.
-	 *
-	 * @param  string  $method
-	 * @param  array   $parameters
-	 * @return mixed
-	 */
-	public function __call($method, $parameters)
-	{
-		if (in_array(strtoupper($method), static::$methods)) {
-			array_unshift($parameters, $method);
-		} else if ($method !== 'match') {
-			throw new BadMethodCallException("Method [$method] does not exist.");
-		}
-
-		return call_user_func_array(array($this, 'addRoute'), $parameters);
 	}
 }
