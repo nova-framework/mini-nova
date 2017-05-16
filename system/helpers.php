@@ -85,11 +85,13 @@ if (! function_exists('app'))
 	 */
 	function app($make = null)
 	{
-		if (is_null($make)) {
-			return Container::getInstance();
+		$instance = Container::getInstance();
+
+		if (! is_null($make)) {
+			return $instance->make($make);
 		}
 
-		return Container::getInstance()->make($make);
+		return $instance;
 	}
 }
 
