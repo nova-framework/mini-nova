@@ -2,6 +2,8 @@
 
 namespace Mini\Config;
 
+use Mini\Foundation\Application;
+
 
 class EnvironmentVariables
 {
@@ -16,12 +18,12 @@ class EnvironmentVariables
 	/**
 	 * Create a new file environment loader instance.
 	 *
-	 * @param  \Nova\Filesystem\Filesystem  $files
+	 * @param  \Nova\Foundation\Application  $files
 	 * @return void
 	 */
-	public function __construct($path = null)
+	public function __construct(Application $app)
 	{
-		$this->path = ! is_null($path) ? rtrim($path, '/') .DS : BASEPATH;
+		$this->path = $app->make('path.base');
 	}
 
 	/**
@@ -52,9 +54,9 @@ class EnvironmentVariables
 	protected function getVariables($environment)
 	{
 		if (is_null($environment) || ($environment === 'production')) {
-			$path = $this->path .'.env.php';
+			$path = $this->path .DS .'.env.php';
 		} else {
-			$path = $this->path .'.env.' .$environment .'.php';
+			$path = $this->path .DS .'.env.' .$environment .'.php';
 		}
 
 		if (! is_readable($path)) {

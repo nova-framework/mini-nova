@@ -71,7 +71,7 @@ if (isset($unitTesting)) {
 // Register The Environment Variables.
 //--------------------------------------------------------------------------
 
-with($loader = new EnvironmentVariables())->load($env);
+with($loader = new EnvironmentVariables($app))->load($env);
 
 //--------------------------------------------------------------------------
 // Register Booted Start Files
