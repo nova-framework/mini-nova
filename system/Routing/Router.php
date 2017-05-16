@@ -462,7 +462,7 @@ class Router
 				return call_user_func_array($callable, $parameters);
 			}
 
-			return $this->dispatchController($callable, $route, $request);
+			return $this->dispatchToController($route, $request);
 		}
 		catch (HttpResponseException $e) {
 			return $e->getResponse();
@@ -470,21 +470,18 @@ class Router
 	}
 
 	/**
-	 * Send the callable, request and route to controller dispatcher for handling.
+	 * Send the request and route to controller dispatcher for handling.
 	 *
 	 * @param string				$action
 	 * @param  \Mini\Routing\Route	$route
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
-	protected function dispatchController($action, Route $route, Request $request)
+	protected function dispatchToController(Route $route, Request $request)
 	{
-		list($controller, $method) = explode('@', $action);
-
-		// Create a new Controller Dispatcher instance.
 		$dispatcher = new ControllerDispatcher($this, $this->container);
 
-		return $dispatcher->dispatch($route, $request, $controller, $method);
+		return $dispatcher->dispatch($route, $request);
 	}
 
 	/**

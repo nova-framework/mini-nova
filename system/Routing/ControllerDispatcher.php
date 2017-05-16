@@ -46,16 +46,18 @@ class ControllerDispatcher
 	}
 
 	/**
-	 * Dispatch a request to a given controller and method.
+	 * Dispatch a Request to the Controller specified in Route instance.
 	 *
 	 * @param  \Mini\Routing\Route  $route
 	 * @param  \Mini\Http\Request  $request
-	 * @param  string  $controller
-	 * @param  string  $method
+	 * @param  string  $action
 	 * @return mixed
 	 */
-	public function dispatch(Route $route, Request $request, $controller, $method)
+	public function dispatch(Route $route, Request $request)
 	{
+		list($controller, $method) = explode('@', $route->getCallable());
+
+		//
 		$instance = $this->makeController($controller);
 
 		return $this->callWithinStack($instance, $route, $request, $method);
