@@ -703,7 +703,7 @@ class Router
 	}
 
 	/**
-	 * Dynamically handle calls into the query instance.
+	 * Dynamically handle calls into Router instance.
 	 *
 	 * @param  string  $method
 	 * @param  array   $parameters
