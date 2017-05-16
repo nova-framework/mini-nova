@@ -40,7 +40,6 @@ $status = $kernel->handle(
 // Shutdown The Application
 //--------------------------------------------------------------------------
 
-
 $kernel->terminate($input, $status);
 
 exit($status);
