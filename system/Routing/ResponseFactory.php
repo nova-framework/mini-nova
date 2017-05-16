@@ -4,7 +4,6 @@ namespace Mini\Routing;
 
 use Mini\Http\Response;
 use Mini\Http\JsonResponse;
-use Mini\Routing\Redirector;
 use Mini\Support\Traits\MacroableTrait;
 use Mini\Support\Str;
 
@@ -14,26 +13,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ResponseFactory
 {
-	use MacroableTrait;
-
-	/**
-	 * The redirector instance.
-	 *
-	 * @var \Mini\Routing\Redirector
-	 */
-	protected $redirector;
-
-
-	/**
-	 * Create a new response factory instance.
-	 *
-	 * @param  \Mini\Routing\Redirector  $redirector
-	 * @return void
-	 */
-	public function __construct(Redirector $redirector)
-	{
-		$this->redirector = $redirector;
-	}
 
 	/**
 	 * Return a new response from the application.
@@ -120,75 +99,5 @@ class ResponseFactory
 	public function file($file, array $headers = array())
 	{
 		return new BinaryFileResponse($file, 200, $headers);
-	}
-
-	/**
-	 * Create a new redirect response to the given path.
-	 *
-	 * @param  string  $path
-	 * @param  int  $status
-	 * @param  array  $headers
-	 * @param  bool|null  $secure
-	 * @return \Mini\Http\RedirectResponse
-	 */
-	public function redirectTo($path, $status = 302, $headers = array(), $secure = null)
-	{
-		return $this->redirector->to($path, $status, $headers, $secure);
-	}
-
-	/**
-	 * Create a new redirect response to a named route.
-	 *
-	 * @param  string  $route
-	 * @param  array  $parameters
-	 * @param  int  $status
-	 * @param  array  $headers
-	 * @return \Mini\Http\RedirectResponse
-	 */
-	public function redirectToRoute($route, $parameters = array(), $status = 302, $headers = array())
-	{
-		return $this->redirector->route($route, $parameters, $status, $headers);
-	}
-
-	/**
-	 * Create a new redirect response to a controller action.
-	 *
-	 * @param  string  $action
-	 * @param  array  $parameters
-	 * @param  int  $status
-	 * @param  array  $headers
-	 * @return \Mini\Http\RedirectResponse
-	 */
-	public function redirectToAction($action, $parameters = array(), $status = 302, $headers = array())
-	{
-		return $this->redirector->action($action, $parameters, $status, $headers);
-	}
-
-	/**
-	 * Create a new redirect response, while putting the current URL in the session.
-	 *
-	 * @param  string  $path
-	 * @param  int  $status
-	 * @param  array  $headers
-	 * @param  bool|null  $secure
-	 * @return \Mini\Http\RedirectResponse
-	 */
-	public function redirectGuest($path, $status = 302, $headers = array(), $secure = null)
-	{
-		return $this->redirector->guest($path, $status, $headers, $secure);
-	}
-
-	/**
-	 * Create a new redirect response to the previously intended location.
-	 *
-	 * @param  string  $default
-	 * @param  int  $status
-	 * @param  array  $headers
-	 * @param  bool|null  $secure
-	 * @return \Mini\Http\RedirectResponse
-	 */
-	public function redirectToIntended($default = '/', $status = 302, $headers = array(), $secure = null)
-	{
-		return $this->redirector->intended($default, $status, $headers, $secure);
 	}
 }

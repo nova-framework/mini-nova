@@ -111,7 +111,7 @@ class RoutingServiceProvider extends ServiceProvider
 	{
 		$this->app->singleton('response.factory', function ($app)
 		{
-			return new ResponseFactory($app['redirect']);
+			return new ResponseFactory();
 		});
 	}
 }
