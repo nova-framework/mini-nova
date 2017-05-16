@@ -39,6 +39,9 @@ class RouteCompiler
 		{
 			@list(, $name, $optional) = $matches;
 
+			// Convert the optional to boolean.
+			$optional = ! is_null($optional);
+
 			if (in_array($name, $variables)) {
 				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $path, $name);
 
