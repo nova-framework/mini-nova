@@ -44,7 +44,7 @@ class Handler extends ExceptionHandler
 	 */
 	public function render($request, Exception $e)
 	{
-		if (! $e instanceof HttpException) {
+		if ($e instanceof HttpException) {
 			$status = $e->getStatusCode();
 
 			if (View::exists("Errors/{$status}")) {

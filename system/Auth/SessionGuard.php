@@ -7,7 +7,7 @@
 
 namespace Mini\Auth;
 
-use Mini\Auth\Contracts\GuardInterface;
+use Mini\Auth\Contracts\StatefulGuardInterface;
 use Mini\Auth\Contracts\UserInterface;
 use Mini\Auth\GuardTrait;
 use Mini\Cookie\CookieJar;
@@ -21,7 +21,7 @@ use Mini\Session\Store as SessionStore;
 use Mini\Support\Str;
 
 
-class SessionGuard implements GuardInterface
+class SessionGuard implements StatefulGuardInterface
 {
 	use GuardTrait;
 

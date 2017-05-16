@@ -2,6 +2,7 @@
 
 namespace Mini\Foundation\Auth;
 
+use Mini\Foundation\Auth\RedirectsUsersTrait;
 use Mini\Foundation\Auth\ThrottlesLoginsTrait;
 use Mini\Http\Request;
 use Mini\Support\Facades\Auth;
@@ -13,7 +14,7 @@ use Mini\Validation\ValidationException;
 
 trait AuthenticatesUsersTrait
 {
-	use ThrottlesLoginsTrait;
+	use RedirectsUsersTrait, ThrottlesLoginsTrait;
 
 	/**
 	 * Show the application login form.
@@ -71,7 +72,7 @@ trait AuthenticatesUsersTrait
 	{
 		$credentials = $this->credentials($request);
 
-		return $this->guard()->attempt($credentials, $request->has('remember'));
+		return Auth::guard($this->getGuard())->attempt($credentials, $request->has('remember'));
 	}
 
 	/**
@@ -83,12 +84,14 @@ trait AuthenticatesUsersTrait
 	 */
 	protected function sendLoginResponse(Request $request)
 	{
-		$request->session()->regenerate();
-
 		$this->clearLoginAttempts($request);
 
-		return $this->authenticated($request, $this->guard()->user())
-			?: Redirect::intended($this->redirectPath());
+		//
+		$guard = Auth::guard($this->getGuard());
+
+		$response = $this->authenticated($request, $guard->user());
+
+		return  $response ?: Redirect::intended($this->redirectPath());
 	}
 
 	/**
@@ -142,13 +145,13 @@ trait AuthenticatesUsersTrait
 	 */
 	public function logout(Request $request)
 	{
-		$this->guard()->logout();
+		Auth::guard($this->getGuard())->logout();
 
-		$request->session()->flush();
+		$uri = property_exists($this, 'redirectAfterLogout')
+			? $this->redirectAfterLogout
+			: $this->loginPath();
 
-		$request->session()->regenerate();
-
-		return Redirect::to($this->loginPath());
+		return Redirect::to($uri);
 	}
 
 	/**
@@ -172,27 +175,12 @@ trait AuthenticatesUsersTrait
 	}
 
 	/**
-	 * Get the post register / login redirect path.
-	 *
-	 * @return string
-	 */
-	public function redirectPath()
-	{
-		if (method_exists($this, 'redirectTo')) {
-			return $this->redirectTo();
-		}
-
-		return property_exists($this, 'redirectTo') ? $this->redirectTo : '/home';
-	}
-
-	/**
 	 * Get the guard to be used during authentication.
 	 *
-	 * @return \Mini\Auth\Contracts\GuardInterface
+	 * @return string|null
 	 */
-	protected function guard()
+	protected function getGuard()
 	{
-		return Auth::guard();
+		return property_exists($this, 'guard') ? $this->guard : null;
 	}
-
 }
