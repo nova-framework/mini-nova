@@ -433,14 +433,14 @@ class Router
 	protected function runRouteWithinStack(Route $route, Request $request)
 	{
 		if (empty($middleware = $this->gatherRouteMiddlewares($route))) {
-			return $this->runRoute($route, $request);
+			return $this->callAction($route, $request);
 		}
 
 		$pipeline = new Pipeline($this->container);
 
 		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
 		{
-			return $this->runRoute($route, $request);
+			return $this->callAction($route, $request);
 		});
 	}
 
@@ -451,7 +451,7 @@ class Router
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
-	public function runRoute(Route $route, Request $request)
+	public function callAction(Route $route, Request $request)
 	{
 		try {
 			if (! is_string($callable = $route->getCallable())) {
