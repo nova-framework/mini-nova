@@ -121,6 +121,28 @@ class RouteCollection implements Countable, IteratorAggregate
 	}
 
 	/**
+	 * Determine if a route in the array matches the request.
+	 *
+	 * @param  array  $routes
+	 * @param  \Mini\Http\Request  $request
+	 * @return \Mini\Routing\Route|null
+	 */
+	protected function check(array $routes, Request $request)
+	{
+		$path = '/' .ltrim($request->path(), '/');
+
+		if (isset($routes[$path])) {
+			// Direct match found, and that's good because it is faster.
+			return $routes[$path];
+		}
+
+		return Arr::first($routes, function($uri, $route) use ($path)
+		{
+			return $route->matches($path);
+		});
+	}
+
+	/**
 	 * Determine if any routes match on another HTTP verb.
 	 *
 	 * @param  \Mini\Http\Request  $request
@@ -159,27 +181,6 @@ class RouteCollection implements Countable, IteratorAggregate
 		return new Route('OPTIONS', $request->path(), function() use ($others)
 		{
 			return new Response('', 200, array('Allow' => implode(',', $others)));
-		});
-	}
-
-	/**
-	 * Determine if a route in the array matches the request.
-	 *
-	 * @param  array  $routes
-	 * @param  \Mini\Http\Request  $request
-	 * @return \Mini\Routing\Route|null
-	 */
-	protected function check(array $routes, Request $request)
-	{
-		$path = '/' .ltrim($request->path(), '/');
-
-		if (isset($routes[$path])) {
-			return $routes[$path];
-		}
-
-		return Arr::first($routes, function($uri, $route) use ($path)
-		{
-			return $route->matches($path);
 		});
 	}
 
