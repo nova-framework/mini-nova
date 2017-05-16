@@ -73,11 +73,11 @@ trait DependencyResolverTrait
 	protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
 	{
 		if (array_key_exists($parameter->name, $parameters)) {
-			$name = $parameter->name;
+			$key = $parameter->name;
 
-			$dependencies[] = $parameters[$name];
+			$dependencies[] = $parameters[$key];
 
-			unset($parameters[$name]);
+			unset($parameters[$key]);
 		} else if (! is_null($class = $parameter->getClass())) {
 			$dependencies[] = $this->container->make($class->name);
 		} else if ($parameter->isDefaultValueAvailable()) {
