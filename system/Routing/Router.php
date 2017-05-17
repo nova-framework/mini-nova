@@ -321,6 +321,9 @@ class Router
 			$action = $this->mergeGroup($action, end($this->groupStack));
 		}
 
+		// Prefix the URI pattern as is needed.
+		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
+
 		return $this->newRoute($methods, $uri, $action);
 	}
 
@@ -335,9 +338,6 @@ class Router
 	protected function newRoute($methods, $uri, $action)
 	{
 		$patterns = array_merge($this->patterns, Arr::get($action, 'where', array()));
-
-		// Properly prefix the URI pattern.
-		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
 
 		return new Route($methods, $uri, $action, $patterns);
 	}
