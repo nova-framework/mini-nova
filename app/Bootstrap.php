@@ -88,6 +88,6 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 			}
 		}
 
-		View::share('baseUri', isset($path);
+		View::share('baseUri', $path);
 	}
 });
