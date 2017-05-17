@@ -297,7 +297,9 @@ class UrlGenerator
 	{
 		return preg_replace_callback('/\{(.*?)\??\}/', function($matches) use (&$parameters)
 		{
-			return isset($parameters[$matches[1]]) ? Arr::pull($parameters, $matches[1]) : $matches[0];
+			$name = $matches[1];
+
+			return isset($parameters[$name]) ? Arr::pull($parameters, $name) : $matches[0];
 
 		}, $path);
 	}

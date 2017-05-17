@@ -8,8 +8,6 @@ use LogicException;
 
 class RouteCompiler
 {
-	const REGEX_DELIMITER = '#';
-
 	/**
 	 * The default regex pattern used for the named parameters.
 	 *
@@ -28,20 +26,18 @@ class RouteCompiler
 	 */
 	public static function compile($uri, $patterns)
 	{
-		$path = '/' .ltrim($uri, '/');
-
-		$variables = array();
-
-		// The optional parameters count.
 		$optionals = 0;
 
-		$regexp = preg_replace_callback('#/{(\w+)(?:(\?))?}#i', function ($matches) use ($path, $patterns, &$optionals, &$variables)
+		//
+		$variables = array();
+
+		$regexp = preg_replace_callback('#/\{(.*?)(\?)?\}#', function ($matches) use ($uri, $patterns, &$optionals, &$variables)
 		{
 			@list(, $name, $optional) = $matches;
 
 			// Check if the parameter name is unique.
 			if (in_array($name, $variables)) {
-				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $path, $name);
+				$message = sprintf('Route pattern [%s] cannot reference variable name [%s] more than once.', $uri, $name);
 
 				throw new LogicException($message);
 			}
@@ -56,7 +52,7 @@ class RouteCompiler
 
 				$optionals++;
 			} else if ($optionals > 0) {
-				$message = sprintf('Route pattern [%s] cannot reference variable [%s] after one or more optionals.', $path, $name);
+				$message = sprintf('Route pattern [%s] cannot reference variable [%s] after one or more optionals.', $uri, $name);
 
 				throw new LogicException($message);
 			}
@@ -66,13 +62,13 @@ class RouteCompiler
 
 			return sprintf('%s/(?P<%s>%s)', $prefix, $name, $pattern);
 
-		}, $path);
+		}, $uri);
 
 		// Adjust the pattern when we have optional parameters.
 		if ($optionals > 0) {
 			$regexp .= str_repeat(')?', $optionals);
 		}
 
-		return self::REGEX_DELIMITER .'^' .$regexp .'$' .self::REGEX_DELIMITER .'s';
+		return array($regexp, $variables);
 	}
 }

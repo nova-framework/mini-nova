@@ -52,7 +52,7 @@ class Route
 	 *
 	 * @var array|null
 	 */
-	protected $parameterNames;
+	protected $variables;
 
 	/**
 	 * The regex pattern the route responds to.
@@ -79,6 +79,21 @@ class Route
 	}
 
 	/**
+	 * Compile the Route pattern for matching.
+	 *
+	 * @return string
+	 * @throws \LogicException
+	 */
+	public function compile()
+	{
+		if (isset($this->regex)) {
+			return;
+		}
+
+		list($this->regex, $this->variables) = RouteCompiler::compile($this->uri, $this->wheres);
+	}
+
+	/**
 	 * Checks if a request path matches the Route pattern.
 	 *
 	 * @param string $path
@@ -86,9 +101,9 @@ class Route
 	 */
 	public function matches($path)
 	{
-		$pattern = $this->compile();
+		$this->compile();
 
-		if (preg_match($pattern, $path, $matches) === 1) {
+		if (preg_match('#^' .$this->getRegex() .'$#s', $path, $matches) === 1) {
 			$this->parameters = $this->matchToParameters($matches);
 
 			return true;
@@ -110,21 +125,6 @@ class Route
 			return is_string($key) && is_string($value) && (strlen($value) > 0);
 
 		}, ARRAY_FILTER_USE_BOTH);
-	}
-
-	/**
-	 * Compile the Route pattern for matching.
-	 *
-	 * @return string
-	 * @throws \LogicException
-	 */
-	public function compile()
-	{
-		if (isset($this->regex)) {
-			return $this->regex;
-		}
-
-		return $this->regex = RouteCompiler::compile($this->uri, $this->wheres);
 	}
 
 	/**
@@ -178,6 +178,22 @@ class Route
 			return is_string($value) ? rawurldecode($value) : $value;
 
 		}, $this->parameters);
+	}
+
+	/**
+	 * Get all of the parameter names for the route.
+	 *
+	 * @return array
+	 */
+	public function parameterNames()
+	{
+		if (isset($this->variables)) {
+			return $this->variables;
+		}
+
+		$this->compile();
+
+		return $this->variables;
 	}
 
 	/**
@@ -256,6 +272,8 @@ class Route
 	 */
 	public function getRegex()
 	{
+		$this->compile();
+
 		return $this->regex;
 	}
 
