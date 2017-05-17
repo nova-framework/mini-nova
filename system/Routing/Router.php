@@ -313,12 +313,12 @@ class Router
 			$action['uses'] = $this->findActionClosure($action);
 		}
 
-		if (! empty($this->groupStack)) {
-			$action = $this->mergeGroup($action, end($this->groupStack));
-		}
-
 		if (isset($action['middleware']) && is_string($action['middleware'])) {
 			$action['middleware'] = explode('|', $action['middleware']);
+		}
+
+		if (! empty($this->groupStack)) {
+			$action = $this->mergeGroup($action, end($this->groupStack));
 		}
 
 		return $this->newRoute($methods, $uri, $action);
