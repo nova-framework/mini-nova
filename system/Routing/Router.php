@@ -13,6 +13,7 @@ use Mini\Routing\DependencyResolverTrait;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
 use Mini\Support\Arr;
+use Mini\Support\Str;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -500,12 +501,7 @@ class Router
 	 */
 	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
 	{
-		// Gather the Controller middleware.
-		$middleware = array_map(function ($name)
-		{
-			return $this->resolveMiddleware($name);
-
-		}, $controller->getMiddlewareForMethod($method));
+		$middleware = $this->gatherControllerMiddlewares($controller, $method);
 
 		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($controller, $method, $parameters)
 		{
@@ -516,16 +512,56 @@ class Router
 	/**
 	 * Gather the middleware for the given route.
 	 *
+	 * @param  \Mini\Routing\Controller  $controller
+	 * @param  string  $method
+	 * @return mixed
+	 */
+	public function gatherControllerMiddlewares(Controller $controller, $method)
+	{
+		$middleware = $controller->getMiddlewareForMethod($method);
+
+		return array_map(function ($name) use ($controller)
+		{
+			// Check for middlewares specified inside the Controller, using: '@method'
+			if (substr($name, 0, 1) !== '@') {
+				return $this->resolveMiddleware($name);
+			}
+
+			list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
+
+			if (is_string($parameters)) {
+				$parameters = explode(',', $parameters);
+			}
+
+			if (! method_exists($controller, $method = substr($name, 1))) {
+				throw new BadMethodCallException("Method [$method] does not exist.");
+			}
+
+			return function ($passable, $stack) use ($controller, $method, $parameters)
+			{
+				$parameters = array_merge(array($passable, $stack), $parameters);
+
+				return call_user_func_array(array($controller, $method), $parameters);
+			};
+
+		}, $middleware);
+	}
+
+	/**
+	 * Gather the middleware for the given route.
+	 *
 	 * @param  \Mini\Routing\Route  $route
 	 * @return array
 	 */
 	public function gatherRouteMiddlewares(Route $route)
 	{
+		$middleware = $route->middleware();
+
 		return array_map(function ($name)
 		{
 			return $this->resolveMiddleware($name);
 
-		}, $route->middleware());
+		}, $middleware);
 	}
 
 	/**
