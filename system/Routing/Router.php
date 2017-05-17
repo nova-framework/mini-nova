@@ -220,6 +220,10 @@ class Router
 	 */
 	public function group($attributes, Closure $callback)
 	{
+		if (isset($attributes['middleware']) && is_string($attributes['middleware'])) {
+			$attributes['middleware'] = explode('|', $attributes['middleware']);
+		}
+
 		if (! empty($this->groupStack)) {
 			$attributes = $this->mergeGroup($attributes, end($this->groupStack));
 		}
@@ -265,7 +269,17 @@ class Router
 			$new['as'] = $old['as'] . (isset($new['as']) ? $new['as'] : '');
 		}
 
-		return array_merge_recursive(Arr::except($old, array('namespace', 'prefix', 'where', 'as')), $new);
+		if (isset($old['middleware'])) {
+			if (isset($new['middleware'])) {
+				$new['middleware'] = array_merge($old['middleware'], $new['middleware']);
+			} else {
+				$new['middleware'] = $old['middleware'];
+			}
+		}
+
+		$attributes = Arr::except($old, array('namespace', 'prefix', 'where', 'as', 'middleware'));
+
+		return array_merge_recursive($attributes, $new);
 	}
 
 	/**
