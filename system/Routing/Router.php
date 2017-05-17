@@ -514,25 +514,6 @@ class Router
 	}
 
 	/**
-	 * Send the Request through the pipeline with the given callback.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 * @param  array  $middleware
-	 * @param  \Closure  $then
-	 * @return mixed
-	 */
-	protected function sendThroughPipeline(Request $request, array $middleware, Closure $callable)
-	{
-		if (empty($middleware)) {
-			return call_user_func($callable, $request);
-		}
-
-		$pipeline = new Pipeline($this->container);
-
-		return $pipeline->send($request)->through($middleware)->then($callable);
-	}
-
-	/**
 	 * Gather the middleware for the given route.
 	 *
 	 * @param  \Mini\Routing\Route  $route
@@ -558,19 +539,24 @@ class Router
 		list($name, $parameters) = array_pad(explode(':', $name, 2), 2, null);
 
 		//
-		$callable = Arr::get($this->middleware, $name, $name);
+		$callable = isset($this->middleware[$name]) ? $this->middleware[$name] : $name;
 
+		// When no parameters are defined, we will just return the callable.
 		if (empty($parameters)) {
-			return $callable;
-		} else if (is_string($callable)) {
-			$callable .= ! empty($parameters) ? ':' .$parameters : '';
-
 			return $callable;
 		}
 
+		// If the callable is a string, we will append the parameters, then return it.
+		else if (is_string($callable)) {
+			return $callable .':' .$parameters;
+		}
+
+		// For a callback with parameters, we will create a proper middleware closure.
+		$parameters = explode(',', $parameters);
+
 		return function ($passable, $stack) use ($callable, $parameters)
 		{
-			$parameters = array_merge(array($passable, $stack), explode(',', $parameters));
+			$parameters = array_merge(array($passable, $stack), $parameters);
 
 			return call_user_func_array($callable, $parameters);
 		};
@@ -586,6 +572,35 @@ class Router
 	protected function findRoute(Request $request)
 	{
 		return $this->current = $this->routes->match($request);
+	}
+
+	/**
+	 * Send the Request through the pipeline with the given callback.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  array  $middleware
+	 * @param  \Closure  $then
+	 * @return mixed
+	 */
+	protected function sendThroughPipeline(Request $request, array $middleware, Closure $callable)
+	{
+		if (! empty($middleware) && ! $this->shouldSkipMiddleware()) {
+			$pipeline = new Pipeline($this->container);
+
+			return $pipeline->send($request)->through($middleware)->then($callable);
+		}
+
+		return call_user_func($callable, $request);
+	}
+
+	/**
+	 * Determines whether middleware should be skipped during request.
+	 *
+	 * @return bool
+	 */
+	protected function shouldSkipMiddleware()
+	{
+		return $this->container->bound('middleware.disable') && ($this->container->make('middleware.disable') === true);
 	}
 
 	/**
