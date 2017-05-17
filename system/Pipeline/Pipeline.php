@@ -97,15 +97,38 @@ class Pipeline implements PipelineInterface
 	 */
 	public function then(Closure $destination)
 	{
-		$pipes = array_reverse($this->pipes);
-
-		$slice = array_reduce($pipes, function ($stack, $pipe)
-		{
-			return $this->getSlice($stack, $pipe);
-
-		}, $this->getInitialSlice($destination));
+		$slice = array_reduce(
+			array_reverse($this->pipes), $this->carry(), $this->prepareDestination($destination)
+		);
 
 		return call_user_func($slice, $this->passable);
+	}
+
+	/**
+	 * Get the initial slice to begin the stack call.
+	 *
+	 * @param  \Closure  $destination
+	 * @return \Closure
+	 */
+	protected function prepareDestination(Closure $destination)
+	{
+		return function ($passable) use ($destination)
+		{
+			return call_user_func($destination, $passable);
+		};
+	}
+
+	/**
+	 * Get a Closure that represents a slice of the application onion.
+	 *
+	 * @return \Closure
+	 */
+	protected function carry()
+	{
+		return function ($stack, $pipe)
+		{
+			return $this->getSlice($stack, $pipe);
+		};
 	}
 
 	/**
@@ -117,33 +140,43 @@ class Pipeline implements PipelineInterface
 	{
 		return function ($passable) use ($stack, $pipe)
 		{
+			// If the pipe is an instance of a Closure, we will just call it directly.
 			if ($pipe instanceof Closure) {
 				return call_user_func($pipe, $passable, $stack);
 			}
 
-			list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, array());
+			// If the pipe is a string, we'll parse resolve it to callable and parameters.
+			else if (! is_object($pipe)) {
+				list($name, $parameters) = $this->parsePipeString($pipe);
 
-			if (is_string($parameters)) {
-				$parameters = explode(',', $parameters);
+				$pipe = $this->container->make($name);
+
+				$parameters = array_merge(array($passable, $stack), $parameters);
 			}
 
-			return call_user_func_array(array($this->container->make($name), $this->method),
-										array_merge(array($passable, $stack), $parameters));
+			// If the pipe is already an object, we'll just make a callable and pass it.
+			else {
+				$parameters = array($passable, $stack);
+			}
+
+			return call_user_func_array(array($pipe, $this->method), $parameters);
 		};
 	}
 
 	/**
-	 * Get the initial slice to begin the stack call.
+	 * Parse full pipe string to get name and parameters.
 	 *
-	 * @param  \Closure  $callable
-	 * @return \Closure
+	 * @param  string $pipe
+	 * @return array
 	 */
-	protected function getInitialSlice(Closure $callable)
+	protected function parsePipeString($pipe)
 	{
-		return function ($passable) use ($callable)
-		{
-			return call_user_func($callable, $passable);
-		};
-	}
+		list($name, $parameters) = array_pad(explode(':', $pipe, 2), 2, array());
 
+		if (is_string($parameters)) {
+			$parameters = explode(',', $parameters);
+		}
+
+		return array($name, $parameters);
+	}
 }

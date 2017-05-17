@@ -20,28 +20,6 @@ abstract class Controller
 
 
 	/**
-	 * Register middleware on the controller.
-	 *
-	 * @param  string  $middleware
-	 * @param  array   $options
-	 * @return void
-	 */
-	public function middleware($middleware, array $options = array())
-	{
-		$this->middleware[$middleware] = $options;
-	}
-
-	/**
-	 * Get the middleware assigned to the controller.
-	 *
-	 * @return array
-	 */
-	public function getMiddleware()
-	{
-		return $this->middleware;
-	}
-
-	/**
 	 * Execute an action on the controller.
 	 *
 	 * @param string  $method
@@ -54,16 +32,40 @@ abstract class Controller
 	}
 
 	/**
-	 * Handle calls to missing methods on the controller.
+	 * Register middleware on the controller.
 	 *
-	 * @param  array   $parameters
-	 * @return mixed
-	 *
-	 * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+	 * @param  string  $middleware
+	 * @param  array   $options
+	 * @return void
 	 */
-	public function missingMethod($parameters = array())
+	public function middleware($middleware, array $options = array())
 	{
-		throw new NotFoundHttpException("Controller method not found.");
+		$this->middleware[$middleware] = $options;
+	}
+
+	/**
+	 * Get the middleware for a given method.
+	 *
+	 * @param  string  $method
+	 * @return array
+	 */
+	public function getMiddlewareForMethod($method)
+	{
+		$middleware = array();
+
+		foreach ($this->middleware as $name => $options) {
+			if (isset($options['only']) && ! in_array($method, (array) $options['only'])) {
+				continue;
+			}
+
+			if (isset($options['except']) && in_array($method, (array) $options['except'])) {
+				continue;
+			}
+
+			$middleware[] = $name;
+		}
+
+		return $middleware;
 	}
 
 	/**

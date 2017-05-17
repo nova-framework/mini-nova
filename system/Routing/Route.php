@@ -87,10 +87,12 @@ class Route
 	public function compile()
 	{
 		if (isset($this->regex)) {
-			return;
+			return $this->regex;
 		}
 
 		list($this->regex, $this->variables) = RouteCompiler::compile($this->uri, $this->wheres);
+
+		return $this->regex;
 	}
 
 	/**
@@ -101,9 +103,9 @@ class Route
 	 */
 	public function matches($path)
 	{
-		$this->compile();
+		$pattern = $this->compile();
 
-		if (preg_match('#^' .$this->getRegex() .'$#s', $path, $matches) === 1) {
+		if (preg_match('#^' .$pattern .'$#s', $path, $matches) === 1) {
 			$this->parameters = $this->matchToParameters($matches);
 
 			return true;
@@ -272,9 +274,7 @@ class Route
 	 */
 	public function getRegex()
 	{
-		$this->compile();
-
-		return $this->regex;
+		return $this->compile();
 	}
 
 	/**

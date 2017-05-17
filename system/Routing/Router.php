@@ -8,7 +8,7 @@ use Mini\Pipeline\Pipeline;
 use Mini\Http\Exception\HttpResponseException;
 use Mini\Http\Request;
 use Mini\Http\Response;
-use Mini\Routing\ControllerDispatcher;
+use Mini\Routing\Controller;
 use Mini\Routing\DependencyResolverTrait;
 use Mini\Routing\Route;
 use Mini\Routing\RouteCollection;
@@ -68,13 +68,6 @@ class Router
 	 * @var \Mini\Routing\RouteCollection;
 	 */
 	protected $routes;
-
-	/**
-	 * The registered route value binders.
-	 *
-	 * @var array
-	 */
-	protected $binders = array();
 
 	/**
 	 * All of the wheres that have been registered.
@@ -443,7 +436,7 @@ class Router
 	}
 
 	/**
-	 * Run the given route within a Stack "onion" instance.
+	 * Run the given Route within a stack "onion" instance.
 	 *
 	 * @param  \Mini\Routing\Route	$route
 	 * @param  \Mini\Http\Request	$request
@@ -451,15 +444,11 @@ class Router
 	 */
 	protected function runRouteWithinStack(Route $route, Request $request)
 	{
-		if (empty($middleware = $this->gatherRouteMiddlewares($route))) {
-			return $this->callAction($route, $request);
-		}
+		$middleware = $this->gatherRouteMiddlewares($route);
 
-		$pipeline = new Pipeline($this->container);
-
-		return $pipeline->send($request)->through($middleware)->then(function ($request) use ($route)
+		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($route)
 		{
-			return $this->callAction($route, $request);
+			return $this->callRouteAction($route, $request);
 		});
 	}
 
@@ -470,10 +459,11 @@ class Router
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
-	public function callAction(Route $route, Request $request)
+	public function callRouteAction(Route $route, Request $request)
 	{
 		try {
 			if (! is_string($callable = $route->getCallable())) {
+				// The Route action references a callback.
 				$parameters = $this->resolveMethodDependencies(
 					$route->parameters(), new ReflectionFunction($callable)
 				);
@@ -481,7 +471,18 @@ class Router
 				return call_user_func_array($callable, $parameters);
 			}
 
-			return $this->dispatchToController($route, $request);
+			// The Route action references a Controller.
+			list($className, $method) = explode('@', $callable);
+
+			if (! method_exists($controller = $this->container->make($className), $method)) {
+				throw new NotFoundHttpException();
+			}
+
+			$parameters = $this->resolveClassMethodDependencies(
+				$route->parameters(), $controller, $method
+			);
+
+			return $this->runControllerWithinStack($controller, $request, $method, $parameters);
 		}
 		catch (HttpResponseException $e) {
 			return $e->getResponse();
@@ -489,18 +490,46 @@ class Router
 	}
 
 	/**
-	 * Send the request and route to controller dispatcher for handling.
+	 *  Run the given Controller within a stack "onion" instance.
 	 *
-	 * @param string				$action
-	 * @param  \Mini\Routing\Route	$route
-	 * @param  \Mini\Http\Request	$request
+	 * @param  \Mini\Routing\Controller  $controller
+	 * @param  \Mini\Http\Request  $request
+ 	 * @param  string  $method
+	 * @param  array  $parameters
 	 * @return mixed
 	 */
-	protected function dispatchToController(Route $route, Request $request)
+	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
 	{
-		$dispatcher = new ControllerDispatcher($this, $this->container);
+		// Gather the Controller middleware.
+		$middleware = array_map(function ($name)
+		{
+			return $this->resolveMiddleware($name);
 
-		return $dispatcher->dispatch($route, $request);
+		}, $controller->getMiddlewareForMethod($method));
+
+		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($controller, $method, $parameters)
+		{
+			return $controller->callAction($method, $parameters);
+		});
+	}
+
+	/**
+	 * Send the Request through the pipeline with the given callback.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  array  $middleware
+	 * @param  \Closure  $then
+	 * @return mixed
+	 */
+	protected function sendThroughPipeline(Request $request, array $middleware, Closure $callable)
+	{
+		if (empty($middleware)) {
+			return call_user_func($callable, $request);
+		}
+
+		$pipeline = new Pipeline($this->container);
+
+		return $pipeline->send($request)->through($middleware)->then($callable);
 	}
 
 	/**
@@ -511,22 +540,18 @@ class Router
 	 */
 	public function gatherRouteMiddlewares(Route $route)
 	{
-		if (empty($middleware = $route->middleware())) {
-			return array();
-		}
-
 		return array_map(function ($name)
 		{
 			return $this->resolveMiddleware($name);
 
-		}, $middleware);
+		}, $route->middleware());
 	}
 
 	/**
-	 * Resolve the middleware name to a class name preserving passed parameters.
+	 * Resolve the middleware name to class name preserving passed parameters.
 	 *
-	 * @param  string  $name
-	 * @return string
+	 * @param  string $name
+	 * @return array
 	 */
 	public function resolveMiddleware($name)
 	{
