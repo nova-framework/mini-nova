@@ -15,12 +15,13 @@ trait DependencyResolverTrait
 	 *
 	 * @param  object  $instance
 	 * @param  string  $method
+	 * @param  array  $parameters
 	 * @return mixed
 	 */
-	protected function callWithDependencies($instance, $method)
+	protected function callWithDependencies($instance, $method, array $parameters = array())
 	{
 		return call_user_func_array(
-			array($instance, $method), $this->resolveClassMethodDependencies(array(), $instance, $method)
+			array($instance, $method), $this->resolveClassMethodDependencies($parameters, $instance, $method)
 		);
 	}
 
