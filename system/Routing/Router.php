@@ -260,6 +260,14 @@ class Router
 			$new['prefix'] = isset($old['prefix']) ? $old['prefix'] : null;
 		}
 
+		if (isset($old['middleware'])) {
+			if (isset($new['middleware'])) {
+				$new['middleware'] = array_merge($old['middleware'], $new['middleware']);
+			} else {
+				$new['middleware'] = $old['middleware'];
+			}
+		}
+
 		$new['where'] = array_merge(
 			isset($old['where']) ? $old['where'] : array(),
 			isset($new['where']) ? $new['where'] : array()
@@ -267,14 +275,6 @@ class Router
 
 		if (isset($old['as'])) {
 			$new['as'] = $old['as'] . (isset($new['as']) ? $new['as'] : '');
-		}
-
-		if (isset($old['middleware'])) {
-			if (isset($new['middleware'])) {
-				$new['middleware'] = array_merge($old['middleware'], $new['middleware']);
-			} else {
-				$new['middleware'] = $old['middleware'];
-			}
 		}
 
 		$attributes = Arr::except($old, array('namespace', 'prefix', 'where', 'as', 'middleware'));
@@ -318,11 +318,16 @@ class Router
 		}
 
 		if (! empty($this->groupStack)) {
-			$action = $this->mergeGroup($action, end($this->groupStack));
+			$attributes = end($this->groupStack);
+
+			if (isset($attributes['prefix'])) {
+				$uri = trim($attributes['prefix'], '/') .'/' .trim($uri, '/');
+			}
+
+			$action = $this->mergeGroup($action, $attributes);
 		}
 
-		// Prefix the URI pattern as is needed.
-		$uri = '/' .trim(trim(Arr::get($action, 'prefix'), '/') .'/' .trim($uri, '/'), '/');
+		$uri = '/'.trim($uri, '/');
 
 		return $this->newRoute($methods, $uri, $action);
 	}
