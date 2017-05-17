@@ -449,7 +449,9 @@ class Router
 
 		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($route)
 		{
-			return $this->callRouteAction($route, $request);
+			return $this->prepareResponse(
+				$request, $this->runRoute($route, $request)
+			);
 		});
 	}
 
@@ -460,7 +462,7 @@ class Router
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
-	public function callRouteAction(Route $route, Request $request)
+	public function runRoute(Route $route, Request $request)
 	{
 		try {
 			if (! is_string($callable = $route->getCallable())) {
@@ -501,62 +503,21 @@ class Router
 	 */
 	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
 	{
-		$middleware = $this->gatherControllerMiddlewares($controller, $method);
+		// Gather the Controller middlewares
+		$middleware = array_map(function ($name) use ($controller)
+		{
+			return $this->resolveMiddleware($name);
+
+		}, $controller->getMiddlewareForMethod($method));
 
 		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($controller, $method, $parameters)
 		{
-			return $controller->callAction($method, $parameters);
+			$this->events->fire('router.executing', array($controller, $request, $method, $parameters));
+
+			return $this->prepareResponse(
+				$request, $controller->callAction($method, $parameters)
+			);
 		});
-	}
-
-	/**
-	 * Gather the middleware for the given route.
-	 *
-	 * @param  \Mini\Routing\Controller  $controller
-	 * @param  string  $method
-	 * @return mixed
-	 */
-	public function gatherControllerMiddlewares(Controller $controller, $method)
-	{
-		$middleware = $controller->getMiddlewareForMethod($method);
-
-		return array_map(function ($name) use ($controller)
-		{
-			if (substr($name, 0, 1) === '@') {
-				// A middleware specified inside the Controller using: '@method'
-				return $this->resolveControllerMiddleware($controller, $name);
-			}
-
-			return $this->resolveMiddleware($name);
-
-		}, $middleware);
-	}
-
-	/**
-	 * Resolve a middleware specified inside the Controller.
-	 *
-	 * @param  \Mini\Routing\Controller  $controller
-	 * @param  string $name
-	 * @return array
-	 */
-	public function resolveControllerMiddleware(Controller $controller, $name)
-	{
-		list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
-
-		if (is_string($parameters)) {
-			$parameters = explode(',', $parameters);
-		}
-
-		if (! method_exists($controller, $method = substr($name, 1))) {
-			throw new BadMethodCallException("Method [$method] does not exist.");
-		}
-
-		return function ($passable, $stack) use ($controller, $method, $parameters)
-		{
-			$parameters = array_merge(array($passable, $stack), $parameters);
-
-			return call_user_func_array(array($controller, $method), $parameters);
-		};
 	}
 
 	/**

@@ -2,12 +2,6 @@
 
 namespace Mini\Routing;
 
-use Mini\Http\Response;
-
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
-use BadMethodCallException;
-
 
 abstract class Controller
 {
@@ -24,9 +18,9 @@ abstract class Controller
 	 *
 	 * @param string  $method
 	 * @param array   $params
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return mixed
 	 */
-	public function callAction($method, array $parameters = array())
+	public function callAction($method, array $parameters)
 	{
 		return call_user_func_array(array($this, $method), $parameters);
 	}
@@ -66,19 +60,5 @@ abstract class Controller
 		}
 
 		return $middleware;
-	}
-
-	/**
-	 * Handle calls to missing methods on the controller.
-	 *
-	 * @param  string  $method
-	 * @param  array   $parameters
-	 * @return mixed
-	 *
-	 * @throws \BadMethodCallException
-	 */
-	public function __call($method, $parameters)
-	{
-		throw new BadMethodCallException("Method [$method] does not exist.");
 	}
 }

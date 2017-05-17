@@ -7,6 +7,7 @@ use Mini\Routing\Route;
 use Mini\Routing\Router;
 use Mini\Console\Command;
 use Mini\Support\Arr;
+use Mini\Support\Str;
 
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
@@ -70,6 +71,7 @@ class RouteListCommand extends Command
 	{
 		parent::__construct();
 
+		//
 		$this->router = $router;
 
 		$this->routes = $router->getRoutes();
@@ -185,28 +187,13 @@ class RouteListCommand extends Command
 
 		$results = array();
 
-		foreach ($controller->getMiddleware() as $name => $options) {
-			if (! $this->methodExcludedByOptions($method, $options)) {
-				$middleware = Arr::get($middlewares, $name, $name);
+		foreach ($controller->getMiddlewareForMethod($method) as $name) {
+			$middleware = Arr::get($middlewares, $name, $name);
 
-				$results[] = (! $middleware instanceof Closure) ? $middleware : $name;
-			}
+			$results[] = ($middleware instanceof Closure) ? $name : $middleware;
 		}
 
 		return $results;
-	}
-
-	/**
-	 * Determine if the given options exclude a particular method.
-	 *
-	 * @param  string  $method
-	 * @param  array  $options
-	 * @return bool
-	 */
-	protected function methodExcludedByOptions($method, array $options)
-	{
-		return ((! empty($options['only']) && ! in_array($method, (array) $options['only'])) ||
-			(! empty($options['except']) && in_array($method, (array) $options['except'])));
 	}
 
 	/**
@@ -217,8 +204,8 @@ class RouteListCommand extends Command
 	*/
 	protected function filterRoute(array $route)
 	{
-		if (($this->option('name') && ! str_contains($route['name'], $this->option('name'))) ||
-			$this->option('path') && ! str_contains($route['uri'], $this->option('path'))) {
+		if (($this->option('name') && ! Str::contains($route['name'], $this->option('name'))) ||
+			$this->option('path') && ! Str::contains($route['uri'], $this->option('path'))) {
 			return null;
 		}
 

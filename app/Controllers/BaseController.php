@@ -29,30 +29,17 @@ class BaseController extends Controller
 
 
 	/**
-	 * Method executed before any action.
-	 *
-	 * @param mixed $response
-	 *
-	 * @return mixed
-	 */
-	protected function before() {
-		//
-	}
-
-	/**
 	 * Execute an action on the controller.
 	 *
 	 * @param string  $method
 	 * @param array   $params
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	public function callAction($method, array $parameters = array())
+	public function callAction($method, array $parameters)
 	{
-		$this->before();
-
 		$response = call_user_func_array(array($this, $method), $parameters);
 
-		return $this->after($response);
+		return $this->processResponse($response);
 	}
 
 	/**
@@ -62,7 +49,7 @@ class BaseController extends Controller
 	 *
 	 * @return mixed
 	 */
-	protected function after($response)
+	protected function processResponse($response)
 	{
 		if ($response instanceof RenderableInterface) {
 			if (! empty($this->layout)) {

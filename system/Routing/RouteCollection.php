@@ -131,8 +131,8 @@ class RouteCollection implements Countable, IteratorAggregate
 	{
 		$path = '/' .ltrim($request->path(), '/');
 
+		// We will try to direct match the Route because this way is faster.
 		if (isset($routes[$path])) {
-			// Direct match found, and that's good because it is faster.
 			return $routes[$path];
 		}
 
