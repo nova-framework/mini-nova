@@ -1,9 +1,11 @@
 <?php
 
+use Mini\Http\Request;
+
 /**
  * Role-based Authorization Middleware.
  */
-Route::middleware('role', function($request, Closure $next, $role)
+Route::middleware('role', function(Request $request, Closure $next, $role)
 {
 	$roles = array_slice(func_get_args(), 2);
 
@@ -26,7 +28,7 @@ Route::middleware('role', function($request, Closure $next, $role)
 /**
  * Request's Referer Middleware.
  */
-Route::middleware('referer', function($request, Closure $next)
+Route::middleware('referer', function(Request $request, Closure $next)
 {
 	$referrer = $request->header('referer');
 
@@ -38,45 +40,21 @@ Route::middleware('referer', function($request, Closure $next)
 });
 
 /**
- * Listener Closure to the Event 'router.matched'.
+ * Listener Closure to the Event 'router.executing.controller'.
  */
-Event::listen('router.matched', function($route, $request)
-{
-	// Share the Views the current URI.
-	View::share('currentUri', $request->path());
 
-	// Share the Views the Backend's base URI.
-	$path = '';
-
-	$segments = $request->segments();
-
-	if(! empty($segments)) {
-		// Make the path equal with the first part if it exists, i.e. 'admin'
-		$path = array_shift($segments);
-
-		$segment = ! empty($segments) ? array_shift($segments) : '';
-
-		if (($path == 'admin') && empty($segment)) {
-			$path = 'admin/dashboard';
-		} else if (! empty($segment)) {
-			$path .= '/' .$segment;
-		}
-	}
-
-	View::share('baseUri', $path);
-});
-
-/**
- * Listener Closure to the Event 'router.executing'.
- */
+use Mini\Routing\Controller;
 
 use App\Controllers\BackendController;
 use App\Models\Notification;
 use App\Models\Message;
 
 
-Event::listen('router.executing', function($controller, $request)
+Event::listen('router.executing.controller', function(Controller $controller, Request $request, $method, array $parameters)
 {
+	// Share the Views the current URI.
+	View::share('currentUri', $request->path());
+
 	if (($controller instanceof BackendController) && Auth::check()) {
 		$user = Auth::user();
 
@@ -91,5 +69,25 @@ Event::listen('router.executing', function($controller, $request)
 		$messages = Message::where('receiver_id', $user->id)->unread()->count();
 
 		View::share('privateMessageCount', $messages);
+
+		// Share the Views the Backend's base URI.
+		$segments = $request->segments();
+
+		$path = '';
+
+		if(! empty($segments)) {
+			// Make the path equal with the first part if it exists, i.e. 'admin'
+			$path = array_shift($segments);
+
+			$segment = ! empty($segments) ? array_shift($segments) : '';
+
+			if (($path == 'admin') && empty($segment)) {
+				$path = 'admin/dashboard';
+			} else if (! empty($segment)) {
+				$path .= '/' .$segment;
+			}
+		}
+
+		View::share('baseUri', isset($path);
 	}
 });

@@ -471,6 +471,8 @@ class Router
 					$route->parameters(), new ReflectionFunction($callable)
 				);
 
+				$this->events->fire('router.executing.callback', array($route, $request, $parameters));
+
 				return call_user_func_array($callable, $parameters);
 			}
 
@@ -512,7 +514,7 @@ class Router
 
 		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($controller, $method, $parameters)
 		{
-			$this->events->fire('router.executing', array($controller, $request, $method, $parameters));
+			$this->events->fire('router.executing.controller', array($controller, $request, $method, $parameters));
 
 			return $this->prepareResponse(
 				$request, $controller->callAction($method, $parameters)
