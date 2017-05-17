@@ -522,29 +522,41 @@ class Router
 
 		return array_map(function ($name) use ($controller)
 		{
-			// Check for middlewares specified inside the Controller, using: '@method'
-			if (substr($name, 0, 1) !== '@') {
-				return $this->resolveMiddleware($name);
+			if (substr($name, 0, 1) === '@') {
+				// A middleware specified inside the Controller using: '@method'
+				return $this->resolveControllerMiddleware($controller, $name);
 			}
 
-			list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
-
-			if (is_string($parameters)) {
-				$parameters = explode(',', $parameters);
-			}
-
-			if (! method_exists($controller, $method = substr($name, 1))) {
-				throw new BadMethodCallException("Method [$method] does not exist.");
-			}
-
-			return function ($passable, $stack) use ($controller, $method, $parameters)
-			{
-				$parameters = array_merge(array($passable, $stack), $parameters);
-
-				return call_user_func_array(array($controller, $method), $parameters);
-			};
+			return $this->resolveMiddleware($name);
 
 		}, $middleware);
+	}
+
+	/**
+	 * Resolve a middleware specified inside the Controller.
+	 *
+	 * @param  \Mini\Routing\Controller  $controller
+	 * @param  string $name
+	 * @return array
+	 */
+	public function resolveControllerMiddleware(Controller $controller, $name)
+	{
+		list($name, $parameters) = array_pad(explode(':', $name, 2), 2, array());
+
+		if (is_string($parameters)) {
+			$parameters = explode(',', $parameters);
+		}
+
+		if (! method_exists($controller, $method = substr($name, 1))) {
+			throw new BadMethodCallException("Method [$method] does not exist.");
+		}
+
+		return function ($passable, $stack) use ($controller, $method, $parameters)
+		{
+			$parameters = array_merge(array($passable, $stack), $parameters);
+
+			return call_user_func_array(array($controller, $method), $parameters);
+		};
 	}
 
 	/**
