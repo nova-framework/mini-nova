@@ -55,21 +55,7 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 	// Share the Views the current URI.
 	View::share('currentUri', $request->path());
 
-	if (($controller instanceof BackendController) && Auth::check()) {
-		$user = Auth::user();
-
-		View::share('currentUser', $user);
-
-		//
-		$notifications = Notification::where('user_id', $user->id)->unread()->count();
-
-		View::share('notificationCount', $notifications);
-
-		//
-		$messages = Message::where('receiver_id', $user->id)->unread()->count();
-
-		View::share('privateMessageCount', $messages);
-
+	if ($controller instanceof BackendController) {
 		// Share the Views the Backend's base URI.
 		$segments = $request->segments();
 
@@ -89,5 +75,21 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 		}
 
 		View::share('baseUri', $path);
+
+		if (Auth::check()) {
+			$user = Auth::user();
+
+			View::share('currentUser', $user);
+
+			//
+			$notifications = Notification::where('user_id', $user->id)->unread()->count();
+
+			View::share('notificationCount', $notifications);
+
+			//
+			$messages = Message::where('receiver_id', $user->id)->unread()->count();
+
+			View::share('privateMessageCount', $messages);
+		}
 	}
 });

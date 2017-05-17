@@ -10,10 +10,10 @@ namespace App\Controllers;
 
 use Mini\Foundation\Auth\AuthenticatesUsersTrait;
 
-use App\Controllers\BaseController;
+use App\Controllers\BackendController;
 
 
-class Authorize extends BaseController
+class Authorize extends BackendController
 {
 	use AuthenticatesUsersTrait;
 
