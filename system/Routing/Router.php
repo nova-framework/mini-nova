@@ -590,18 +590,18 @@ class Router
 	 *
 	 * @param  \Mini\Http\Request  $request
 	 * @param  array  $middleware
-	 * @param  \Closure  $then
+	 * @param  \Closure  $destination
 	 * @return mixed
 	 */
-	protected function sendThroughPipeline(Request $request, array $middleware, Closure $callable)
+	protected function sendThroughPipeline(Request $request, array $middleware, Closure $destination)
 	{
 		if (! empty($middleware) && ! $this->shouldSkipMiddleware()) {
 			$pipeline = new Pipeline($this->container);
 
-			return $pipeline->send($request)->through($middleware)->then($callable);
+			return $pipeline->send($request)->through($middleware)->then($destination);
 		}
 
-		return call_user_func($callable, $request);
+		return call_user_func($destination, $request);
 	}
 
 	/**
