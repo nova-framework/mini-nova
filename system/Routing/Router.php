@@ -445,7 +445,7 @@ class Router
 	 */
 	protected function findRoute(Request $request)
 	{
-		return $this->current = $this->routes->match($request);
+		return $this->currentRoute = $this->routes->match($request);
 	}
 
 	/**
@@ -458,6 +458,10 @@ class Router
 	protected function runRouteWithinStack(Route $route, Request $request)
 	{
 		$middleware = $this->gatherRouteMiddlewares($route);
+
+		if (empty($middleware)) {
+			return $this->callAction($route, $request);
+		}
 
 		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($route)
 		{
@@ -480,16 +484,11 @@ class Router
 
 		$action = $route->getAction();
 
-		try {
-			if (! is_string($callable = $action['uses'])) {
-				return $this->runCallable($callable, $parameters);
-			}
-
-			return $this->runController($callable, $request, $parameters);
-
-		} catch (HttpResponseException $e) {
-			return $e->getResponse();
+		if (! is_string($callable = $action['uses'])) {
+			return $this->runCallable($callable, $parameters);
 		}
+
+		return $this->runControllerWithinStack($callable, $request, $parameters);
 	}
 
 	/**
@@ -505,47 +504,32 @@ class Router
 			$parameters, new ReflectionFunction($callable)
 		);
 
-		return call_user_func_array($callable, $parameters);
-	}
+		try {
+			return call_user_func_array($callable, $parameters);
 
-	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  string  $action
-	 * @param  \Nova\Http\Request  $request
-	 * @param  array  $parameters
-	 * @return mixed
-	 *
-	 * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-	 */
-	protected function runController($action, Request $request, array $parameters)
-	{
-		list ($controller, $method) = explode('@', $action);
-
-		if (! method_exists($instance = $this->container->make($controller), $method)) {
-			throw new NotFoundHttpException();
+		} catch (HttpResponseException $e) {
+			return $e->getResponse();
 		}
-
-		$parameters = $this->resolveMethodDependencies(
-			$parameters, new ReflectionMethod($instance, $method)
-		);
-
-		$this->events->fire('router.executing.controller', array($instance, $request, $method, $parameters));
-
-		return $this->runControllerWithinStack($instance, $request, $method, $parameters);
 	}
 
 	/**
 	 *  Run the given Controller within a stack "onion" instance.
 	 *
-	 * @param  \Mini\Routing\Controller  $controller
+	 * @param  string  $action
 	 * @param  \Mini\Http\Request  $request
-	 * @param  string  $method
 	 * @param  array  $parameters
 	 * @return mixed
 	 */
-	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
+	protected function runControllerWithinStack($action, Request $request, array $parameters)
 	{
+		list ($className, $method) = explode('@', $action);
+
+		if (! method_exists($controller = $this->container->make($className), $method)) {
+			throw new NotFoundHttpException();
+		}
+
+		$this->events->fire('router.executing.controller', array($controller, $request, $method, $parameters));
+
 		// Gather the Controller instance middlewares.
 		$middleware = array_map(function ($name) use ($controller)
 		{
@@ -553,13 +537,39 @@ class Router
 
 		}, $controller->getMiddlewareForMethod($method));
 
+		if (empty($middleware)) {
+			return $this->callController($controller, $request, $method, $parameters);
+		}
+
 		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
 		{
-			return $this->prepareResponse(
-				$request, $controller->callAction($method, $parameters)
-			);
+			return $this->callController($controller, $request, $method, $parameters);
 		});
 	}
+
+    /**
+     * Call a controller instance and return the response.
+     *
+     * @param  \Mini\Routing\Controller  $controller
+     * @param  \Mini\Http\Request  $request
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return \Illuminate\Http\Response
+     */
+    protected function callController(Controller $controller, Request $request, $method, array $parameters = array())
+    {
+		$parameters = $this->resolveMethodDependencies(
+			$parameters, new ReflectionMethod($controller, $method)
+		);
+
+        try {
+            return $this->prepareResponse(
+                $request, $controller->callAction($method, $parameters)
+            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
+        }
+    }
 
 	/**
 	 * Gather the middleware for the given route.
