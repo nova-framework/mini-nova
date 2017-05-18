@@ -195,7 +195,19 @@ class View implements ArrayAccess, RenderableInterface
 	}
 
 	/**
-	 * Get the rendered contents of a partial from a loop.
+	 * Get the rendered contents of a partial view.
+	 *
+	 * @param  string  $view
+	 * @param  array   $data
+	 * @return View
+	 */
+	public function partial($view, $data = array())
+	{
+		return $this->factory($view, $data)->with($this->data)->render();
+	}
+
+	/**
+	 * Get the rendered contents of a partial view from a loop.
 	 *
 	 * @param  string  $view
 	 * @param  array   $data
