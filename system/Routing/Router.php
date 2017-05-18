@@ -584,9 +584,7 @@ class Router
 
 			// If the parameter is not defined, but it references a class instance.
 			else if (! is_null($class = $parameter->getClass())) {
-				$className = $class->name;
-
-				$dependencies[] = $this->container->make($className);
+				$dependencies[] = $this->container->make($class->name);
 			}
 
 			// If the parameter is not defined, but its default value is available.
