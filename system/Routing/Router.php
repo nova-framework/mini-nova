@@ -562,22 +562,6 @@ class Router
 	}
 
 	/**
-	 * Create a response instance from the given value.
-	 *
-	 * @param  \Symfony\Component\HttpFoundation\Request  $request
-	 * @param  mixed  $response
-	 * @return \Mini\Http\Response
-	 */
-	public function prepareResponse($request, $response)
-	{
-		if (! $response instanceof SymfonyResponse) {
-			$response = new Response($response);
-		}
-
-		return $response->prepare($request);
-	}
-
-	/**
 	 * Gather the middleware for the given route.
 	 *
 	 * @param  \Mini\Routing\Route  $route
@@ -690,6 +674,22 @@ class Router
 		}
 
 		return array_merge($dependencies, $parameters);
+	}
+
+	/**
+	 * Create a response instance from the given value.
+	 *
+	 * @param  \Symfony\Component\HttpFoundation\Request  $request
+	 * @param  mixed  $response
+	 * @return \Mini\Http\Response
+	 */
+	public function prepareResponse($request, $response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			$response = new Response($response);
+		}
+
+		return $response->prepare($request);
 	}
 
 	/**
