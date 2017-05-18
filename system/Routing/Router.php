@@ -476,36 +476,88 @@ class Router
 	 */
 	public function callAction(Route $route, Request $request)
 	{
-		if (! is_string($callable = $route->getCallable())) {
-			// The Route action references a callback.
-			$parameters = $this->resolveCallDependencies(
-				$route->parameters(), new ReflectionFunction($callable)
-			);
+		$parameters = $route->parameters();
 
-			$this->events->fire('router.executing.callback', array($route, $request, $parameters));
+		$action = $route->getAction();
 
-			try {
-				return call_user_func_array($callable, $parameters);
-
-			} catch (HttpResponseException $e) {
-				return $e->getResponse();
+		try {
+			if (! is_string($callable = $action['uses'])) {
+				return $this->runCallable($callable, $request, $parameters);
 			}
-		}
 
-		// The Route action references a Controller.
-		list ($controller, $method) = explode('@', $callable);
+			return $this->runController($callable, $request, $parameters);
+
+		} catch (HttpResponseException $e) {
+			return $e->getResponse();
+		}
+	}
+
+	/**
+	 * Run the route action and return the response.
+	 *
+	 * @param  \Nova\Http\Request  $request
+	 * @return mixed
+	 */
+	protected function runCallable(Closure $callable, Request $request, array $parameters)
+	{
+		$parameters = $this->resolveCallDependencies(
+			$parameters, new ReflectionFunction($callable)
+		);
+
+		return call_user_func_array($callable, $parameters);
+	}
+
+	/**
+	 * Run the route action and return the response.
+	 *
+	 * @param  string  $action
+	 * @param  \Nova\Http\Request  $request
+	 * @param  array  $parameters
+	 * @return mixed
+	 *
+	 * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+	 */
+	protected function runController($action, Request $request, array $parameters)
+	{
+		list ($controller, $method) = explode('@', $action);
 
 		if (! method_exists($instance = $this->container->make($controller), $method)) {
 			throw new NotFoundHttpException();
 		}
 
 		$parameters = $this->resolveCallDependencies(
-			$route->parameters(), new ReflectionMethod($instance, $method)
+			$parameters, new ReflectionMethod($instance, $method)
 		);
 
 		$this->events->fire('router.executing.controller', array($instance, $request, $method, $parameters));
 
 		return $this->runControllerWithinStack($instance, $request, $method, $parameters);
+	}
+
+	/**
+	 *  Run the given Controller within a stack "onion" instance.
+	 *
+	 * @param  \Mini\Routing\Controller  $controller
+	 * @param  \Mini\Http\Request  $request
+	 * @param  string  $method
+	 * @param  array  $parameters
+	 * @return mixed
+	 */
+	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
+	{
+		// Gather the Controller instance middlewares
+		$middleware = array_map(function ($name) use ($controller)
+		{
+			return $this->resolveMiddleware($name);
+
+		}, $controller->getMiddlewareForMethod($method));
+
+		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
+		{
+			return $this->prepareResponse(
+				$request, $controller->callAction($method, $parameters)
+			);
+		});
 	}
 
 	/**
@@ -547,37 +599,6 @@ class Router
 		} else if ($parameter->isDefaultValueAvailable()) {
 			$dependencies[] = $parameter->getDefaultValue();
 		}
-	}
-
-	/**
-	 *  Run the given Controller within a stack "onion" instance.
-	 *
-	 * @param  \Mini\Routing\Controller  $controller
-	 * @param  \Mini\Http\Request  $request
- 	 * @param  string  $method
-	 * @param  array  $parameters
-	 * @return mixed
-	 */
-	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
-	{
-		// Gather the Controller instance middlewares
-		$middleware = array_map(function ($name) use ($controller)
-		{
-			return $this->resolveMiddleware($name);
-
-		}, $controller->getMiddlewareForMethod($method));
-
-		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
-		{
-			try {
-				$response = $controller->callAction($method, $parameters);
-
-			} catch (HttpResponseException $e) {
-				$response = $e->getResponse();
-			}
-
-			return $this->prepareResponse($request, $response);
-		});
 	}
 
 	/**

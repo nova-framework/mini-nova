@@ -334,26 +334,4 @@ class Route
 	{
 		return $this->action;
 	}
-
-	/**
-	 * Get the action callable for the route.
-	 *
-	 * @return string
-	 */
-	public function getCallable()
-	{
-		return $this->action['uses'];
-	}
-
-	/**
-	 * Dynamically access route parameters.
-	 *
-	 * @param  string  $key
-	 * @return mixed
-	 */
-	public function __get($key)
-	{
-		return $this->parameter($key);
-	}
-
 }
