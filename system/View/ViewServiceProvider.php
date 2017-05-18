@@ -3,6 +3,7 @@
 namespace Mini\View;
 
 use Mini\View\Factory;
+use Mini\View\Section;
 use Mini\Support\ServiceProvider;
 
 
@@ -26,6 +27,11 @@ class ViewServiceProvider extends ServiceProvider
 		{
 			return new Factory($app);
 		});
+
+		$this->app->bindShared('view.section', function($app)
+		{
+			return new Section($app['view']);
+		});
 	}
 
 	/**
@@ -35,6 +41,6 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function provides()
 	{
-		return array('view');
+		return array('view', 'view.section');
 	}
 }

@@ -17,7 +17,7 @@ class View implements ArrayAccess, RenderableInterface
 	/**
 	 * The View Factory instance.
 	 *
-	 * @var \Nova\View\Factory
+	 * @var \Mini\View\Factory
 	 */
 	protected $factory;
 
@@ -206,98 +206,6 @@ class View implements ArrayAccess, RenderableInterface
 	public function each($view, array $data, $iterator, $empty = 'raw|')
 	{
 		return $this->factory->renderEach($view, $data, $iterator, $empty);
-	}
-
-	/**
-	 * Get the string contents of a section.
-	 *
-	 * @param  string  $section
-	 * @param  string  $default
-	 * @return string
-	 */
-	public function get($section = null, $default = '')
-	{
-		return $this->factory->yieldContent($section, $default);
-	}
-
-	/**
-	 * Start injecting content into a section.
-	 *
-	 * @param  string  $section
-	 * @param  string  $content
-	 * @return void
-	 */
-	public function section($section, $content = '')
-	{
-		$this->factory->startSection($section, $content);
-	}
-
-	/**
-	 * Inject inline content into a section.
-	 *
-	 * @param  string  $section
-	 * @param  string  $content
-	 * @return void
-	 */
-	public function inject($section, $content)
-	{
-		return $this->factory->startSection($section, $content);
-	}
-
-	/**
-	 * Stop injecting content into a section and append it.
-	 *
-	 * @return string
-	 */
-	public function append()
-	{
-		return $this->factory->appendSection();
-	}
-
-	/**
-	 * Append content to a given section.
-	 *
-	 * @param  string  $section
-	 * @param  string  $content
-	 * @return void
-	 */
-	public function extend($section, $content)
-	{
-		return $this->factory->extendSection($section, $content);
-	}
-
-	/**
-	 * Stop injecting content into a section and return its contents.
-	 *
-	 * @param  string  $section
-	 * @param  string  $default
-	 * @return string
-	 */
-	public function show()
-	{
-		return $this->factory->yieldSection();
-	}
-
-	/**
-	 * Stop injecting content into a section.
-	 *
-	 * @param  bool  $overwrite
-	 * @return string
-	 */
-	public function stop()
-	{
-		return $this->factory->stopSection();
-	}
-
-	/**
-	 * Stop injecting content into a section.
-	 *
-	 * @param  bool  $overwrite
-	 * @return string
-	 */
-	public function overwrite()
-	{
-		return $this->factory->stopSection(true);
 	}
 
 	/**

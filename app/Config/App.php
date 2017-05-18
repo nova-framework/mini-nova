@@ -212,6 +212,7 @@ return array(
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',
 		'Route'			=> 'Mini\Support\Facades\Route',
+		'Section'		=> 'Mini\Support\Facades\Section',
 		'Session'		=> 'Mini\Support\Facades\Session',
 		'Validator'		=> 'Mini\Support\Facades\Validator',
 		'View'			=> 'Mini\Support\Facades\View',
