@@ -189,10 +189,6 @@ class Route
 	 */
 	public function parameterNames()
 	{
-		if (isset($this->variables)) {
-			return $this->variables;
-		}
-
 		$this->compile();
 
 		return $this->variables;

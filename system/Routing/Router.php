@@ -482,7 +482,7 @@ class Router
 
 		try {
 			if (! is_string($callable = $action['uses'])) {
-				return $this->runCallable($callable, $request, $parameters);
+				return $this->runCallable($callable, $parameters);
 			}
 
 			return $this->runController($callable, $request, $parameters);
@@ -495,10 +495,11 @@ class Router
 	/**
 	 * Run the route action and return the response.
 	 *
+	 * @param  \Closure $callable
 	 * @param  \Nova\Http\Request  $request
 	 * @return mixed
 	 */
-	protected function runCallable(Closure $callable, Request $request, array $parameters)
+	protected function runCallable(Closure $callable, array $parameters)
 	{
 		$parameters = $this->resolveCallDependencies(
 			$parameters, new ReflectionFunction($callable)
