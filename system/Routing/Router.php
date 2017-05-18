@@ -501,27 +501,6 @@ class Router
 	}
 
 	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Closure $callable
-	 * @param  \Nova\Http\Request  $request
-	 * @return mixed
-	 */
-	protected function runCallable(Closure $callable, array $parameters)
-	{
-		$parameters = $this->resolveMethodDependencies(
-			$parameters, new ReflectionFunction($callable)
-		);
-
-		try {
-			return call_user_func_array($callable, $parameters);
-
-		} catch (HttpResponseException $e) {
-			return $e->getResponse();
-		}
-	}
-
-	/**
 	 *  Run the given Controller within a stack "onion" instance.
 	 *
 	 * @param  \Mini\Routing\Controller  $controller
@@ -539,12 +518,12 @@ class Router
 		}, $controller->getMiddlewareForMethod($method));
 
 		if (empty($middleware)) {
-			return $this->callControllerAction($controller, $request, $method, $parameters);
+			return $this->runController($controller, $request, $method, $parameters);
 		}
 
 		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
 		{
-			return $this->callControllerAction($controller, $request, $method, $parameters);
+			return $this->runController($controller, $request, $method, $parameters);
 		});
 	}
 
@@ -557,9 +536,9 @@ class Router
 	 * @param  array  $parameters
 	 * @return \Illuminate\Http\Response
 	 */
-	protected function callControllerAction(Controller $controller, Request $request, $method, array $parameters = array())
+	protected function runController(Controller $controller, Request $request, $method, array $parameters = array())
 	{
-		$parameters = $this->resolveMethodDependencies(
+		$parameters = $this->resolveCallDependencies(
 			$parameters, new ReflectionMethod($controller, $method)
 		);
 
@@ -570,6 +549,47 @@ class Router
 		} catch (HttpResponseException $e) {
 			return $e->getResponse();
 		}
+	}
+
+	/**
+	 * Run the route action and return the response.
+	 *
+	 * @param  \Closure $callable
+	 * @param  \Nova\Http\Request  $request
+	 * @return mixed
+	 */
+	protected function runCallable(Closure $callable, array $parameters)
+	{
+		$parameters = $this->resolveCallDependencies(
+			$parameters, new ReflectionFunction($callable)
+		);
+
+		try {
+			return call_user_func_array($callable, $parameters);
+
+		} catch (HttpResponseException $e) {
+			return $e->getResponse();
+		}
+	}
+
+	/**
+	 * Resolve the given method's type-hinted dependencies.
+	 *
+	 * @param  array  $parameters
+	 * @param  \ReflectionFunctionAbstract  $reflector
+	 * @return array
+	 */
+	protected function resolveCallDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
+	{
+		foreach ($reflector->getParameters() as $key => $parameter) {
+			if (! is_null($class = $parameter->getClass())) {
+				$instance = $this->container->make($class->name);
+
+				array_splice($parameters, $key, 0, array($instance));
+			}
+		}
+
+		return $parameters;
 	}
 
 	/**
@@ -648,41 +668,6 @@ class Router
 	protected function shouldSkipMiddleware()
 	{
 		return $this->container->bound('middleware.disable') && ($this->container->make('middleware.disable') === true);
-	}
-
-	/**
-	 * Resolve the given method's type-hinted dependencies.
-	 *
-	 * @param  array  $parameters
-	 * @param  \ReflectionFunctionAbstract  $reflector
-	 * @return array
-	 */
-	protected function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
-	{
-		$dependencies = array();
-
-		foreach ($reflector->getParameters() as $parameter) {
-			$name = $parameter->name;
-
-			// If the parameter is defined in parameters list, we'll just use it.
-			if (array_key_exists($name, $parameters)) {
-				$dependencies[] = $parameters[$name];
-
-				unset($parameters[$name]);
-			}
-
-			// If the parameter is not defined, but it references a class instance.
-			else if (! is_null($class = $parameter->getClass())) {
-				$dependencies[] = $this->container->make($class->name);
-			}
-
-			// If the parameter is not defined, but its default value is available.
-			else if ($parameter->isDefaultValueAvailable()) {
-				$dependencies[] = $parameter->getDefaultValue();
-			}
-		}
-
-		return array_merge($dependencies, $parameters);
 	}
 
 	/**

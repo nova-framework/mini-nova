@@ -7,9 +7,6 @@
 
 namespace App\Controllers\Admin;
 
-use Nova\Support\Facades\Config;
-use Nova\Support\Facades\View;
-
 use App\Controllers\BackendController;
 
 
@@ -18,11 +15,11 @@ class Dashboard extends BackendController
 
 	public function index()
 	{
-		$debug = '';
+		$content = '';
 
 		return $this->getView()
 			->shares('title', __('Dashboard'))
-			->with('debug', $debug);
+			->with('debug', $content);
 	}
 
 }
