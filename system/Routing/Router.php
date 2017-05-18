@@ -482,9 +482,9 @@ class Router
 
 		$action = $route->getAction();
 
-		if (is_string($callback = $action['uses'])) {
-			// The Route action references a Controller.
-			list ($controller, $method) = explode('@', $callback);
+		if (isset($action['controller'])) {
+			// The action references a Controller.
+			list ($controller, $method) = explode('@', $action['controller']);
 
 			if (! method_exists($instance = $this->container->make($controller), $method)) {
 				throw new NotFoundHttpException();
@@ -495,8 +495,10 @@ class Router
 			return $this->runControllerWithinStack($instance, $request, $method, $parameters);
 		}
 
-		// The Route action references a callback.
-		$parameters = $this->resolveMethodDependencies($callback, $parameters);
+		// The action references a callback.
+		$callback = $action['uses'];
+
+		$parameters = $this->getMethodDependencies($callback, $parameters);
 
 		try {
 			return call_user_func_array($callback, $parameters);
@@ -545,7 +547,7 @@ class Router
 	 */
 	protected function callControllerAction(Controller $controller, Request $request, $method, array $parameters = array())
 	{
-		$parameters = $this->resolveMethodDependencies(array($controller, $method), $parameters);
+		$parameters = $this->getMethodDependencies(array($controller, $method), $parameters);
 
 		try {
 			return $this->prepareResponse(
@@ -563,7 +565,7 @@ class Router
 	 * @param  array  $parameters
 	 * @return array
 	 */
-	protected function resolveMethodDependencies(callable $callback, array $parameters)
+	protected function getMethodDependencies(callable $callback, array $parameters)
 	{
 		if (is_array($callback)) {
 			$reflector = new ReflectionMethod($callback[0], $callback[1]);
