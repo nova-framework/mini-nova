@@ -22,8 +22,6 @@ use BadMethodCallException;
 use Closure;
 use ReflectionFunction;
 use ReflectionMethod;
-use ReflectionParameter;
-use ReflectionFunctionAbstract;
 
 
 class Router
@@ -484,20 +482,28 @@ class Router
 
 		$action = $route->getAction();
 
-		if (! is_string($callable = $action['uses'])) {
-			return $this->runCallable($callable, $parameters);
+		if (is_string($callback = $action['uses'])) {
+			// The Route action references a Controller.
+			list ($controller, $method) = explode('@', $callback);
+
+			if (! method_exists($instance = $this->container->make($controller), $method)) {
+				throw new NotFoundHttpException();
+			}
+
+			$this->events->fire('router.executing.controller', array($instance, $request, $method, $parameters));
+
+			return $this->runControllerWithinStack($instance, $request, $method, $parameters);
 		}
 
-		// The action references a Controller.
-		list ($className, $method) = explode('@', $callable);
+		// The Route action references a callback.
+		$parameters = $this->resolveMethodDependencies($callback, $parameters);
 
-		if (! method_exists($controller = $this->container->make($className), $method)) {
-			throw new NotFoundHttpException();
+		try {
+			return call_user_func_array($callback, $parameters);
+
+		} catch (HttpResponseException $e) {
+			return $e->getResponse();
 		}
-
-		$this->events->fire('router.executing.controller', array($controller, $request, $method, $parameters));
-
-		return $this->runControllerWithinStack($controller, $request, $method, $parameters);
 	}
 
 	/**
@@ -511,6 +517,7 @@ class Router
 	 */
 	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
 	{
+		// Gather the middleware from Controller's instance.
 		$middleware = array_map(function ($name)
 		{
 			return $this->resolveMiddleware($name);
@@ -518,12 +525,12 @@ class Router
 		}, $controller->getMiddlewareForMethod($method));
 
 		if (empty($middleware)) {
-			return $this->runController($controller, $request, $method, $parameters);
+			return $this->callControllerAction($controller, $request, $method, $parameters);
 		}
 
 		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
 		{
-			return $this->runController($controller, $request, $method, $parameters);
+			return $this->callControllerAction($controller, $request, $method, $parameters);
 		});
 	}
 
@@ -536,11 +543,9 @@ class Router
 	 * @param  array  $parameters
 	 * @return \Illuminate\Http\Response
 	 */
-	protected function runController(Controller $controller, Request $request, $method, array $parameters = array())
+	protected function callControllerAction(Controller $controller, Request $request, $method, array $parameters = array())
 	{
-		$parameters = $this->resolveCallDependencies(
-			$parameters, new ReflectionMethod($controller, $method)
-		);
+		$parameters = $this->resolveMethodDependencies(array($controller, $method), $parameters);
 
 		try {
 			return $this->prepareResponse(
@@ -552,35 +557,20 @@ class Router
 	}
 
 	/**
-	 * Run the route action and return the response.
-	 *
-	 * @param  \Closure $callable
-	 * @param  \Nova\Http\Request  $request
-	 * @return mixed
-	 */
-	protected function runCallable(Closure $callable, array $parameters)
-	{
-		$parameters = $this->resolveCallDependencies(
-			$parameters, new ReflectionFunction($callable)
-		);
-
-		try {
-			return call_user_func_array($callable, $parameters);
-
-		} catch (HttpResponseException $e) {
-			return $e->getResponse();
-		}
-	}
-
-	/**
 	 * Resolve the given method's type-hinted dependencies.
 	 *
+	 * @param  callable  $callback
 	 * @param  array  $parameters
-	 * @param  \ReflectionFunctionAbstract  $reflector
 	 * @return array
 	 */
-	protected function resolveCallDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
+	protected function resolveMethodDependencies(callable $callback, array $parameters)
 	{
+		if (is_array($callback)) {
+			$reflector = new ReflectionMethod($callback[0], $callback[1]);
+		} else {
+			$reflector = new ReflectionFunction($callback);
+		}
+
 		foreach ($reflector->getParameters() as $key => $parameter) {
 			if (! is_null($class = $parameter->getClass())) {
 				$instance = $this->container->make($class->name);

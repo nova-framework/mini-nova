@@ -50,46 +50,52 @@ use App\Models\Notification;
 use App\Models\Message;
 
 
-Event::listen('router.executing.controller', function(Controller $controller, Request $request, $method, array $parameters)
+Event::listen('router.executing.controller', function(Controller $controller, Request $request)
 {
 	// Share the Views the current URI.
 	View::share('currentUri', $request->path());
 
-	if ($controller instanceof BackendController) {
-		// Share the Views the Backend's base URI.
-		$segments = $request->segments();
+	if (! $controller instanceof BackendController) {
+		return;
+	}
 
-		$path = '';
+	// Share the Views the Backend's base URI.
+	$segments = $request->segments();
 
-		if(! empty($segments)) {
-			// Make the path equal with the first part if it exists, i.e. 'admin'
-			$path = array_shift($segments);
+	$path = '';
 
-			$segment = ! empty($segments) ? array_shift($segments) : '';
+	if(! empty($segments)) {
+		// Make the path equal with the first part if it exists, i.e. 'admin'
+		$path = array_shift($segments);
 
-			if (($path == 'admin') && empty($segment)) {
-				$path = 'admin/dashboard';
-			} else if (! empty($segment)) {
-				$path .= '/' .$segment;
-			}
-		}
+		$segment = ! empty($segments) ? array_shift($segments) : '';
 
-		View::share('baseUri', $path);
-
-		if (Auth::check()) {
-			$user = Auth::user();
-
-			View::share('currentUser', $user);
-
-			//
-			$notifications = Notification::where('user_id', $user->id)->unread()->count();
-
-			View::share('notificationCount', $notifications);
-
-			//
-			$messages = Message::where('receiver_id', $user->id)->unread()->count();
-
-			View::share('privateMessageCount', $messages);
+		if (($path == 'admin') && empty($segment)) {
+			$path = 'admin/dashboard';
+		} else if (! empty($segment)) {
+			$path .= '/' .$segment;
 		}
 	}
+
+	View::share('baseUri', $path);
+
+	// Get the current User instance.
+	$user = Auth::user();
+
+	if (is_null($user)) {
+		// No further processing for non-authenticated users.
+		return;
+	}
+
+	View::share('currentUser', $user);
+
+	//
+	$notifications = Notification::where('user_id', $user->id)->unread()->count();
+
+	View::share('notificationCount', $notifications);
+
+	//
+	$messages = Message::where('receiver_id', $user->id)->unread()->count();
+
+	View::share('privateMessageCount', $messages);
 });
