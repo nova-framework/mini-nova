@@ -47,7 +47,7 @@ class Router
 	 *
 	 * @var \Mini\Routing\Route
 	 */
-	protected $current;
+	protected $currentRoute;
 
 	/**
 	 * The request currently being dispatched.
@@ -437,6 +437,18 @@ class Router
 	}
 
 	/**
+	 * Search the routes for the route matching a request.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 *
+	 * @return \Mini\Routing\Route|null
+	 */
+	protected function findRoute(Request $request)
+	{
+		return $this->current = $this->routes->match($request);
+	}
+
+	/**
 	 * Run the given Route within a stack "onion" instance.
 	 *
 	 * @param  \Mini\Routing\Route	$route
@@ -447,10 +459,10 @@ class Router
 	{
 		$middleware = $this->gatherRouteMiddlewares($route);
 
-		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($route)
+		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($route)
 		{
 			return $this->prepareResponse(
-				$request, $this->runRoute($route, $request)
+				$request, $this->callAction($route, $request)
 			);
 		});
 	}
@@ -462,35 +474,78 @@ class Router
 	 * @param  \Mini\Http\Request	$request
 	 * @return mixed
 	 */
-	public function runRoute(Route $route, Request $request)
+	public function callAction(Route $route, Request $request)
 	{
-		try {
-			if (! is_string($callable = $route->getCallable())) {
-				// The Route action references a callback.
-				$parameters = $this->resolveMethodDependencies(
-					$route->parameters(), new ReflectionFunction($callable)
-				);
-
-				$this->events->fire('router.executing.callback', array($route, $request, $parameters));
-
-				return call_user_func_array($callable, $parameters);
-			}
-
-			// The Route action references a Controller.
-			list($className, $method) = explode('@', $callable);
-
-			if (! method_exists($controller = $this->container->make($className), $method)) {
-				throw new NotFoundHttpException();
-			}
-
-			$parameters = $this->resolveClassMethodDependencies(
-				$route->parameters(), $controller, $method
+		if (! is_string($callable = $route->getCallable())) {
+			// The Route action references a callback.
+			$parameters = $this->resolveCallDependencies(
+				$route->parameters(), new ReflectionFunction($callable)
 			);
 
-			return $this->runControllerWithinStack($controller, $request, $method, $parameters);
+			$this->events->fire('router.executing.callback', array($route, $request, $parameters));
+
+			try {
+				return call_user_func_array($callable, $parameters);
+
+			} catch (HttpResponseException $e) {
+				return $e->getResponse();
+			}
 		}
-		catch (HttpResponseException $e) {
-			return $e->getResponse();
+
+		// The Route action references a Controller.
+		list ($controller, $method) = explode('@', $callable);
+
+		if (! method_exists($instance = $this->container->make($controller), $method)) {
+			throw new NotFoundHttpException();
+		}
+
+		$parameters = $this->resolveCallDependencies(
+			$route->parameters(), new ReflectionMethod($instance, $method)
+		);
+
+		$this->events->fire('router.executing.controller', array($instance, $request, $method, $parameters));
+
+		return $this->runControllerWithinStack($instance, $request, $method, $parameters);
+	}
+
+	/**
+	 * Resolve the given method's type-hinted dependencies.
+	 *
+	 * @param  array  $parameters
+	 * @param  \ReflectionFunctionAbstract  $reflector
+	 * @return array
+	 */
+	protected function resolveCallDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
+	{
+		$dependencies = array();
+
+		foreach ($reflector->getParameters() as $parameter) {
+			$this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
+		}
+
+		return array_merge($dependencies, $parameters);
+	}
+
+	/**
+	 * Get the dependency for the given call parameter.
+	 *
+	 * @param  \ReflectionParameter  $parameter
+	 * @param  array  $parameters
+	 * @param  array  $dependencies
+	 * @return mixed
+	 */
+	protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
+	{
+		if (array_key_exists($parameter->name, $parameters)) {
+			$key = $parameter->name;
+
+			$dependencies[] = $parameters[$key];
+
+			unset($parameters[$key]);
+		} else if (! is_null($class = $parameter->getClass())) {
+			$dependencies[] = $this->container->make($class->name);
+		} else if ($parameter->isDefaultValueAvailable()) {
+			$dependencies[] = $parameter->getDefaultValue();
 		}
 	}
 
@@ -512,13 +567,16 @@ class Router
 
 		}, $controller->getMiddlewareForMethod($method));
 
-		return $this->sendThroughPipeline($request, $middleware, function ($request) use ($controller, $method, $parameters)
+		return $this->sendThroughPipeline($middleware, $request, function ($request) use ($controller, $method, $parameters)
 		{
-			$this->events->fire('router.executing.controller', array($controller, $request, $method, $parameters));
+			try {
+				$response = $controller->callAction($method, $parameters);
 
-			return $this->prepareResponse(
-				$request, $controller->callAction($method, $parameters)
-			);
+			} catch (HttpResponseException $e) {
+				$response = $e->getResponse();
+			}
+
+			return $this->prepareResponse($request, $response);
 		});
 	}
 
@@ -574,87 +632,14 @@ class Router
 	}
 
 	/**
-	 * Resolve the object method's type-hinted dependencies.
-	 *
-	 * @param  array  $parameters
-	 * @param  object  $instance
-	 * @param  string  $method
-	 * @return array
-	 */
-	protected function resolveClassMethodDependencies(array $parameters, $instance, $method)
-	{
-		if (! method_exists($instance, $method)) {
-			return $parameters;
-		}
-
-		return $this->resolveMethodDependencies(
-			$parameters, new ReflectionMethod($instance, $method)
-		);
-	}
-
-	/**
-	 * Resolve the given method's type-hinted dependencies.
-	 *
-	 * @param  array  $parameters
-	 * @param  \ReflectionFunctionAbstract  $reflector
-	 * @return array
-	 */
-	protected function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
-	{
-		$dependencies = array();
-
-		foreach ($reflector->getParameters() as $parameter) {
-			$this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
-
-		}
-
-		return array_merge($dependencies, $parameters);
-	}
-
-	/**
-	 * Get the dependency for the given call parameter.
-	 *
-	 * @param  \ReflectionParameter  $parameter
-	 * @param  array  $parameters
-	 * @param  array  $dependencies
-	 * @return mixed
-	 */
-	protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
-	{
-		if (array_key_exists($parameter->name, $parameters)) {
-			$key = $parameter->name;
-
-			$dependencies[] = $parameters[$key];
-
-			unset($parameters[$key]);
-		} else if (! is_null($class = $parameter->getClass())) {
-			$dependencies[] = $this->container->make($class->name);
-		} else if ($parameter->isDefaultValueAvailable()) {
-			$dependencies[] = $parameter->getDefaultValue();
-		}
-	}
-
-	/**
-	 * Search the routes for the route matching a request.
-	 *
-	 * @param  \Mini\Http\Request  $request
-	 *
-	 * @return \Mini\Routing\Route|null
-	 */
-	protected function findRoute(Request $request)
-	{
-		return $this->current = $this->routes->match($request);
-	}
-
-	/**
 	 * Send the Request through the pipeline with the given callback.
 	 *
-	 * @param  \Mini\Http\Request  $request
 	 * @param  array  $middleware
+	 * @param  \Mini\Http\Request  $request
 	 * @param  \Closure  $destination
 	 * @return mixed
 	 */
-	protected function sendThroughPipeline(Request $request, array $middleware, Closure $destination)
+	protected function sendThroughPipeline(array $middleware, Request $request, Closure $destination)
 	{
 		if (! empty($middleware) && ! $this->shouldSkipMiddleware()) {
 			$pipeline = new Pipeline($this->container);
@@ -743,7 +728,7 @@ class Router
 	 */
 	public function current()
 	{
-		return $this->current;
+		return $this->currentRoute;
 	}
 
 	/**
