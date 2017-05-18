@@ -589,7 +589,7 @@ class Router
 			}
 		}
 
-		return $parameters;
+		return array_values($parameters);
 	}
 
 	/**
