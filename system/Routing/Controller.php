@@ -2,6 +2,8 @@
 
 namespace Mini\Routing;
 
+use BadMethodCallException;
+
 
 abstract class Controller
 {
@@ -60,5 +62,19 @@ abstract class Controller
 		}
 
 		return $middleware;
+	}
+
+	/**
+	 * Handle calls to missing methods on the Controller.
+	 *
+	 * @param  string  $method
+	 * @param  array   $parameters
+	 * @return mixed
+	 *
+	 * @throws \BadMethodCallException
+	 */
+	public function __call($method, $parameters)
+	{
+		throw new BadMethodCallException("Method [$method] does not exist.");
 	}
 }

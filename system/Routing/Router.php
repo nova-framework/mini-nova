@@ -546,7 +546,7 @@ class Router
 	 */
 	protected function runControllerWithinStack(Controller $controller, Request $request, $method, array $parameters)
 	{
-		// Gather the Controller instance middlewares
+		// Gather the Controller instance middlewares.
 		$middleware = array_map(function ($name) use ($controller)
 		{
 			return $this->resolveMiddleware($name);
