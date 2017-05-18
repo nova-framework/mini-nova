@@ -66,11 +66,36 @@ class View implements ArrayAccess, RenderableInterface
 	 */
 	public function render(Closure $callback = null)
 	{
-		$contents = $this->renderContents();
+		try {
+			$contents = $this->renderContents();
 
-		$response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
+			$response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
 
-		return $response ?: $contents;
+			$this->factory->flushSectionsIfDoneRendering();
+
+			return $response ?: $contents;
+
+		} catch (Exception $e) {
+			$this->factory->flushSections();
+
+			throw $e;
+		}
+	}
+
+	/**
+	 * Render the View and return the result.
+	 *
+	 * @return string
+	 */
+	public function renderContents()
+	{
+		$this->factory->incrementRender();
+
+		$contents = $this->getContents();
+
+		$this->factory->decrementRender();
+
+		return $contents;
 	}
 
 	/**
@@ -78,7 +103,7 @@ class View implements ArrayAccess, RenderableInterface
 	 *
 	 * @return string
 	 */
-	protected function renderContents()
+	protected function getContents()
 	{
 		$__data = $this->gatherData();
 
@@ -93,8 +118,8 @@ class View implements ArrayAccess, RenderableInterface
 
 		try {
 			include $this->path;
-		}
-		catch (Exception $e) {
+
+		} catch (Exception $e) {
 			ob_get_clean();
 
 			throw $e;
@@ -167,6 +192,112 @@ class View implements ArrayAccess, RenderableInterface
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Get the rendered contents of a partial from a loop.
+	 *
+	 * @param  string  $view
+	 * @param  array   $data
+	 * @param  string  $iterator
+	 * @param  string  $empty
+	 * @return string
+	 */
+	public function each($view, array $data, $iterator, $empty = 'raw|')
+	{
+		return $this->factory->renderEach($view, $data, $iterator, $empty);
+	}
+
+	/**
+	 * Get the string contents of a section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $default
+	 * @return string
+	 */
+	public function get($section = null, $default = '')
+	{
+		return $this->factory->yieldContent($section, $default);
+	}
+
+	/**
+	 * Start injecting content into a section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	public function section($section, $content = '')
+	{
+		$this->factory->startSection($section, $content);
+	}
+
+	/**
+	 * Inject inline content into a section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	public function inject($section, $content)
+	{
+		return $this->factory->startSection($section, $content);
+	}
+
+	/**
+	 * Stop injecting content into a section and append it.
+	 *
+	 * @return string
+	 */
+	public function append()
+	{
+		return $this->factory->appendSection();
+	}
+
+	/**
+	 * Append content to a given section.
+	 *
+	 * @param  string  $section
+	 * @param  string  $content
+	 * @return void
+	 */
+	public function extend($section, $content)
+	{
+		return $this->factory->extendSection($section, $content);
+	}
+
+	/**
+	 * Stop injecting content into a section and return its contents.
+	 *
+	 * @param  string  $section
+	 * @param  string  $default
+	 * @return string
+	 */
+	public function show()
+	{
+		return $this->factory->yieldSection();
+	}
+
+	/**
+	 * Stop injecting content into a section.
+	 *
+	 * @param  bool  $overwrite
+	 * @return string
+	 */
+	public function stop()
+	{
+		return $this->factory->stopSection();
+	}
+
+	/**
+	 * Stop injecting content into a section.
+	 *
+	 * @param  bool  $overwrite
+	 * @return string
+	 */
+	public function overwrite()
+	{
+		return $this->factory->stopSection(true);
 	}
 
 	/**
