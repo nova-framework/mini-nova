@@ -7,7 +7,7 @@ use Mini\View\Engines\EngineInterface;
 use Exception;
 
 
-class PhpEngine implements EngineInterface
+class Engine implements EngineInterface
 {
 
 	/**
@@ -73,5 +73,4 @@ class PhpEngine implements EngineInterface
 
 		throw $e;
 	}
-
 }

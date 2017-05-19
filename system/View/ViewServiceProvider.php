@@ -2,8 +2,8 @@
 
 namespace Mini\View;
 
+use Mini\View\Engines\Engine as DefaultEngine;
 use Mini\View\Engines\EngineResolver;
-use Mini\View\Engines\PhpEngine;
 use Mini\View\Engines\TemplateEngine;
 use Mini\View\Factory;
 use Mini\View\Template;
@@ -26,7 +26,7 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->registerEngineResolver();
+		$this->registerEngines();
 
 		$this->registerFactory();
 	}
@@ -36,13 +36,20 @@ class ViewServiceProvider extends ServiceProvider
 	 *
 	 * @return void
 	 */
-	public function registerEngineResolver()
+	public function registerEngines()
 	{
+		$this->app->bindShared('template', function($app)
+		{
+			$cachePath = $app['config']['view.compiled'];
+
+			return new Template($app['files'], $cachePath);
+		});
+
 		$this->app->bindShared('view.engine.resolver', function($app)
 		{
 			$resolver = new EngineResolver();
 
-			foreach (array('php', 'template') as $engine) {
+			foreach (array('default', 'template') as $engine) {
 				$method = 'register' .ucfirst($engine) .'Engine';
 
 				call_user_func(array($this, $method), $resolver);
@@ -53,35 +60,28 @@ class ViewServiceProvider extends ServiceProvider
 	}
 
 	/**
-	 * Register the PHP engine implementation.
+	 * Register the PHP Engine implementation.
 	 *
-	 * @param  \Nova\View\Engines\EngineResolver  $resolver
+	 * @param  \Mini\View\Engines\EngineResolver  $resolver
 	 * @return void
 	 */
-	public function registerPhpEngine($resolver)
+	public function registerDefaultEngine($resolver)
 	{
-		$resolver->register('php', function()
+		$resolver->register('default', function()
 		{
-			return new PhpEngine();
+			return new DefaultEngine();
 		});
 	}
 
 	/**
-	 * Register the Template engine implementation.
+	 * Register the Template Engine implementation.
 	 *
-	 * @param  \Nova\View\Engines\EngineResolver  $resolver
+	 * @param  \Mini\View\Engines\EngineResolver  $resolver
 	 * @return void
 	 */
 	public function registerTemplateEngine($resolver)
 	{
 		$app = $this->app;
-
-		$app->bindShared('template', function($app)
-		{
-			$cachePath = $app['config']['view.compiled'];
-
-			return new Template($app['files'], $cachePath);
-		});
 
 		$resolver->register('template', function() use ($app)
 		{
@@ -115,6 +115,6 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function provides()
 	{
-		return array('view', 'view.section', 'template');
+		return array('view', 'template');
 	}
 }
