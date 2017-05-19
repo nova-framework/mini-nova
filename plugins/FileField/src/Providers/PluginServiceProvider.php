@@ -17,7 +17,7 @@ class PluginServiceProvider extends ServiceProvider
 		$path = realpath(__DIR__ .'/../');
 
 		// Configure the Package.
-		$this->package('Plugins/FileField', 'file_field', $path);
+		$this->package('FileField', 'file_field', $path);
 
 		//
 	}
