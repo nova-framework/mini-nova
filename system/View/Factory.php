@@ -2,9 +2,11 @@
 
 namespace Mini\View;
 
+use Mini\Filesystem\Filesystem;
 use Mini\Support\Contracts\ArrayableInterface as Arrayable;
 use Mini\Support\Arr;
 use Mini\Support\Str;
+use Mini\View\Engines\EngineResolver;
 use Mini\View\View;
 
 use BadMethodCallException;
@@ -13,9 +15,37 @@ use BadMethodCallException;
 class Factory
 {
 	/**
+	 * The Engines Resolver instance.
+	 *
+	 * @var \Nova\View\Engines\EngineResolver
+	 */
+	protected $engines;
+
+	/**
+	* The Filesystem instance.
+	*
+	* @var \Mini\Filesystem\Filesystem
+	*/
+	protected $files;
+
+	/**
+	 * The array of Views that have been located.
+	 *
+	 * @var array
+	 */
+	protected $views = array();
+
+	/**
 	 * @var array Array of shared data
 	 */
 	protected $shared = array();
+
+	/**
+	 * The extension to Engine bindings.
+	 *
+	 * @var array
+	 */
+	protected $extensions = array('tpl' => 'template', 'php' => 'php');
 
 	/**
 	 * All of the finished, captured sections.
@@ -44,8 +74,11 @@ class Factory
 	 *
 	 * @return void
 	 */
-	function __construct()
+	function __construct(EngineResolver $engines, Filesystem $files)
 	{
+		$this->engines = $engines;
+		$this->files   = $files;
+
 		$this->share('__env', $this);
 	}
 
@@ -60,13 +93,13 @@ class Factory
 	 */
 	public function make($view, $data = array())
 	{
-		$path = $this->getViewPath($view);
+		$path = $this->findViewFile($view);
 
-		if (! is_readable($path)) {
+		if (is_null($path) || ! is_readable($path)) {
 			throw new BadMethodCallException("File path [$path] does not exist");
 		}
 
-		return new View($this, $view, $path, $this->parseData($data));
+		return new View($this, $this->getEngineFromPath($path), $view, $path, $this->parseData($data));
 	}
 
 	/**
@@ -94,33 +127,16 @@ class Factory
 	}
 
 	/**
-	 * Add a piece of shared data to the Factory.
+	 * Check if the view file exists.
 	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return void
+	 * @param	string	 $view
+	 * @return	bool
 	 */
-	public function share($key, $value = null)
+	public function exists($view)
 	{
-		if (! is_array($key)) {
-			return $this->shared[$key] = $value;
-		}
+		$path = $this->findViewFile($view);
 
-		foreach ($key as $innerKey => $innerValue) {
-			$this->share($innerKey, $innerValue);
-		}
-	}
-
-	/**
-	 * Get an item from the shared data.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $default
-	 * @return mixed
-	 */
-	public function shared($key, $default = null)
-	{
-		return Arr::get($this->shared, $key, $default);
+		return ! is_null($path) && is_readable($path);
 	}
 
 	/**
@@ -152,6 +168,67 @@ class Factory
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get the appropriate View Engine for the given path.
+	 *
+	 * @param  string  $path
+	 * @return \Nova\View\Engines\EngineInterface
+	 */
+	public function getEngineFromPath($path)
+	{
+		$extension = $this->getExtension($path);
+
+		$engine = $this->extensions[$extension];
+
+		return $this->engines->resolve($engine);
+	}
+
+	/**
+	 * Get the extension used by the view file.
+	 *
+	 * @param  string  $path
+	 * @return string
+	 */
+	protected function getExtension($path)
+	{
+		$extensions = array_keys($this->extensions);
+
+		return Arr::first($extensions, function($key, $value) use ($path)
+		{
+			return Str::endsWith($path, $value);
+		});
+	}
+
+	/**
+	 * Add a piece of shared data to the Factory.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return void
+	 */
+	public function share($key, $value = null)
+	{
+		if (! is_array($key)) {
+			return $this->shared[$key] = $value;
+		}
+
+		foreach ($key as $innerKey => $innerValue) {
+			$this->share($innerKey, $innerValue);
+		}
+	}
+
+	/**
+	 * Get an item from the shared data.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $default
+	 * @return mixed
+	 */
+	public function shared($key, $default = null)
+	{
+		return Arr::get($this->shared, $key, $default);
 	}
 
 	/**
@@ -321,6 +398,26 @@ class Factory
 		return ($this->renderCount == 0);
 	}
 
+    /**
+     * Get the extension to engine bindings.
+     *
+     * @return array
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * Get the engine resolver instance.
+     *
+     * @return \Mini\View\Engines\EngineResolver
+     */
+    public function getEngineResolver()
+    {
+        return $this->engines;
+    }
+
 	/**
 	 * Get all of the shared data for the Factory.
 	 *
@@ -332,26 +429,25 @@ class Factory
 	}
 
 	/**
-	 * Check if the view file exists.
-	 *
-	 * @param	string	 $view
-	 * @return	bool
-	 */
-	public function exists($view)
-	{
-		$path = $this->getViewPath($view);
-
-		return file_exists($path);
-	}
-
-	/**
 	 * Get the view file.
 	 *
 	 * @param	string	 $view
 	 * @return	string
 	 */
-	protected function getViewPath($view)
+	protected function findViewFile($view)
 	{
-		return APPPATH .str_replace('/', DS, "Views/$view.php");
+		if (isset($this->views[$view])) {
+			return $this->views[$view];
+		}
+
+		$extensions = array_keys($this->extensions);
+
+		foreach($extensions as $extension) {
+			$path = APPPATH .str_replace('/', DS, "Views/$view.$extension");
+
+			if ($this->files->exists($path)) {
+				return $this->views[$view] = $path;
+			}
+		}
 	}
 }

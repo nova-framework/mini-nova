@@ -2,8 +2,11 @@
 
 namespace Mini\View;
 
+use Mini\View\Engines\EngineResolver;
+use Mini\View\Engines\PhpEngine;
+use Mini\View\Engines\TemplateEngine;
 use Mini\View\Factory;
-use Mini\View\Section;
+use Mini\View\Template;
 use Mini\Support\ServiceProvider;
 
 
@@ -23,14 +26,85 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->bindShared('view', function($app)
+		$this->registerEngineResolver();
+
+		$this->registerFactory();
+	}
+
+	/**
+	 * Register the engine resolver instance.
+	 *
+	 * @return void
+	 */
+	public function registerEngineResolver()
+	{
+		$this->app->bindShared('view.engine.resolver', function($app)
 		{
-			return new Factory($app);
+			$resolver = new EngineResolver();
+
+			foreach (array('php', 'template') as $engine) {
+				$method = 'register' .ucfirst($engine) .'Engine';
+
+				call_user_func(array($this, $method), $resolver);
+			}
+
+			return $resolver;
+		});
+	}
+
+	/**
+	 * Register the PHP engine implementation.
+	 *
+	 * @param  \Nova\View\Engines\EngineResolver  $resolver
+	 * @return void
+	 */
+	public function registerPhpEngine($resolver)
+	{
+		$resolver->register('php', function()
+		{
+			return new PhpEngine();
+		});
+	}
+
+	/**
+	 * Register the Template engine implementation.
+	 *
+	 * @param  \Nova\View\Engines\EngineResolver  $resolver
+	 * @return void
+	 */
+	public function registerTemplateEngine($resolver)
+	{
+		$app = $this->app;
+
+		$app->bindShared('template', function($app)
+		{
+			$cachePath = $app['config']['view.compiled'];
+
+			return new Template($app['files'], $cachePath);
 		});
 
-		$this->app->bindShared('view.section', function($app)
+		$resolver->register('template', function() use ($app)
 		{
-			return new Section($app['view']);
+			return new TemplateEngine($app['template'], $app['files']);
+		});
+	}
+
+	/**
+	 * Register the View Factory.
+	 *
+	 * @return void
+	 */
+	public function registerFactory()
+	{
+		$this->app->bindShared('view', function($app)
+		{
+			$resolver = $app['view.engine.resolver'];
+
+			$factory = new Factory($resolver, $app['files']);
+
+			$factory->share('app', $app);
+
+			return $factory;
 		});
 	}
 
@@ -41,6 +115,6 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function provides()
 	{
-		return array('view', 'view.section');
+		return array('view', 'view.section', 'template');
 	}
 }

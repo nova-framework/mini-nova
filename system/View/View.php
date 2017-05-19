@@ -4,6 +4,7 @@ namespace Mini\View;
 
 use Mini\Support\Contracts\ArrayableInterface;
 use Mini\Support\Contracts\RenderableInterface;
+use Mini\View\Engines\EngineInterface;
 use Mini\View\Factory;
 
 use ArrayAccess;
@@ -20,6 +21,13 @@ class View implements ArrayAccess, RenderableInterface
 	 * @var \Mini\View\Factory
 	 */
 	protected $factory;
+
+	/**
+	 * The View Engine instance.
+	 *
+	 * @var \Mini\View\Engines\EngineInterface
+	 */
+	protected $engine;
 
 	/**
 	 * @var string The given View name.
@@ -48,9 +56,10 @@ class View implements ArrayAccess, RenderableInterface
 	 * @param mixed $path
 	 * @param array $data
 	 */
-	public function __construct(Factory $factory, $view, $path, $data = array())
+	public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = array())
 	{
 		$this->factory = $factory;
+		$this->engine  = $engine;
 
 		$this->view = $view;
 		$this->path = $path;
@@ -105,27 +114,7 @@ class View implements ArrayAccess, RenderableInterface
 	 */
 	protected function getContents()
 	{
-		$__data = $this->gatherData();
-
-		ob_start();
-
-		// Extract the rendering variables.
-		foreach ($__data as $__variable => $__value) {
-			${$__variable} = $__value;
-		}
-
-		unset($__variable, $__value);
-
-		try {
-			include $this->path;
-
-		} catch (Exception $e) {
-			ob_get_clean();
-
-			throw $e;
-		}
-
-		return ltrim(ob_get_clean());
+		return $this->engine->get($this->path, $this->gatherData());
 	}
 
 	/**
