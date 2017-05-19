@@ -13,8 +13,6 @@ $languages = array(
 );
 
 $workPaths = array(
-	'system',
-	'shared',
 	'app'
 );
 
@@ -43,6 +41,16 @@ function phpGrep($q, $path) {
 	}
 
 	return $ret;
+}
+
+if(is_dir(BASEPATH .'plugins')) {
+    $path = str_replace('/', DS, BASEPATH .'plugins/*');
+
+    $dirs = glob($path , GLOB_ONLYDIR);
+
+    foreach($dirs as $template) {
+        $workPaths[] = 'plugins' .DS .basename($template);
+    }
 }
 
 //
