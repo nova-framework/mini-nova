@@ -26,17 +26,19 @@ class ViewServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->registerEngines();
+		$this->registerTemplate();
+
+		$this->registerEngineResolver();
 
 		$this->registerFactory();
 	}
 
 	/**
-	 * Register the engine resolver instance.
+	 * Register the Template compiler instance.
 	 *
 	 * @return void
 	 */
-	public function registerEngines()
+	public function registerTemplate()
 	{
 		$this->app->bindShared('template', function($app)
 		{
@@ -44,53 +46,37 @@ class ViewServiceProvider extends ServiceProvider
 
 			return new Template($app['files'], $cachePath);
 		});
+	}
 
+	/**
+	 * Register the Engine Resolver instance.
+	 *
+	 * @return void
+	 */
+	public function registerEngineResolver()
+	{
 		$this->app->bindShared('view.engine.resolver', function($app)
 		{
 			$resolver = new EngineResolver();
 
-			foreach (array('default', 'template') as $engine) {
-				$method = 'register' .ucfirst($engine) .'Engine';
+			// Register the Default Engine instance.
+			$resolver->register('default', function()
+			{
+				return new DefaultEngine();
+			});
 
-				call_user_func(array($this, $method), $resolver);
-			}
+			// Register the Template Engine instance.
+			$resolver->register('template', function() use ($app)
+			{
+				return new TemplateEngine($app['template'], $app['files']);
+			});
 
 			return $resolver;
 		});
 	}
 
 	/**
-	 * Register the PHP Engine implementation.
-	 *
-	 * @param  \Mini\View\Engines\EngineResolver  $resolver
-	 * @return void
-	 */
-	public function registerDefaultEngine($resolver)
-	{
-		$resolver->register('default', function()
-		{
-			return new DefaultEngine();
-		});
-	}
-
-	/**
-	 * Register the Template Engine implementation.
-	 *
-	 * @param  \Mini\View\Engines\EngineResolver  $resolver
-	 * @return void
-	 */
-	public function registerTemplateEngine($resolver)
-	{
-		$app = $this->app;
-
-		$resolver->register('template', function() use ($app)
-		{
-			return new TemplateEngine($app['template'], $app['files']);
-		});
-	}
-
-	/**
-	 * Register the View Factory.
+	 * Register the View Factory instance.
 	 *
 	 * @return void
 	 */
