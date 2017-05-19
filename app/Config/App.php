@@ -156,6 +156,9 @@ return array(
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
 		'Mini\Foundation\Providers\ForgeServiceProvider',
+		'Mini\Foundation\Providers\PublisherServiceProvider',
+		'Mini\Plugin\PluginServiceProvider',
+		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
 		'App\Providers\AppServiceProvider',

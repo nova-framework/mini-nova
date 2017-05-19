@@ -34,10 +34,13 @@ $app = require_once APPPATH .'Boot' .DS .'Start.php';
 // Run the Application
 //--------------------------------------------------------------------------
 
+use Mini\Http\Request;
+
+
 $kernel = $app->make('Mini\Http\Contracts\KernelInterface');
 
 $response = $kernel->handle(
-	$request = Mini\Http\Request::capture()
+	$request = Request::capture()
 );
 
 $response->send();
