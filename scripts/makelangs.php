@@ -44,13 +44,13 @@ function phpGrep($q, $path) {
 }
 
 if(is_dir(BASEPATH .'plugins')) {
-    $path = str_replace('/', DS, BASEPATH .'plugins/*');
+	$path = str_replace('/', DS, BASEPATH .'plugins/*');
 
-    $dirs = glob($path , GLOB_ONLYDIR);
+	$dirs = glob($path , GLOB_ONLYDIR);
 
-    foreach($dirs as $template) {
-        $workPaths[] = 'plugins' .DS .basename($template);
-    }
+	foreach($dirs as $template) {
+		$workPaths[] = 'plugins' .DS .basename($template);
+	}
 }
 
 //
