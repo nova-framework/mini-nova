@@ -2,6 +2,7 @@
 
 namespace Mini\Auth;
 
+use Mini\Auth\Access\Gate;
 use Mini\Auth\AuthManager;
 use Mini\Support\ServiceProvider;
 
@@ -55,6 +56,24 @@ class AuthServiceProvider extends ServiceProvider
 			$callback = $app['auth']->userResolver();
 
 			return call_user_func($callback);
+		});
+	}
+
+	/**
+	 * Register the access gate service.
+	 *
+	 * @return void
+	 */
+	protected function registerAccessGate()
+	{
+		$this->app->singleton('Nova\Auth\Contracts\Access\GateInterface', function ($app)
+		{
+			return new Gate($app, function() use ($app)
+			{
+				$callback = $app['auth']->userResolver();
+
+				return call_user_func($callback);
+			});
 		});
 	}
 
