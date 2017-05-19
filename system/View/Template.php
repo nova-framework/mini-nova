@@ -191,17 +191,6 @@ class Template
 	}
 
 	/**
-	 * Compile Template comments into valid PHP.
-	 *
-	 * @param  string  $value
-	 * @return string
-	 */
-	protected function compileComments($value)
-	{
-		return preg_replace('/{{--((.|\s)*?)--}}/', '<?php /*$1*/ ?>', $value);
-	}
-
-	/**
 	 * Rewrites Template structure openings into PHP structure openings.
 	 *
 	 * @param  string  $value
@@ -244,6 +233,17 @@ class Template
 			return isset($match[3]) ? $match[0] : $match[0] .$match[2];
 
 		}, $value);
+	}
+
+	/**
+	 * Compile Template comments into valid PHP.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected function compileComments($value)
+	{
+		return preg_replace('/{{--((.|\s)*?)--}}/', '<?php /*$1*/ ?>', $value);
 	}
 
 	/**
