@@ -220,18 +220,6 @@ class Factory
 	}
 
 	/**
-	 * Get an item from the shared data.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $default
-	 * @return mixed
-	 */
-	public function shared($key, $default = null)
-	{
-		return Arr::get($this->shared, $key, $default);
-	}
-
-	/**
 	 * Start injecting content into a section.
 	 *
 	 * @param  string  $section
@@ -399,6 +387,25 @@ class Factory
 	}
 
 	/**
+	 * Register a valid view extension and its engine.
+	 *
+	 * @param  string   $extension
+	 * @param  string   $engine
+	 * @param  Closure  $resolver
+	 * @return void
+	 */
+	public function addExtension($extension, $engine, $resolver = null)
+	{
+		if (isset($resolver)) {
+			$this->engines->register($engine, $resolver);
+		}
+
+		unset($this->extensions[$extension]);
+
+		$this->extensions = array_merge(array($extension => $engine), $this->extensions);
+	}
+
+	/**
 	 * Get the extension to engine bindings.
 	 *
 	 * @return array
@@ -419,6 +426,18 @@ class Factory
 	}
 
 	/**
+	 * Get an item from the shared data.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $default
+	 * @return mixed
+	 */
+	public function shared($key, $default = null)
+	{
+		return Arr::get($this->shared, $key, $default);
+	}
+
+	/**
 	 * Get all of the shared data for the Factory.
 	 *
 	 * @return array
@@ -426,6 +445,16 @@ class Factory
 	public function getShared()
 	{
 		return $this->shared;
+	}
+
+	/**
+	 * Get the entire array of sections.
+	 *
+	 * @return array
+	 */
+	public function getSections()
+	{
+		return $this->sections;
 	}
 
 	/**
@@ -440,11 +469,17 @@ class Factory
 			return $this->views[$view];
 		}
 
-		$extensions = array_keys($this->extensions);
+		// Compute the view file path (without extension).
+		$viewPath = APPPATH .str_replace('/', DS, "Views/$view");
 
-		foreach($extensions as $extension) {
-			$path = APPPATH .str_replace('/', DS, "Views/$view.$extension");
+		// Get all possible file paths, with one of the known extensions.
+		$paths = array_map(function($extension) use ($viewPath)
+        {
+            return $viewPath .'.' .$extension;
 
+        }, array_keys($this->extensions));
+
+		foreach($paths as $path) {
 			if ($this->files->exists($path)) {
 				return $this->views[$view] = $path;
 			}
