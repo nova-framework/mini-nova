@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use Mini\Foundation\Auth\Access\AuthorizesRequestsTrait;
 use Mini\Foundation\Validation\ValidatesRequestsTrait;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
@@ -18,7 +19,7 @@ use BadMethodCallException;
 
 class BaseController extends Controller
 {
-	use ValidatesRequestsTrait;
+	use AuthorizesRequestsTrait, ValidatesRequestsTrait;
 
 	/**
 	 * The currently used Layout.
