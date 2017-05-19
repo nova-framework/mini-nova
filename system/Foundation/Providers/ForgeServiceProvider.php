@@ -8,6 +8,7 @@ use Mini\Foundation\Console\ServeCommand;
 //use Mini\Foundation\Console\OptimizeCommand;
 use Mini\Foundation\Console\RouteListCommand;
 use Mini\Foundation\Console\KeyGenerateCommand;
+use Mini\Foundation\Console\ViewClearCommand;
 
 use Mini\Support\ServiceProvider;
 
@@ -27,12 +28,13 @@ class ForgeServiceProvider extends ServiceProvider
 	 * @var array
 	 */
 	protected $commands = array(
-		'Down'		   => 'command.down',
+		'Down'			=> 'command.down',
 		'KeyGenerate'	=> 'command.key.generate',
-		//'Optimize'	   => 'command.optimize',
-		'RouteList'	  => 'command.route.list',
-		'Serve'		  => 'command.serve',
-		'Up'			 => 'command.up',
+		//'Optimize'		=> 'command.optimize',
+		'RouteList'		=> 'command.route.list',
+		'Serve'			=> 'command.serve',
+		'Up'			=> 'command.up',
+		'ViewClear'		=> 'command.view.clear'
 	);
 
 	/**
@@ -128,6 +130,18 @@ class ForgeServiceProvider extends ServiceProvider
 			return new UpCommand;
 		});
 	}
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerViewClearCommand()
+    {
+        $this->app->singleton('command.view.clear', function ($app) {
+            return new ViewClearCommand($app['files']);
+        });
+    }
 
 	/**
 	 * Get the services provided by the provider.
