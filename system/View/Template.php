@@ -50,13 +50,6 @@ class Template
 	protected $footer = array();
 
 	/**
-	 * Counter to keep track of nested forelse statements.
-	 *
-	 * @var int
-	 */
-	protected $forelseCounter = 0;
-
-	/**
 	 * The file currently being compiled.
 	 *
 	 * @var string
@@ -378,28 +371,6 @@ class Template
 	}
 
 	/**
-	 * Compile the unless statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileUnless($expression)
-	{
-		return "<?php if ( ! $expression): ?>";
-	}
-
-	/**
-	 * Compile the end unless statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndunless($expression)
-	{
-		return "<?php endif; ?>";
-	}
-
-	/**
 	 * Compile the else statements into valid PHP.
 	 *
 	 * @param  string  $expression
@@ -408,54 +379,6 @@ class Template
 	protected function compileElse($expression)
 	{
 		return "<?php else: ?>";
-	}
-
-	/**
-	 * Compile the forelse statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileForelse($expression)
-	{
-		$empty = '$__empty_' . ++$this->forelseCounter;
-
-		return "<?php {$empty} = true; foreach{$expression}: {$empty} = false; ?>";
-	}
-
-	/**
-	 * Compile the forelse statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEmpty($expression)
-	{
-		$empty = '$__empty_' . $this->forelseCounter--;
-
-		return "<?php endforeach; if ({$empty}): ?>";
-	}
-
-	/**
-	 * Compile the has section statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileHasSection($expression)
-	{
-		return "<?php if (! empty(trim(\$__env->yieldContent{$expression}))): ?>";
-	}
-
-	/**
-	 * Compile the end-for-else statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndforelse($expression)
-	{
-		return "<?php endif; ?>";
 	}
 
 	/**
@@ -478,17 +401,6 @@ class Template
 	protected function compileEndphp($expression)
 	{
 		return ' ?>';
-	}
-
-	/**
-	 * Compile the unset statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileUnset($expression)
-	{
-		return "<?php unset{$expression}; ?>";
 	}
 
 	/**
@@ -529,7 +441,7 @@ class Template
 	 */
 	public function stripParentheses($expression)
 	{
-		if (Str::startsWith($expression, '(') && Str::endsWith($expression, ')')) {
+		if (Str::startsWith($expression, '(')) {
 			$expression = substr($expression, 1, -1);
 		}
 
