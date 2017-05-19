@@ -155,9 +155,11 @@ return array(
 		'Mini\Cache\CacheServiceProvider',
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
+		'Mini\Plugin\PluginServiceProvider',
+
+		// The Framework's Console Providers.
 		'Mini\Foundation\Providers\ForgeServiceProvider',
 		'Mini\Foundation\Providers\PublisherServiceProvider',
-		'Mini\Plugin\PluginServiceProvider',
 		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
