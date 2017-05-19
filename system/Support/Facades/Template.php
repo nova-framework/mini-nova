@@ -8,11 +8,11 @@ namespace Mini\Support\Facades;
 class Template extends Facade
 {
 
-    /**
-     * Get the registered name of the component.
-     *
-     * @return string
-     */
-    protected static function getFacadeAccessor() { return 'template'; }
+	/**
+	 * Get the registered name of the component.
+	 *
+	 * @return string
+	 */
+	protected static function getFacadeAccessor() { return 'template'; }
 
 }

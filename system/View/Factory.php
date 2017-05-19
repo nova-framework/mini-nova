@@ -398,25 +398,25 @@ class Factory
 		return ($this->renderCount == 0);
 	}
 
-    /**
-     * Get the extension to engine bindings.
-     *
-     * @return array
-     */
-    public function getExtensions()
-    {
-        return $this->extensions;
-    }
+	/**
+	 * Get the extension to engine bindings.
+	 *
+	 * @return array
+	 */
+	public function getExtensions()
+	{
+		return $this->extensions;
+	}
 
-    /**
-     * Get the engine resolver instance.
-     *
-     * @return \Mini\View\Engines\EngineResolver
-     */
-    public function getEngineResolver()
-    {
-        return $this->engines;
-    }
+	/**
+	 * Get the engine resolver instance.
+	 *
+	 * @return \Mini\View\Engines\EngineResolver
+	 */
+	public function getEngineResolver()
+	{
+		return $this->engines;
+	}
 
 	/**
 	 * Get all of the shared data for the Factory.

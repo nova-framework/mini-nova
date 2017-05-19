@@ -5,7 +5,7 @@ namespace Mini\View;
 use Mini\Filesystem\Filesystem;
 
 
-call Template
+class Template
 {
 	/**
 	 * All of the registered extensions.
@@ -35,6 +35,8 @@ call Template
 	 */
 	protected $compilers = array(
 		'Extensions',
+		'StructureOpenings',
+		'StructureClosings',
 		'Statements',
 		'Comments',
 		'Echos'
@@ -200,6 +202,32 @@ call Template
 	}
 
 	/**
+	 * Rewrites Template structure openings into PHP structure openings.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected static function compileStructureOpenings($value)
+	{
+		$pattern = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
+
+		return preg_replace($pattern, '$1<?php $2$3: ?>', $value);
+	}
+
+	/**
+	 * Rewrites Template structure closings into PHP structure closings.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected static function compileStructureClosings($value)
+	{
+		$pattern = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
+
+		return preg_replace($pattern, '$1<?php $2; ?>$3', $value);
+	}
+
+	/**
 	 * Compile Template Statements that start with "@"
 	 *
 	 * @param  string  $value
@@ -207,7 +235,7 @@ call Template
 	 */
 	protected function compileStatements($value)
 	{
-		return preg_replace_callback('/\B@(\w+)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function($match)
+		return preg_replace_callback('/\B@(\w+)([ \t]*)(\(((?>[^()]+)|(?3))*\))?/x', function($match)
 		{
 			if (method_exists($this, $method = 'compile' .ucfirst($match[1]))) {
 				$match[0] = call_user_func(array($this, $method), Arr::get($match, 3));
@@ -236,15 +264,17 @@ call Template
 		}, $value);
 
 		// Compile the regular echoes.
-		return preg_replace_callback('/(@)?{{\s*(.+?)\s*}}(\r?\n)?/s', function($matches)
+		$value = preg_replace_callback('/(@)?{{\s*(.+?)\s*}}(\r?\n)?/s', function($matches)
 		{
 			$whitespace = empty($matches[3]) ? '' : $matches[3] .$matches[3];
 
-			return isset($matches[1])
+			return ! empty($matches[1])
 				? substr($matches[0], 1)
 				: '<?php echo ' .$this->compileEchoDefaults($matches[2]) .'; ?>' .$whitespace;
 
 		}, $value);
+
+		return $value;
 	}
 
 	/**
@@ -381,28 +411,6 @@ call Template
 	}
 
 	/**
-	 * Compile the for statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileFor($expression)
-	{
-		return "<?php for{$expression}: ?>";
-	}
-
-	/**
-	 * Compile the foreach statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileForeach($expression)
-	{
-		return "<?php foreach{$expression}: ?>";
-	}
-
-	/**
 	 * Compile the forelse statements into valid PHP.
 	 *
 	 * @param  string  $expression
@@ -413,28 +421,6 @@ call Template
 		$empty = '$__empty_' . ++$this->forelseCounter;
 
 		return "<?php {$empty} = true; foreach{$expression}: {$empty} = false; ?>";
-	}
-
-	/**
-	 * Compile the if statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileIf($expression)
-	{
-		return "<?php if{$expression}: ?>";
-	}
-
-	/**
-	 * Compile the else-if statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileElseif($expression)
-	{
-		return "<?php elseif{$expression}: ?>";
 	}
 
 	/**
@@ -459,61 +445,6 @@ call Template
 	protected function compileHasSection($expression)
 	{
 		return "<?php if (! empty(trim(\$__env->yieldContent{$expression}))): ?>";
-	}
-
-	/**
-	 * Compile the while statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileWhile($expression)
-	{
-		return "<?php while{$expression}: ?>";
-	}
-
-	/**
-	 * Compile the end-while statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndwhile($expression)
-	{
-		return "<?php endwhile; ?>";
-	}
-
-	/**
-	 * Compile the end-for statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndfor($expression)
-	{
-		return "<?php endfor; ?>";
-	}
-
-	/**
-	 * Compile the end-for-each statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndforeach($expression)
-	{
-		return "<?php endforeach; ?>";
-	}
-
-	/**
-	 * Compile the end-if statements into valid PHP.
-	 *
-	 * @param  string  $expression
-	 * @return string
-	 */
-	protected function compileEndif($expression)
-	{
-		return "<?php endif; ?>";
 	}
 
 	/**
