@@ -474,10 +474,10 @@ class Factory
 
 		// Get all possible file paths, with one of the known extensions.
 		$paths = array_map(function($extension) use ($viewPath)
-        {
-            return $viewPath .'.' .$extension;
+		{
+			return $viewPath .'.' .$extension;
 
-        }, array_keys($this->extensions));
+		}, array_keys($this->extensions));
 
 		foreach($paths as $path) {
 			if ($this->files->exists($path)) {

@@ -278,7 +278,7 @@ class Template
 	 */
 	public function compileEchoDefaults($value)
 	{
-		return preg_replace('/^(?=\$)(.+?)(?:\s+or\s+)(.+?)$/s', 'isset($1) ? $1 : $2', $value);
+		return preg_replace('/^(?=\$)(.+?)(?:\s+or\s+)(.+?)$/is', 'isset($1) ? $1 : $2', $value);
 	}
 
 	/**
@@ -468,6 +468,17 @@ class Template
 	public function createMatcher($function)
 	{
 		return '/(?<!\w)(\s*)@' .$function .'(\s*\(.*\))/';
+	}
+
+	/**
+	 * Get the regular expression for a generic Template function.
+	 *
+	 * @param  string  $function
+	 * @return string
+	 */
+	public function createOpenMatcher($function)
+	{
+		return '/(?<!\w)(\s*)@' .$function .'(\s*\(.*)\)/';
 	}
 
 	/**
