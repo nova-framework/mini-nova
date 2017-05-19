@@ -21,6 +21,8 @@ class AuthServiceProvider extends ServiceProvider
 
 		$this->registerUserResolver();
 
+		$this->registerAccessGate();
+
 		$this->registerRequestRebindHandler();
 	}
 
@@ -66,7 +68,7 @@ class AuthServiceProvider extends ServiceProvider
 	 */
 	protected function registerAccessGate()
 	{
-		$this->app->singleton('Nova\Auth\Contracts\Access\GateInterface', function ($app)
+		$this->app->singleton('Mini\Auth\Contracts\Access\GateInterface', function ($app)
 		{
 			return new Gate($app, function() use ($app)
 			{
