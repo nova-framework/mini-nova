@@ -131,17 +131,17 @@ class ForgeServiceProvider extends ServiceProvider
 		});
 	}
 
-    /**
-     * Register the command.
-     *
-     * @return void
-     */
-    protected function registerViewClearCommand()
-    {
-        $this->app->singleton('command.view.clear', function ($app) {
-            return new ViewClearCommand($app['files']);
-        });
-    }
+	/**
+	 * Register the command.
+	 *
+	 * @return void
+	 */
+	protected function registerViewClearCommand()
+	{
+		$this->app->singleton('command.view.clear', function ($app) {
+			return new ViewClearCommand($app['files']);
+		});
+	}
 
 	/**
 	 * Get the services provided by the provider.
