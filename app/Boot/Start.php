@@ -38,7 +38,7 @@ $app->bindInstallPaths(array(
 
 $app->singleton(
 	'Mini\Http\Contracts\KernelInterface',
-	'App\Kernel'
+	'App\Http\Kernel'
 );
 
 $app->singleton(

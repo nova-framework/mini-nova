@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Middleware;
+namespace App\Http\Middleware;
 
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\Config;

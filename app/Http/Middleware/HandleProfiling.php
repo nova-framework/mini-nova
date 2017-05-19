@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Middleware;
+namespace App\Http\Middleware;
 
 use Mini\Foundation\Application;
 use Mini\Http\Response;

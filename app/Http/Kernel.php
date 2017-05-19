@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Http;
 
 use Mini\Foundation\Http\Kernel as HttpKernel;
 
@@ -14,12 +14,12 @@ class Kernel extends HttpKernel
 	 */
 	protected $middleware = array(
 		'Mini\Foundation\Http\Middleware\CheckForMaintenanceMode',
-		'App\Middleware\HandleProfiling',
+		'App\Http\Middleware\HandleProfiling',
 		'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
 		'Mini\Session\Middleware\StartSession',
 		'Mini\Foundation\Http\Middleware\SetupLanguage',
 		'Mini\View\Middleware\ShareErrorsFromSession',
-		'App\Middleware\VerifyCsrfToken',
+		'App\Http\Middleware\VerifyCsrfToken',
 	);
 
 	/**
@@ -29,6 +29,6 @@ class Kernel extends HttpKernel
 	 */
 	protected $routeMiddleware = array(
 		'auth'		=> 'Mini\Auth\Middleware\Authenticate',
-		'guest'		=> 'App\Middleware\RedirectIfAuthenticated',
+		'guest'		=> 'App\Http\Middleware\RedirectIfAuthenticated',
 	);
 }

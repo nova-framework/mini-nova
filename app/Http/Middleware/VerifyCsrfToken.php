@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Middleware;
+namespace App\Http\Middleware;
 
 use Mini\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
 
