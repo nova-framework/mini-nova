@@ -20,7 +20,7 @@
 	<div class="container-fluid">
 		<div class="row" style="margin: 15px 0 0;">
 			<div class="col-lg-4">
-				Mini-Nova <strong><?= App::version(); ?></strong>
+				Mini MVC Framework <strong><?= VERSION; ?></strong> / Kernel <strong><?= App::version(); ?></strong>
 			</div>
 			<div class="col-lg-8">
 				<p class="text-muted pull-right">
