@@ -8,8 +8,8 @@
 	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<!-- Local customizations -->
-	<link rel="stylesheet" type="text/css" href="<?= asset('css/style.css'); ?>">
-	<link rel="stylesheet" type="text/css" href="<?= asset('css/login.css'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= plugin_url('css/style.css', 'Bootstrap'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= plugin_url('css/login.css', 'Bootstrap'); ?>">
 </head>
 <body>
 

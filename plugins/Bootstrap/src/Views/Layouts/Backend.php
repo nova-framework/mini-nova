@@ -11,7 +11,7 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css">
 
 	<!-- Local customizations -->
-	<link rel="stylesheet" type="text/css" href="<?= asset('css/style.css'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= plugin_url('css/style.css', 'Bootstrap'); ?>">
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
