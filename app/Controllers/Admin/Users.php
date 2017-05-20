@@ -128,7 +128,7 @@ class Users extends BackendController
 
 			array('data' => 'actions', 'uses' => function($user)
 			{
-				return View::make('Partials/UsersTableActions', array(), 'Users')
+				return View::make('Partials/UsersTableActions')
 					->with('user', $user)
 					->render();
 			}),

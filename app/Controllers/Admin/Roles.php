@@ -81,7 +81,7 @@ class Roles extends BackendController
 
 			array('data' => 'actions', 'uses' => function($role)
 			{
-				return View::make('Partials/RolesTableActions', array(), 'Users')
+				return View::make('Partials/RolesTableActions')
 					->with('role', $role)
 					->render();
 			}),
