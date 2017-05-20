@@ -98,13 +98,11 @@ class BaseController extends Controller
 	{
 		list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-		// Calculate the View name from called method, which is capitalized, i.e: 'index' -> 'Index'
 		$method = $caller['function'];
 
 		$classPath = str_replace('\\', '/', static::class);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
-			// The path inside the Views folder, i.e: 'App\Controllers\Admin\Users' -> 'Admin/Users'
 			$hint = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
 
 			$path = str_replace('\\', '/', $matches[2]);
