@@ -168,7 +168,7 @@ return array(
 		'Mini\Validation\ValidationServiceProvider',
 		'Mini\Plugin\PluginServiceProvider',
 
-		// The Framework's Console Providers.
+		// The Console Support Providers.
 		'Mini\Foundation\Providers\ComposerServiceProvider',
 		'Mini\Foundation\Providers\PublisherServiceProvider',
 		'Mini\Foundation\Providers\ForgeServiceProvider',
