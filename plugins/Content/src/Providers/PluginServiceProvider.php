@@ -15,31 +15,31 @@ class PluginServiceProvider extends ServiceProvider
 	protected $namespace = 'Content\Controllers';
 
 
-    /**
-     * Bootstrap the Application Events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $path = realpath(__DIR__ .'/../');
+	/**
+	 * Bootstrap the Application Events.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		$path = realpath(__DIR__ .'/../');
 
-        // Configure the Package.
-        $this->package('Content', 'content', $path);
+		// Configure the Package.
+		$this->package('Content', 'content', $path);
 
-        // Load the Routes.
-        $this->map($path);
-    }
+		// Load the Routes.
+		$this->map($path);
+	}
 
-    /**
-     * Register the Content plugin Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
+	/**
+	 * Register the Content plugin Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		//
+	}
 
 	/**
 	 * Define the routes for the application.
