@@ -6,6 +6,7 @@ use Mini\Foundation\Auth\Access\AuthorizesRequestsTrait;
 use Mini\Foundation\Validation\ValidatesRequestsTrait;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
+use Mini\Support\Facades\Config;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Request;
 use Mini\Support\Facades\Response;
@@ -22,12 +23,30 @@ class BaseController extends Controller
 	use AuthorizesRequestsTrait, ValidatesRequestsTrait;
 
 	/**
+	 * The currently used Theme.
+	 *
+	 * @var string
+	 */
+	protected $theme;
+
+	/**
 	 * The currently used Layout.
 	 *
 	 * @var string
 	 */
 	protected $layout = 'Default';
 
+
+	/**
+	 * Create a new Controller instance.
+	 */
+	public function __construct()
+	{
+		// Setup the used Theme to default, if it is not already defined.
+		if (! isset($this->theme)) {
+			$this->theme = Config::get('app.theme', 'Bootstrap');
+		}
+	}
 
 	/**
 	 * Execute an action on the controller.
@@ -54,9 +73,9 @@ class BaseController extends Controller
 	{
 		if ($response instanceof RenderableInterface) {
 			if (! empty($this->layout)) {
-				$view = 'Layouts/' .$this->layout;
+				$view = $this->theme .'::Layouts/' .$this->layout;
 
-				$content = View::fetch($view, array('content' => $response->render()));
+				$content = View::fetch($view, array('content' => $response));
 			} else {
 				$content = $response->render();
 			}
