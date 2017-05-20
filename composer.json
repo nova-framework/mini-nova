@@ -32,7 +32,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "FileField\\": "plugins/FileField/src/"
+            "FileField\\": "plugins/FileField/src/",
+            "Content\\": "plugins/Content/src/",
+            "Bootstrap\\": "plugins/Bootstrap/src/"
         }
     },
     "scripts": {
