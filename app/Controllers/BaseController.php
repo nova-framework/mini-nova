@@ -89,21 +89,6 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Handle a ValidationException instance.
-	 *
-	 * @param \Mini\Validation\ValidationException $exception
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function handleValidationException(ValidationException $exception)
-	{
-		if(Request::ajax() || Request::wantsJson()) {
-			return Response::json(array('errors' => $exception->errors()), 422);
-		}
-
-		return Redirect::back()->withInput()->withErrors($exception->errors());
-	}
-
-	/**
 	 * Create and return a default View instance.
 	 *
 	 * @return \Nova\View\View
