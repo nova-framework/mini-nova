@@ -158,8 +158,9 @@ return array(
 		'Mini\Plugin\PluginServiceProvider',
 
 		// The Framework's Console Providers.
-		'Mini\Foundation\Providers\ForgeServiceProvider',
+		'Mini\Foundation\Providers\ComposerServiceProvider',
 		'Mini\Foundation\Providers\PublisherServiceProvider',
+		'Mini\Foundation\Providers\ForgeServiceProvider',
 		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
@@ -200,7 +201,7 @@ return array(
 
 		// The Support Facades.
 		'App'			=> 'Mini\Support\Facades\App',
-		'Auth'		  => 'Mini\Support\Facades\Auth',
+		'Auth'			=> 'Mini\Support\Facades\Auth',
 		'Cache'			=> 'Mini\Support\Facades\Cache',
 		'Cookie'		=> 'Mini\Support\Facades\Cookie',
 		'Config'		=> 'Mini\Support\Facades\Config',

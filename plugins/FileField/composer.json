@@ -1,0 +1,21 @@
+{
+    "name": "acme-corp/file-field",
+    "description": "FileField is a plugin for the Mini MVC Framework",
+    "authors": [
+        {
+            "name": "John Doe",
+            "email": "john.doe@novaframework.dev"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "nova-framework/mini-system": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileField\\": "src/"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
