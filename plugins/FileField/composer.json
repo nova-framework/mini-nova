@@ -1,10 +1,14 @@
 {
     "name": "acme-corp/file-field",
-    "description": "FileField is a plugin for the Mini MVC Framework",
+    "type": "mininova-plugin",
+    "description": "FileField is a plugin for Mini MVC Framework",
+    "license": "MIT",
     "authors": [
         {
             "name": "John Doe",
-            "email": "john.doe@novaframework.dev"
+            "email": "john.doe@novaframework.dev",
+            "homepage": "http://novaframework.dev",
+            "role": "Developer"
         }
     ],
     "require": {
