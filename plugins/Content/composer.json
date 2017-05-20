@@ -1,7 +1,7 @@
 {
-    "name": "acme-corp/file-field",
+    "name": "acme-corp/content",
     "type": "mininova-plugin",
-    "description": "FileField is a plugin for Mini MVC Framework",
+    "description": "Content is a plugin for Mini MVC Framework",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "FileField\\": "src/"
+            "Content\\": "src/"
         }
     },
     "prefer-stable": true,

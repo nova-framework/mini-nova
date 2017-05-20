@@ -95,13 +95,19 @@ class BaseController extends Controller
 		list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
 		// Calculate the View name from called method, which is capitalized, i.e: 'index' -> 'Index'
-		$view = ucfirst($caller['function']);
+		$method = $caller['function'];
 
-		if (preg_match('#^App\\\\Controllers\\\\(.*)$#s', static::class, $matches)) {
+		$classPath = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
 			// The path inside the Views folder, i.e: 'App\Controllers\Admin\Users' -> 'Admin/Users'
-			$path = str_replace('\\', '/', $matches[1]);
+			$hint = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
 
-			return View::make($path .'/' .$view, $data);
+			$path = str_replace('\\', '/', $matches[2]);
+
+			$view = $hint .$path .'/' .ucfirst($method);
+
+			return View::make($view, $data);
 		}
 
 		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);

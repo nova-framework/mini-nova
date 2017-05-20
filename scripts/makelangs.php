@@ -49,7 +49,7 @@ if(is_dir(BASEPATH .'plugins')) {
 	$dirs = glob($path , GLOB_ONLYDIR);
 
 	foreach($dirs as $template) {
-		$workPaths[] = 'plugins' .DS .basename($template);
+		$workPaths[] = 'plugins' .DS .basename($template) .DS .'src';
 	}
 }
 
