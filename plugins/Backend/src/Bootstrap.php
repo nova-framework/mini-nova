@@ -31,15 +31,12 @@ Route::middleware('role', function(Request $request, Closure $next, $role)
 	return $next($request);
 });
 
+
 /**
  * Listener Closure to the Event 'router.executing.controller'.
  */
-
 Event::listen('router.executing.controller', function(Controller $controller, Request $request)
 {
-	// Share the Views the current URI.
-	View::share('currentUri', $request->path());
-
 	if (! $controller instanceof BackendController) {
 		return;
 	}
