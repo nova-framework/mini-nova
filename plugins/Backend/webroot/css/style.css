@@ -1,0 +1,28 @@
+/* Your styles here */
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 70px;
+}
+
+@media(min-width:768px) {
+	.footer {
+		padding-left: 225px;
+	}
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 50px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #dddddd;
+}

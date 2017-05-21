@@ -1,0 +1,89 @@
+body {
+    margin-top: 100px;
+    /*background-color: #222;*/
+}
+
+@media(min-width:768px) {
+    body {
+        margin-top: 50px;
+    }
+}
+
+#wrapper {
+    padding-left: 0;
+}
+
+#page-wrapper {
+    width: 100%;
+    padding: 0;
+    background-color: #fff;
+}
+
+@media(min-width:768px) {
+    #wrapper {
+        padding-left: 225px;
+    }
+
+    #page-wrapper {
+        padding: 25px;
+    }
+}
+
+/* Side Navigation */
+
+@media(min-width:768px) {
+    .side-nav {
+        position: fixed;
+        top: 51px;
+        left: 225px;
+        width: 225px;
+        margin-left: -225px;
+        border: none;
+        border-radius: 0;
+        overflow-y: auto;
+        bottom: 0;
+        overflow-x: hidden;
+        padding-bottom: 40px;
+    }
+
+    .side-nav > li > a {
+        width: 225px;
+    }
+
+    .side-nav li a:hover,
+    .side-nav li a:focus {
+        outline: none;
+    }
+
+    .side-nav .caret {
+        float: right;
+        margin-top: 7px;
+    }
+}
+
+.side-nav > li > ul {
+    padding: 0;
+}
+
+.side-nav > li > ul > li > a {
+    display: block;
+    padding: 10px 15px 10px 38px;
+    text-decoration: none;
+    color: #999;
+}
+
+.side-nav > li > ul > li > a:hover {
+   /*background-color: #222;*/
+   background-color: transparent;
+   color: #fff;
+}
+
+.side-nav > li > ul > li.active > a {
+   background-color: #222;
+   color: #fff;
+}
+
+.side-nav > li > ul > li.active > a:hover {
+    background-color: #080808;
+    color: #fff;
+}

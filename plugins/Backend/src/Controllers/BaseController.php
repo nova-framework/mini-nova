@@ -11,6 +11,13 @@ use App\Controllers\BaseController as Controller;
 class BaseController extends Controller
 {
 	/**
+	 * The currently used Theme.
+	 *
+	 * @var string
+	 */
+	protected $theme = 'Backend';
+
+	/**
 	 * The currently used Layout.
 	 *
 	 * @var string
