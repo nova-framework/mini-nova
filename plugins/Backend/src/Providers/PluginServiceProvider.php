@@ -33,17 +33,17 @@ class PluginServiceProvider extends ServiceProvider
 	protected $namespace = 'Backend\Controllers';
 
 
-    /**
-     * Bootstrap the Application Events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $path = realpath(__DIR__ .'/../');
+	/**
+	 * Bootstrap the Application Events.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		$path = realpath(__DIR__ .'/../');
 
-        // Configure the Package.
-        $this->package('Backend', 'backend', $path);
+		// Configure the Package.
+		$this->package('Backend', 'backend', $path);
 
 		// Bootstrap the Plugin.
 		require $path .DS .'Bootstrap.php';
@@ -62,18 +62,18 @@ class PluginServiceProvider extends ServiceProvider
 		{
 			require  $path .DS .'Routes.php';
 		});
-    }
+	}
 
-    /**
-     * Register the Backend plugin Service Provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        parent::register();
+	/**
+	 * Register the Backend plugin Service Provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		parent::register();
 
-        //
-    }
+		//
+	}
 
 }

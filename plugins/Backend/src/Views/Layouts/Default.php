@@ -35,7 +35,7 @@
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 10px;">
 				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>
 					<a href="<?= site_url('admin/messages'); ?>" title="<?= __d('bootstrap', 'Your Messages'); ?>">
@@ -83,7 +83,7 @@
 			</ul>
 
 			<!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
-        	<ul class="nav navbar-nav navbar-inverse side-nav" id="side-menu">
+			<ul class="nav navbar-nav navbar-inverse side-nav" id="side-menu">
 				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?> title="<?= __d('bootstrap', 'Your Dashboard'); ?>">
 					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __d('bootstrap', 'Dashboard'); ?></a>
 				</li>
@@ -123,7 +123,7 @@
 
 				<?php } ?>
 			</ul>
-        </div>
+		</div>
 	<!-- /.container -->
 	</nav>
 

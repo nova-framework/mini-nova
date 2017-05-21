@@ -226,7 +226,7 @@ return array(
 		'Log'			=> 'Mini\Support\Facades\Log',
 		'Mail'			=> 'Mini\Support\Facades\Mail',
 		'Paginator'		=> 'Mini\Support\Facades\Paginator',
-        'Plugin'		=> 'Mini\Support\Facades\Plugin',
+		'Plugin'		=> 'Mini\Support\Facades\Plugin',
 		'Redirect'		=> 'Mini\Support\Facades\Redirect',
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',

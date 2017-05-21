@@ -7,32 +7,32 @@
 
 return array(
 
-    /*
-    |--------------------------------------------------------------------------
-    | Compress Assets
-    |--------------------------------------------------------------------------
-    |
-    | Whether or not the CSS and JS files are automatically compressed.
-    |
-    | Default: true
-    |
-    */
+	/*
+	|--------------------------------------------------------------------------
+	| Compress Assets
+	|--------------------------------------------------------------------------
+	|
+	| Whether or not the CSS and JS files are automatically compressed.
+	|
+	| Default: true
+	|
+	*/
 
-    'compress' => true,
+	'compress' => true,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Configuration
-    |--------------------------------------------------------------------------
-    |
-    | The Browser Caching configuration.
-    |
-    */
+	/*
+	|--------------------------------------------------------------------------
+	| Cache Configuration
+	|--------------------------------------------------------------------------
+	|
+	| The Browser Caching configuration.
+	|
+	*/
 
-    'cache' => array(
-        'ttl'          => 600,
-        'maxAge'       => 10800,
-        'sharedMaxAge' => 600,
-    ),
+	'cache' => array(
+		'ttl'		  => 600,
+		'maxAge'	   => 10800,
+		'sharedMaxAge' => 600,
+	),
 
 );
