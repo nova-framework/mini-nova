@@ -22,7 +22,7 @@ class BaseController extends Controller
 	 *
 	 * @var string
 	 */
-	protected $layout = 'Backend';
+	protected $layout = 'Default';
 
 
 	/**
