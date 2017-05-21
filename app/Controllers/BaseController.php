@@ -103,11 +103,9 @@ class BaseController extends Controller
 		$classPath = str_replace('\\', '/', static::class);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
-			$hint = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
 
-			$path = str_replace('\\', '/', $matches[2]);
-
-			$view = $hint .$path .'/' .ucfirst($method);
+			$view = $namespace .$matches[2] .'/' .ucfirst($method);
 
 			return View::make($view, $data);
 		}
