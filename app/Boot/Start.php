@@ -13,7 +13,7 @@ mb_internal_encoding('UTF-8');
 // Setup The Application Version
 //--------------------------------------------------------------------------
 
-define(VERSION, trim(file_get_contents(BASEPATH .'VERSION.txt')));
+define('VERSION', trim(file_get_contents(BASEPATH .'VERSION.txt')));
 
 //--------------------------------------------------------------------------
 // Load The Global Configuration
