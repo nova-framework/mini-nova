@@ -1,6 +1,6 @@
 <?php
 
-namespace Content\Providers;
+namespace Backend\Providers;
 
 use Mini\Auth\Contracts\Access\GateInterface as Gate;
 use Mini\Plugin\Support\Providers\PluginServiceProvider as ServiceProvider;
@@ -30,20 +30,20 @@ class PluginServiceProvider extends ServiceProvider
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'Content\Controllers';
+	protected $namespace = 'Backend\Controllers';
 
 
-	/**
-	 * Bootstrap the Application Events.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
-		$path = realpath(__DIR__ .'/../');
+    /**
+     * Bootstrap the Application Events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $path = realpath(__DIR__ .'/../');
 
-		// Configure the Package.
-		$this->package('Content', 'content', $path);
+        // Configure the Package.
+        $this->package('Backend', 'backend', $path);
 
 		// Bootstrap the Plugin.
 		require $path .DS .'Bootstrap.php';
@@ -62,17 +62,18 @@ class PluginServiceProvider extends ServiceProvider
 		{
 			require  $path .DS .'Routes.php';
 		});
-	}
+    }
 
-	/**
-	 * Register the Content plugin Service Provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		parent::register();
+    /**
+     * Register the Backend plugin Service Provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        parent::register();
 
-		//
-	}
+        //
+    }
+
 }

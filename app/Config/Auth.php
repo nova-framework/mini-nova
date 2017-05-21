@@ -34,7 +34,7 @@ return array(
 	'guards' => array(
 		'web' => array(
 			'driver' => 'session',
-			'model'  => 'App\Models\User',
+			'model'  => 'Backend\Models\User',
 		),
 		'api' => array(
 			'driver' => 'token',
