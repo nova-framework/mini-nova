@@ -143,7 +143,7 @@
 
 <?php } else { ?>
 
-<div class="callout callout-info">
+<div class="alert alert-info">
 	<?= __d('backend', 'The Settings are not available while the Config Store is on Files Mode.'); ?>
 </div>
 
