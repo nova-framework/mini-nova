@@ -7,7 +7,7 @@
 	<hr>
 </div>
 
-@include('Partials/Messages')
+@include ('Partials/Messages')
 
 <div class="row">
 	<p>{{ $content }}</p>
