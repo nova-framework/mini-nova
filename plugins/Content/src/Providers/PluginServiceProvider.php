@@ -27,6 +27,9 @@ class PluginServiceProvider extends ServiceProvider
 		// Configure the Package.
 		$this->package('Content', 'content', $path);
 
+		// Load the Plugin Bootstrap.
+		require $path .DS .'Bootstrap.php';
+
 		// Load the Plugin Routes.
 		$router = $this->app['router'];
 
