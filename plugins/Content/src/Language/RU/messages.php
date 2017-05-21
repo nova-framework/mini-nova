@@ -1,6 +1,6 @@
 <?php
 
 return array (
-  'Welcome to Content Plugin' => '',
+  'Welcome to the Content Plugin' => '',
   'Yep! It works.' => '',
 );

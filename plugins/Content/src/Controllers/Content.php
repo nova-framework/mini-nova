@@ -16,7 +16,7 @@ class Content extends BaseController
 	public function index()
 	{
 		return $this->getView()
-			->shares('title', __d('content', 'Welcome to Content Plugin'))
+			->shares('title', __d('content', 'Welcome to the Content Plugin'))
 			->with('content', __d('content', 'Yep! It works.'));
 	}
 
