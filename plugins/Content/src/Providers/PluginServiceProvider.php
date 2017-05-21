@@ -27,8 +27,13 @@ class PluginServiceProvider extends ServiceProvider
 		// Configure the Package.
 		$this->package('Content', 'content', $path);
 
-		// Load the Routes.
-		$this->map($path);
+		// Load the Plugin Routes.
+		$router = $this->app['router'];
+
+		$router->group(array('namespace' => $this->namespace), function ($router) use ($path)
+		{
+			require $path .DS .'Routes.php';
+		});
 	}
 
 	/**
@@ -39,20 +44,5 @@ class PluginServiceProvider extends ServiceProvider
 	public function register()
 	{
 		//
-	}
-
-	/**
-	 * Define the routes for the application.
-	 *
-	 * @return void
-	 */
-	public function map($path)
-	{
-		$router = $this->app['router'];
-
-		$router->group(array('namespace' => $this->namespace), function ($router) use ($path)
-		{
-			require $path .DS .'Routes.php';
-		});
 	}
 }
