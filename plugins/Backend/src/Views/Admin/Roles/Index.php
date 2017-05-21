@@ -1,5 +1,9 @@
 <style>
 
+#rolesTable td.compact {
+	padding: 5px;
+}
+
 #rolesTable_paginate .pagination {
 	margin: 5px 0 -3px;
 }
@@ -36,8 +40,8 @@
 			<th width='17%'><?= __d('backend', 'Name'); ?></th>
 			<th width='17%'><?= __d('backend', 'Slug'); ?></th>
 			<th width='43%'><?= __d('backend', 'Description'); ?></th>
-			<th width='6%'><?= __d('backend', 'Users'); ?></th>
-			<th width='13%'><?= __d('backend', 'Operations'); ?></th>
+			<th width='7%'><?= __d('backend', 'Users'); ?></th>
+			<th width='12%'><?= __d('backend', 'Operations'); ?></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -79,6 +83,7 @@ $(function () {
 		language: {
 			url: '//cdn.datatables.net/plug-ins/1.10.15/i18n/<?= $langInfo; ?>.json'
 		},
+		responsive: true,
 		stateSave: true,
 		processing: true,
 		serverSide: true,
@@ -93,12 +98,12 @@ $(function () {
 		lengthMenu: [ 5, 10, 15, 20, 25, 50, 75, 100 ],
 
 		columns: [
-			{ data: 'roleid',   orderable: true,  searchable: false },
-			{ data: 'name',	 orderable: true,  searchable: true  },
-			{ data: 'slug',	 orderable: true,  searchable: true  },
-			{ data: 'details',  orderable: false, searchable: false },
-			{ data: 'users',	orderable: false, searchable: false },
-			{ data: 'actions',  orderable: false, searchable: false },
+			{ data: 'roleid',	orderable: true,  searchable: false, className: "text-center" },
+			{ data: 'name',		orderable: true,  searchable: true,  className: "text-center" },
+			{ data: 'slug',		orderable: true,  searchable: true,  className: "text-center" },
+			{ data: 'details',	orderable: false, searchable: false },
+			{ data: 'users',	orderable: false, searchable: false, className: "text-center" },
+			{ data: 'actions',  orderable: false, searchable: false, className: "compact" },
 		],
 
 		drawCallback: function(settings) {

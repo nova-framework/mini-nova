@@ -4,6 +4,10 @@
 	vertical-align: middle;
 }
 
+#usersTable td.compact {
+	padding: 5px;
+}
+
 #usersTable_paginate .pagination {
 	margin: 5px 0 -3px;
 }
@@ -54,8 +58,8 @@ tfoot input {
 				<th width='13%'><?= __d('backend', 'First Name'); ?></th>
 				<th width='13%'><?= __d('backend', 'Last Name'); ?></th>
 				<th width='20%'><?= __d('backend', 'E-mail'); ?></th>
-				<th width='14%'><?= __d('backend', 'Created At'); ?></th>
-				<th width='10%'><?= __d('backend', 'Actions'); ?></th>
+				<th width='12%'><?= __d('backend', 'Created At'); ?></th>
+				<th width='12%'><?= __d('backend', 'Actions'); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -97,6 +101,7 @@ $(function () {
 		language: {
 			url: '//cdn.datatables.net/plug-ins/1.10.15/i18n/<?= $langInfo; ?>.json'
 		},
+		responsive: true,
 		stateSave: true,
 		processing: true,
 		serverSide: true,
@@ -111,14 +116,14 @@ $(function () {
 		lengthMenu: [ 5, 10, 15, 20, 25, 50, 75, 100 ],
 
 		columns: [
-			{ data: 'userid',   orderable: true,  searchable: false },
-			{ data: 'username', orderable: true,  searchable: true  },
-			{ data: 'role',	 	orderable: true,  searchable: false },
-			{ data: 'name',	 	orderable: true,  searchable: true  },
-			{ data: 'surname',  orderable: true,  searchable: true  },
-			{ data: 'email',	orderable: true,  searchable: true  },
-			{ data: 'date',	 	orderable: true,  searchable: false },
-			{ data: 'actions',  orderable: false, searchable: false },
+			{ data: 'userid',   orderable: true,  searchable: false, className: "text-center" },
+			{ data: 'username', orderable: true,  searchable: true,  className: "text-center"  },
+			{ data: 'role',	 	orderable: true,  searchable: false, className: "text-center" },
+			{ data: 'name',	 	orderable: true,  searchable: true,  className: "text-center"  },
+			{ data: 'surname',  orderable: true,  searchable: true,  className: "text-center"  },
+			{ data: 'email',	orderable: true,  searchable: true,  className: "text-center" },
+			{ data: 'date',	 	orderable: true,  searchable: false, className: "text-center" },
+			{ data: 'actions',  orderable: false, searchable: false, className: "compact" },
 		],
 
 		drawCallback: function(settings)
