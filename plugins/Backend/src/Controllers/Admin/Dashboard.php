@@ -41,9 +41,9 @@ class Dashboard extends BaseController
 
 			array('data' => 'date', 'uses' => function($user) use ($format)
 			{
-				$online = $user->online->first();
+				$activity = $user->activities->first();
 
-				return Carbon::createFromTimestamp($online->last_activity)
+				return Carbon::createFromTimestamp($activity->last_activity)
 					->formatLocalized($format);
 			}),
 

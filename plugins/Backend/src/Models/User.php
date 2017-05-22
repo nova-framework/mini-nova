@@ -16,9 +16,9 @@ class User extends BaseModel
 	protected $hidden = array('password', 'remember_token');
 
 
-	public function online()
+	public function activities()
 	{
-		return $this->hasMany('Backend\Models\OnlineUser', 'user_id', 'id');
+		return $this->hasMany('Backend\Models\Activity', 'user_id', 'id');
 	}
 
 	public function role()
@@ -38,17 +38,14 @@ class User extends BaseModel
 
 	public function scopeActiveSince($query, $since)
 	{
-		$related = $this->online()->getRelated();
-
-		$table = $related->getTable();
-
-		return $query->with(array('online' => function ($query)
+		return $query->with(array('activities' => function ($query)
 		{
 			return $query->orderBy('last_activity', 'DESC');
 
-		}))->join($table, $this->getTable() .'.id', '=', $table .'.user_id')
-			->where($table .'.last_activity', '>=', $since)
-			->orderBy($table .'.last_activity', 'DESC');
+		}))->whereHas('activities', function ($query) use ($since)
+		{
+			return $query->where('last_activity', '>=', $since);
+		});
 	}
 
 	public function newNotification()

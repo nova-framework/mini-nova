@@ -10,7 +10,7 @@ use Mini\Support\Facades\Session;
 use Carbon\Carbon;
 
 
-class OnlineUser extends BaseModel
+class Activity extends BaseModel
 {
 	protected $hidden = array('payload');
 
@@ -19,7 +19,7 @@ class OnlineUser extends BaseModel
 	 *
 	 * @var string
 	 */
-	public $table = 'online_users';
+	public $table = 'activities';
 
 	protected $primaryKey = 'id';
 
@@ -39,9 +39,9 @@ class OnlineUser extends BaseModel
 	 * Updates the session of the current user.
 	 *
 	 * @param  $query
-	 * @return \Mini\Database\ORM\Builder
+	 * @return \Backend\Models\Activity
 	 */
-	public static function updateCurrent($request)
+	public static function updateForCurrentUser($request)
 	{
 		if (! Auth::check()) {
 			// We track only the authenticated users.
@@ -53,7 +53,7 @@ class OnlineUser extends BaseModel
 			'user_id' => Auth::id(),
 		);
 
-		static::updateOrCreate($attributes, array(
+		return static::updateOrCreate($attributes, array(
 			'last_activity'	=> strtotime(Carbon::now()),
 			'ip'			=> $request->ip()
 		));
