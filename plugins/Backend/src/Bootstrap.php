@@ -5,6 +5,7 @@ use Mini\Routing\Controller;
 
 use Backend\Controllers\BaseController as BackendController;
 use Backend\Models\Notification;
+use Backend\Models\OnlineUser;
 use Backend\Models\Message;
 
 
@@ -37,6 +38,8 @@ Route::middleware('role', function(Request $request, Closure $next, $role)
  */
 Event::listen('router.executing.controller', function(Controller $controller, Request $request)
 {
+	OnlineUser::updateCurrent($request);
+
 	if (! $controller instanceof BackendController) {
 		return;
 	}
@@ -81,4 +84,3 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 
 	View::share('privateMessageCount', $messages);
 });
-

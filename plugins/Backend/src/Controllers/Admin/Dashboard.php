@@ -8,6 +8,7 @@
 namespace Backend\Controllers\Admin;
 
 use Backend\Controllers\BaseController;
+use Backend\Models\OnlineUser;
 
 
 class Dashboard extends BaseController
@@ -17,8 +18,11 @@ class Dashboard extends BaseController
 	{
 		$content = '';
 
+		$onlineUsers = OnlineUser::registered()->get();
+
 		return $this->getView()
 			->shares('title', __d('backend', 'Dashboard'))
+			->with('onlineUsers', $onlineUsers)
 			->with('debug', $content);
 	}
 

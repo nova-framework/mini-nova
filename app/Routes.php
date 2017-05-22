@@ -11,8 +11,8 @@ $router->pattern('slug', '.*');
 $router->get('/', function()
 {
 	$view = View::make('Default')
-		->shares('title', 'Welcome')
-		->with('content', 'Yep! It works.');
+		->shares('title', __('Welcome'))
+		->with('content', __('Yep! It works.'));
 
 	return View::make('Layouts/Default')->with('content', $view);
 });
@@ -35,12 +35,15 @@ $router->get('language/{language}', array('middleware' => 'referer', function($l
 
 /*
 // A Catch-All route.
-$router->any('{slug}', function($slug)
+$router->fallback(function($slug)
 {
+	$content = '<pre>' .var_export($slug, true) .'</pre>';
+
 	$view = View::make('Default')
 		->shares('title', 'Catch-All Route')
-		->with('content', $slug);
+		->with('content', $content);
 
 	return View::make('Layouts/Default')->with('content', $view);
 });
 */
+

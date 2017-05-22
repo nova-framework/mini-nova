@@ -98,12 +98,12 @@ $(function () {
 		lengthMenu: [ 5, 10, 15, 20, 25, 50, 75, 100 ],
 
 		columns: [
-			{ data: 'roleid',	orderable: true,  searchable: false, className: "text-center" },
+			{ data: 'roleid',	orderable: true,  searchable: false },
 			{ data: 'name',		orderable: true,  searchable: true,  className: "text-center" },
 			{ data: 'slug',		orderable: true,  searchable: true,  className: "text-center" },
 			{ data: 'details',	orderable: false, searchable: false },
 			{ data: 'users',	orderable: false, searchable: false, className: "text-center" },
-			{ data: 'actions',  orderable: false, searchable: false, className: "compact" },
+			{ data: 'actions',  orderable: false, searchable: false, className: "text-right compact" },
 		],
 
 		drawCallback: function(settings) {
