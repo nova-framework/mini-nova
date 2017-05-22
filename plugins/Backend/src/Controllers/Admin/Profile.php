@@ -37,7 +37,7 @@ class Profile extends BaseController
 		$attributes = array(
 			'current_password'	  => __d('backend', 'Current Password'),
 			'password'			  => __d('backend', 'New Password'),
-			'password_confirmation' => __d('backend', 'Password Confirmation'),
+			'password_confirmation' => __d('backend', 'Password confirmation'),
 		);
 
 		// Add the custom Validation Rule commands.

@@ -68,7 +68,6 @@ return array (
   'Notifications' => '',
   'Operations' => '',
   'Password' => '',
-  'Password Confirmation' => '',
   'Password confirmation' => '',
   'Platform' => '',
   'Please click the button <b>Delete</b> to proceed, or <b>Cancel</b> to abandon the operation.' => '',

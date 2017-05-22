@@ -68,7 +68,6 @@ return array (
   'Notifications' => 'Уведомления',
   'Operations' => '',
   'Password' => 'Пароль',
-  'Password Confirmation' => 'Подтверждение пароля',
   'Password confirmation' => 'Подтверждение пароля',
   'Platform' => 'Платформа',
   'Please click the button <b>Delete</b> to proceed, or <b>Cancel</b> to abandon the operation.' => 'Пожалуйста, нажмите кнопку <b>Удалить</b> для удаления или <b>Отмена</b> для отмены операции',
