@@ -43,7 +43,8 @@ class Dashboard extends BaseController
 			{
 				$online = $user->online->first();
 
-				return Carbon::createFromTimestamp($online->last_activity)->formatLocalized($format);
+				return Carbon::createFromTimestamp($online->last_activity)
+					->formatLocalized($format);
 			}),
 
 			array('data' => 'actions', 'uses' => function($online)
@@ -67,7 +68,8 @@ class Dashboard extends BaseController
 		{
 			return $query->where('last_activity', '>=', $timestamp);
 
-		})->orderBy('username');
+		})->join('online_users', 'users.id', '=', 'online_users.user_id')
+			->orderBy('online_users.last_activity', 'DESC');
 
 		//
 		$data = $this->dataTable($query, $input, $columns);

@@ -2,7 +2,7 @@
 
 namespace Backend\Controllers;
 
-use Mini\Database\ORM\Builder as QueryBuilder;
+use Mini\Database\ORM\Builder as ModelBuilder;
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\View;
 use Mini\Support\Arr;
@@ -105,13 +105,15 @@ class BaseController extends Controller
 			if ($column['orderable'] == 'true') {
 				$dir = ($order['dir'] === 'asc') ? 'ASC' : 'DESC';
 
-				if ($query instanceof QueryBuilder) {
+				$field = $option['field'];
+
+				if ($query instanceof ModelBuilder) {
 					$model = $query->getModel();
 
-					$query->orderBy($model->getTable() .'.' .$option['field'], $dir);
-				} else {
-					$query->orderBy($option['field'], $dir);
+					$field = $model->getTable() .'.' .$field;
 				}
+
+				$query->orderBy($field, $dir);
 			}
 		}
 
