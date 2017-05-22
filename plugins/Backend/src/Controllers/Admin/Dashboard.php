@@ -56,7 +56,11 @@ class Dashboard extends BaseController
 		$input = Input::only('draw', 'columns', 'start', 'length', 'search', 'order');
 
 		//
-		$query = User::with('role')->active();
+		$activityLimit = Config::get('backend::activityLimit');
+
+		$since = Carbon::now()->subMinutes($activityLimit)->timestamp;
+
+		$query = User::with('role')->activeSince($since);
 
 		//
 		$data = $this->dataTable($query, $input, $columns);
