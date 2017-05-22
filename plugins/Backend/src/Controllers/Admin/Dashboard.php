@@ -56,20 +56,7 @@ class Dashboard extends BaseController
 		$input = Input::only('draw', 'columns', 'start', 'length', 'search', 'order');
 
 		//
-		$limit = Config::get('backend::activityLimit');
-
-		$timestamp = Carbon::now()->subMinutes($limit)->timestamp;
-
-		$query = User::with('role')->with(array('online' => function ($query)
-		{
-			return $query->orderBy('last_activity', 'DESC');
-
-		}))->whereHas('online', function ($query) use ($timestamp)
-		{
-			return $query->where('last_activity', '>=', $timestamp);
-
-		})->join('online_users', 'users.id', '=', 'online_users.user_id')
-			->orderBy('online_users.last_activity', 'DESC');
+		$query = User::with('role')->getByActivity();
 
 		//
 		$data = $this->dataTable($query, $input, $columns);

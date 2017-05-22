@@ -3,6 +3,9 @@
 namespace Backend\Models;
 
 use Mini\Foundation\Auth\User as BaseModel;
+use Mini\Support\Facades\Config;
+
+use Carbon\Carbon;
 
 
 class User extends BaseModel
@@ -34,6 +37,24 @@ class User extends BaseModel
 	public function notifications()
 	{
 		return $this->hasMany('Backend\Models\Notification', 'user_id');
+	}
+
+	public function scopeGetByActivity($query)
+	{
+		$limit = Config::get('backend::activityLimit');
+
+		$timestamp = Carbon::now()->subMinutes($limit)->timestamp;
+
+		//
+		$table = $this->online()->getRelated()->getTable();
+
+		return $query->with(array('online' => function ($query)
+		{
+			return $query->orderBy('last_activity', 'DESC');
+
+		}))->join($table, $this->getTable() .'.id', '=', $table .'.user_id')
+			->where($table .'.last_activity', '>=', $timestamp)
+			->orderBy($table .'.last_activity', 'DESC');
 	}
 
 	public function newNotification()
