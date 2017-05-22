@@ -18,7 +18,7 @@ class User extends BaseModel
 
 	public function online()
 	{
-		return $this->hasOne('Backend\Models\OnlineUser', 'user_id', 'id');
+		return $this->hasMany('Backend\Models\OnlineUser', 'user_id', 'id');
 	}
 
 	public function role()

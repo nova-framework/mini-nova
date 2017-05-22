@@ -2,8 +2,10 @@
 
 namespace Backend\Controllers;
 
+use Mini\Database\ORM\Builder as QueryBuilder;
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\View;
+use Mini\Support\Arr;
 
 use App\Controllers\BaseController as Controller;
 
@@ -36,16 +38,16 @@ class BaseController extends Controller
 	 */
 	protected function dataTable($query, array $input, array $options)
 	{
-		$columns = array_get($input, 'columns', array());
+		$columns = Arr::get($input, 'columns', array());
 
 		// Compute the total count.
 		$totalCount = $query->count();
 
 		// Compute the draw.
-		$draw = intval(array_get($input, 'draw', 0));
+		$draw = intval(Arr::get($input, 'draw', 0));
 
 		// Handle the global searching.
-		$search = trim(array_get($input, 'search.value'));
+		$search = trim(Arr::get($input, 'search.value'));
 
 		if (! empty($search)) {
 			$query->whereNested(function($query) use($columns, $options, $search)
@@ -53,7 +55,7 @@ class BaseController extends Controller
 				foreach($columns as $column) {
 					$data = $column['data'];
 
-					$option = array_first($options, function ($key, $value) use ($data)
+					$option = Arr::first($options, function ($key, $value) use ($data)
 					{
 						return ($value['data'] == $data);
 					});
@@ -69,12 +71,12 @@ class BaseController extends Controller
 		foreach($columns as $column) {
 			$data = $column['data'];
 
-			$option = array_first($options, function ($key, $value) use ($data)
+			$option = Arr::first($options, function ($key, $value) use ($data)
 			{
 				return ($value['data'] == $data);
 			});
 
-			$search = trim(array_get($column, 'search.value'));
+			$search = trim(Arr::get($column, 'search.value'));
 
 			if (($column['searchable'] == 'true') && (strlen($search) > 0)) {
 				$query->where($option['field'], 'LIKE', '%' .$search .'%');
@@ -85,17 +87,17 @@ class BaseController extends Controller
 		$filteredCount = $query->count();
 
 		// Handle the column ordering.
-		$orders = array_get($input, 'order', array());
+		$orders = Arr::get($input, 'order', array());
 
 		foreach ($orders as $order) {
 			$index = intval($order['column']);
 
-			$column = array_get($input, 'columns.' .$index, array());
+			$column = Arr::get($input, 'columns.' .$index, array());
 
 			//
 			$data = $column['data'];
 
-			$option = array_first($options, function ($key, $value) use ($data)
+			$option = Arr::first($options, function ($key, $value) use ($data)
 			{
 				return ($value['data'] == $data);
 			});
@@ -103,13 +105,19 @@ class BaseController extends Controller
 			if ($column['orderable'] == 'true') {
 				$dir = ($order['dir'] === 'asc') ? 'ASC' : 'DESC';
 
-				$query->orderBy($option['field'], $dir);
+				if ($query instanceof QueryBuilder) {
+					$model = $query->getModel();
+
+					$query->orderBy($model->getTable() .'.' .$option['field'], $dir);
+				} else {
+					$query->orderBy($option['field'], $dir);
+				}
 			}
 		}
 
 		// Handle the pagination.
-		$start  = array_get($input, 'start',  0);
-		$length = array_get($input, 'length', 25);
+		$start  = Arr::get($input, 'start',  0);
+		$length = Arr::get($input, 'length', 25);
 
 		$query->skip($start)->take($length);
 
@@ -125,9 +133,9 @@ class BaseController extends Controller
 			$key = $option['data'];
 
 			//
-			$field = array_get($option, 'field');
+			$field = Arr::get($option, 'field');
 
-			$columns[$key] = array_get($option, 'uses', $field);
+			$columns[$key] = Arr::get($option, 'uses', $field);
 		}
 
 		//

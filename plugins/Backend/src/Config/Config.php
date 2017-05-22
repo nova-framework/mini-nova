@@ -9,5 +9,5 @@
 */
 
 return array(
-	'activity_limit' => 15,
+	'activityLimit' => 5,
 );

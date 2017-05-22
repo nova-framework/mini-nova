@@ -29,9 +29,9 @@
 			<tr>
 				<th width='5%'><?= __d('backend', 'ID'); ?></th>
 				<th width='15%' class="text-center"><?= __d('backend', 'Username'); ?></th>
-				<th width='10%' class="text-center"><?= __d('backend', 'Role'); ?></th>
-				<th width='15%' class="text-center"><?= __d('backend', 'First Name'); ?></th>
-				<th width='15%' class="text-center"><?= __d('backend', 'Last Name'); ?></th>
+				<th width='12%' class="text-center"><?= __d('backend', 'Role'); ?></th>
+				<th width='14%' class="text-center"><?= __d('backend', 'First Name'); ?></th>
+				<th width='14%' class="text-center"><?= __d('backend', 'Last Name'); ?></th>
 				<th width='18%' class="text-center"><?= __d('backend', 'Email'); ?></th>
 				<th width='12%' class="text-center"><?= __d('backend', 'Last activity'); ?></th>
 				<th width='10%' class="text-right"><?= __d('backend', 'Actions'); ?></th>

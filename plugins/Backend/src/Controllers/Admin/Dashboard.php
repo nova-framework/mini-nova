@@ -24,6 +24,8 @@ class Dashboard extends BaseController
 
 	public function data()
 	{
+		$format = __d('backend', '%d %b %Y, %H:%M');
+
 		$columns = array(
 			array('data' => 'userid',   'field' => 'id'),
 			array('data' => 'username', 'field' => 'username'),
@@ -37,13 +39,11 @@ class Dashboard extends BaseController
 			array('data' => 'last_name',	'field' => 'last_name'),
 			array('data' => 'email',		'field' => 'email'),
 
-			array('data' => 'date', 'uses' => function($user)
+			array('data' => 'date', 'uses' => function($user) use ($format)
 			{
-				$format = __d('backend', '%d %b %Y, %H:%M');
+				$online = $user->online->first();
 
-				$timestamp = $user->online->last_activity;
-
-				return Carbon::createFromTimestamp($timestamp)->formatLocalized($format);
+				return Carbon::createFromTimestamp($online->last_activity)->formatLocalized($format);
 			}),
 
 			array('data' => 'actions', 'uses' => function($online)
@@ -55,7 +55,7 @@ class Dashboard extends BaseController
 		$input = Input::only('draw', 'columns', 'start', 'length', 'search', 'order');
 
 		//
-		$limit = Config::get('backend.activity_limit');
+		$limit = Config::get('backend::activityLimit');
 
 		$timestamp = Carbon::now()->subMinutes($limit)->timestamp;
 
@@ -65,7 +65,7 @@ class Dashboard extends BaseController
 
 		}))->whereHas('online', function ($query) use ($timestamp)
 		{
-			return $query->whereNotNull('user_id')->where('last_activity', '>=', $timestamp);
+			return $query->where('last_activity', '>=', $timestamp);
 
 		})->orderBy('username');
 
