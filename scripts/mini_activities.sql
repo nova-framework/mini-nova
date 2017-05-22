@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 22, 2017 at 12:31 PM
+-- Generation Time: May 23, 2017 at 12:10 AM
 -- Server version: 10.0.30-MariaDB
 -- PHP Version: 5.6.30
 
@@ -23,10 +23,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mini_online_users`
+-- Table structure for table `mini_activities`
 --
 
-CREATE TABLE `mini_online_users` (
+CREATE TABLE `mini_activities` (
   `id` int(11) UNSIGNED NOT NULL,
   `session` varchar(255) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -39,9 +39,9 @@ CREATE TABLE `mini_online_users` (
 --
 
 --
--- Indexes for table `mini_online_users`
+-- Indexes for table `mini_activities`
 --
-ALTER TABLE `mini_online_users`
+ALTER TABLE `mini_activities`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `session` (`session`);
 
@@ -50,9 +50,9 @@ ALTER TABLE `mini_online_users`
 --
 
 --
--- AUTO_INCREMENT for table `mini_online_users`
+-- AUTO_INCREMENT for table `mini_activities`
 --
-ALTER TABLE `mini_online_users`
+ALTER TABLE `mini_activities`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
