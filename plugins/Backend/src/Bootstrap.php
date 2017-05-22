@@ -38,7 +38,7 @@ Route::middleware('role', function(Request $request, Closure $next, $role)
  */
 Event::listen('router.executing.controller', function(Controller $controller, Request $request)
 {
-	Activity::updateForCurrentUser($request);
+	Activity::updateCurrent($request);
 
 	if (! $controller instanceof BackendController) {
 		return;

@@ -41,7 +41,7 @@ class Activity extends BaseModel
 	 * @param  $query
 	 * @return \Backend\Models\Activity
 	 */
-	public static function updateForCurrentUser($request)
+	public static function updateCurrent($request)
 	{
 		if (! Auth::check()) {
 			// We track only the authenticated users.

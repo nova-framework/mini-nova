@@ -27,13 +27,12 @@
 	<table id='usersTable' class='table table-bordered table-striped table-hover responsive' style="width: 100%;">
 		<thead>
 			<tr>
-				<th width='5%'><?= __d('backend', 'ID'); ?></th>
 				<th width='15%' class="text-center"><?= __d('backend', 'Username'); ?></th>
-				<th width='12%' class="text-center"><?= __d('backend', 'Role'); ?></th>
-				<th width='14%' class="text-center"><?= __d('backend', 'First Name'); ?></th>
-				<th width='14%' class="text-center"><?= __d('backend', 'Last Name'); ?></th>
+				<th width='13%' class="text-center"><?= __d('backend', 'Role'); ?></th>
+				<th width='15%' class="text-center"><?= __d('backend', 'First Name'); ?></th>
+				<th width='15%' class="text-center"><?= __d('backend', 'Last Name'); ?></th>
 				<th width='18%' class="text-center"><?= __d('backend', 'Email'); ?></th>
-				<th width='12%' class="text-center"><?= __d('backend', 'Last activity'); ?></th>
+				<th width='14%' class="text-center"><?= __d('backend', 'Last activity'); ?></th>
 				<th width='10%' class="text-right"><?= __d('backend', 'Actions'); ?></th>
 			</tr>
 		</thead>
@@ -69,7 +68,6 @@ $(function () {
 		lengthMenu: [ 5, 10, 15, 20, 25, 50, 75, 100 ],
 
 		columns: [
-			{ data: 'userid',		orderable: true,  searchable: false },
 			{ data: 'username',		orderable: true,  searchable: true,  className: "text-center" },
 			{ data: 'role',			orderable: true,  searchable: false, className: "text-center" },
 			{ data: 'first_name',	orderable: true,  searchable: true,  className: "text-center" },
