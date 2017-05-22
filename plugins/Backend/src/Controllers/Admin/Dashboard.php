@@ -56,7 +56,7 @@ class Dashboard extends BaseController
 		$input = Input::only('draw', 'columns', 'start', 'length', 'search', 'order');
 
 		//
-		$query = User::with('role')->getByActivity();
+		$query = User::with('role')->active();
 
 		//
 		$data = $this->dataTable($query, $input, $columns);

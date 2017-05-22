@@ -39,22 +39,24 @@ class User extends BaseModel
 		return $this->hasMany('Backend\Models\Notification', 'user_id');
 	}
 
-	public function scopeGetByActivity($query)
+	public function scopeActive($query)
 	{
 		$limit = Config::get('backend::activityLimit');
 
 		$timestamp = Carbon::now()->subMinutes($limit)->timestamp;
 
 		//
-		$table = $this->online()->getRelated()->getTable();
+		$table = $this->getTable();
+
+		$relatedTable = $this->online()->getRelated()->getTable();
 
 		return $query->with(array('online' => function ($query)
 		{
 			return $query->orderBy('last_activity', 'DESC');
 
-		}))->join($table, $this->getTable() .'.id', '=', $table .'.user_id')
-			->where($table .'.last_activity', '>=', $timestamp)
-			->orderBy($table .'.last_activity', 'DESC');
+		}))->join($relatedTable, $table .'.id', '=', $relatedTable .'.user_id')
+			->where($relatedTable .'.last_activity', '>=', $timestamp)
+			->orderBy($relatedTable .'.last_activity', 'DESC');
 	}
 
 	public function newNotification()
