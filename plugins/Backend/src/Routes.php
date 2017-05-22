@@ -12,6 +12,9 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->get('/',			'Dashboard@index');
 	$router->get('dashboard',	'Dashboard@index');
 
+	// Server Side Processor for Dashboard's Online Users DataTable.
+	$router->post('dashboard/data', 'Dashboard@data');
+
 	// The Platform Settings.
 	$router->get( 'settings',	'Settings@index');
 	$router->post('settings',	'Settings@store');

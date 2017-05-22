@@ -16,6 +16,11 @@ class User extends BaseModel
 	protected $hidden = array('password', 'remember_token');
 
 
+	public function online()
+	{
+		return $this->hasOne('Backend\Models\OnlineUser', 'user_id', 'id');
+	}
+
 	public function role()
 	{
 		return $this->belongsTo('Backend\Models\Role', 'role_id', 'id', 'role');

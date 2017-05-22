@@ -25,8 +25,6 @@ class OnlineUser extends BaseModel
 
 	protected $fillable = array('session', 'user_id', 'ip', 'last_activity');
 
-	protected $dates = array('last_activity');
-
 	public $timestamps = false;
 
 	/**
@@ -34,7 +32,7 @@ class OnlineUser extends BaseModel
 	 */
 	public function user()
 	{
-		return $this->belongsTo('Backend\Models\User');
+		return $this->belongsTo('Backend\Models\User', 'user_id', 'id');
 	}
 
 	/**
@@ -55,7 +53,7 @@ class OnlineUser extends BaseModel
 		);
 
 		static::updateOrCreate($attributes, array(
-			'last_activity'	=> Carbon::now(),
+			'last_activity'	=> strtotime(Carbon::now()),
 			'ip'			=> $request->ip()
 		));
 	}
