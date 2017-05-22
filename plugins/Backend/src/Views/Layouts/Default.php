@@ -110,14 +110,8 @@
 						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Users List'); ?></a>
 						</li>
-						<li <?= ($baseUri == 'admin/users/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users/create'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Create a new User'); ?></a>
-						</li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Roles List'); ?></a>
-						</li>
-						<li <?= ($baseUri == 'admin/roles/create') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles/create'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Create a new Role'); ?></a>
+							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'User Roles'); ?></a>
 						</li>
 					</ul>
 				<li>

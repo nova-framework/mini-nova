@@ -10,4 +10,6 @@ return array (
   'This could be the result of an invalid Page request.' => '',
   'This site is temporarily unavailable.' => '',
   'Unauthorized' => '',
+  'Welcome' => '',
+  'Yep! It works.' => '',
 );
