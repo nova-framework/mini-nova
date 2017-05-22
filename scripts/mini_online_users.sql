@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 22, 2017 at 04:14 AM
+-- Generation Time: May 22, 2017 at 12:31 PM
 -- Server version: 10.0.30-MariaDB
 -- PHP Version: 5.6.30
 
@@ -31,7 +31,7 @@ CREATE TABLE `mini_online_users` (
   `session` varchar(255) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `ip` varchar(255) DEFAULT NULL,
-  `last_activity` timestamp NULL DEFAULT NULL
+  `last_activity` int(11) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
