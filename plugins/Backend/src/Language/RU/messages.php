@@ -77,7 +77,7 @@ return array (
   'Receiver' => 'Получатель',
   'Registered Roles' => 'Зарегистрированные роли',
   'Registered Users' => 'Зарегистрированные пользователи',
-  'Reply' => 'Повтор',
+  'Reply' => 'Ответ',
   'Reply to this {0, select, 0 {message} other {thread}}...' => 'Ответить на это {0, выбрано, 0 {сообщений} других {тем}} ...',
   'Required field' => 'Обязательные поля',
   'Role' => 'Роль',
