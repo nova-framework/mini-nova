@@ -32,7 +32,7 @@ class Kernel extends HttpKernel
 			'App\Http\Middleware\VerifyCsrfToken',
 		),
 		'api' => array(
-			//
+			'throttle: 60, 1',
 		)
 	);
 
@@ -42,7 +42,8 @@ class Kernel extends HttpKernel
 	 * @var array
 	 */
 	protected $routeMiddleware = array(
-		'auth'  => 'Mini\Auth\Middleware\Authenticate',
-		'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
+		'auth'		=> 'Mini\Auth\Middleware\Authenticate',
+		'guest'		=> 'App\Http\Middleware\RedirectIfAuthenticated',
+		'throttle'	=> 'Mini\Routing\Middleware\ThrottleRequests.php',
 	);
 }
