@@ -212,6 +212,7 @@ return array(
 
 		// The Support Facades.
 		'App'			=> 'Mini\Support\Facades\App',
+		'Asset'			=> 'Mini\Support\Facades\Asset',
 		'Auth'			=> 'Mini\Support\Facades\Auth',
 		'Cache'			=> 'Mini\Support\Facades\Cache',
 		'Cookie'		=> 'Mini\Support\Facades\Cookie',
