@@ -13,7 +13,7 @@ class Kernel extends HttpKernel
 	 * @var array
 	 */
 	protected $middleware = array(
-		'Mini\Routing\Middleware\ServeAsset',
+		'Mini\Routing\Middleware\DispatchAssetFiles',
 		'Mini\Foundation\Http\Middleware\CheckForMaintenanceMode',
 		'App\Http\Middleware\HandleProfiling',
 		'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
