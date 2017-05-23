@@ -28,8 +28,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `mini_messages` (
   `id` int(10) UNSIGNED NOT NULL,
-  `sender_id` int(10) UNSIGNED NOT NULL,
-  `receiver_id` int(10) UNSIGNED NOT NULL,
+  `sender_id` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `receiver_id` int(10) UNSIGNED NOT NULL DEFAULT '0',
   `parent_id` int(10) UNSIGNED DEFAULT NULL,
   `subject` varchar(255) DEFAULT NULL,
   `body` text NOT NULL,
