@@ -58,7 +58,7 @@ class PluginServiceProvider extends ServiceProvider
 		// Load the Plugin Routes.
 		$router = $this->app['router'];
 
-		$router->group(array('namespace' => $this->namespace), function ($router) use ($path)
+		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function ($router) use ($path)
 		{
 			require  $path .DS .'Routes.php';
 		});

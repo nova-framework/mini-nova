@@ -69,7 +69,7 @@ class PluginServiceProvider extends ServiceProvider
 		// Load the Plugin Routes.
 		$routes = $path .DS .'Routes.php';
 
-		$this->loadRoutesFrom($routes);
+		$this->loadRoutesFrom($routes, 'web');
 
 		//
 		parent::boot();

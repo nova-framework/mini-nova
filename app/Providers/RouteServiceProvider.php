@@ -36,10 +36,10 @@ class RouteServiceProvider extends ServiceProvider
 	 */
 	public function map(Router $router)
 	{
-		$router->group(array('namespace' => $this->namespace), function ($router)
+		// Load the Routes for the WEB group.
+		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function ($router)
 		{
 			require APPPATH .'Routes.php';
 		});
 	}
-
 }

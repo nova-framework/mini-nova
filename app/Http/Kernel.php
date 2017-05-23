@@ -8,19 +8,32 @@ use Mini\Foundation\Http\Kernel as HttpKernel;
 class Kernel extends HttpKernel
 {
 	/**
-	 * The Application's global HTTP Middleware stack.
+	 * The Application's Middleware stack.
 	 *
 	 * @var array
 	 */
 	protected $middleware = array(
-		'Mini\Routing\Middleware\DispatchAssetFiles',
 		'Mini\Foundation\Http\Middleware\CheckForMaintenanceMode',
-		'App\Http\Middleware\HandleProfiling',
-		'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
-		'Mini\Session\Middleware\StartSession',
-		'Mini\Foundation\Http\Middleware\SetupLanguage',
-		'Mini\View\Middleware\ShareErrorsFromSession',
-		'App\Http\Middleware\VerifyCsrfToken',
+		'Mini\Routing\Middleware\DispatchAssetFiles',
+	);
+
+	/**
+	 * The Application's route Middleware Groups.
+	 *
+	 * @var array
+	 */
+	protected $middlewareGroups = array(
+		'web' => array(
+			'App\Http\Middleware\HandleProfiling',
+			'Mini\Cookie\Middleware\AddQueuedCookiesToResponse',
+			'Mini\Session\Middleware\StartSession',
+			'Mini\Foundation\Http\Middleware\SetupLanguage',
+			'Mini\View\Middleware\ShareErrorsFromSession',
+			'App\Http\Middleware\VerifyCsrfToken',
+		),
+		'api' => array(
+			//
+		)
 	);
 
 	/**
@@ -29,7 +42,7 @@ class Kernel extends HttpKernel
 	 * @var array
 	 */
 	protected $routeMiddleware = array(
-		'auth'		=> 'Mini\Auth\Middleware\Authenticate',
-		'guest'		=> 'App\Http\Middleware\RedirectIfAuthenticated',
+		'auth'  => 'Mini\Auth\Middleware\Authenticate',
+		'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
 	);
 }
