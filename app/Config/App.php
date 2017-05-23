@@ -167,6 +167,7 @@ return array(
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
 		'Mini\Plugin\PluginServiceProvider',
+		'Mini\Bus\BusServiceProvider',
 
 		// The Console Support Providers.
 		'Mini\Foundation\Providers\ConsoleServiceProvider',
