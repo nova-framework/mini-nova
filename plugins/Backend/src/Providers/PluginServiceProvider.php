@@ -17,6 +17,17 @@ class PluginServiceProvider extends ServiceProvider
 	protected $providers = array();
 
 	/**
+	 * The event listener mappings for the plugin.
+	 *
+	 * @var array
+	 */
+	protected $listen = array(
+		'Backend\Events\SomeEvent' => array(
+			'Backend\Listeners\EventListener',
+		),
+	);
+
+	/**
 	 * The policy mappings for the plugin.
 	 *
 	 * @var array
@@ -46,22 +57,22 @@ class PluginServiceProvider extends ServiceProvider
 		$this->package('Backend', 'backend', $path);
 
 		// Bootstrap the Plugin.
-		require $path .DS .'Bootstrap.php';
+		$bootstrap = $path .DS .'Bootstrap.php';
 
-		// Load the Plugin Policies.
+		$this->bootstrapFrom($bootstrap);
+
+		// Register the Plugin Policies.
 		$gate = $this->app->make(Gate::class);
 
-		foreach ($this->policies as $key => $value) {
-			$gate->policy($key, $value);
-		}
+		$this->registerPolicies($gate);
 
 		// Load the Plugin Routes.
-		$router = $this->app['router'];
+		$routes = $path .DS .'Routes.php';
 
-		$router->group(array('namespace' => $this->namespace), function ($router) use ($path)
-		{
-			require  $path .DS .'Routes.php';
-		});
+		$this->loadRoutesFrom($routes);
+
+		//
+		parent::boot();
 	}
 
 	/**
