@@ -6,8 +6,13 @@ html {
 }
 
 body {
+    font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 14px;
+    font-weight: 400;
+
     /* Margin bottom by footer height */
     margin-bottom: 70px;
+	height: 100%;
 }
 
 @media(min-width:768px) {
