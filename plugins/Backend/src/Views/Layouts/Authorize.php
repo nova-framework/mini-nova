@@ -23,7 +23,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="#"> <?= __d('bootstrap', 'Control Panel'); ?></a>
+			<a class="navbar-brand" href="#"> <?= __d('backend', 'Control Panel'); ?></a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
@@ -43,7 +43,7 @@
 				</li>
 				<!-- Authentication Links -->
 				<li <?= ($baseUri == 'auth/login') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('auth/login'); ?>"><?= __d('bootstrap', 'User Login'); ?></a>
+					<a href="<?= site_url('auth/login'); ?>"><?= __d('backend', 'User Login'); ?></a>
 				</li>
 			</ul>
 		</div>

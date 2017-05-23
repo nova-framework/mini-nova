@@ -32,22 +32,22 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <strong><?= __d('bootstrap', 'Control Panel'); ?></strong></a>
+			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <strong><?= __d('backend', 'Control Panel'); ?></strong></a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav navbar-right" style="margin-right: 10px;">
 				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>
-					<a href="<?= site_url('admin/messages'); ?>" title="<?= __d('bootstrap', 'Your Messages'); ?>">
+					<a href="<?= site_url('admin/messages'); ?>" title="<?= __d('backend', 'Your Messages'); ?>">
 						<i class='fa fa-envelope'></i>
-						<?= __d('bootstrap', 'Messages'); ?> <?php if (isset($privateMessageCount) && ($privateMessageCount > 0)) echo '<span class="label label-success">' .$privateMessageCount .'</span>'; ?>
+						<?= __d('backend', 'Messages'); ?> <?php if (isset($privateMessageCount) && ($privateMessageCount > 0)) echo '<span class="label label-success">' .$privateMessageCount .'</span>'; ?>
 					</a>
 				</li>
 				<li <?php if($baseUri == 'admin/notifications') echo 'class="active"'; ?>>
-					<a href="<?= site_url('admin/notifications'); ?>" title="<?= __d('bootstrap', 'Your Notifications'); ?>">
+					<a href="<?= site_url('admin/notifications'); ?>" title="<?= __d('backend', 'Your Notifications'); ?>">
 						<i class='fa fa-bell'></i>
-						<?= __d('bootstrap', 'Notifications'); ?> <?php if (isset($notificationCount) && ($notificationCount > 0)) echo '<span class="label label-success">' .$notificationCount .'</span>'; ?>
+						<?= __d('backend', 'Notifications'); ?> <?php if (isset($notificationCount) && ($notificationCount > 0)) echo '<span class="label label-success">' .$notificationCount .'</span>'; ?>
 					</a>
 				</li>
 				<li class="dropdown">
@@ -69,13 +69,13 @@
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/profile'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Profile'); ?></a>
+							<a href="<?= site_url('admin/profile'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'Profile'); ?></a>
 						</li>
 						<li role="separator" class="divider"></li>
 						<li>
 							<a href="<?= site_url('auth/logout'); ?>"
 								onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-								<i class='fa fa-sign-out'></i> <?= __d('bootstrap', 'Logout'); ?>
+								<i class='fa fa-sign-out'></i> <?= __d('backend', 'Logout'); ?>
 							</a>
 							<form id="logout-form" action="<?= site_url('auth/logout'); ?>" method="POST" style="display: none;"></form>
 						</li>
@@ -85,33 +85,33 @@
 
 			<!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
 			<ul class="nav navbar-nav navbar-inverse side-nav" id="side-menu">
-				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?> title="<?= __d('bootstrap', 'Your Dashboard'); ?>">
-					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __d('bootstrap', 'Dashboard'); ?></a>
+				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?> title="<?= __d('backend', 'Your Dashboard'); ?>">
+					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __d('backend', 'Dashboard'); ?></a>
 				</li>
 				<?php if ($currentUser->hasRole('administrator')) { ?>
 
 				<?php $active = ($baseUri == 'admin/settings'); ?>
 				<li class="<?= $active ? 'active' : ''; ?>">
-					<a href="javascript:;" data-toggle="collapse" data-target="#settings-children" title="<?= __d('bootstrap', 'Manage the Platform'); ?>">
-						<i class='fa fa-server'></i> <?= __d('bootstrap', 'Platform'); ?> <span class="caret"></span>
+					<a href="javascript:;" data-toggle="collapse" data-target="#settings-children" title="<?= __d('backend', 'Manage the Platform'); ?>">
+						<i class='fa fa-server'></i> <?= __d('backend', 'Platform'); ?> <span class="caret"></span>
 					</a>
 					<ul id="settings-children" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
 						<li <?= ($baseUri == 'admin/settings') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Settings'); ?></a>
+							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'Settings'); ?></a>
 						</li>
 					</ul>
 				</li>
 				<?php $active = ($baseUri == 'admin/users') || ($baseUri == 'admin/roles'); ?>
 				<li <?= $active ? 'class="active"' : ''; ?>">
-					<a href="javascript:;" data-toggle="collapse" data-target="#users-children" title="<?= __d('bootstrap', 'Manage the Users'); ?>">
-						<i class='fa fa-users'></i> <?= __d('bootstrap', 'Users'); ?> <span class="caret"></span>
+					<a href="javascript:;" data-toggle="collapse" data-target="#users-children" title="<?= __d('backend', 'Manage the Users'); ?>">
+						<i class='fa fa-users'></i> <?= __d('backend', 'Users'); ?> <span class="caret"></span>
 					</a>
 					<ul id="users-children" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
 						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'Users List'); ?></a>
+							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'Users List'); ?></a>
 						</li>
 						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __d('bootstrap', 'User Roles'); ?></a>
+							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'User Roles'); ?></a>
 						</li>
 					</ul>
 				<li>
