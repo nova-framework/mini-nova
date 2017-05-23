@@ -169,9 +169,7 @@ return array(
 		'Mini\Plugin\PluginServiceProvider',
 
 		// The Console Support Providers.
-		'Mini\Foundation\Providers\ComposerServiceProvider',
-		'Mini\Foundation\Providers\PublisherServiceProvider',
-		'Mini\Foundation\Providers\ForgeServiceProvider',
+		'Mini\Foundation\Providers\ConsoleServiceProvider',
 		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
