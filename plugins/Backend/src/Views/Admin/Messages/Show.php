@@ -11,14 +11,11 @@
 
 <!-- Main content -->
 <div class="row">
-	<h3><?= __d('backend', 'Conversation between <b>{0}</b> and <b>{1}</b>', $message->sender->fullName(), $message->receiver->fullName()); ?></h3>
+	<h3><?= __d('backend', 'Conversation subject: {0}', $message->subject); ?></h3>
 	<br>
 
 	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<h3 class="panel-title"><?= $message->subject; ?></h3>
-			</div>
+		<div class="panel panel-default">
 			<div class="panel-body">
 				<!-- Status -->
 				<div class="media">
