@@ -35,7 +35,8 @@
             "FileField\\": "plugins/FileField/src/",
             "Content\\": "plugins/Content/src/",
             "Bootstrap\\": "plugins/Bootstrap/src/",
-            "Backend\\": "plugins/Backend/src/"
+            "Backend\\": "plugins/Backend/src/",
+            "Widgets\\": "plugins/Widgets/src/"
         }
     },
     "scripts": {
