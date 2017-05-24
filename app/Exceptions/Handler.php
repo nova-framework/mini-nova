@@ -20,6 +20,7 @@ class Handler extends ExceptionHandler
 	 */
 	protected $dontReport = array(
 		'Symfony\Component\HttpKernel\Exception\HttpException',
+		'Mini\Database\ORM\ModelNotFoundException',
 		'Mini\Session\TokenMismatchException',
 	);
 
