@@ -53,25 +53,35 @@ class BaseController extends Controller
 
 		$items = array_map(function ($item)
 		{
-			if (empty($children = Arr::get($item, 'children', array()))) {
-				return $item;
+			if (isset($item['children']) && is_array($item['children'])) {
+				usort($item['children'], array($this, 'itemCompare'));
 			}
-
-			$item['children'] = array_sort($children, function($value)
-			{
-				return sprintf('%06d - %s', $value['weight'], $value['title']);
-			});
 
 			return $item;
 
 		}, $items);
 
-		$items = array_sort($items, function($value)
-		{
-			return sprintf('%06d - %s', $value['weight'], $value['title']);
-		});
+		usort($items, array($this, 'itemCompare'));
 
 		View::share('menuItems', $items);
+	}
+
+	/**
+	 * Compare two menu item arrays.
+	 *
+	 * @param array $a
+	 * @param array $b
+	 * @return int
+	 */
+	private function itemCompare($a, $b)
+	{
+		if ($a['weight'] == $b['weight']) {
+			if ($a['title'] == $b['title']) return 0;
+
+			return ($a['title'] < $b['title']) ? -1 : 1;
+		}
+
+		return ($a['weight'] < $b['weight']) ? -1 : 1;
 	}
 
 	/**

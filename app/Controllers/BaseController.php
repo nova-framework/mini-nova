@@ -57,22 +57,6 @@ class BaseController extends Controller
 	protected function before() {}
 
 	/**
-	 * Execute an action on the controller.
-	 *
-	 * @param string  $method
-	 * @param array   $params
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	public function callAction($method, array $parameters)
-	{
-		$this->before();
-
-		$response = call_user_func_array(array($this, $method), $parameters);
-
-		return $this->after($response);
-	}
-
-	/**
 	 * Method executed after any action.
 	 *
 	 * @param mixed $response
@@ -96,6 +80,22 @@ class BaseController extends Controller
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Execute an action on the controller.
+	 *
+	 * @param string  $method
+	 * @param array   $params
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	public function callAction($method, array $parameters)
+	{
+		$this->before();
+
+		$response = call_user_func_array(array($this, $method), $parameters);
+
+		return $this->after($response);
 	}
 
 	/**
