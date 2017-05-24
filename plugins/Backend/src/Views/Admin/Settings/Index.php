@@ -17,7 +17,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-body" style="padding-top: 0;">
-		<h4><strong><?= __d('backend', 'Site Settings'); ?></strong></h4>
+		<h3><?= __d('backend', 'Site Settings'); ?></h3>
 		<hr style="margin-top: 0;">
 
 		<div class="form-group">
@@ -26,19 +26,16 @@
 				<input name="siteName" id="siteName" type="text" class="form-control" value="<?= $options['siteName']; ?>">
 			</div>
 		</div>
+
+		<hr style="margin-bottom: 15px;">
+		<input class="btn btn-success col-sm-2 pull-right" type="submit" id="submit" name="submit" value="<?= __d('backend', 'Apply the changes') ?>" />
+		<div class="clearfix"></div>
 	</div>
 </div>
 
-<div class="col-lg-12" style="padding-right: 0;">
-	<input class="btn btn-success col-sm-2 pull-right" type="submit" id="submit" name="submit" value="<?= __d('backend', 'Apply the changes') ?>" />&nbsp;
-</div>
-
-<div class="clearfix"></div>
-<br>
-
 <div class="panel panel-default">
 	<div class="panel-body" style="padding-top: 0;">
-		<h4><strong><?= __d('backend', 'Mailer Settings'); ?></strong></h4>
+		<h3><?= __d('backend', 'Mailer Settings'); ?></h3>
 		<hr style="margin-top: 0;">
 
 		<div class="form-group">
@@ -130,11 +127,11 @@
 				<small><?= __d('backend', 'The Password used to connect to the external SMTP Server.'); ?></small>
 			</div>
 		</div>
-	</div>
-</div>
 
-<div class="col-lg-12" style="padding-right: 0;">
-	<input class="btn btn-success col-sm-2 pull-right" type="submit" id="submit" name="submit" value="<?= __d('backend', 'Apply the changes') ?>" />&nbsp;
+		<hr style="margin-bottom: 15px;">
+		<input class="btn btn-success col-sm-2 pull-right" type="submit" id="submit" name="submit" value="<?= __d('backend', 'Apply the changes') ?>" />
+		<div class="clearfix"></div>
+	</div>
 </div>
 
 <input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
