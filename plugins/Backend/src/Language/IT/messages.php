@@ -7,7 +7,7 @@ return array (
   'Apply the changes' => '',
   'Are you sure you want to remove this Role, the operation being irreversible?' => '',
   'Are you sure you want to remove this User, the operation being irreversible?' => '',
-  'By <b>{0}</b>, to <b>{1}</b>' => '',
+  'From <b>{0}</b>, to <b>{1}</b>' => '',
   'Cancel' => '',
   'Change Password' => '',
   'Choose a Role' => '',

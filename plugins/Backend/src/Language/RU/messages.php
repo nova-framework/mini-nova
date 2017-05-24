@@ -7,7 +7,7 @@ return array (
   'Apply the changes' => 'Применить изменения',
   'Are you sure you want to remove this Role, the operation being irreversible?' => 'Вы действительно хотите удалить эту роль? Эта операция необратима',
   'Are you sure you want to remove this User, the operation being irreversible?' => 'Вы действительно хотите удалить этого пользователя? Эта операция необратима',
-  'By <b>{0}</b>, to <b>{1}</b>' => 'От <b>{0}</b> для <b>{1}</b>',
+  'From <b>{0}</b>, to <b>{1}</b>' => 'От <b>{0}</b> для <b>{1}</b>',
   'Cancel' => 'Отмена',
   'Change Password' => 'Изменение пароля',
   'Choose a Role' => 'Выберите роль',

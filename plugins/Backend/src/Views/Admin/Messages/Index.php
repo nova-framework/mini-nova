@@ -39,7 +39,7 @@ if (! $messages->isEmpty()) {
 		<div class="media-body">
 			<div class="col-md-8 no-padding">
 				<h4 class="media-heading"><a href="<?= site_url('admin/messages/' .$message->id); ?>"><?= e($message->subject); ?></a> <?php if ($unread >  0) echo '<small class="label label-warning">' .$unread .'</small>'; ?></h4>
-				<p class="no-margin"><?= __d('backend', 'By <b>{0}</b>, to <b>{1}</b>', $message->sender->name(), $message->receiver->name()); ?></p>
+				<p class="no-margin"><?= __d('backend', 'From <b>{0}</b>, to <b>{1}</b>', $message->sender->name(), $message->receiver->name()); ?></p>
 				<ul class="list-inline text-muted no-margin">
 					<li><?= __d('backend', '{0, plural, one{# reply} other{# replies}}', $message->replies->count()); ?></li>
 					<li><?= $message->created_at->diffForHumans(); ?></li>
