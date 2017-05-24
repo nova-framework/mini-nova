@@ -30,7 +30,7 @@ tfoot input {
 	<h1><?= __d('backend', 'Users'); ?></h1>
 	<ol class="breadcrumb">
 		<li><a href='<?= site_url('admin/dashboard'); ?>'><?= __d('backend', 'Dashboard'); ?></a></li>
-		<li><?= __d('users', 'Users'); ?></li>
+		<li><?= __d('backend', 'Users'); ?></li>
 	</ol>
 </div>
 
