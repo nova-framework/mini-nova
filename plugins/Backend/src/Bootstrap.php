@@ -74,36 +74,33 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 	// Prepare the Backend Menu.
 	$results = Event::fire('backend.menu', array($user));
 
-	// Merge all results on a menu items array.
 	$items = array();
 
 	foreach ($results as $result) {
-		if (! is_array($result)) {
-			continue;
+		if (is_array($result) && ! empty($result)) {
+			$items = array_merge($items, $result);
 		}
-
-		$items = array_merge($items, $result);
 	}
 
-	// Sort the base menu items by their weight and title.
+	$items = array_map(function ($item)
+	{
+		if (empty($children = Arr::get($item, 'children', array()))) {
+			return $item;
+		}
+
+		$item['children'] = array_sort($children, function($value)
+		{
+			return sprintf('%06d - %s', $value['weight'], $value['title']);
+		});
+
+		return $item;
+
+	}, $items);
+
 	$items = array_sort($items, function($value)
 	{
 		return sprintf('%06d - %s', $value['weight'], $value['title']);
 	});
-
-	// Sort the child menu items by their weight and title.
-	foreach ($items as &$column) {
-		$children = Arr::get($column, 'children', array());
-
-		if (empty($children)) {
-			continue;
-		}
-
-		$column['children'] = array_sort($children, function($value)
-		{
-			return sprintf('%06d - %s', $value['weight'], $value['title']);
-		});
-	}
 
 	View::share('menuItems', $items);
 
