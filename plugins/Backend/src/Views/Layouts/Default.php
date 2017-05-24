@@ -91,7 +91,7 @@
 				<?php $active = in_array($currentUri, Arr::pluck($children, 'uri')); ?>
 				<li <?= $active ? 'class="active"' : ''; ?>>
 					<a href="javascript:;" data-toggle="collapse" data-target="#menu-children-<?= $count; ?>">
-						<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <span class="caret"></span>
+						<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <i class="fa fa-angle-left pull-right"></i>
 					</a>
 					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
 					<?php foreach ($children as $child) { ?>
