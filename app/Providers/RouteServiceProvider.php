@@ -19,13 +19,14 @@ class RouteServiceProvider extends ServiceProvider
 	/**
 	 * Define your route pattern filters, etc.
 	 *
+	 * @param  \Mini\Routing\Router  $router
 	 * @return void
 	 */
-	public function boot()
+	public function boot(Router $router)
 	{
-		parent::boot();
-
 		//
+
+		parent::boot($router);
 	}
 
 	/**
