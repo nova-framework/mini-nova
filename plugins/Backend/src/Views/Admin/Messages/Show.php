@@ -21,7 +21,7 @@
 		<!-- Status -->
 		<div class="media">
 			<div class="pull-left">
-				<img  style="height: 50px; width: 50px" src="<?= $message->sender->gravatar(50); ?>" alt="<?= $message->sender->fullName(); ?>" class="media-object">
+				<img  style="height: 50px; width: 50px" src="<?= $message->sender->picture(); ?>" alt="<?= $message->sender->fullName(); ?>" class="media-object">
 			</div>
 			<div class="media-body">
 				<h4 class="media-heading"><?= $message->sender->fullName(); ?></h4>
@@ -40,7 +40,7 @@
 		<?php foreach($message->replies as $reply) { ?>
 		<div class="media comment-block">
 			<a class="pull-left" href="<?= site_url('user/' .$reply->sender->username); ?>">
-				<img  style="height: 50px; width: 50px" src="<?= $message->sender->gravatar(50); ?>" alt="<?= $reply->sender->fullName(); ?>" class="media-object">
+				<img  style="height: 50px; width: 50px" src="<?= $message->sender->picture(); ?>" alt="<?= $reply->sender->fullName(); ?>" class="media-object">
 			</a>
 			<div class="media-body">
 				<h4 class="media-heading"><?= $reply->sender->fullName(); ?></h4>

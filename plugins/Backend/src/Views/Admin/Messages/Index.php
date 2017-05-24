@@ -10,9 +10,16 @@
 
 <!-- Main content -->
 <div class="row">
-	<div>
-	<?= $messages->links(); ?>
-	</div>
+	<h3><?= __d('backend', 'Conversations'); ?></h3>
+	<hr>
+
+<style>
+
+.pagination {
+	margin: 0;
+}
+
+</style>
 
 <?php
 if (! $messages->isEmpty()) {
@@ -34,7 +41,7 @@ if (! $messages->isEmpty()) {
 	<!-- Statuses -->
 	<div class="media" style="margin-top: 0;">
 		<div class="pull-left">
-			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->fullName(); ?>" src="<?= $message->sender->gravatar(65); ?>">
+			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->fullName(); ?>" src="<?= $message->sender->picture(); ?>">
 		</div>
 		<div class="media-body">
 			<div class="col-md-8 no-padding">
@@ -66,4 +73,8 @@ if (! $messages->isEmpty()) {
 <div class="row">
 	<hr>
 	<a class='btn btn-success col-sm-2' href='<?= site_url('admin/messages/create'); ?>'><i class='fa fa-send'></i> <?= __d('backend', 'Send a new Message'); ?></a>
+	<div class="pull-right">
+		<?= $messages->links(); ?>
+	</div>
+	<div class="clearfix"></div>
 </div>
