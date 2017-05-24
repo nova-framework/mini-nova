@@ -21,10 +21,10 @@
 		<!-- Status -->
 		<div class="media">
 			<div class="pull-left">
-				<img  style="height: 50px; width: 50px" src="<?= asset('images/users/no-image.png'); ?>" alt="<?= $message->sender->name(); ?>" class="media-object">
+				<img  style="height: 50px; width: 50px" src="<?= asset('images/users/no-image.png'); ?>" alt="<?= $message->sender->fullName(); ?>" class="media-object">
 			</div>
 			<div class="media-body">
-				<h4 class="media-heading"><?= $message->sender->name(); ?></h4>
+				<h4 class="media-heading"><?= $message->sender->fullName(); ?></h4>
 				<p><?= e($message->body); ?></p>
 				<ul class="list-inline text-muted">
 					<li><?= $message->created_at->diffForHumans(); ?></li>
@@ -40,10 +40,10 @@
 		<?php foreach($message->replies as $reply) { ?>
 		<div class="media comment-block">
 			<a class="pull-left" href="<?= site_url('user/' .$reply->sender->username); ?>">
-				<img  style="height: 50px; width: 50px" src="<?= asset('images/users/no-image.png'); ?>" alt="<?= $reply->sender->name(); ?>" class="media-object">
+				<img  style="height: 50px; width: 50px" src="<?= asset('images/users/no-image.png'); ?>" alt="<?= $reply->sender->fullName(); ?>" class="media-object">
 			</a>
 			<div class="media-body">
-				<h4 class="media-heading"><?= $reply->sender->name(); ?></h4>
+				<h4 class="media-heading"><?= $reply->sender->fullName(); ?></h4>
 				<p><?= e($reply->body); ?></p>
 				<ul class="list-inline text-muted">
 					<li><?= $reply->created_at->diffForHumans(); ?></li>

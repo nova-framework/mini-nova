@@ -79,7 +79,7 @@ class User extends BaseModel
 		return false;
 	}
 
-	public function name() {
+	public function fullName() {
 		return trim($this->first_name .' ' .$this->last_name);
 	}
 }

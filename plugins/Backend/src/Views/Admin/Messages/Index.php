@@ -34,12 +34,12 @@ if (! $messages->isEmpty()) {
 	<!-- Statuses -->
 	<div class="media" style="margin-top: 0;">
 		<div class="pull-left">
-			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->name(); ?>" src="<?= asset('images/users/no-image.png'); ?>">
+			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->fullName(); ?>" src="<?= asset('images/users/no-image.png'); ?>">
 		</div>
 		<div class="media-body">
 			<div class="col-md-8 no-padding">
 				<h4 class="media-heading"><a href="<?= site_url('admin/messages/' .$message->id); ?>"><?= e($message->subject); ?></a> <?php if ($unread >  0) echo '<small class="label label-warning">' .$unread .'</small>'; ?></h4>
-				<p class="no-margin"><?= __d('backend', 'From <b>{0}</b>, to <b>{1}</b>', $message->sender->name(), $message->receiver->name()); ?></p>
+				<p class="no-margin"><?= __d('backend', 'From <b>{0}</b>, to <b>{1}</b>', $message->sender->fullName(), $message->receiver->fullName()); ?></p>
 				<ul class="list-inline text-muted no-margin">
 					<li><?= __d('backend', '{0, plural, one{# reply} other{# replies}}', $message->replies->count()); ?></li>
 					<li><?= $message->created_at->diffForHumans(); ?></li>
