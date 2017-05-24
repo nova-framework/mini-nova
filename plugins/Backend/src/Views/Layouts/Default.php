@@ -85,38 +85,28 @@
 
 			<!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
 			<ul class="nav navbar-nav navbar-inverse side-nav" id="side-menu">
-				<li <?= ($baseUri == 'admin/dashboard') ? 'class="active"' : ''; ?> title="<?= __d('backend', 'Your Dashboard'); ?>">
-					<a href="<?= site_url('admin/dashboard'); ?>"><i class='fa fa-dashboard'></i> <?= __d('backend', 'Dashboard'); ?></a>
-				</li>
-				<?php if ($currentUser->hasRole('administrator')) { ?>
-
-				<?php $active = ($baseUri == 'admin/settings'); ?>
-				<li class="<?= $active ? 'active' : ''; ?>">
-					<a href="javascript:;" data-toggle="collapse" data-target="#settings-children" title="<?= __d('backend', 'Manage the Platform'); ?>">
-						<i class='fa fa-server'></i> <?= __d('backend', 'Platform'); ?> <span class="caret"></span>
+			<?php foreach ($menuItems as $count => $item) { ?>
+				<?php $children = Arr::get($item, 'children', array()); ?>
+				<?php if (! empty($children)) { ?>
+				<?php $active = in_array($currentUri, Arr::pluck($children, 'uri')); ?>
+				<li <?= $active ? 'class="active"' : ''; ?>>
+					<a href="javascript:;" data-toggle="collapse" data-target="#menu-children-<?= $count; ?>">
+						<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <span class="caret"></span>
 					</a>
-					<ul id="settings-children" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
-						<li <?= ($baseUri == 'admin/settings') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/settings'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'Settings'); ?></a>
+					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
+					<?php foreach ($children as $child) { ?>
+						<li <?= ($currentUri == $child['uri']) ? 'class="active"' : ''; ?>>
+							<a href="<?= site_url($child['uri']); ?>"><i class="fa fa-circle-o"></i> <?= $child['title']; ?></a>
 						</li>
+					<?php } ?>
 					</ul>
 				</li>
-				<?php $active = ($baseUri == 'admin/users') || ($baseUri == 'admin/roles'); ?>
-				<li <?= $active ? 'class="active"' : ''; ?>">
-					<a href="javascript:;" data-toggle="collapse" data-target="#users-children" title="<?= __d('backend', 'Manage the Users'); ?>">
-						<i class='fa fa-users'></i> <?= __d('backend', 'Users'); ?> <span class="caret"></span>
-					</a>
-					<ul id="users-children" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
-						<li <?= ($baseUri == 'admin/users') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/users'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'Users List'); ?></a>
-						</li>
-						<li <?= ($baseUri == 'admin/roles') ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url('admin/roles'); ?>"><i class='fa fa-circle-o'></i> <?= __d('backend', 'User Roles'); ?></a>
-						</li>
-					</ul>
-				<li>
-
+				<?php } else { ?>
+				<li <?= ($baseUri == $item['uri']) ? 'class="active"' : ''; ?>>
+					<a href="<?= site_url($item['uri']); ?>"><i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?></a>
+				</li>
 				<?php } ?>
+			<?php } ?>
 			</ul>
 		</div>
 	<!-- /.container -->

@@ -65,22 +65,113 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 	View::share('baseUri', $path);
 
 	// Get the current User instance.
-	$user = Auth::user();
-
-	if (is_null($user)) {
-		// No further processing for non-authenticated users.
+	if (is_null($user = Auth::user())) {
 		return;
 	}
 
 	View::share('currentUser', $user);
 
-	//
+	// Prepare the Backend Menu.
+	$results = Event::fire('backend.menu', array($user));
+
+	// Merge all results on a menu items array.
+	$items = array();
+
+	foreach ($results as $result) {
+		if (! is_array($result)) {
+			continue;
+		}
+
+		$items = array_merge($items, $result);
+	}
+
+	// Sort the base menu items by their weight and title.
+	$items = array_sort($items, function($value)
+	{
+		return sprintf('%06d - %s', $value['weight'], $value['title']);
+	});
+
+	// Sort the child menu items by their weight and title.
+	foreach ($items as &$column) {
+		$children = Arr::get($column, 'children', array());
+
+		if (empty($children)) {
+			continue;
+		}
+
+		$column['children'] = array_sort($children, function($value)
+		{
+			return sprintf('%06d - %s', $value['weight'], $value['title']);
+		});
+	}
+
+	View::share('menuItems', $items);
+
+	// Prepare the notifications count.
 	$notifications = Notification::where('user_id', $user->id)->unread()->count();
 
 	View::share('notificationCount', $notifications);
 
-	//
+	// Prepare the messages count.
 	$messages = Message::where('receiver_id', $user->id)->unread()->count();
 
 	View::share('privateMessageCount', $messages);
 });
+
+/**
+ * Listener Closure to the Event 'backend.menu'.
+ */
+Event::listen('backend.menu', function($user)
+{
+	$items = array(
+		array(
+			'uri'	=> 'admin/dashboard',
+			'title'  => __d('backend', 'Dashboard'),
+			'label'  => '',
+			'icon'   => 'dashboard',
+			'weight' => 0,
+		),
+	);
+
+	if (! $user->hasRole('administrator')) {
+		return $items;
+	}
+
+	$items = array_merge($items, array(
+		array(
+			'title'  => __d('backend', 'Platform'),
+			'icon'   => 'cube',
+			'weight' => 0,
+			'children' => array(
+				array(
+					'uri'	=> 'admin/settings',
+					'title'  => __d('backend', 'Site Configuration'),
+					'label'  => '',
+					'weight' => 0,
+				),
+			),
+		),
+		array(
+			'title'  => __d('backend', 'Users'),
+			'icon'   => 'users',
+			'weight' => 1,
+			'children' => array(
+				array(
+					'uri'	=> 'admin/users',
+					'title'  => __d('backend', 'Users List'),
+					'label'  => '',
+					'weight' => 0,
+				),
+				array(
+					'uri'	=> 'admin/roles',
+					'title'  => __d('backend', 'User Roles'),
+					'label'  => '',
+					'weight' => 2,
+				),
+			),
+		),
+	));
+
+	return $items;
+});
+

@@ -17,7 +17,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-body" style="padding-top: 0;">
-		<h3><?= __d('backend', 'Site Settings'); ?></h3>
+		<h4><strong><?= __d('backend', 'Site Settings'); ?></strong></h4>
 		<hr style="margin-top: 0;">
 
 		<div class="form-group">
@@ -38,7 +38,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-body" style="padding-top: 0;">
-		<h3><?= __d('backend', 'Mailer Settings'); ?></h3>
+		<h4><strong><?= __d('backend', 'Mailer Settings'); ?></strong></h4>
 		<hr style="margin-top: 0;">
 
 		<div class="form-group">
