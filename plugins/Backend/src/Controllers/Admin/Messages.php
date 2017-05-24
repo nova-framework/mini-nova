@@ -33,7 +33,7 @@ class Messages extends BaseController
 		$user = Auth::user();
 
 		// Load the messages of the current logged in user and pass them to the view.
-		$messages = Message::with('replies')
+		$messages = Message::with('sender', 'receiver', 'replies')
 			->notReply()
 			->where(function($query) use ($user)
 			{
@@ -119,7 +119,7 @@ class Messages extends BaseController
 
 		// Find the status that we need to reply to.
 		try {
-			 $message = Message::notReply()->findOrFail($threadId);
+			 $message = Message::with('sender', 'receiver', 'replies')->notReply()->findOrFail($threadId);
 		}
 		catch (ModelNotFoundException $e) {
 			return Redirect::to('admin/dashboard');

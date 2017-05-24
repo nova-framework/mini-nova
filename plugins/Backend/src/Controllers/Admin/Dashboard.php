@@ -75,9 +75,12 @@ class Dashboard extends BaseController
 		//
 		$langInfo = Language::info();
 
+		$usersCount = User::count();
+
 		return $this->getView()
 			->shares('title', __d('backend', 'Dashboard'))
 			->with('langInfo', $langInfo)
+			->with('usersCount', $usersCount)
 			->with('debug', $content);
 	}
 

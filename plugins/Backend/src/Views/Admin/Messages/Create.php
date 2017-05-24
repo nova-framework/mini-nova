@@ -11,13 +11,12 @@
 
 <!-- Main content -->
 <div class="row">
+	<h3><?= __d('backend', 'Send a new Private Message'); ?></h3>
+	<br>
+
 	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
 		<div class="panel panel-default">
-			<div class="panel-body" style="padding-top: 0; padding-bottom: 0;">
-
-				<h3 class="box-title"><?= __d('backend', 'Send a new Private Message'); ?></h3>
-				<hr style="margin-top: 0;">
-
+			<div class="panel-body">
 				<form class="form-horizontal" action="<?= site_url('admin/messages'); ?>" method="POST" role="form">
 
 				<div class="form-group <?= $errors->has('subject') ? 'has-error' : ''; ?>">
@@ -55,11 +54,7 @@
 				<font color='#CC0000'>*</font><?= __d('backend', 'Required field'); ?>
 
 				<hr>
-				<div class="form-group">
-					<div class="col-sm-12">
-						<button type="submit" class="btn btn-success col-sm-3 pull-right"><i class='fa fa-send'></i> <?= __d('backend', 'Send'); ?></button>
-					</div>
-				</div>
+				<button type="submit" class="btn btn-success col-sm-3 pull-right"><i class='fa fa-send'></i> <?= __d('backend', 'Send'); ?></button>
 
 				<input type="hidden" name="_token" value="<?= csrf_token(); ?>">
 
