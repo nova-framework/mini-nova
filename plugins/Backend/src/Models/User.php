@@ -3,10 +3,16 @@
 namespace Backend\Models;
 
 use Mini\Foundation\Auth\User as BaseModel;
+use Mini\Support\Str;
+
+use FileField\Database\ORM\FileFieldTrait;
 
 
 class User extends BaseModel
 {
+	use FileFieldTrait;
+
+	//
 	protected $table = 'users';
 
 	protected $primaryKey = 'id';
@@ -14,6 +20,13 @@ class User extends BaseModel
 	protected $fillable = array('role_id', 'username', 'password', 'realname', 'email', 'image', 'activation_code');
 
 	protected $hidden = array('password', 'remember_token');
+
+	public $files = array(
+		'image' => array(
+			'path'		=> WEBPATH .'images/users/:unique_id-:file_name',
+			'defaultPath' => WEBPATH .'images/users/no-image.png',
+		),
+	);
 
 
 	public function activities()
@@ -79,7 +92,50 @@ class User extends BaseModel
 		return false;
 	}
 
-	public function fullName() {
+	public function fullName()
+	{
 		return trim($this->first_name .' ' .$this->last_name);
+	}
+
+	/**
+	 * Present a localized date for User's Creation.
+	 *
+	 * @return string
+	 */
+	public function memberSince()
+	{
+		$format = __d('users', '%d %b %Y, %R');
+
+		return $this->created_at->formatLocalized($format);
+	}
+
+	/**
+	 * Present a link to the user's Gravatar.
+	 *
+	 * @param int $size
+	 * @return string
+	 */
+	public function gravatar($size = 30)
+	{
+		$email = Str::lower($this->email);
+
+		$hash = md5($email);
+
+		return "//www.gravatar.com/avatar/{$hash}?size={$size}&default=identicon";
+	}
+
+	/**
+	 * Present a link to the User's Profile Picture.
+	 *
+	 * @return string
+	 */
+	public function picture()
+	{
+		if ($this->image->exists()) {
+			return asset('images/users/' .basename($this->image->path));
+		}
+
+		// Fallback to AdminLTE's default image.
+		return asset('images/users/no-image.png');
 	}
 }

@@ -34,7 +34,7 @@ if (! $messages->isEmpty()) {
 	<!-- Statuses -->
 	<div class="media" style="margin-top: 0;">
 		<div class="pull-left">
-			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->fullName(); ?>" src="<?= asset('images/users/no-image.png'); ?>">
+			<img class="media-object img-responsive" style="height: 65px; width: 65px" alt="<?= $message->sender->fullName(); ?>" src="<?= $message->sender->gravatar(65); ?>">
 		</div>
 		<div class="media-body">
 			<div class="col-md-8 no-padding">
