@@ -10,7 +10,7 @@
 		<input type="text" class="form-control" name="username" placeholder="<?= __d('backend', 'Username'); ?>" required="" autofocus="" />
 		<input type="password" class="form-control" name="password" placeholder="<?= __d('backend', 'Password'); ?>" required=""/>
 		<label class="checkbox">
-			<input type="checkbox" value="remember" id="remember" name="remember">&nbsp;<?= __('Remember me'); ?>
+			<input type="checkbox" value="remember" id="remember" name="remember">&nbsp;<?= __d('backend', 'Remember me'); ?>
 		</label>
 		<button class="btn btn-lg btn-primary btn-block" type="submit"><?= __d('backend', 'Login'); ?></button>
 
