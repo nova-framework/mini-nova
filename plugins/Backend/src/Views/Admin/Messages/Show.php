@@ -11,7 +11,7 @@
 
 <!-- Main content -->
 <div class="row">
-	<h3><?= __d('backend', 'Conversation subject: {0}', $message->subject); ?></h3>
+	<h3><?= __d('backend', 'Subject : {0}', $message->subject); ?></h3>
 	<br>
 
 	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
