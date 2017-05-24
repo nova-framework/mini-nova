@@ -71,39 +71,6 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 
 	View::share('currentUser', $user);
 
-	// Prepare the Backend Menu.
-	$results = Event::fire('backend.menu', array($user));
-
-	$items = array();
-
-	foreach ($results as $result) {
-		if (is_array($result) && ! empty($result)) {
-			$items = array_merge($items, $result);
-		}
-	}
-
-	$items = array_map(function ($item)
-	{
-		if (empty($children = Arr::get($item, 'children', array()))) {
-			return $item;
-		}
-
-		$item['children'] = array_sort($children, function($value)
-		{
-			return sprintf('%06d - %s', $value['weight'], $value['title']);
-		});
-
-		return $item;
-
-	}, $items);
-
-	$items = array_sort($items, function($value)
-	{
-		return sprintf('%06d - %s', $value['weight'], $value['title']);
-	});
-
-	View::share('menuItems', $items);
-
 	// Prepare the notifications count.
 	$notifications = Notification::where('user_id', $user->id)->unread()->count();
 

@@ -4,6 +4,7 @@ namespace Backend\Controllers;
 
 use Mini\Database\ORM\Builder as ModelBuilder;
 use Mini\Support\Facades\Auth;
+use Mini\Support\Facades\Event;
 use Mini\Support\Facades\View;
 use Mini\Support\Arr;
 
@@ -26,6 +27,52 @@ class BaseController extends Controller
 	 */
 	protected $layout = 'Default';
 
+
+	/**
+	 * Method executed before any action.
+	 *
+	 * @return void
+	 */
+	protected function before()
+	{
+		// Get the current User instance.
+		if (is_null($user = Auth::user())) {
+			return;
+		}
+
+		// Prepare the Backend Menu.
+		$items = array();
+
+		$results = Event::fire('backend.menu', array($user));
+
+		foreach ($results as $result) {
+			if (is_array($result)) {
+				$items = array_merge($items, $result);
+			}
+		}
+
+		$items = array_map(function ($item)
+		{
+			if (empty($children = Arr::get($item, 'children', array()))) {
+				return $item;
+			}
+
+			$item['children'] = array_sort($children, function($value)
+			{
+				return sprintf('%06d - %s', $value['weight'], $value['title']);
+			});
+
+			return $item;
+
+		}, $items);
+
+		$items = array_sort($items, function($value)
+		{
+			return sprintf('%06d - %s', $value['weight'], $value['title']);
+		});
+
+		View::share('menuItems', $items);
+	}
 
 	/**
 	 * Server Side Processor for DataTables.

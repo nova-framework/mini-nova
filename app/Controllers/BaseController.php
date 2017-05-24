@@ -50,6 +50,13 @@ class BaseController extends Controller
 	}
 
 	/**
+	 * Method executed before any action.
+	 *
+	 * @return void
+	 */
+	protected function before() {}
+
+	/**
 	 * Execute an action on the controller.
 	 *
 	 * @param string  $method
@@ -58,9 +65,11 @@ class BaseController extends Controller
 	 */
 	public function callAction($method, array $parameters)
 	{
+		$this->before();
+
 		$response = call_user_func_array(array($this, $method), $parameters);
 
-		return $this->processResponse($response);
+		return $this->after($response);
 	}
 
 	/**
@@ -70,7 +79,7 @@ class BaseController extends Controller
 	 *
 	 * @return mixed
 	 */
-	protected function processResponse($response)
+	protected function after($response)
 	{
 		if ($response instanceof RenderableInterface) {
 			if (! empty($this->layout)) {
