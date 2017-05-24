@@ -63,7 +63,7 @@
 						</ul>
 					</div>
 					<div class="col-md-4 no-padding">
-						<a class="btn btn-warning pull-right" title="<?= __d('backend', 'View this message and its replies'); ?>" href="<?= site_url('admin/messages/' .$message->id); ?>"><i class='fa fa-search'></i></a>
+						<a class="btn btn-sm btn-warning pull-right" title="<?= __d('backend', 'View this message and its replies'); ?>" href="<?= site_url('admin/messages/' .$message->id); ?>"><i class='fa fa-search'></i></a>
 						<div class="clearfix"></div>
 					</div>
 				</div>
