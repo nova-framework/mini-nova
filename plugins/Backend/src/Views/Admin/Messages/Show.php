@@ -11,17 +11,19 @@
 
 <!-- Main content -->
 <div class="row">
-	<div class="col-md-10 col-md-offset-1 col-sm-8 col-sm-offset-2">
-		<div class="panel panel-default">
-			<div class="panel-body" style="padding-top: 0;">
+	<h3><?= __d('backend', 'Conversation between <b>{0}</b> and <b>{1}</b>', $message->sender->fullName(), $message->receiver->fullName()); ?></h3>
+	<br>
 
-				<h3><?= $message->subject; ?></h3>
-				<hr style="margin-top: 0;">
-
+	<div class="col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?= $message->subject; ?></h3>
+			</div>
+			<div class="panel-body">
 				<!-- Status -->
 				<div class="media">
 					<div class="pull-left">
-						<img  style="height: 50px; width: 50px" src="<?= $message->sender->picture(); ?>" alt="<?= $message->sender->fullName(); ?>" class="media-object">
+						<img class="img-thumbnail" style="height: 60px; width: 60px" src="<?= $message->sender->picture(); ?>" alt="<?= $message->sender->fullName(); ?>" class="media-object">
 					</div>
 					<div class="media-body">
 						<h4 class="media-heading"><?= $message->sender->fullName(); ?></h4>
@@ -40,7 +42,7 @@
 				<?php foreach($message->replies as $reply) { ?>
 				<div class="media comment-block">
 					<a class="pull-left" href="<?= site_url('user/' .$reply->sender->username); ?>">
-						<img  style="height: 50px; width: 50px" src="<?= $message->sender->picture(); ?>" alt="<?= $reply->sender->fullName(); ?>" class="media-object">
+						<img class="img-thumbnail" style="height: 60px; width: 60px" src="<?= $message->sender->picture(); ?>" alt="<?= $reply->sender->fullName(); ?>" class="media-object">
 					</a>
 					<div class="media-body">
 						<h4 class="media-heading"><?= $reply->sender->fullName(); ?></h4>
@@ -60,7 +62,7 @@
 					<span class="help-block"><?= $errors->first(); ?></span>
 					<?php } ?>
 				</div>
-				<button type="submit" class="btn btn-success col-sm-2 pull-right"><i class='fa fa-reply'></i> <?= __d('backend', 'Reply'); ?></button>
+				<button type="submit" class="btn btn-success col-sm-3 pull-right"><i class='fa fa-reply'></i> <?= __d('backend', 'Reply'); ?></button>
 				<input type="hidden" name="_token" value="<?= csrf_token(); ?>">
 
 				</form>
@@ -70,7 +72,7 @@
 </div>
 
 <div class="row">
-	<hr>
-	<a class='btn btn-primary col-sm-2' href='<?= site_url('admin/messages'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
+	<hr style="margin-top: 0;">
+	<a class='btn btn-primary' href='<?= site_url('admin/messages'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
 	<br>
 </div>
