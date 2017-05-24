@@ -76,9 +76,7 @@ class BaseController extends Controller
 	private function itemCompare($a, $b)
 	{
 		if ($a['weight'] == $b['weight']) {
-			if ($a['title'] == $b['title']) return 0;
-
-			return ($a['title'] < $b['title']) ? -1 : 1;
+			return strcmp($a['title'], $b['title']);
 		}
 
 		return ($a['weight'] < $b['weight']) ? -1 : 1;
