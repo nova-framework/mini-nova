@@ -11,7 +11,7 @@
 <!-- Main content -->
 <div class="row">
 	<h3><?= __d('backend', 'Conversations'); ?></h3>
-	<hr>
+	<hr style="margin-bottom: 10px;">
 
 <style>
 

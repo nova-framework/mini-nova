@@ -81,7 +81,7 @@ return array (
   'Registered Users' => 'Зарегистрированные пользователи',
   'Remember me' => '',
   'Reply' => 'Повтор',
-  'Reply to this {0, select, 0 {message} other {thread}}...' => 'Ответить на это {0, выбрано, 0 {сообщений} других {тем}} ...',
+  'Reply to this {0, select, 0 {message} other {thread}}...' => 'Ответить на это {0, select, 0 {сообщений} other {тем}} ...',
   'Required field' => 'Обязательные поля',
   'Role' => 'Роль',
   'Roles' => 'Роли',
