@@ -13,6 +13,7 @@ use Mini\Support\Facades\Language;
 use Mini\Support\Facades\Response;
 
 use Backend\Controllers\BaseController;
+use Backend\Models\User;
 
 use Carbon\Carbon;
 
@@ -76,7 +77,6 @@ class Dashboard extends BaseController
 		return $this->getView()
 			->shares('title', __d('backend', 'Dashboard'))
 			->with('langInfo', $langInfo)
-			->with('usersCount', $usersCount)
 			->with('debug', $content);
 	}
 
