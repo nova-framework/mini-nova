@@ -89,11 +89,11 @@ Event::listen('backend.menu', function($user)
 {
 	$items = array(
 		array(
-			'uri'	=> 'admin/dashboard',
-			'title'  => __d('backend', 'Dashboard'),
-			'label'  => '',
-			'icon'   => 'dashboard',
-			'weight' => 0,
+			'uri'		=> 'admin/dashboard',
+			'title'		=> __d('backend', 'Dashboard'),
+			'label'		=> '',
+			'icon'		=> 'dashboard',
+			'weight'	=> 0,
 		),
 	);
 
@@ -108,10 +108,10 @@ Event::listen('backend.menu', function($user)
 			'weight' => 0,
 			'children' => array(
 				array(
-					'uri'	=> 'admin/settings',
-					'title'  => __d('backend', 'Site Configuration'),
-					'label'  => '',
-					'weight' => 0,
+					'uri'		=> 'admin/settings',
+					'title'		=> __d('backend', 'Site Configuration'),
+					'label'		=> '',
+					'weight'	=> 0,
 				),
 			),
 		),
@@ -121,16 +121,16 @@ Event::listen('backend.menu', function($user)
 			'weight' => 1,
 			'children' => array(
 				array(
-					'uri'	=> 'admin/users',
-					'title'  => __d('backend', 'Users List'),
-					'label'  => '',
-					'weight' => 0,
+					'uri'		=> 'admin/users',
+					'title'		=> __d('backend', 'Users List'),
+					'label'		=> '',
+					'weight'	=> 0,
 				),
 				array(
-					'uri'	=> 'admin/roles',
-					'title'  => __d('backend', 'User Roles'),
-					'label'  => '',
-					'weight' => 2,
+					'uri'		=> 'admin/roles',
+					'title'		=> __d('backend', 'User Roles'),
+					'label'		=> '',
+					'weight'	=> 2,
 				),
 			),
 		),

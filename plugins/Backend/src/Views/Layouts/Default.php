@@ -96,14 +96,14 @@
 					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
 					<?php foreach ($children as $child) { ?>
 						<li <?= ($currentUri == $child['uri']) ? 'class="active"' : ''; ?>>
-							<a href="<?= site_url($child['uri']); ?>"><i class="fa fa-circle-o"></i> <?= $child['title']; ?></a>
+							<a href="<?= site_url($child['uri']); ?>"><i class="fa fa-circle-o"></i> <?= $child['title']; ?> <?= $child['label']; ?></a>
 						</li>
 					<?php } ?>
 					</ul>
 				</li>
 				<?php } else { ?>
 				<li <?= ($baseUri == $item['uri']) ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url($item['uri']); ?>"><i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?></a>
+					<a href="<?= site_url($item['uri']); ?>"><i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <?= $item['label']; ?></a>
 				</li>
 				<?php } ?>
 			<?php } ?>
