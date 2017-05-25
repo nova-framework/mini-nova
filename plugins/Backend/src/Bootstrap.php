@@ -139,3 +139,10 @@ Event::listen('backend.menu', function($user)
 	return $items;
 });
 
+
+/**
+ * Register the Plugin's Widgets.
+ */
+Widget::register('Backend\Widgets\DashboardUsersPanel', 'dashboardUsersPanel');
+Widget::register('Backend\Widgets\DashboardDummyPanel', 'dashboardDummyPanel');
+

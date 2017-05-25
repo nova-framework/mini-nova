@@ -32,4 +32,36 @@ return array(
 		'homepage' => 'http://novaframework.dev',
 	),
 
+	/*
+	|--------------------------------------------------------------------------
+	| Loading Options For The Installed Plugins
+	|--------------------------------------------------------------------------
+	|
+	*/
+
+	'options' => array(
+		'file_field' => array(
+			'order'		=> 8001,
+			'enabled'	=> true,
+		),
+		'widgets' => array(
+			'order'		=> 8001,
+			'enabled'	=> true,
+		),
+		/*
+		'bootstrap' => array(
+			'order'		=> 9001,
+			'enabled'	=> true,
+		),
+		/*
+		'backend' => array(
+			'order'		=> 9001,
+			'enabled'	=> true,
+		),
+		'content' => array(
+			'order'		=> 9001,
+			'enabled'	=> true,
+		),
+		*/
+	),
 );

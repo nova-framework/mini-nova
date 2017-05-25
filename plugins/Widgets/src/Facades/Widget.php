@@ -5,7 +5,7 @@ namespace Widgets\Facades;
 use Mini\Support\Facades\Facade;
 
 
-class Widget extends BaseFacade
+class Widget extends Facade
 {
 
 	/**

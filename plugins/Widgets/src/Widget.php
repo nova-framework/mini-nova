@@ -42,18 +42,6 @@ class Widget
 	}
 
 	/**
-	 * @param string $method
-	 * @param array  $arguments
-	 * @return mixed
-	 */
-	public function __call($method, array $arguments)
-	{
-		array_unshift($arguments, $method);
-
-		return call_user_func_array(array($this, 'show'), $arguments);
-	}
-
-	/**
 	 * @param  string $class
 	 * @param  string $name
 	 * @return void
@@ -78,11 +66,11 @@ class Widget
 		}
 
 		if (! array_key_exists($name, $this->instances)) {
-			$className = $this->classes[$name];
+			$widget = $this->classes[$name];
 
-			$instance = $this->container->make($className);
+			$instance = $this->container->make($widget);
 
-			$this->addInstance($widget, $name);
+			$this->addInstance($instance, $name);
 		} else {
 			$instance = $this->instances[$name];
 		}
@@ -115,7 +103,7 @@ class Widget
 
 			array_unshift($parameters, $widget['name']);
 
-			$result .= call_user_func_array(array($this, 'show'), $parameters);
+			$result .= call_user_func_array(array($this, 'render'), $parameters);
 		}
 
 		return $result;
@@ -123,7 +111,7 @@ class Widget
 
 	public function exists($name)
 	{
-		return array_key_exists($name, $this->classes)) {
+		return array_key_exists($name, $this->classes);
 	}
 
 	public function isEmptyPosition($position)
@@ -138,7 +126,7 @@ class Widget
 	}
 
 	/**
-	 * @param        $widget
+	 * @param		$widget
 	 * @param string $name
 	 * @return void
 	 */
@@ -147,5 +135,16 @@ class Widget
 		$this->instances[$name] = $widget;
 	}
 
+	/**
+	 * @param string $method
+	 * @param array  $arguments
+	 * @return mixed
+	 */
+	public function __call($method, array $arguments)
+	{
+		array_unshift($arguments, $method);
+
+		return call_user_func_array(array($this, 'render'), $arguments);
+	}
 }
 
