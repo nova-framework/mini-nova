@@ -22,9 +22,6 @@ class PluginServiceProvider extends ServiceProvider
 
 		// Configure the Package.
 		$this->package('Widgets', 'widgets', $path);
-
-		// Register the Plugin's Facades.
-		AliasLoader::getInstance()->alias('Widget', 'Widgets\Facades\Widget');
 	}
 
 	/**
@@ -38,15 +35,10 @@ class PluginServiceProvider extends ServiceProvider
 		{
 			return new Widget($app);
 		});
-	}
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array('widgets');
+		// Register the Facades.
+		$loader = AliasLoader::getInstance();
+
+		$loader->alias('Widget', 'Widgets\Facades\Widget');
 	}
 }

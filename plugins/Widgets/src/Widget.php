@@ -59,10 +59,10 @@ class Widget
 	 * @param  string $name
 	 * @return mixed|null
 	 */
-	public function render($name)
+	public function show($name)
 	{
 		if (! array_key_exists($name, $this->classes)) {
-			return null;
+			return;
 		}
 
 		if (! array_key_exists($name, $this->instances)) {
@@ -80,10 +80,10 @@ class Widget
 		return call_user_func_array(array($instance, 'render'), $parameters);
 	}
 
-	public function renderPosition($position)
+	public function position($position)
 	{
 		if (! array_key_exists($position, $this->positions)) {
-			return null;
+			return;
 		}
 
 		usort($this->positions[$position], function ($a, $b)
@@ -95,7 +95,7 @@ class Widget
 
 		$arguments = array_slice(func_get_args(), 1);
 
-		//
+		// We render each registered Widget for this position.
 		$result = '';
 
 		foreach ($this->positions[$position] as $widget) {
@@ -103,7 +103,7 @@ class Widget
 
 			array_unshift($parameters, $widget['name']);
 
-			$result .= call_user_func_array(array($this, 'render'), $parameters);
+			$result .= call_user_func_array(array($this, 'show'), $parameters);
 		}
 
 		return $result;
@@ -144,7 +144,7 @@ class Widget
 	{
 		array_unshift($arguments, $method);
 
-		return call_user_func_array(array($this, 'render'), $arguments);
+		return call_user_func_array(array($this, 'show'), $arguments);
 	}
 }
 
