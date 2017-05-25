@@ -1,6 +1,6 @@
 <?php
 
-namespace Widgets\Facades;
+namespace Widgets\Support\Facades;
 
 use Mini\Support\Facades\Facade;
 

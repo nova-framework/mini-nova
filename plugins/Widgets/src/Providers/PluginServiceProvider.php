@@ -5,7 +5,7 @@ namespace Widgets\Providers;
 use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
-use Widgets\Widget;
+use Widgets\Support\Widget;
 
 
 class PluginServiceProvider extends ServiceProvider
@@ -39,6 +39,6 @@ class PluginServiceProvider extends ServiceProvider
 		// Register the Facades.
 		$loader = AliasLoader::getInstance();
 
-		$loader->alias('Widget', 'Widgets\Facades\Widget');
+		$loader->alias('Widget', 'Widgets\Support\Facades\Widget');
 	}
 }
