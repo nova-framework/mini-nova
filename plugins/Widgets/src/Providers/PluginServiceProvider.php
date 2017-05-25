@@ -5,7 +5,7 @@ namespace Widgets\Providers;
 use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
-use Widgets\Support\Widget;
+use Widgets\WidgetManager;
 
 
 class PluginServiceProvider extends ServiceProvider
@@ -33,7 +33,7 @@ class PluginServiceProvider extends ServiceProvider
 	{
 		$this->app->singleton('widgets', function($app)
 		{
-			return new Widget($app);
+			return new WidgetManager($app);
 		});
 
 		// Register the Facades.

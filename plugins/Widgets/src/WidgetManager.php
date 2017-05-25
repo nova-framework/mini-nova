@@ -1,11 +1,11 @@
 <?php
 
-namespace Widgets\Support;
+namespace Widgets;
 
 use Mini\Container\Container;
 
 
-class Widget
+class WidgetManager
 {
 	/**
 	 * The container implementation.
