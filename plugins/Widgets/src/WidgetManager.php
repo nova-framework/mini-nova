@@ -15,11 +15,11 @@ class WidgetManager
 	protected $container;
 
 	/**
-	 * classes registered widgets
+	 * Classes registered widgets
 	 *
 	 * @var array
 	 */
-	protected $classes = array();
+	protected $widgets = array();
 
 	/**
 	 * Prepared instances of widgets
@@ -36,19 +36,23 @@ class WidgetManager
 	protected $positions = array();
 
 
-	public function __construct(Container $container)
+	public function __construct(Container $container = null)
 	{
-		$this->container = $container;
+		$this->container = $container ?: new Container();
 	}
 
 	/**
-	 * @param  string $class
+	 * Register a new Widget.
+	 *
+	 * @param  string $widget
 	 * @param  string $name
+	 * @param  string|null $position
+	 * @param  int $order
 	 * @return void
 	 */
-	public function register($class, $name, $position = null, $order = null)
+	public function register($widget, $name, $position = null, $order = 0)
 	{
-		$this->classes[$name] = $class;
+		$this->widgets[$name] = $widget;
 
 		if (! is_null($position)) {
 			$this->positions[$position][] = compact('name', 'order');
@@ -56,17 +60,19 @@ class WidgetManager
 	}
 
 	/**
+	 * Render a registered Widget.
+	 *
 	 * @param  string $name
 	 * @return mixed|null
 	 */
 	public function show($name)
 	{
-		if (! array_key_exists($name, $this->classes)) {
+		if (! array_key_exists($name, $this->widgets)) {
 			return;
 		}
 
 		if (! array_key_exists($name, $this->instances)) {
-			$widget = $this->classes[$name];
+			$widget = $this->widgets[$name];
 
 			$instance = $this->container->make($widget);
 
@@ -111,7 +117,7 @@ class WidgetManager
 
 	public function exists($name)
 	{
-		return array_key_exists($name, $this->classes);
+		return array_key_exists($name, $this->widgets);
 	}
 
 	public function isEmptyPosition($position)
