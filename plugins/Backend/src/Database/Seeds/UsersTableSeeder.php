@@ -18,6 +18,11 @@ class UsersTableSeeder extends Seeder
 	 */
 	public function run()
 	{
+		Model::unguard();
+
+		// Truncate the table before seeding.
+		User::truncate();
+
 		User::create(array(
 			'id'				=> 1,
 			'role_id'			=> 1,

@@ -17,6 +17,11 @@ class RolesTableSeeder extends Seeder
 	 */
 	public function run()
 	{
+		Model::unguard();
+
+		// Truncate the table before seeding.
+		Role::truncate();
+
 		Role::create(array(
 			'id'			=> 1,
 			'name'			=> 'Root',
