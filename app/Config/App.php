@@ -171,6 +171,8 @@ return array(
 
 		// The Console Support Providers.
 		'Mini\Foundation\Providers\ConsoleServiceProvider',
+		'Mini\Database\MigrationServiceProvider',
+		'Mini\Database\SeedServiceProvider',
 		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
@@ -209,6 +211,9 @@ return array(
 		'Arr'			=> 'Mini\Support\Arr',
 		'Str'			=> 'Mini\Support\Str',
 
+		// The Database Seeder.
+		'Seeder'		=> 'Mini\Database\Seeder',
+
 		// The Support Facades.
 		'App'			=> 'Mini\Support\Facades\App',
 		'Asset'			=> 'Mini\Support\Facades\Asset',
@@ -231,6 +236,7 @@ return array(
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',
 		'Route'			=> 'Mini\Support\Facades\Route',
+		'Schema'        => 'Mini\Support\Facades\Schema',
 		'Section'		=> 'Mini\Support\Facades\Section',
 		'Session'		=> 'Mini\Support\Facades\Session',
 		'Validator'		=> 'Mini\Support\Facades\Validator',
