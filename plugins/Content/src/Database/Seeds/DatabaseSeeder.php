@@ -1,5 +1,7 @@
 <?php
 
+namespace Content\Database\Seeds;
+
 use Mini\Database\ORM\Model;
 
 
