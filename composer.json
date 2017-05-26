@@ -30,6 +30,10 @@
         "nova-framework/mini-system": "dev-master"
     },
     "autoload": {
+        "classmap": [
+            "app/Database/Migrations",
+            "app/Database/Seeds"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Bootstrap\\": "plugins/Bootstrap/src/",
