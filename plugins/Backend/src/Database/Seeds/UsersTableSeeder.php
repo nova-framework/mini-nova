@@ -18,8 +18,6 @@ class UsersTableSeeder extends Seeder
 	 */
 	public function run()
 	{
-		Model::unguard();
-
 		// Truncate the table before seeding.
 		User::truncate();
 
