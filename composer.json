@@ -40,7 +40,8 @@
             "Backend\\": "plugins/Backend/src/",
             "Content\\": "plugins/Content/src/",
             "FileField\\": "plugins/FileField/src/",
-            "Widgets\\": "plugins/Widgets/src/"
+            "Widgets\\": "plugins/Widgets/src/",
+            "Backup\\": "plugins/Backup/src/"
         }
     },
     "scripts": {
