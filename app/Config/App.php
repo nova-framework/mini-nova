@@ -173,6 +173,7 @@ return array(
 		'Mini\Foundation\Providers\ConsoleServiceProvider',
 		'Mini\Database\MigrationServiceProvider',
 		'Mini\Database\SeedServiceProvider',
+		'Mini\Routing\Providers\ConsoleServiceProvider',
 		'Mini\Plugin\Providers\ConsoleServiceProvider',
 
 		// The Application Providers.
