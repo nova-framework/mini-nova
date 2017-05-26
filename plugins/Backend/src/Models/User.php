@@ -132,10 +132,10 @@ class User extends BaseModel
 	public function picture()
 	{
 		if ($this->image->exists()) {
-			return asset('images/users/' .basename($this->image->path));
+			return asset('assets/images/users/' .basename($this->image->path));
 		}
 
 		// Fallback to AdminLTE's default image.
-		return asset('images/users/no-image.png');
+		return asset('assets/images/users/no-image.png');
 	}
 }
