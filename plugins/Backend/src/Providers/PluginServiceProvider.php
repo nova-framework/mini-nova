@@ -14,7 +14,9 @@ class PluginServiceProvider extends ServiceProvider
 	 *
 	 * @var array
 	 */
-	protected $providers = array();
+	protected $providers = array(
+		'Backend\Providers\RouteServiceProvider',
+	);
 
 	/**
 	 * The event listener mappings for the plugin.
@@ -36,13 +38,6 @@ class PluginServiceProvider extends ServiceProvider
 		'Content\Models\SomeModel' => 'Content\Policies\ModelPolicy',
 	);
 
-	/**
-	 * This namespace is applied to the controller routes in your routes file.
-	 *
-	 * @var string
-	 */
-	protected $namespace = 'Backend\Controllers';
-
 
 	/**
 	 * Bootstrap the Application Events.
@@ -57,19 +52,14 @@ class PluginServiceProvider extends ServiceProvider
 		$this->package('Backend', 'backend', $path);
 
 		// Bootstrap the Plugin.
-		$bootstrap = $path .DS .'Bootstrap.php';
+		$path = $path .DS .'Bootstrap.php';
 
-		$this->bootstrapFrom($bootstrap);
+		$this->bootstrapFrom($path);
 
 		// Register the Plugin Policies.
 		$gate = $this->app->make(Gate::class);
 
 		$this->registerPolicies($gate);
-
-		// Load the Plugin Routes.
-		$routes = $path .DS .'Routes.php';
-
-		$this->loadRoutesFrom($routes, 'web');
 
 		//
 		parent::boot();
