@@ -238,7 +238,7 @@ return array(
 		'Request'		=> 'Mini\Support\Facades\Request',
 		'Response'		=> 'Mini\Support\Facades\Response',
 		'Route'			=> 'Mini\Support\Facades\Route',
-		'Schema'        => 'Mini\Support\Facades\Schema',
+		'Schema'		=> 'Mini\Support\Facades\Schema',
 		'Section'		=> 'Mini\Support\Facades\Section',
 		'Session'		=> 'Mini\Support\Facades\Session',
 		'Validator'		=> 'Mini\Support\Facades\Validator',
