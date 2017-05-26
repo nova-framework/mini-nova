@@ -4,7 +4,7 @@ use Mini\Database\Schema\Blueprint;
 use Mini\Database\Migrations\Migration;
 
 
-class CreateTableUsers extends Migration
+class CreateUsersTable extends Migration
 {
 	/**
 	 * Run the migrations.

@@ -4,7 +4,7 @@ use Mini\Database\Schema\Blueprint;
 use Mini\Database\Migrations\Migration;
 
 
-class CreateTableNotifications extends Migration
+class CreateNotificationsTable extends Migration
 {
 	/**
 	 * Run the migrations.

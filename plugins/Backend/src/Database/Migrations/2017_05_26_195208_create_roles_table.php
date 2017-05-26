@@ -4,7 +4,7 @@ use Mini\Database\Schema\Blueprint;
 use Mini\Database\Migrations\Migration;
 
 
-class CreateTableRoles extends Migration
+class CreateRolesTable extends Migration
 {
 	/**
 	 * Run the migrations.
