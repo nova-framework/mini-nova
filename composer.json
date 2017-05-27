@@ -41,7 +41,8 @@
             "Content\\": "plugins/Content/src/",
             "FileField\\": "plugins/FileField/src/",
             "Widgets\\": "plugins/Widgets/src/",
-            "Backup\\": "plugins/Backup/src/"
+            "Backup\\": "plugins/Backup/src/",
+            "FileManager\\": "plugins/FileManager/src/"
         }
     },
     "scripts": {
