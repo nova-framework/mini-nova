@@ -13,8 +13,8 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.dataTables.min.css">
 
 	<!-- Local customizations -->
-	<link rel="stylesheet" type="text/css" href="<?= plugin_url('css/backend.css', 'Backend'); ?>">
-	<link rel="stylesheet" type="text/css" href="<?= plugin_url('css/style.css', 'Backend'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= resource_url('css/backend.css', 'Backend'); ?>">
+	<link rel="stylesheet" type="text/css" href="<?= resource_url('css/style.css', 'Backend'); ?>">
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
@@ -91,7 +91,7 @@
 				<?php $active = in_array($currentUri, Arr::pluck($children, 'uri')); ?>
 				<li <?= $active ? 'class="active"' : ''; ?>>
 					<a href="javascript:;" data-toggle="collapse" data-target="#menu-children-<?= $count; ?>">
-						<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <i class="fa fa-angle-left pull-right"></i>
+						<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?> <span class="caret"></span>
 					</a>
 					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
 					<?php foreach ($children as $child) { ?>
