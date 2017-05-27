@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'Dashboard' => '',
-  'Files' => '',
+  'Dashboard' => 'Рабочий стол',
+  'Files' => 'Файлы',
   'Site Assets' => '',
   'Site Root' => '',
 );
