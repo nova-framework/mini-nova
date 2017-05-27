@@ -23,11 +23,10 @@ class User extends BaseModel
 
 	public $files = array(
 		'image' => array(
-			'path'		=> WEBPATH .'images/users/:unique_id-:file_name',
-			'defaultPath' => WEBPATH .'images/users/no-image.png',
+			'path'		=> BASEPATH .'assets/images/users/:unique_id-:file_name',
+			'defaultPath' => BASEPATH .'assets/images/users/no-image.png',
 		),
 	);
-
 
 	public function activities()
 	{
