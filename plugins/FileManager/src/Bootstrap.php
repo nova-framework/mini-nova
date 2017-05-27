@@ -14,19 +14,19 @@
  */
 Event::listen('backend.menu', function($user)
 {
-	if ($user->hasRole('administrator')) {
-		$items = array(
-			array(
-				'uri'	=> 'admin/files',
-				'title'  => __d('files', 'Files'),
-				'label'  => '',
-				'icon'   => 'file',
-				'weight' => 3,
-			),
-		);
-	} else {
-		$items = array();
+	if (! $user->hasRole('administrator')) {
+		return array();
 	}
+
+	$items = array(
+		array(
+			'uri'		=> 'admin/files',
+			'title'		=> __d('files', 'Files'),
+			'label'		=> '',
+			'icon'		=> 'file',
+			'weight'	=> 3,
+		),
+	);
 
 	return $items;
 });
