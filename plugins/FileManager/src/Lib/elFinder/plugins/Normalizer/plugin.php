@@ -23,7 +23,7 @@
  *		'plugin' => array(
  *			'Normalizer' => array(
  *				'enable' => true,
- *				'nfc'    => true,
+ *				'nfc'	=> true,
  *				'nfkc'   => true
  *			)
  *		),
@@ -32,11 +32,11 @@
  *			array(
  *				'driver' => 'LocalFileSystem',
  *				'path'   => '/path/to/files/',
- *				'URL'    => 'http://localhost/to/files/'
+ *				'URL'	=> 'http://localhost/to/files/'
  *				'plugin' => array(
  *					'Normalizer' => array(
  *						'enable' => true,
- *						'nfc'    => true,
+ *						'nfc'	=> true,
  *						'nfkc'   => true
  *					)
  *				)
@@ -55,7 +55,7 @@ class elFinderPluginNormalizer
 	public function __construct($opts) {
 		$defaults = array(
 			'enable' => true, // For control by volume driver
-			'nfc'    => true, // Canonical Decomposition followed by Canonical Composition
+			'nfc'	=> true, // Canonical Decomposition followed by Canonical Composition
 			'nfkc'   => true  // Compatibility Decomposition followed by Canonical
 		);
 	

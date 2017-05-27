@@ -1,10 +1,10 @@
 <?php
 
 function chmodnum($chmod) {
-    $trans = array('-' => '0', 'r' => '4', 'w' => '2', 'x' => '1');
-    $chmod = substr(strtr($chmod, $trans), 1);
-    $array = str_split($chmod, 3);
-    return array_sum(str_split($array[0])) . array_sum(str_split($array[1])) . array_sum(str_split($array[2]));
+	$trans = array('-' => '0', 'r' => '4', 'w' => '2', 'x' => '1');
+	$chmod = substr(strtr($chmod, $trans), 1);
+	$array = str_split($chmod, 3);
+	return array_sum(str_split($array[0])) . array_sum(str_split($array[1])) . array_sum(str_split($array[2]));
 }
 
 elFinder::$netDrivers['ftp'] = 'FTP';
@@ -72,25 +72,25 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 **/
 	public function __construct() {
 		$opts = array(
-			'host'          => 'localhost',
-			'user'          => '',
-			'pass'          => '',
-			'port'          => 21,
-			'mode'        	=> 'passive',
+			'host'		  => 'localhost',
+			'user'		  => '',
+			'pass'		  => '',
+			'port'		  => 21,
+			'mode'			=> 'passive',
 			'path'			=> '/',
 			'timeout'		=> 20,
-			'owner'         => true,
-			'tmbPath'       => '',
-			'tmpPath'       => '',
-			'dirMode'       => 0755,
-			'fileMode'      => 0644
+			'owner'		 => true,
+			'tmbPath'	   => '',
+			'tmpPath'	   => '',
+			'dirMode'	   => 0755,
+			'fileMode'	  => 0644
 		);
 		$this->options = array_merge($this->options, $opts); 
 		$this->options['mimeDetect'] = 'internal';
 	}
 	
 	/*********************************************************************/
-	/*                        INIT AND CONFIGURE                         */
+	/*						INIT AND CONFIGURE						 */
 	/*********************************************************************/
 	
 	/**
@@ -214,7 +214,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	}
 	
 	/*********************************************************************/
-	/*                               FS API                              */
+	/*							   FS API							  */
 	/*********************************************************************/
 
 	/**
@@ -341,7 +341,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 		}
 		foreach (ftp_rawlist($this->connect, $path) as $raw) {
 			if (($stat = $this->parseRaw($raw))) {
-				$p    = $path.'/'.$stat['name'];
+				$p	= $path.'/'.$stat['name'];
 				$stat = $this->updateCache($p, $stat);
 				if (empty($stat['hidden'])) {
 					// $files[] = $stat;
@@ -487,7 +487,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	/**
 	 * Return true if $path is children of $parent
 	 *
-	 * @param  string  $path    path to check
+	 * @param  string  $path	path to check
 	 * @param  string  $parent  parent path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -500,10 +500,10 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	/**
 	 * Return stat for given path.
 	 * Stat contains following fields:
-	 * - (int)    size    file size in b. required
-	 * - (int)    ts      file modification time in unix time. required
-	 * - (string) mime    mimetype. required for folders, others - optionally
-	 * - (bool)   read    read permissions. required
+	 * - (int)	size	file size in b. required
+	 * - (int)	ts	  file modification time in unix time. required
+	 * - (string) mime	mimetype. required for folders, others - optionally
+	 * - (bool)   read	read permissions. required
 	 * - (bool)   write   write permissions. required
 	 * - (bool)   locked  is object locked. optionally
 	 * - (bool)   hidden  is object hidden. optionally
@@ -512,7 +512,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 *
 	 * If file does not exists - returns empty array or false.
 	 *
-	 * @param  string  $path    file path 
+	 * @param  string  $path	file path 
 	 * @return array|false
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -684,7 +684,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 * Open file and return file pointer
 	 *
 	 * @param  string  $path  file path
-	 * @param  bool    $write open file for writing
+	 * @param  bool	$write open file for writing
 	 * @return resource|false
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -762,7 +762,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 * Create symlink. FTP driver does not support symlinks.
 	 *
 	 * @param  string  $target  link target
-	 * @param  string  $path    symlink path
+	 * @param  string  $path	symlink path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -773,9 +773,9 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	/**
 	 * Copy file into another file
 	 *
-	 * @param  string  $source     source file path
+	 * @param  string  $source	 source file path
 	 * @param  string  $targetDir  target directory path
-	 * @param  string  $name       new file name
+	 * @param  string  $name	   new file name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -802,7 +802,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 *
 	 * @param  string  $source  source file path
 	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
+	 * @param  string  $name	file name
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -838,9 +838,9 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 * Return new file path or false on error.
 	 *
 	 * @param  resource  $fp   file pointer
-	 * @param  string    $dir  target dir path
-	 * @param  string    $name file name
-	 * @param  array     $stat file stat (required by some virtual fs)
+	 * @param  string	$dir  target dir path
+	 * @param  string	$name file name
+	 * @param  array	 $stat file stat (required by some virtual fs)
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -873,7 +873,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	/**
 	 * Write a string to a file
 	 *
-	 * @param  string  $path     file path
+	 * @param  string  $path	 file path
 	 * @param  string  $content  new file content
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -1062,10 +1062,10 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	/**
 	 * Create archive and return its path
 	 *
-	 * @param  string  $dir    target dir
+	 * @param  string  $dir	target dir
 	 * @param  array   $files  files names list
 	 * @param  string  $name   archive name
-	 * @param  array   $arc    archiver options
+	 * @param  array   $arc	archiver options
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov,
 	 * @author Alexey Sukhotin

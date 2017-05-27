@@ -39,15 +39,15 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function __construct() {
-		$this->options['alias']    = '';              // alias to replace root dir name
-		$this->options['dirMode']  = 0755;            // new dirs mode
-		$this->options['fileMode'] = 0644;            // new files mode
+		$this->options['alias']	= '';			  // alias to replace root dir name
+		$this->options['dirMode']  = 0755;			// new dirs mode
+		$this->options['fileMode'] = 0644;			// new files mode
 		$this->options['quarantine'] = '.quarantine';  // quarantine folder name - required to check archive (must be hidden)
-		$this->options['maxArcFilesSize'] = 0;        // max allowed archive files size (0 - no limit)
+		$this->options['maxArcFilesSize'] = 0;		// max allowed archive files size (0 - no limit)
 	}
 	
 	/*********************************************************************/
-	/*                        INIT AND CONFIGURE                         */
+	/*						INIT AND CONFIGURE						 */
 	/*********************************************************************/
 	
 	/**
@@ -123,7 +123,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 		if ($this->options['quarantine']) {
 			$this->attributes[] = array(
 					'pattern' => '~^'.preg_quote(DIRECTORY_SEPARATOR.$this->options['quarantine']).'$~',
-					'read'    => false,
+					'read'	=> false,
 					'write'   => false,
 					'locked'  => true,
 					'hidden'  => true
@@ -132,7 +132,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	}
 	
 	/*********************************************************************/
-	/*                               FS API                              */
+	/*							   FS API							  */
 	/*********************************************************************/
 
 	/*********************** paths/urls *************************/
@@ -266,7 +266,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Return true if $path is children of $parent
 	 *
-	 * @param  string  $path    path to check
+	 * @param  string  $path	path to check
 	 * @param  string  $parent  parent path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -287,10 +287,10 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Return stat for given path.
 	 * Stat contains following fields:
-	 * - (int)    size    file size in b. required
-	 * - (int)    ts      file modification time in unix time. required
-	 * - (string) mime    mimetype. required for folders, others - optionally
-	 * - (bool)   read    read permissions. required
+	 * - (int)	size	file size in b. required
+	 * - (int)	ts	  file modification time in unix time. required
+	 * - (string) mime	mimetype. required for folders, others - optionally
+	 * - (bool)   read	read permissions. required
 	 * - (bool)   write   write permissions. required
 	 * - (bool)   locked  is object locked. optionally
 	 * - (bool)   hidden  is object hidden. optionally
@@ -299,7 +299,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 *
 	 * If file does not exists - returns empty array or false.
 	 *
-	 * @param  string  $path    file path 
+	 * @param  string  $path	file path 
 	 * @return array|false
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -340,7 +340,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 		$dir = is_dir($path);
 		
 		$stat['mime']  = $dir ? 'directory' : $this->mimetype($path);
-		$stat['ts']    = filemtime($path);
+		$stat['ts']	= filemtime($path);
 		//logical rights first
 		$stat['read'] = is_readable($path)? null : false;
 		$stat['write'] = is_writable($path)? null : false;
@@ -439,7 +439,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 * Open file and return file pointer
 	 *
 	 * @param  string  $path  file path
-	 * @param  bool    $write open file for writing
+	 * @param  bool	$write open file for writing
 	 * @return resource|false
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -501,9 +501,9 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Create symlink
 	 *
-	 * @param  string  $source     file to link to
+	 * @param  string  $source	 file to link to
 	 * @param  string  $targetDir  folder to create link in
-	 * @param  string  $name       symlink name
+	 * @param  string  $name	   symlink name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -514,9 +514,9 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Copy file into another file
 	 *
-	 * @param  string  $source     source file path
+	 * @param  string  $source	 source file path
 	 * @param  string  $targetDir  target directory path
-	 * @param  string  $name       new file name
+	 * @param  string  $name	   new file name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -530,7 +530,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 *
 	 * @param  string  $source  source file path
 	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
+	 * @param  string  $name	file name
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -566,9 +566,9 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 * Return new file path or false on error.
 	 *
 	 * @param  resource  $fp   file pointer
-	 * @param  string    $dir  target dir path
-	 * @param  string    $name file name
-	 * @param  array     $stat file stat (required by some virtual fs)
+	 * @param  string	$dir  target dir path
+	 * @param  string	$name file name
+	 * @param  array	 $stat file stat (required by some virtual fs)
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -598,7 +598,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Write a string to a file
 	 *
-	 * @param  string  $path     file path
+	 * @param  string  $path	 file path
 	 * @param  string  $content  new file content
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -687,7 +687,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	protected function _extract($path, $arc) {
 		
 		if ($this->quarantine) {
-			$dir     = $this->quarantine.DIRECTORY_SEPARATOR.str_replace(' ', '_', microtime()).basename($path);
+			$dir	 = $this->quarantine.DIRECTORY_SEPARATOR.str_replace(' ', '_', microtime()).basename($path);
 			$archive = $dir.DIRECTORY_SEPARATOR.basename($path);
 			
 			if (!@mkdir($dir)) {
@@ -772,10 +772,10 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	/**
 	 * Create archive and return its path
 	 *
-	 * @param  string  $dir    target dir
+	 * @param  string  $dir	target dir
 	 * @param  array   $files  files names list
 	 * @param  string  $name   archive name
-	 * @param  array   $arc    archiver options
+	 * @param  array   $arc	archiver options
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov, 
 	 * @author Alexey Sukhotin

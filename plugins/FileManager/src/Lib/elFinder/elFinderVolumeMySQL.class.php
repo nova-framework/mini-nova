@@ -61,22 +61,22 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 **/
 	public function __construct() {
 		$opts = array(
-			'host'          => 'localhost',
-			'user'          => '',
-			'pass'          => '',
-			'db'            => '',
-			'port'          => null,
-			'socket'        => null,
+			'host'		  => 'localhost',
+			'user'		  => '',
+			'pass'		  => '',
+			'db'			=> '',
+			'port'		  => null,
+			'socket'		=> null,
 			'files_table'   => 'elfinder_file',
-			'tmbPath'       => '',
-			'tmpPath'       => ''
+			'tmbPath'	   => '',
+			'tmpPath'	   => ''
 		);
 		$this->options = array_merge($this->options, $opts);
 		$this->options['mimeDetect'] = 'internal';
 	}
 	
 	/*********************************************************************/
-	/*                        INIT AND CONFIGURE                         */
+	/*						INIT AND CONFIGURE						 */
 	/*********************************************************************/
 	
 	/**
@@ -270,10 +270,10 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Resize image
 	 *
-	 * @param  string   $hash    image file
-	 * @param  int      $width   new width
-	 * @param  int      $height  new height
-	 * @param  bool     $crop    crop image
+	 * @param  string   $hash	image file
+	 * @param  int	  $width   new width
+	 * @param  int	  $height  new height
+	 * @param  bool	 $crop	crop image
 	 * @return array|false
 	 * @author Dmitry (dio) Levashov
 	 * @author Alexey Sukhotin
@@ -330,7 +330,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 			default:
 				$result = $this->imgResize($img, $width, $height, false, true);
 				break;				
-    	}
+		}
 		
 		if ($result) {
 			
@@ -355,7 +355,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	
 
 	/*********************************************************************/
-	/*                               FS API                              */
+	/*							   FS API							  */
 	/*********************************************************************/
 	
 	/**
@@ -446,7 +446,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 * Recursive files search
 	 *
 	 * @param  string  $path   dir path
-	 * @param  string  $q      search string
+	 * @param  string  $q	  search string
 	 * @param  array   $mimes
 	 * @return array
 	 * @author Dmitry (dio) Levashov
@@ -555,7 +555,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Return true if $path is children of $parent
 	 *
-	 * @param  string  $path    path to check
+	 * @param  string  $path	path to check
 	 * @param  string  $parent  parent path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -570,10 +570,10 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Return stat for given path.
 	 * Stat contains following fields:
-	 * - (int)    size    file size in b. required
-	 * - (int)    ts      file modification time in unix time. required
-	 * - (string) mime    mimetype. required for folders, others - optionally
-	 * - (bool)   read    read permissions. required
+	 * - (int)	size	file size in b. required
+	 * - (int)	ts	  file modification time in unix time. required
+	 * - (string) mime	mimetype. required for folders, others - optionally
+	 * - (bool)   read	read permissions. required
 	 * - (bool)   write   write permissions. required
 	 * - (bool)   locked  is object locked. optionally
 	 * - (bool)   hidden  is object hidden. optionally
@@ -582,7 +582,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 *
 	 * If file does not exists - returns empty array or false.
 	 *
-	 * @param  string  $path    file path 
+	 * @param  string  $path	file path 
 	 * @return array|false
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -726,7 +726,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 * Create symlink. FTP driver does not support symlinks.
 	 *
 	 * @param  string  $target  link target
-	 * @param  string  $path    symlink path
+	 * @param  string  $path	symlink path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -737,9 +737,9 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Copy file into another file
 	 *
-	 * @param  string  $source     source file path
+	 * @param  string  $source	 source file path
 	 * @param  string  $targetDir  target directory path
-	 * @param  string  $name       new file name
+	 * @param  string  $name	   new file name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -760,7 +760,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 *
 	 * @param  string  $source  source file path
 	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
+	 * @param  string  $name	file name
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -811,9 +811,9 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	 * Return new file path or false on error.
 	 *
 	 * @param  resource  $fp   file pointer
-	 * @param  string    $dir  target dir path
-	 * @param  string    $name file name
-	 * @param  array     $stat file stat (required by some virtual fs)
+	 * @param  string	$dir  target dir path
+	 * @param  string	$name file name
+	 * @param  array	 $stat file stat (required by some virtual fs)
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -887,7 +887,7 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Write a string to a file
 	 *
-	 * @param  string  $path     file path
+	 * @param  string  $path	 file path
 	 * @param  string  $content  new file content
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -945,10 +945,10 @@ class elFinderVolumeMySQL extends elFinderVolumeDriver {
 	/**
 	 * Create archive and return its path
 	 *
-	 * @param  string  $dir    target dir
+	 * @param  string  $dir	target dir
 	 * @param  array   $files  files names list
 	 * @param  string  $name   archive name
-	 * @param  array   $arc    archiver options
+	 * @param  array   $arc	archiver options
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov, 
 	 * @author Alexey Sukhotin

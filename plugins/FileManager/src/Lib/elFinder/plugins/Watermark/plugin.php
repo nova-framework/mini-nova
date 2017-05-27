@@ -14,14 +14,14 @@
  *		// global configure (optional)
  *		'plugin' => array(
  *			'Watermark' => array(
- *				'enable'         => true,       // For control by volume driver
- *				'source'         => 'logo.png', // Path to Water mark image
- *				'marginRight'    => 5,          // Margin right pixel
- *				'marginBottom'   => 5,          // Margin bottom pixel
- *				'quality'        => 95,         // JPEG image save quality
- *				'transparency'   => 70,         // Water mark image transparency ( other than PNG )
- *				'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
- *				'targetMinPixel' => 200         // Target image minimum pixel size
+ *				'enable'		 => true,	   // For control by volume driver
+ *				'source'		 => 'logo.png', // Path to Water mark image
+ *				'marginRight'	=> 5,		  // Margin right pixel
+ *				'marginBottom'   => 5,		  // Margin bottom pixel
+ *				'quality'		=> 95,		 // JPEG image save quality
+ *				'transparency'   => 70,		 // Water mark image transparency ( other than PNG )
+ *				'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
+ *				'targetMinPixel' => 200		 // Target image minimum pixel size
  *			)
  *		),
  *		// each volume configure (optional)
@@ -29,17 +29,17 @@
  *			array(
  *				'driver' => 'LocalFileSystem',
  *				'path'   => '/path/to/files/',
- *				'URL'    => 'http://localhost/to/files/'
+ *				'URL'	=> 'http://localhost/to/files/'
  *				'plugin' => array(
  *					'Watermark' => array(
- *			 			'enable'         => true,       // For control by volume driver
- *						'source'         => 'logo.png', // Path to Water mark image
- *						'marginRight'    => 5,          // Margin right pixel
- *						'marginBottom'   => 5,          // Margin bottom pixel
- *						'quality'        => 95,         // JPEG image save quality
- *						'transparency'   => 70,         // Water mark image transparency ( other than PNG )
- *						'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
- *						'targetMinPixel' => 200         // Target image minimum pixel size
+ *			 			'enable'		 => true,	   // For control by volume driver
+ *						'source'		 => 'logo.png', // Path to Water mark image
+ *						'marginRight'	=> 5,		  // Margin right pixel
+ *						'marginBottom'   => 5,		  // Margin bottom pixel
+ *						'quality'		=> 95,		 // JPEG image save quality
+ *						'transparency'   => 70,		 // Water mark image transparency ( other than PNG )
+ *						'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
+ *						'targetMinPixel' => 200		 // Target image minimum pixel size
  *					)
  *				)
  *			)
@@ -57,14 +57,14 @@ class elFinderPluginWatermark {
 
 	public function __construct($opts) {
 		$defaults = array(
-			'enable'         => true,       // For control by volume driver
-			'source'         => 'logo.png', // Path to Water mark image
-			'marginRight'    => 5,          // Margin right pixel
-			'marginBottom'   => 5,          // Margin bottom pixel
-			'quality'        => 95,         // JPEG image save quality
-			'transparency'   => 70,         // Water mark image transparency ( other than PNG )
-			'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
-			'targetMinPixel' => 200         // Target image minimum pixel size
+			'enable'		 => true,	   // For control by volume driver
+			'source'		 => 'logo.png', // Path to Water mark image
+			'marginRight'	=> 5,		  // Margin right pixel
+			'marginBottom'   => 5,		  // Margin bottom pixel
+			'quality'		=> 95,		 // JPEG image save quality
+			'transparency'   => 70,		 // Water mark image transparency ( other than PNG )
+			'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
+			'targetMinPixel' => 200		 // Target image minimum pixel size
 		);
 
 		$this->opts = array_merge($defaults, $opts);

@@ -88,7 +88,7 @@ class elFinderVolumeFTPIIS extends elFinderVolumeFTP {
 		}
 		foreach (ftp_rawlist($this->connect, $path) as $raw) {
 			if (($stat = $this->parseRaw($raw))) {
-				$p    = $path.DIRECTORY_SEPARATOR.$stat['name'];
+				$p	= $path.DIRECTORY_SEPARATOR.$stat['name'];
 					// $files[] = $stat;
 					$this->dirsCache[$path][] = $p;
 					//$stat['name'] = $p;

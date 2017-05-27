@@ -15,9 +15,9 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	
 	public function __construct() {
 		$opts = array(
-			'accesskey'          => '',
-			'secretkey'          => '',
-			'bucket'          => '',
+			'accesskey'		  => '',
+			'secretkey'		  => '',
+			'bucket'		  => '',
 			'tmpPath' => '',
 		);
 		$this->options = array_merge($this->options, $opts); 
@@ -160,7 +160,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Return true if $path is children of $parent
 	 *
-	 * @param  string  $path    path to check
+	 * @param  string  $path	path to check
 	 * @param  string  $parent  parent path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -193,10 +193,10 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Return stat for given path.
 	 * Stat contains following fields:
-	 * - (int)    size    file size in b. required
-	 * - (int)    ts      file modification time in unix time. required
-	 * - (string) mime    mimetype. required for folders, others - optionally
-	 * - (bool)   read    read permissions. required
+	 * - (int)	size	file size in b. required
+	 * - (int)	ts	  file modification time in unix time. required
+	 * - (string) mime	mimetype. required for folders, others - optionally
+	 * - (bool)   read	read permissions. required
 	 * - (bool)   write   write permissions. required
 	 * - (bool)   locked  is object locked. optionally
 	 * - (bool)   hidden  is object hidden. optionally
@@ -205,7 +205,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	 *
 	 * If file does not exists - returns empty array or false.
 	 *
-	 * @param  string  $path    file path 
+	 * @param  string  $path	file path 
 	 * @return array|false
 	 * @author Dmitry (dio) Levashov,
 	 * @author Alexey Sukhotin
@@ -368,7 +368,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	 * Open file and return file pointer
 	 *
 	 * @param  string  $path  file path
-	 * @param  bool    $write open file for writing
+	 * @param  bool	$write open file for writing
 	 * @return resource|false
 	 * @author Dmitry (dio) Levashov,
 	 * @author Alexey Sukhotin
@@ -405,8 +405,8 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Close opened file
 	 * 
-	 * @param  resource  $fp    file pointer
-	 * @param  string    $path  file path
+	 * @param  resource  $fp	file pointer
+	 * @param  string	$path  file path
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -478,9 +478,9 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Create symlink
 	 *
-	 * @param  string  $source     file to link to
+	 * @param  string  $source	 file to link to
 	 * @param  string  $targetDir  folder to create link in
-	 * @param  string  $name       symlink name
+	 * @param  string  $name	   symlink name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -493,7 +493,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	 *
 	 * @param  string  $source  source file path
 	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
+	 * @param  string  $name	file name
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -507,7 +507,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	 *
 	 * @param  string  $source  source file path
 	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
+	 * @param  string  $name	file name
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -571,8 +571,8 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	 * Return new file path or false on error.
 	 *
 	 * @param  resource  $fp   file pointer
-	 * @param  string    $dir  target dir path
-	 * @param  string    $name file name
+	 * @param  string	$dir  target dir path
+	 * @param  string	$name file name
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
@@ -594,7 +594,7 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Write a string to a file
 	 *
-	 * @param  string  $path     file path
+	 * @param  string  $path	 file path
 	 * @param  string  $content  new file content
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
@@ -619,10 +619,10 @@ class elFinderVolumeS3 extends elFinderVolumeDriver {
 	/**
 	 * Create archive and return its path
 	 *
-	 * @param  string  $dir    target dir
+	 * @param  string  $dir	target dir
 	 * @param  array   $files  files names list
 	 * @param  string  $name   archive name
-	 * @param  array   $arc    archiver options
+	 * @param  array   $arc	archiver options
 	 * @return string|bool
 	 * @author Dmitry (dio) Levashov, 
 	 * @author Alexey Sukhotin
@@ -703,7 +703,7 @@ class S3SoapClient extends SoapClient {
 	/**
 	 * Generating signature and timestamp for specified S3 operation
 	 *
-	 * @param  string  $operation    S3 operation name
+	 * @param  string  $operation	S3 operation name
 	 * @return array
 	 * @author Alexey Sukhotin
 	 **/

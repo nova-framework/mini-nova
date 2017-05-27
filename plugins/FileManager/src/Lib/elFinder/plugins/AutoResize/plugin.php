@@ -14,11 +14,11 @@
  *		// global configure (optional)
  *		'plugin' => array(
  *			'PluginAutoResize' => array(
- *				'enable'         => true,       // For control by volume driver
- *				'maxWidth'       => 1024,       // Path to Water mark image
- *				'maxHeight'      => 1024,       // Margin right pixel
- *				'quality'        => 95,         // JPEG image save quality
- *				'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
+ *				'enable'		 => true,	   // For control by volume driver
+ *				'maxWidth'	   => 1024,	   // Path to Water mark image
+ *				'maxHeight'	  => 1024,	   // Margin right pixel
+ *				'quality'		=> 95,		 // JPEG image save quality
+ *				'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
  *			)
  *		),
  *		// each volume configure (optional)
@@ -26,14 +26,14 @@
  *			array(
  *				'driver' => 'LocalFileSystem',
  *				'path'   => '/path/to/files/',
- *				'URL'    => 'http://localhost/to/files/'
+ *				'URL'	=> 'http://localhost/to/files/'
  *				'plugin' => array(
  *					'PluginAutoResize' => array(
- *						'enable'         => true,       // For control by volume driver
- *						'maxWidth'       => 1024,       // Path to Water mark image
- *						'maxHeight'      => 1024,       // Margin right pixel
- *						'quality'        => 95,         // JPEG image save quality
- *						'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
+ *						'enable'		 => true,	   // For control by volume driver
+ *						'maxWidth'	   => 1024,	   // Path to Water mark image
+ *						'maxHeight'	  => 1024,	   // Margin right pixel
+ *						'quality'		=> 95,		 // JPEG image save quality
+ *						'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
  *					)
  *				)
  *			)
@@ -50,11 +50,11 @@ class elFinderPluginAutoResize {
 
 	public function __construct($opts) {
 		$defaults = array(
-			'enable'         => true,       // For control by volume driver
-			'maxWidth'       => 1024,       // Path to Water mark image
-			'maxHeight'      => 1024,       // Margin right pixel
-			'quality'        => 95,         // JPEG image save quality
-			'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
+			'enable'		 => true,	   // For control by volume driver
+			'maxWidth'	   => 1024,	   // Path to Water mark image
+			'maxHeight'	  => 1024,	   // Margin right pixel
+			'quality'		=> 95,		 // JPEG image save quality
+			'targetType'	 => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP // Target image formats ( bit-field )
 		);
 
 		$this->opts = array_merge($defaults, $opts);

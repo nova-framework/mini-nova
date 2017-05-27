@@ -50,8 +50,8 @@ class elFinderConnector {
 	 **/
 	public function run() {
 		$isPost = $_SERVER["REQUEST_METHOD"] == 'POST';
-		$src    = $_SERVER["REQUEST_METHOD"] == 'POST' ? $_POST : $_GET;
-		$cmd    = isset($src['cmd']) ? $src['cmd'] : '';
+		$src	= $_SERVER["REQUEST_METHOD"] == 'POST' ? $_POST : $_GET;
+		$cmd	= isset($src['cmd']) ? $src['cmd'] : '';
 		$args   = array();
 		
 		if (!function_exists('json_encode')) {

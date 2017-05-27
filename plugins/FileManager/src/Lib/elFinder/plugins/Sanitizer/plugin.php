@@ -19,7 +19,7 @@
  *			'Sanitizer' => array(
  *				'enable' => true,
  *				'targets'  => array('\\','/',':','*','?','"','<','>','|'), // target chars
- *				'replace'  => '_'    // replace to this
+ *				'replace'  => '_'	// replace to this
  *			)
  *		),
  *		// each volume configure (optional)
@@ -27,12 +27,12 @@
  *			array(
  *				'driver' => 'LocalFileSystem',
  *				'path'   => '/path/to/files/',
- *				'URL'    => 'http://localhost/to/files/'
+ *				'URL'	=> 'http://localhost/to/files/'
  *				'plugin' => array(
  *					'Sanitizer' => array(
  *						'enable' => true,
  *						'targets'  => array('\\','/',':','*','?','"','<','>','|'), // target chars
- *						'replace'  => '_'    // replace to this
+ *						'replace'  => '_'	// replace to this
  *					)
  *				)
  *			)
@@ -51,7 +51,7 @@ class elFinderPluginSanitizer
 		$defaults = array(
 			'enable'   => true,  // For control by volume driver
 			'targets'  => array('\\','/',':','*','?','"','<','>','|'), // target chars
-			'replace'  => '_'    // replace to this
+			'replace'  => '_'	// replace to this
 		);
 	
 		$this->opts = array_merge($defaults, $opts);
