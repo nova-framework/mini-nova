@@ -27,7 +27,7 @@
 			dateFormat: 'M d, Y h:i A',
 			fancyDateFormat: '$1 H:m:i',
 			lang: '<?= Language::code(); ?>',
-			height: 550,
+			height: 600,
 			cookie : {
 				expires: 30,
 				domain: '',
