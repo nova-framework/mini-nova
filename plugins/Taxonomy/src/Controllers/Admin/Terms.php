@@ -117,7 +117,7 @@ class Terms extends BaseController
 		if($validator->passes()) {
 			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
 
-			$slug = Term::uniqueSlug($input['slug']);
+			$slug = Term::uniqueSlug($slug);
 
 			// Create a Vocabulary Model instance.
 			$term = new Term();

@@ -88,7 +88,7 @@ class Vocabularies extends BaseController
 		if($validator->passes()) {
 			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
 
-			$slug = Vocabulary::uniqueSlug($slug, $term->id);
+			$slug = Vocabulary::uniqueSlug($slug);
 
 			// Create a Vocabulary Model instance.
 			$vocabulary = new Vocabulary();
