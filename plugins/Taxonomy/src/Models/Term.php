@@ -5,9 +5,14 @@ namespace Taxonomy\Models;
 use Mini\Database\ORM\Model as BaseModel;
 use Mini\Database\ORM\ModelNotFoundException;
 
+use Taxonomy\Support\Traits\UniqueSlugTrait;
+
 
 class Term extends BaseModel
 {
+	use UniqueSlugTrait;
+
+	//
 	protected $table = 'terms';
 
 	protected $primaryKey = 'id';

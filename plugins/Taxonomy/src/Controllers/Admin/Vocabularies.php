@@ -82,15 +82,13 @@ class Vocabularies extends BaseController
 		// Validate the Input data.
 		$input = Input::only('name', 'slug', 'description');
 
-		if (empty($input['slug'])) {
-			unset($input['slug']);
-		}
-
 		//
 		$validator = $this->validator($input);
 
 		if($validator->passes()) {
-			$slug = Str::slug($input['slug']);
+			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+
+			$slug = Vocabulary::uniqueSlug($slug, $term->id);
 
 			// Create a Vocabulary Model instance.
 			$vocabulary = new Vocabulary();
@@ -145,17 +143,15 @@ class Vocabularies extends BaseController
 		// Validate the Input data.
 		$input = Input::only('name', 'slug', 'description');
 
-		if (empty($input['slug'])) {
-			unset($input['slug']);
-		}
-
 		//
 		$validator = $this->validator($input);
 
 		if($validator->passes()) {
 			$name = $vocabulary->name;
 
-			$slug = Str::slug($input['slug']);
+			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+
+			$slug = Vocabulary::uniqueSlug($slug, $vocabulary->id);
 
 			//
 			$vocabulary->name			= $input['name'];

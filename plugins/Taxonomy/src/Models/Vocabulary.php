@@ -4,11 +4,14 @@ namespace Taxonomy\Models;
 
 use Mini\Database\ORM\Model as BaseModel;
 
-use Taxonomy\Models\Term;
+use Taxonomy\Support\Traits\UniqueSlugTrait;
 
 
 class Vocabulary extends BaseModel
 {
+	use UniqueSlugTrait;
+
+	//
 	protected $table = 'vocabularies';
 
 	protected $primaryKey = 'id';

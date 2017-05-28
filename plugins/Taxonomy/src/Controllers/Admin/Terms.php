@@ -111,15 +111,13 @@ class Terms extends BaseController
 		// Validate the Input data.
 		$input = Input::only('name', 'slug', 'description', 'parent');
 
-		if (empty($input['slug'])) {
-			unset($input['slug']);
-		}
-
 		//
 		$validator = $this->validator($input);
 
 		if($validator->passes()) {
-			$slug = Str::slug($input['slug']);
+			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+
+			$slug = Term::uniqueSlug($input['slug']);
 
 			// Create a Vocabulary Model instance.
 			$term = new Term();
@@ -201,17 +199,15 @@ class Terms extends BaseController
 		// Validate the Input data.
 		$input = Input::only('name', 'slug', 'description', 'parent');
 
-		if (empty($input['slug'])) {
-			unset($input['slug']);
-		}
-
 		//
 		$validator = $this->validator($input);
 
 		if($validator->passes()) {
 			$name = $term->name;
 
-			$slug = Str::slug($input['slug']);
+			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+
+			$slug = Term::uniqueSlug($slug, $term->id);
 
 			//
 			$term->name			= $input['name'];
