@@ -19,7 +19,7 @@ class Taxonomy
 
 	public function __construct()
 	{
-		// Inject required Models
+		// Inject required Models.
 		$this->vocabulary = new Vocabulary();
 
 		$this->term = new Term();
