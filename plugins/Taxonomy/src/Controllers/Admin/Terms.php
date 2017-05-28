@@ -3,6 +3,7 @@
 namespace Taxonomy\Controllers\Admin;
 
 use Mini\Database\ORM\ModelNotFoundException;
+use Mini\Http\Request;
 use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;

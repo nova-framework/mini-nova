@@ -20,6 +20,9 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->post('taxonomy/{id}',			'Vocabularies@update');
 	$router->post('taxonomy/{id}/destroy',	'Vocabularies@destroy');
 
+	// Order the Terms from a Vocabulary.
+	$router->post('taxonomy/{vid}/terms/order', 'Terms@orderTerms');
+
 	// The Terms CRUD.
 	$router->get( 'taxonomy/{vid}/terms',				'Terms@index');
 	$router->get( 'taxonomy/{vid}/terms/create',		'Terms@create');
@@ -27,7 +30,4 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->get( 'taxonomy/{vid}/terms/{id}/edit',		'Terms@edit');
 	$router->post('taxonomy/{vid}/terms/{id}',			'Terms@update');
 	$router->post('taxonomy/{vid}/terms/{id}/destroy',	'Terms@destroy');
-
-	// Order the Terms from a Vocabulary.
-	$router->post('taxonomy/{vid}/terms/order', 'Terms@orderTerms');
 });
