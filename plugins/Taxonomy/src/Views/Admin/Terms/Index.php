@@ -125,7 +125,7 @@ $(function() {
 		listNodeName: 'ul',
 		expandBtnHTML: '',
 		collapseBtnHTML: '',
-		maxDepth: 8,
+		maxDepth: 7,
 	});
 
 	$('.dd').on('change', function() {
