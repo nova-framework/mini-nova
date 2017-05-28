@@ -2,6 +2,7 @@
 
 namespace Content\Database\Seeds;
 
+use Mini\Database\Seeder;
 use Mini\Database\ORM\Model;
 
 
