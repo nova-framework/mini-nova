@@ -22,17 +22,20 @@ trait UniqueSlugTrait
 		while (true) {
 			$slug = ($count > 0) ? $name .'-' .$count : $name;
 
+			//
 			$query = static::where('slug', $slug);
 
 			if ($id > 0) {
 				$query->where('id', '<>', $id);
 			}
 
-			if (! $query->exists()) {
-				return $slug;
+			if ($query->exists()) {
+				$count++;
+
+				continue;
 			}
 
-			$count++;
+			return $slug;
 		}
 	}
 }
