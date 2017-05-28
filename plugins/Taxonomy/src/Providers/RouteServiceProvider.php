@@ -28,30 +28,6 @@ class RouteServiceProvider extends ServiceProvider
 	public function boot(Router $router)
 	{
 		parent::boot($router);
-
-		// Setup the dynamic Routes for Vocabularies.
-		$vocabularies = Cache::remember('taxonomy_routed_vocabularies', 1440, function()
-		{
-			return Vocabulary::all();
-		});
-
-		$container = $this->app;
-
-		foreach($vocabularies as $vocabulary) {
-			$slug = $vocabulary->slug;
-
-			$router->get("$slug/{term?}", array('middleware' => 'web', 'uses' => function ($term = null) use ($container, $slug)
-			{
-				$parameters = array_filter(array($slug, $term), function($value)
-				{
-					return ! empty($value);
-				});
-
-				$controller = $container->make('Taxonomy\Controllers\Handler');
-
-				return $controller->callAction('show', $parameters);
-			}));
-		}
 	}
 
 	/**
@@ -65,6 +41,24 @@ class RouteServiceProvider extends ServiceProvider
 		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function($router)
 		{
 			require plugin_path('Taxonomy', 'Routes.php');
+		});
+
+		//
+		// Setup the dynamic routes for Vocabularies.
+
+		$slugs = Cache::remember('taxonomy_routed_vocabularies', 1440, function()
+		{
+			return Vocabulary::lists('slug');
+		});
+
+		$wheres = array(
+			'vocabulary'	=> '(' .implode('|', $slugs) .')',
+			'slug'			=> '(.*)',
+		);
+
+		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function($router) use ($wheres)
+		{
+			$router->get("{vocabulary}/{slug?}", array('wheres' => $wheres, 'uses' => 'Handler@handle'));
 		});
 	}
 }
