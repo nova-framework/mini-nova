@@ -4,6 +4,7 @@ namespace Taxonomy\Controllers\Admin;
 
 use Mini\Database\ORM\ModelNotFoundException;
 use Mini\Http\Request;
+use Mini\Support\Facades\Cache;
 use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
@@ -101,6 +102,9 @@ class Vocabularies extends BaseController
 			// Save the User information.
 			$vocabulary->save();
 
+			// Invalidate the cached information.
+			Cache::forget('taxonomy_routed_vocabularies');
+
 			// Prepare the flash message.
 			$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully created.', $input['name']);
 
@@ -161,6 +165,9 @@ class Vocabularies extends BaseController
 			// Save the User information.
 			$vocabulary->save();
 
+			// Invalidate the cached information.
+			Cache::forget('taxonomy_routed_vocabularies');
+
 			// Prepare the flash message.
 			$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully updated.', $name);
 
@@ -192,6 +199,9 @@ class Vocabularies extends BaseController
 
 		// Delete the requested Vocabulary record.
 		$vocabulary->delete();
+
+		// Invalidate the cached information.
+		Cache::forget('taxonomy_routed_vocabularies');
 
 		// Prepare the flash message.
 		$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully deleted.', $vocabulary->name);
