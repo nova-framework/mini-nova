@@ -9,30 +9,27 @@ trait UniqueSlugTrait
 {
 	public static function uniqueSlug($name, $id = 0)
 	{
-		$slug = Str::slug($name);
-
-		//
-		$segments = explode('-', $slug);
+		$segments = explode('-', Str::slug($name));
 
 		if ((count($segments) > 1) && is_integer(end($segments))) {
 			$count = (int) array_pop($segments);
-
-			$slug = implode('-', $segments);
 		} else {
 			$count = 0;
 		}
 
-		while (true) {
-			$search = ($count > 0) ? $slug .'-' .$count : $slug;
+		$name = implode('-', $segments);
 
-			$query = static::where('slug', $search);
+		while (true) {
+			$slug = ($count > 0) ? $name .'-' .$count : $name;
+
+			$query = static::where('slug', $slug);
 
 			if ($id > 0) {
 				$query->where('id', '<>', $id);
 			}
 
 			if (! $query->exists()) {
-				return $search;
+				return $slug;
 			}
 
 			$count++;
