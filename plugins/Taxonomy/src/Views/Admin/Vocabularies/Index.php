@@ -21,41 +21,41 @@
 	<br>
 
 	<?php if (! $vocabularies->isEmpty()) { ?>
-
 	<table class='table table-bordered table-striped table-hover responsive'>
-		<tr>
-			<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'ID'); ?></th>
-			<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Name'); ?></th>
-			<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Slug'); ?></th>
-			<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Description'); ?></th>
-			<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Terms'); ?></th>
-			<th style='text-align: right; vertical-align: middle;'><?= __d('taxonomy', 'Actions'); ?></th>
-		</tr>
-		<?php foreach ($vocabularies->all() as $item) { ?>
-		<tr>
-			<td style="text-align: center; vertical-align: middle;" width="5%"><?= $item->id; ?></td>
-			<td style="text-align: center; vertical-align: middle;" width="16%"><?= $item->name; ?></td>
-			<td style="text-align: center; vertical-align: middle;" width='15%'><?= $item->slug; ?></td>
-			<td style="text-align: left; vertical-align: middle;" width="40%"><?= $item->description; ?></td>
-			<td style="text-align: center; vertical-align: middle;" width='12%'><?= $item->terms->count(); ?></td>
-			<td style="text-align: right; vertical-align: middle; padding: 5px;" width="12%">
-				<div class='btn-group' role='group' aria-label='...'>
-					<a class='btn btn-sm btn-warning' href="<?= site_url('admin/taxonomy/' .$item->id .'/terms'); ?>" title="<?= __d('taxonomy', 'Show the Terms'); ?>" role="button"><i class="fa fa-search"></i></a>
-					<a class='btn btn-sm btn-success' href="<?= site_url('admin/taxonomy/' .$item->id .'/edit') ?>" title="<?= __d('taxonomy', 'Edit this Vocabulary') ?>" role="button"><i class="fa fa-pencil"></i></a>
-					<a class='btn btn-sm btn-danger' href='#' data-toggle="modal" data-id='<?= $item->id ?>' data-target="#modal_delete_vocabulary" title="<?= __d('taxonomy', 'Delete this Vocabulary'); ?>" role="button"><i class="fa fa-remove"></i></a>
-				</div>
-			</td>
-		</tr>
-		<?php } ?>
+		<thead>
+			<tr>
+				<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'ID'); ?></th>
+				<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Name'); ?></th>
+				<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Slug'); ?></th>
+				<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Description'); ?></th>
+				<th style='text-align: center; vertical-align: middle;'><?= __d('taxonomy', 'Terms'); ?></th>
+				<th style='text-align: right; vertical-align: middle;'><?= __d('taxonomy', 'Actions'); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($vocabularies->all() as $item) { ?>
+			<tr>
+				<td style="text-align: center; vertical-align: middle;" width="5%"><?= $item->id; ?></td>
+				<td style="text-align: center; vertical-align: middle;" width="16%"><?= $item->name; ?></td>
+				<td style="text-align: center; vertical-align: middle;" width='15%'><?= $item->slug; ?></td>
+				<td style="text-align: left; vertical-align: middle;" width="40%"><?= $item->description; ?></td>
+				<td style="text-align: center; vertical-align: middle;" width='12%'><?= $item->terms->count(); ?></td>
+				<td style="text-align: right; vertical-align: middle; padding: 5px;" width="12%">
+					<div class='btn-group' role='group' aria-label='...'>
+						<a class='btn btn-sm btn-warning' href="<?= site_url('admin/taxonomy/' .$item->id .'/terms'); ?>" title="<?= __d('taxonomy', 'Show the Terms'); ?>" role="button"><i class="fa fa-search"></i></a>
+						<a class='btn btn-sm btn-success' href="<?= site_url('admin/taxonomy/' .$item->id .'/edit') ?>" title="<?= __d('taxonomy', 'Edit this Vocabulary') ?>" role="button"><i class="fa fa-pencil"></i></a>
+						<a class='btn btn-sm btn-danger' href='#' data-toggle="modal" data-id='<?= $item->id ?>' data-target="#modal_delete_vocabulary" title="<?= __d('taxonomy', 'Delete this Vocabulary'); ?>" role="button"><i class="fa fa-remove"></i></a>
+					</div>
+				</td>
+			</tr>
+			<?php } ?>
+		</tbody>
 	</table>
-
 	<?php } else { ?>
-
 	<div class="alert alert-info">
 		<h4><?= __d('taxonomy', 'No vocabularies'); ?></h4>
 		<p><?= __d('taxonomy', 'You have no vocabularies.'); ?></p>
 	</div>
-
 	<?php } ?>
 </div>
 
