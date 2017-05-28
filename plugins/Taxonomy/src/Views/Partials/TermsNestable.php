@@ -3,11 +3,11 @@
 	<li class="dd-item" data-id="<?= $term->id; ?>">
 		<!-- drag handle -->
 		<div class="handle dd-handle">
-			<?= $term->id; ?>
+			<?= $term->id; ?> <i class="fa fa-ellipsis-v"></i> <?= $term->slug; ?>
 			<i class="fa fa-ellipsis-v"></i>
 			<!-- checkbox -->
 			<!-- todo text -->
-			<span class="text"><?= $term->name; ?> <i class="fa fa-ellipsis-v"></i> <?= $term->slug; ?></span>
+			<span class="text"><?= $term->name; ?></span>
 			<!-- Emphasis label -->
 			<!-- General tools such as edit or delete-->
 			<div class="pull-right">

@@ -17,10 +17,8 @@ class Vocabulary extends BaseModel
 		'name', 'description'
 	);
 
-	protected $hidden = array('created_at','updated_at');
-
-	public static $rules = array(
-		'name' => 'required'
+	protected $hidden = array(
+		'created_at','updated_at'
 	);
 
 
@@ -32,27 +30,5 @@ class Vocabulary extends BaseModel
 	public function relations()
 	{
 		return $this->hasMany('Taxonomy\Models\TermRelation');
-	}
-
-	public static function updateTermsOrder(array $items, $parentId = 0)
-	{
-		foreach ($items as $weight => $item) {
-			try {
-				$term = Term::findOrFail($item->id);
-			}
-			catch (ModelNotFoundException $e) {
-				continue;
-			}
-
-			$term->parent_id = $parentId;
-
-			$term->weight = $weight;
-
-			$term->save();
-
-			if (! empty($item->children)) {
-				static::updateTermsOrder($item->children, $term->id);
-			}
-		}
 	}
 }

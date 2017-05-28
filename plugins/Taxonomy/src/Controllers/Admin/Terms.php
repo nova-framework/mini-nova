@@ -11,6 +11,7 @@ use Mini\Support\Str;
 use Backend\Controllers\BaseController;
 use Taxonomy\Models\Term;
 use Taxonomy\Models\Vocabulary;
+use Taxonomy\Support\Facades\Taxonomy;
 
 
 class Terms extends BaseController
@@ -244,8 +245,8 @@ class Terms extends BaseController
 			return Redirect::to('admin/taxonomy/' .$vocabulary->id .'/terms')->with('warning', $status);
 		}
 
-		// Recursivelly delete the requested Term record and its children.
-		Term::deleteTermAndChildren($term);
+		// Recursivelly delete the requested Term record, its relationships and children.
+		Taxonomy::deleteTerm($term->id);
 
 		// Prepare the flash message.
 		$status = __d('taxonomy', 'The Term <b>{0}</b> was successfully deleted.', $term->name);

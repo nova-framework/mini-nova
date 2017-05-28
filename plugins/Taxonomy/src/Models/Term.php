@@ -13,21 +13,15 @@ class Term extends BaseModel
 	protected $primaryKey = 'id';
 
 	protected $fillable = array(
-		'name',
-		'description',
-		'vocabulary_id',
-		'parent',
-		'weight',
+		'name', 'description', 'vocabulary_id', 'parent', 'weight',
 	);
 
-	protected $hidden = array('created_at','updated_at');
-
-	public static $rules = array(
-		'name' => 'required'
+	protected $hidden = array(
+		'created_at','updated_at'
 	);
 
 
-	public function termRelation()
+	public function termRelations()
 	{
 		return $this->morphMany('Taxonomy\Models\TermRelation', 'relationable');
 	}
@@ -45,16 +39,5 @@ class Term extends BaseModel
 	public function parent()
 	{
 		return $this->belongsTo('Taxonomy\Models\Term', 'parent_id', 'id');
-	}
-
-	public static function deleteTermAndChildren(Term $term)
-	{
-		$children = $term->children()->get();
-
-		foreach ($children as $child) {
-			static::deleteTermAndChildren($child);
-		}
-
-		$term->delete();
 	}
 }

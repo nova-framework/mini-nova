@@ -1,8 +1,11 @@
 <?php namespace Taxonomy\Support;
 
+use Mini\Database\ORM\ModelNotFoundException;
+
 use Taxonomy\Exceptions\VocabularyExistsException;
-use Taxonomy\Models\Vocabulary;
 use Taxonomy\Models\Term;
+use Taxonomy\Models\TermRelation;
+use Taxonomy\Models\Vocabulary;
 
 
 class Taxonomy
@@ -11,6 +14,8 @@ class Taxonomy
 
 	protected $term;
 
+	protected $termRelation;
+
 
 	public function __construct()
 	{
@@ -18,6 +23,8 @@ class Taxonomy
 		$this->vocabulary = new Vocabulary();
 
 		$this->term = new Term();
+
+		$this->termRelation = new TermRelation();
 	}
 
 	/**
@@ -32,7 +39,7 @@ class Taxonomy
 		$count = $this->vocabulary->where('name', $name)->count();
 
 		if ($count > 0) {
-			throw new Exceptions\VocabularyExistsException();
+			throw new VocabularyExistsException();
 		}
 
 		return $this->vocabulary->create(array('name' => $name));
@@ -151,4 +158,53 @@ class Taxonomy
 		return $this->term->create($term);
 	}
 
+	/**
+	 * Delete a Term by ID
+	 *
+	 * @param int $id  The ID of the Term to delete
+	 *
+	 * @return bool  TRUE if Vocabulary is deletes, otherwise FALSE
+	 *
+	 * @throws Mini\Database\ORM\ModelNotFoundException
+	 */
+	public function deleteTerm($id)
+	{
+		$term = $this->term->with('children')->findOrFail($id);
+
+		foreach ($term->children as $child) {
+			$child->parent_id = $term->parent_id;
+
+			$child->save();
+		}
+
+		$this->termRelation->where('term_id', $term->id)->delete();
+
+		return $term->delete();
+	}
+
+	/**
+	 * Update the Terms order in a Vocabulary.
+	 *
+	 */
+	public function updateTermsOrder(array $items, $parentId = 0)
+	{
+		foreach ($items as $weight => $item) {
+			try {
+				$term = $this->term->findOrFail($item->id);
+			}
+			catch (ModelNotFoundException $e) {
+				continue;
+			}
+
+			$term->parent_id = $parentId;
+
+			$term->weight = $weight;
+
+			$term->save();
+
+			if (! empty($item->children)) {
+				$this->updateTermsOrder($item->children, $term->id);
+			}
+		}
+	}
 }

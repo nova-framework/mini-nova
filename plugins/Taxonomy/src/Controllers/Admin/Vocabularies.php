@@ -12,9 +12,10 @@ use Mini\Support\Str;
 use Backend\Controllers\BaseController;
 use Taxonomy\Models\Term;
 use Taxonomy\Models\Vocabulary;
+use Taxonomy\Support\Facades\Taxonomy;
 
 
-class Taxonomy extends BaseController
+class Vocabularies extends BaseController
 {
 
 	public function __construct()
@@ -216,6 +217,6 @@ class Taxonomy extends BaseController
 
 		$items = json_decode($input);
 
-		Vocabulary::updateTermsOrder($items);
+		Taxonomy::updateTermsOrder($items);
 	}
 }

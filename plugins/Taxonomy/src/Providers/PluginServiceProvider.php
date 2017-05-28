@@ -77,8 +77,7 @@ class PluginServiceProvider extends ServiceProvider
 	{
 		parent::register();
 
-		/*
-		$this->app['taxonomy'] = $this->app->bindShared(function ($app)
+		$this->app->bindShared('taxonomy', function ($app)
 		{
 			return new Taxonomy();
 		});
@@ -87,7 +86,6 @@ class PluginServiceProvider extends ServiceProvider
 		$loader = AliasLoader::getInstance();
 
 		$loader->alias('Taxonomy', 'Taxonomy\Support\Facades\Taxonomy');
-		*/
 	}
 
 }

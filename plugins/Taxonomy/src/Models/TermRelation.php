@@ -12,8 +12,7 @@ class TermRelation extends BaseModel
 	protected $primaryKey = 'id';
 
 	protected $fillable = array(
-		'term_id',
-		'vocabulary_id',
+		'term_id', 'vocabulary_id',
 	);
 
 

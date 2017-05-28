@@ -13,15 +13,15 @@
 $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' => 'Admin'), function($router)
 {
 	// The Vocabularies CRUD.
-	$router->get( 'taxonomy', 				'Taxonomy@index');
-	$router->get( 'taxonomy/create',		'Taxonomy@create');
-	$router->post('taxonomy', 				'Taxonomy@store');
-	$router->get( 'taxonomy/{id}/edit',		'Taxonomy@edit');
-	$router->post('taxonomy/{id}',			'Taxonomy@update');
-	$router->post('taxonomy/{id}/destroy',	'Taxonomy@destroy');
+	$router->get( 'taxonomy', 				'Vocabularies@index');
+	$router->get( 'taxonomy/create',		'Vocabularies@create');
+	$router->post('taxonomy', 				'Vocabularies@store');
+	$router->get( 'taxonomy/{id}/edit',		'Vocabularies@edit');
+	$router->post('taxonomy/{id}',			'Vocabularies@update');
+	$router->post('taxonomy/{id}/destroy',	'Vocabularies@destroy');
 
 	// Order the Terms from a Vocabulary.
-	$router->post('taxonomy/{id}/order-terms', 'Taxonomy@orderTerms');
+	$router->post('taxonomy/{id}/order-terms', 'Vocabularies@orderTerms');
 
 	// The Terms CRUD.
 	$router->get( 'taxonomy/{vid}/terms',				'Terms@index');
