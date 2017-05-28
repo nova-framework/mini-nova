@@ -132,7 +132,7 @@ $(function() {
 	   var json = JSON.stringify($(this).nestable('serialize'));
 
 	   $.ajax({
-			url: '<?= site_url("admin/taxonomy/" .$vocabulary->id ."/order-terms") ?>',
+			url: '<?= site_url("admin/taxonomy/" .$vocabulary->id ."/terms/order") ?>',
 			type: 'post',
 			data: {
 				json

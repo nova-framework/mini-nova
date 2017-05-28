@@ -262,5 +262,20 @@ class Terms extends BaseController
 		return Redirect::to('admin/taxonomy/' .$vocabulary->id .'/terms')->with('success', $status);
 	}
 
+	public function orderTerms(Request $request, $id)
+	{
+		// Get the Vocabulary Model instance.
+		try {
+			$vocabulary = Vocabulary::findOrFail($id);
+		}
+		catch (ModelNotFoundException $e) {
+			return;
+		}
 
+		$input = Input::get('json');
+
+		$items = json_decode($input);
+
+		Taxonomy::updateTermsOrder($items);
+	}
 }
