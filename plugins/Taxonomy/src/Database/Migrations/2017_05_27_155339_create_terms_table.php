@@ -21,7 +21,7 @@ class CreateTermsTable extends Migration
 			$table->string('slug')->unique();
 			$table->text('description');
 			$table->integer('parent_id')->unsigned()->default(0);
-			$table->integer('weight');
+			$table->integer('weight')->default(0);
 			$table->timestamps();
 
 			$table->foreign('vocabulary_id')->references('id')->on('vocabularies')->onDelete('cascade');
