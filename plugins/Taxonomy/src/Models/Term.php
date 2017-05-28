@@ -26,7 +26,7 @@ class Term extends BaseModel
 	);
 
 
-	public function termRelations()
+	public function relations()
 	{
 		return $this->morphMany('Taxonomy\Models\TermRelation', 'relationable');
 	}

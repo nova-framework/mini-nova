@@ -34,11 +34,12 @@ class Handler extends BaseController
 
 	protected function handleVocabulary(Vocabulary $vocabulary)
 	{
-		$content = '<p>' .__d('taxonomy', 'Nothing here, yet!') .'</p>';
+		$terms = $vocabulary->terms()->with('children', 'relations')->where('parent_id', 0)->paginate(10);
 
-		return View::make('Default')
+		return View::make('Taxonomy::Handler/Vocabulary')
 			->shares('title', $vocabulary->name)
-			->with('content', $content);
+			->with('vocabulary', $vocabulary)
+			->with('terms', $terms);
 	}
 
 	protected function handleTerm(Vocabulary $vocabulary, $slug)
