@@ -4,7 +4,7 @@ use Mini\Database\Schema\Blueprint;
 use Mini\Database\Migrations\Migration;
 
 
-class CreateOptionsTable extends Migration
+class CreateVocabulariesTable extends Migration
 {
 	/**
 	 * Run the migrations.
@@ -13,13 +13,13 @@ class CreateOptionsTable extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('options', function(Blueprint $table)
+		Schema::create('vocabularies', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('namespace', 100)->nullable();
-			$table->string('group', 100);
-			$table->string('item', 255)->nullable();
-			$table->text('value')->nullable();
+			$table->string('name');
+			$table->string('slug')->unique();
+			$table->text('description');
+			$table->timestamps();
 		});
 	}
 
@@ -30,7 +30,6 @@ class CreateOptionsTable extends Migration
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('options');
+		Schema::dropIfExists('vocabularies');
 	}
-
 }

@@ -1,5 +1,5 @@
 <div class="row">
-	<h1><?= __d('files', 'Files'); ?></h1>
+	<h1><?= __d('file_manager', 'Files'); ?></h1>
 	<ol class="breadcrumb">
 		<li><a href='<?= site_url('admin/dashboard'); ?>'><i class="fa fa-dashboard"></i> <?= __d('file_manager', 'Dashboard'); ?></a></li>
 		<li><?= __d('file_manager', 'Files'); ?></li>

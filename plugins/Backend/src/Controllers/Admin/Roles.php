@@ -26,7 +26,7 @@ class Roles extends BaseController
 	{
 		parent::__construct();
 
-		//
+		// Setup the Middleware.
 		$this->middleware('role:administrator');
 	}
 

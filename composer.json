@@ -41,6 +41,7 @@
             "Content\\": "plugins/Content/src/",
             "FileField\\": "plugins/FileField/src/",
             "Widgets\\": "plugins/Widgets/src/",
+            "Taxonomy\\": "plugins/Taxonomy/src/",
             "Backup\\": "plugins/Backup/src/",
             "FileManager\\": "plugins/FileManager/src/"
         }
