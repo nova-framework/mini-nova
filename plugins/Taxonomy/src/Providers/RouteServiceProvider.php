@@ -58,7 +58,7 @@ class RouteServiceProvider extends ServiceProvider
 
 		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function($router) use ($wheres)
 		{
-			$router->get("{vocabulary}/{slug?}", array('wheres' => $wheres, 'uses' => 'Handler@handle'));
+			$router->get("{vocabulary}/{slug?}", array('uses' => 'Handler@handle', 'wheres' => $wheres));
 		});
 	}
 }
