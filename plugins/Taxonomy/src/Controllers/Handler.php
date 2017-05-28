@@ -12,13 +12,14 @@ use Taxonomy\Models\Vocabulary;
 class Handler extends BaseController
 {
 
-    protected function show($vocabulary, $slug = null)
+    protected function show($slug, $term = null)
     {
-		$vocabulary = Vocabulary::where('slug', $vocabulary)->first();
+		$vocabulary = Vocabulary::where('slug', $slug)->first();
 
-		$content = '<p>' .__d('taxonomy', 'Nothing here, yet!') .'</p>';
+		$content = '<h3>' .__d('taxonomy', 'Nothing here, yet!') .'</h3><br>';
 
 		$content .= '<pre>' .var_export($slug, true) .'</pre>';
+		$content .= '<pre>' .var_export($term, true) .'</pre>';
 
 		return View::make('Default')
 			->shares('title', $vocabulary->name)
