@@ -93,6 +93,73 @@ class Taxonomy
 	}
 
 	/**
+	 * Get a Vocabulary by name as an options array for dropdowns
+	 *
+	 * @param string $id  The ID of the Vocabulary to fetch
+	 *
+	 * @return  The Vocabulary Model object, otherwise NULL
+	 */
+	public function getVocabularyTermsAsOptionsArray($id)
+    {
+		$vocabulary = ($id instanceof Vocabulary)
+			? $id
+			: $this->vocabulary->where('id', $id)->first();
+
+		if (is_null($vocabulary)) {
+			return collect();
+		}
+
+		$terms = $this->term->with('children')
+			->where('parent_id', 0)
+			->where('vocabulary_id', $vocabulary->id)
+			->orderBy('weight', 'ASC')
+			->get();
+
+		//
+		$options = array(
+			0 => '-',
+		);
+
+		foreach ($terms as $term) {
+			$key = $term->id;
+
+			$options[$key] = $term->name;
+
+			if (! $term->children->isEmpty()) {
+				$this->recurseTermChildren($term, $options);
+			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Recursively visit the children of a term and generate the '- ' option array for dropdowns
+	 *
+	 * @param Object $parent
+	 * @param array  $options
+	 * @param int    $depth
+	 *
+	 * @return array
+	 */
+	private function recurseTermChildren($term, &$options, $depth = 1)
+	{
+		$term->children->map(function($term) use (&$options, $depth)
+		{
+			$key = $term->id;
+
+			$options[$key] = str_repeat('-', $depth) .' '. $term->name;
+
+			//
+			$term->load('children');
+
+			if (! $term->children->isEmpty()) {
+				$this->recurseTermChildren($term, $options, $depth + 1);
+			}
+		});
+	}
+
+	/**
 	 * Delete a Vocabulary by ID
 	 *
 	 * @param int $id

@@ -37,6 +37,7 @@ class Terms extends BaseController
 			'name'			=> 'required|min:3|max:100',
 			'slug'			=> 'max:100',
 			'description'	=> 'max:1000',
+			'parent'		=> 'integer|min:0'
 		);
 
 		$messages = array(
@@ -47,6 +48,7 @@ class Terms extends BaseController
 			'name'			=> __d('taxonomy', 'Name'),
 			'slug'			=> __d('taxonomy', 'Slug'),
 			'description'	=> __d('taxonomy', 'Description'),
+			'parent'		=> __d('taxonomy', 'Parent'),
 		);
 
 
@@ -85,9 +87,12 @@ class Terms extends BaseController
 			return Redirect::to('admin/taxonomy')->with('warning', $status);
 		}
 
+		$options = Taxonomy::getVocabularyTermsAsOptionsArray($vocabulary);
+
 		return $this->getView()
 			->shares('title', __d('taxonomy', 'Create Term'))
-			->with('vocabulary', $vocabulary);
+			->with('vocabulary', $vocabulary)
+			->with('options', $options);
 	}
 
 	public function store($vid)
@@ -103,7 +108,7 @@ class Terms extends BaseController
 		}
 
 		// Validate the Input data.
-		$input = Input::only('name', 'slug', 'description');
+		$input = Input::only('name', 'slug', 'description', 'parent');
 
 		if (empty($input['slug'])) {
 			unset($input['slug']);
@@ -122,8 +127,7 @@ class Terms extends BaseController
 			$term->name			= $input['name'];
 			$term->slug			= $slug;
 			$term->description	= $input['description'];
-
-			$term->parent_id = 0;
+			$term->parent_id    = $input['parent'];
 
 			$term->vocabulary_id = $vocabulary->id;
 
@@ -162,9 +166,12 @@ class Terms extends BaseController
 			return Redirect::to('admin/taxonomy/' .$vocabulary->id .'/terms')->with('warning', $status);
 		}
 
+		$options = Taxonomy::getVocabularyTermsAsOptionsArray($vocabulary);
+
 		return $this->getView()
-			->shares('title', __d('taxonomy', 'Create Term'))
+			->shares('title', __d('taxonomy', 'Edit Term'))
 			->with('vocabulary', $vocabulary)
+			->with('options', $options)
 			->with('term', $term);
 	}
 
@@ -191,7 +198,7 @@ class Terms extends BaseController
 		}
 
 		// Validate the Input data.
-		$input = Input::only('name', 'slug', 'description');
+		$input = Input::only('name', 'slug', 'description', 'parent');
 
 		if (empty($input['slug'])) {
 			unset($input['slug']);
@@ -209,6 +216,7 @@ class Terms extends BaseController
 			$term->name			= $input['name'];
 			$term->slug			= $slug;
 			$term->description	= $input['description'];
+			$term->parent_id    = $input['parent'];
 
 			// Save the User information.
 			$term->save();

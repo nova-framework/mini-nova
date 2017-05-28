@@ -36,6 +36,17 @@
 				<textarea name="description" id="description" class="form-control" placeholder="<?= __d('taxonomy', 'Description'); ?>"><?= Input::old('description'); ?></textarea>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label" for="parent"><?= __d('taxonomy', 'Parent'); ?> <font color='#CC0000'>*</font></label>
+			<div class="col-sm-8">
+				<?php $parentId = Input::old('parent', 0); ?>
+				<select name="parent" id="parent" class="form-control select2">
+					<?php foreach ($options as $termId => $option) { ?>
+					<option value="<?= $termId; ?>" <?= ($termId == $parentId) ? 'selected' : ''; ?>><?= $option; ?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
 		<div class="clearfix"></div>
 		<br>
 

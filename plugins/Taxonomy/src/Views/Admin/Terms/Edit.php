@@ -3,7 +3,7 @@
 	<ol class="breadcrumb">
 		<li><a href='<?= site_url('admin/dashboard'); ?>'><i class="fa fa-dashboard"></i> <?= __d('taxonomy', 'Dashboard'); ?></a></li>
 		<li><a href="<?= site_url('admin/taxonomy'); ?>"><?= __d('taxonomy', 'Taxonomy'); ?></a></li>
-		<li><a href="<?= site_url('admin/taxonomy/' .$vocabulary->id .'/terms'); ?>"<?= __d('taxonomy', 'Terms of Vocabulary : <b>{0}</b>', $vocabulary->name); ?></a></li>
+		<li><a href="<?= site_url('admin/taxonomy/' .$vocabulary->id .'/terms'); ?>"><?= __d('taxonomy', 'Terms of Vocabulary : <b>{0}</b>', $vocabulary->name); ?></a></li>
 		<li><?= __d('taxonomy', 'Edit Term'); ?></li>
 	</ol>
 </div>
@@ -34,6 +34,17 @@
 			<label class="col-sm-4 control-label" for="description"><?= __d('taxonomy', 'Description'); ?></label>
 			<div class="col-sm-8">
 				<textarea name="description" id="description" class="form-control" placeholder="<?= __d('taxonomy', 'Description'); ?>"><?= Input::old('description', $term->description); ?></textarea>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label" for="parent"><?= __d('taxonomy', 'Parent'); ?> <font color='#CC0000'>*</font></label>
+			<div class="col-sm-8">
+				<?php $parentId = Input::old('parent', $term->parent_id); ?>
+				<select name="parent" id="parent" class="form-control select2">
+					<?php foreach ($options as $termId => $option) { ?>
+					<option value="<?= $termId; ?>" <?= ($termId == $parentId) ? 'selected' : ''; ?>><?= $option; ?></option>
+					<?php } ?>
+				</select>
 			</div>
 		</div>
 		<div class="clearfix"></div>
