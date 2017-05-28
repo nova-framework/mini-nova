@@ -30,6 +30,7 @@ return array (
   'Manage the Vocabularies' => 'Управление словарями',
   'Name' => 'Наименование',
   'No vocabularies' => 'Словари не созданы',
+  'Nothing here, yet!' => '',
   'Parent' => 'Родитель',
   'Please click the button <b>Delete</b> to proceed, or <b>Cancel</b> to abandon the operation.' => 'Пожалуйста, нажмите <b>Удалить</b> для удаления или <b>Отмена</b> для отмены операции',
   'Required field' => 'Обязательные поля',

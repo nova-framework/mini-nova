@@ -30,6 +30,7 @@ return array (
   'Manage the Vocabularies' => '',
   'Name' => '',
   'No vocabularies' => '',
+  'Nothing here, yet!' => '',
   'Parent' => '',
   'Please click the button <b>Delete</b> to proceed, or <b>Cancel</b> to abandon the operation.' => '',
   'Required field' => '',
