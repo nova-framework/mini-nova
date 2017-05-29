@@ -29,6 +29,9 @@
         "nova-framework/plugin-installer": "dev-mini",
         "nova-framework/mini-system": "dev-master"
     },
+    "require-dev": {
+	"fzaninotto/faker": "^1.6"
+    },
     "autoload": {
         "classmap": [
             "app/Database/Migrations",

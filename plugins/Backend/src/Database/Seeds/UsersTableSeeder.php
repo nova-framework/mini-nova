@@ -8,6 +8,8 @@ use Mini\Support\Facades\Hash;
 
 use Backend\Models\User;
 
+use Faker\Factory as FakerFactory;
+
 
 class UsersTableSeeder extends Seeder
 {
@@ -80,25 +82,23 @@ class UsersTableSeeder extends Seeder
 		// Mock Data
 		//------------------------------------------------------------------------------
 
-		$mockPath = dirname(__FILE__) .DS .'MOCK_DATA.json';
-
-		$users = json_decode(file_get_contents($mockPath), true);
+		$faker = FakerFactory::create();
 
 		//
 		$id = 6;
 
-		foreach ($users as $user) {
-			$username = $user['username'];
+		for($i = 0; $i < 238; $i++) {
+			$username = $faker->userName;
 
 			User::create(array(
 				'id'				=> $id,
 				'role_id'			=> 5,
 				'username'			=> $username,
 				'password'			=> Hash::make($username),
-				'first_name'		=> $user['first_name'],
-				'last_name'			=> $user['last_name'],
-				'location'			=> $user['location'] .', ' .$user['country'],
-				'email'				=> $user['email'],
+				'first_name'		=> $faker->firstName,
+				'last_name'			=> $faker->lastName,
+				'location'			=> $faker->city .', ' .$faker->country,
+				'email'				=> $faker->email,
 				'remember_token'	=> '',
 			));
 
