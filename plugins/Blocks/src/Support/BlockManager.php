@@ -5,6 +5,7 @@ namespace Blocks\Support;
 use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Support\Facades\Auth;
+use Mini\Support\Facades\View;
 use Mini\Support\Str;
 
 use Blocks\Models\Block;
@@ -58,15 +59,12 @@ class BlockManager
 
 	protected function canRenderBlock($block, $mode)
 	{
-		if (! $this->visibleForCurrentPath($block)) {
+		if (! $this->visibleForCurrentUser($block, $mode)) {
 			return false;
 		}
 
-		return $this->visibleForCurrentUser($block, $mode);
-	}
+		$path = $this->request->path();
 
-	protected function visibleForCurrentPath($block)
-	{
 		$paths = isset($block->paths) ? trim($block->paths) : '';
 
 		if (empty($paths)) {
@@ -75,24 +73,20 @@ class BlockManager
 
 		$paths = array_map('trim', explode(PHP_EOL, $paths));
 
-		$patterns = array_filter($paths, function($value)
+		$patterns = array_filter($paths, function ($value)
 		{
 			return ! empty($value);
 		});
 
-		$path = $this->request->path();
-
-		$result = false;
+		$inverse = ($block->paths_mode === 1);
 
 		foreach ($patterns as $pattern) {
-			$result = Str::is($pattern, $path);
-
-			if ($result) {
-				break;
+			if (Str::is($pattern, $path)) {
+				return $inverse ? false : true;
 			}
 		}
 
-		return ($block->paths_mode === 1) ? ! $result : $result;
+		return $inverse ? true : false;
 	}
 
 	protected function visibleForCurrentUser($block, $mode)
@@ -107,36 +101,32 @@ class BlockManager
 		}
 
 		// We are on the mode 'auth'
-		if ($block->auth_mode === 'auth') {
-			if (empty($block->user_roles)) {
-				return true;
-			}
-
-			$user = Auth::user();
-
-			$roles = array_filter(explode(',', $block->user_roles), function($value)
-			{
-				return ! empty($value);
-			});
-
-			return $user->hasRole($roles);
+		if ($block->auth_mode !== 'auth') {
+			return false;
+		} else if (empty($block->user_roles)) {
+			return true;
 		}
 
-		return false;
+		$user = Auth::user();
+
+		$roles = array_filter(explode(',', $block->user_roles), function ($value)
+		{
+			return ! empty($value);
+		});
+
+		return $user->hasRole($roles);
 	}
 
 	protected function renderBlock(Block $block)
 	{
-		$content = '';
+		$theme = $this->container['config']->get('app.theme');
 
-		if ($block->hide_title === 0) {
-			$content .= '<h4><strong>' .$block->title  .'</strong></h4>';
-		}
+		$data = array(
+			'title'		=> $block->title,
+			'content'	=> $block->content,
+			'showTitle' => ($block->hide_title === 0),
+		);
 
-		$content .= '<hr style="margin-top: 0;">';
-
-		$content .= '<p>' .$block->content  .'</p><br>';
-
-		return $content;
+		return View::fetch("$theme::Blocks/Default", $data);
 	}
 }
