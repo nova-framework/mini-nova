@@ -100,7 +100,7 @@ class Taxonomy
 	 * @return  The Vocabulary Model object, otherwise NULL
 	 */
 	public function getVocabularyTermsAsOptionsArray($id)
-    {
+	{
 		$vocabulary = ($id instanceof Vocabulary)
 			? $id
 			: $this->vocabulary->where('id', $id)->first();
@@ -138,7 +138,7 @@ class Taxonomy
 	 *
 	 * @param Object $parent
 	 * @param array  $options
-	 * @param int    $depth
+	 * @param int	$depth
 	 *
 	 * @return array
 	 */

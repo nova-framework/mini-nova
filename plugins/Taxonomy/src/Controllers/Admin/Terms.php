@@ -126,7 +126,7 @@ class Terms extends BaseController
 			$term->name			= $input['name'];
 			$term->slug			= $slug;
 			$term->description	= $input['description'];
-			$term->parent_id    = $input['parent'];
+			$term->parent_id	= $input['parent'];
 
 			$term->vocabulary_id = $vocabulary->id;
 
@@ -213,7 +213,7 @@ class Terms extends BaseController
 			$term->name			= $input['name'];
 			$term->slug			= $slug;
 			$term->description	= $input['description'];
-			$term->parent_id    = $input['parent'];
+			$term->parent_id	= $input['parent'];
 
 			// Save the User information.
 			$term->save();

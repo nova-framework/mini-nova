@@ -16,8 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class Handler extends BaseController
 {
 
-    public function handle($group, $slug = null)
-    {
+	public function handle($group, $slug = null)
+	{
 		try {
 			$vocabulary = Vocabulary::where('slug', $group)->firstOrFail();
 		}
@@ -37,7 +37,7 @@ class Handler extends BaseController
 		}
 
 		return $this->handleTerm($vocabulary, $term);
-    }
+	}
 
 	protected function handleVocabulary(Vocabulary $vocabulary)
 	{
