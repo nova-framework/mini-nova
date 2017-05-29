@@ -25,11 +25,19 @@ class Handler extends BaseController
 			throw new NotFoundHttpException();
 		}
 
-		if (! is_null($slug)) {
-			return $this->handleTerm($vocabulary, $slug);
+		if (is_null($slug)) {
+			return $this->handleVocabulary($vocabulary);
+
 		}
 
-		return $this->handleVocabulary($vocabulary);
+		try {
+			$term = Term::with('children', 'relations')->where('slug', $slug)->firstOrFail();
+		}
+		catch (ModelNotFoundException $e) {
+			throw new NotFoundHttpException();
+		}
+
+		return $this->handleTerm($vocabulary, $term);
     }
 
 	protected function handleVocabulary(Vocabulary $vocabulary)
@@ -39,23 +47,21 @@ class Handler extends BaseController
 			->where('parent_id', 0)
 			->paginate(10);
 
+		//
+		$title = $vocabulary->name;
+
 		return View::make('Taxonomy::Handler/Vocabulary')
-			->shares('title', $vocabulary->name)
+			->shares('title', $title)
 			->with('vocabulary', $vocabulary)
 			->with('terms', $terms);
 	}
 
-	protected function handleTerm(Vocabulary $vocabulary, $slug)
+	protected function handleTerm(Vocabulary $vocabulary, Term $term)
 	{
-		try {
-			$term = Term::with('children', 'relations')->where('slug', $slug)->firstOrFail();
-		}
-		catch (ModelNotFoundException $e) {
-			throw new NotFoundHttpException();
-		}
+		$title = $vocabulary->name .' : ' .$term->name;
 
 		return View::make('Taxonomy::Handler/Term')
-			->shares('title', $vocabulary->name .' : ' .$term->name)
+			->shares('title', $title)
 			->with('vocabulary', $vocabulary)
 			->with('term', $term);
 	}
