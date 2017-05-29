@@ -14,27 +14,31 @@
 <?php Section::start('content'); ?>
 
 <div class="row">
-	<?php if (! $term->children->isEmpty()) { ?>
-	<h3><?= __d('taxonomy', 'Child Terms'); ?></h3>
-	<hr style="margin-top: 0;">
-	<?php foreach ($term->children as $child) { ?>
-	<h4><strong><a href="<?= site_url($vocabulary->slug .'/' .$child->slug); ?>"><?= $child->name; ?></a></strong></h4>
-	<p><?= $child->description; ?></p>
-	<p class="text-muted"><?= __d('taxonomy', '{0} children, {1} relationships', $child->children->count(), $child->relations->count()); ?></p>
-	<br>
-	<?php } ?>
-	<?php } ?>
+	<div class="col-sm-12">
+		<?php if (! $term->children->isEmpty()) { ?>
+		<h3><?= __d('taxonomy', 'Child Terms'); ?></h3>
+		<hr style="margin-top: 0;">
+		<?php foreach ($term->children as $child) { ?>
+		<h4><strong><a href="<?= site_url($vocabulary->slug .'/' .$child->slug); ?>"><?= $child->name; ?></a></strong></h4>
+		<p><?= $child->description; ?></p>
+		<p class="text-muted"><?= __d('taxonomy', '{0} children, {1} relationships', $child->children->count(), $child->relations->count()); ?></p>
+		<br>
+		<?php } ?>
+		<?php } ?>
+	</div>
 </div>
 
 <div class="row">
-	<h3><?= __d('taxonomy', 'Relationships'); ?></h3>
-	<hr style="margin-top: 0;">
+	<div class="col-sm-12">
+		<h3><?= __d('taxonomy', 'Relationships'); ?></h3>
+		<hr style="margin-top: 0;">
 
-	<?php if (! $term->relations->isEmpty()) { ?>
+		<?php if (! $term->relations->isEmpty()) { ?>
 
-	<?php } else { ?>
-	<p><?= __d('taxonomy', 'The term <b>{0}</b> have no relationships.', $term->name); ?></p>
-	<?php } ?>
+		<?php } else { ?>
+		<p><?= __d('taxonomy', 'The term <b>{0}</b> have no relationships.', $term->name); ?></p>
+		<?php } ?>
+	</div>
 </div>
 
 <?php Section::stop(); ?>
