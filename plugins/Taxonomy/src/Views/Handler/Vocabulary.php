@@ -9,7 +9,7 @@
 <div class="row">
 	<?php if (! $terms->isEmpty()) { ?>
 	<?php foreach ($terms->all() as $term) { ?>
-	<h3><a href="<?= site_url($vocabulary->slug .'/' .$term->slug); ?>"><?= $term->name; ?></a></h3>
+	<h4><strong><a href="<?= site_url($vocabulary->slug .'/' .$term->slug); ?>"><?= $term->name; ?></strong></a></h4>
 	<p><?= $term->description; ?></p>
 	<p class="text-muted"><?= __d('taxonomy', '{0} children, {1} relationships', $term->children->count(), $term->relations->count()); ?></p>
 	<br>
