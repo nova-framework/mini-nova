@@ -20,11 +20,11 @@ Event::listen('backend.menu', function($user)
 
 	$items = array(
 		array(
-			'uri'		=> 'admin/files',
-			'title'		=> __d('files', 'Files'),
+			'uri'		=> 'admin/blocks',
+			'title'		=> __d('blocks', 'Blocks'),
 			'label'		=> '',
-			'icon'		=> 'file',
-			'weight'	=> 4,
+			'icon'		=> 'cubes',
+			'weight'	=> 3,
 		),
 	);
 

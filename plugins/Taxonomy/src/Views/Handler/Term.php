@@ -1,3 +1,5 @@
+<?php Section::start('page-top'); ?>
+
 <div class="row">
 	<h1><?= $title; ?></h1>
 	<ol class="breadcrumb">
@@ -7,32 +9,33 @@
 	</ol>
 </div>
 
-<div class="col-sm-9">
-	<div class="row">
-		<?php if (! $term->children->isEmpty()) { ?>
-		<h3><?= __d('taxonomy', 'Child Terms'); ?></h3>
-		<hr style="margin-top: 0;">
-		<?php foreach ($term->children as $child) { ?>
-		<h4><strong><a href="<?= site_url($vocabulary->slug .'/' .$child->slug); ?>"><?= $child->name; ?></a></strong></h4>
-		<p><?= $child->description; ?></p>
-		<p class="text-muted"><?= __d('taxonomy', '{0} children, {1} relationships', $child->children->count(), $child->relations->count()); ?></p>
-		<br>
-		<?php } ?>
-		<?php } ?>
-	</div>
-	<div class="row">
-		<h3><?= __d('taxonomy', 'Relationships'); ?></h3>
-		<hr style="margin-top: 0;">
+<?php Section::stop(); ?>
 
-		<?php if (! $term->relations->isEmpty()) { ?>
+<?php Section::start('content'); ?>
 
-		<?php } else { ?>
-		<p><?= __d('taxonomy', 'The term <b>{0}</b> have no relationships.', $term->name); ?></p>
-		<?php } ?>
-	</div>
-</div>
-
-<div class="col-sm-3">
-	<h3>Right Area</h3>
+<div class="row">
+	<?php if (! $term->children->isEmpty()) { ?>
+	<h3><?= __d('taxonomy', 'Child Terms'); ?></h3>
 	<hr style="margin-top: 0;">
+	<?php foreach ($term->children as $child) { ?>
+	<h4><strong><a href="<?= site_url($vocabulary->slug .'/' .$child->slug); ?>"><?= $child->name; ?></a></strong></h4>
+	<p><?= $child->description; ?></p>
+	<p class="text-muted"><?= __d('taxonomy', '{0} children, {1} relationships', $child->children->count(), $child->relations->count()); ?></p>
+	<br>
+	<?php } ?>
+	<?php } ?>
 </div>
+
+<div class="row">
+	<h3><?= __d('taxonomy', 'Relationships'); ?></h3>
+	<hr style="margin-top: 0;">
+
+	<?php if (! $term->relations->isEmpty()) { ?>
+
+	<?php } else { ?>
+	<p><?= __d('taxonomy', 'The term <b>{0}</b> have no relationships.', $term->name); ?></p>
+	<?php } ?>
+</div>
+
+<?php Section::stop(); ?>
+

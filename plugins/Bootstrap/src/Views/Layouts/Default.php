@@ -15,7 +15,26 @@
 <body>
 
 <div class="container">
-	<?= $content; ?>
+	<div class="col-sm-12">
+		<?php Section::start('page-top'); ?>
+
+		<?= Section::render(); ?>
+	</div>
+	<div class="col-sm-9">
+		<?= Blocks::render('content-top'); ?>
+
+		<?php Section::start('content'); ?>
+
+		<?= Section::render(); ?>
+
+		<?= Blocks::render('content-bottom'); ?>
+	</div>
+	<div class="col-sm-3">
+		<?= Blocks::render('page-right'); ?>
+	</div>
+	<div class="col-sm-12">
+		<?= Blocks::render('page-bottom'); ?>
+	</div>
 </div>
 
 <footer class="footer">
