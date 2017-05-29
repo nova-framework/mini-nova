@@ -4,14 +4,23 @@
 // Load The Options
 //--------------------------------------------------------------------------
 
+use Mini\Database\QueryException;
+
 use App\Models\Option;
+
 
 if (CONFIG_STORE === 'database') {
 	// Retrieve the Option items, caching them for 24 hours.
-	$options = Cache::remember('system_options', 1440, function()
-	{
-		return Option::all();
-	});
+
+	try {
+		$options = Cache::remember('system_options', 1440, function ()
+		{
+			return Option::all();
+		});
+	}
+	catch (QueryException $e) {
+		$options = array();
+	}
 
 	foreach ($options as $option) {
 		$key = $option->group;
@@ -22,7 +31,10 @@ if (CONFIG_STORE === 'database') {
 
 		Config::set($key, $option->value);
 	}
-} else if(CONFIG_STORE !== 'files') {
+}
+
+// If the CONFIG_STORE is not in files mode, go Exception.
+else if(CONFIG_STORE !== 'files') {
 	throw new InvalidArgumentException('Invalid Config Store type.');
 }
 

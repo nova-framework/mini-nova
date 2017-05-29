@@ -19,11 +19,6 @@ define('VERSION', trim(file_get_contents(BASEPATH .'VERSION.txt')));
 // Load The Global Configuration
 //--------------------------------------------------------------------------
 
-$path = APPPATH .'Boot' .DS .'Config.php';
-
-if (is_readable($path)) require $path;
-
-//
 require APPPATH .'Config.php';
 
 //--------------------------------------------------------------------------

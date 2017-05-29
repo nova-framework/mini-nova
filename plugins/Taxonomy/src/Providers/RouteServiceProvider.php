@@ -48,13 +48,12 @@ class RouteServiceProvider extends ServiceProvider
 		// Setup the dynamic routes for Vocabularies.
 
 		try {
-			$slugs = Cache::remember('taxonomy_routed_vocabularies', 1440, function()
+			$slugs = Cache::remember('taxonomy_routed_vocabularies', 1440, function ()
 			{
 				return Vocabulary::lists('slug');
 			});
-
-		} catch (QueryException $e) {
-			// The database or table are not yet available?
+		}
+		catch (QueryException $e) {
 			return;
 		}
 
