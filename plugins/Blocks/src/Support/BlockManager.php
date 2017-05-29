@@ -43,7 +43,7 @@ class BlockManager
 		$result = '';
 
 		foreach ($blocks as $block) {
-			$result .= '<h4>' .$block->title  .'</h4><hr style="margin-top: 0;">';
+			$result .= '<h4><strong>' .$block->title  .'</strong></h4><hr style="margin-top: 0;">';
 
 			$result .= '<p>' .$block->content  .'</p><br>';
 		}
