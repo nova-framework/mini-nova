@@ -5,6 +5,7 @@ namespace Blocks\Support;
 use Mini\Container\Container;
 use Mini\Http\Request;
 use Mini\Support\Facades\Auth;
+use Mini\Support\Str;
 
 use Blocks\Models\Block;
 
@@ -66,9 +67,32 @@ class BlockManager
 
 	protected function visibleForCurrentPath($block)
 	{
+		$paths = isset($block->paths) ? trim($block->paths) : '';
+
+		if (empty($paths)) {
+			return true;
+		}
+
+		$paths = array_map('trim', explode(PHP_EOL, $paths));
+
+		$patterns = array_filter($paths, function($value)
+		{
+			return ! empty($value);
+		});
+
 		$path = $this->request->path();
 
-		return true;
+		$result = false;
+
+		foreach ($patterns as $pattern) {
+			$result = Str::is($pattern, $path);
+
+			if ($result) {
+				break;
+			}
+		}
+
+		return ($block->paths_mode === 1) ? ! $result : $result;
 	}
 
 	protected function visibleForCurrentUser($block, $mode)
