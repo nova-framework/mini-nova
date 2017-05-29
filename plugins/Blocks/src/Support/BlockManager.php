@@ -66,29 +66,25 @@ class BlockManager
 			return true;
 		}
 
-		// If we are on the mode 'guest'
+		// If we are on the mode 'guest' the checking is simple.
 		else if ($mode === 'guest') {
 			return ($block->auth_mode === 'guest');
 		}
 
 		// We are on the mode 'auth'
-		else if ($mode === 'auth') {
-			$user = Auth::user();
-
-			if ($block->auth_mode === 'auth') {
-				if (isset($block->user_roles)) {
-					$roles = array_filter(explode(',', $block->user_roles), function($value)
-					{
-						return ! empty($value);
-					});
-
-					if (! empty($roles)) {
-						return $user->hasRole($roles);
-					}
-				}
-
+		if ($block->auth_mode === 'auth') {
+			if (empty($block->user_roles)) {
 				return true;
 			}
+
+			$user = Auth::user();
+
+			$roles = array_filter(explode(',', $block->user_roles), function($value)
+			{
+				return ! empty($value);
+			});
+
+			return $user->hasRole($roles);
 		}
 
 		return false;
