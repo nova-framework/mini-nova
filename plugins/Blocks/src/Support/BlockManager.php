@@ -47,20 +47,31 @@ class BlockManager
 		$results = array();
 
 		foreach ($blocks as $block) {
-			if ($this->blockIsVisible($block, $mode)) {
-				$results[] = $this->getBlockContent($block);
+			if ($this->canRenderBlock($block, $mode)) {
+				$results[] = $this->renderBlock($block);
 			}
 		}
 
 		return implode(PHP_EOL, $results);
 	}
 
-	protected function blockIsVisible($block, $mode)
+	protected function canRenderBlock($block, $mode)
 	{
-		return $this->userHasAccess($block, $mode);
+		if (! $this->visibleForCurrentPath($block)) {
+			return false;
+		}
+
+		return $this->visibleForCurrentUser($block, $mode);
 	}
 
-	protected function userHasAccess($block, $mode)
+	protected function visibleForCurrentPath($block)
+	{
+		$path = $this->request->path();
+
+		return true;
+	}
+
+	protected function visibleForCurrentUser($block, $mode)
 	{
 		if (is_null($block->auth_mode)) {
 			return true;
@@ -90,7 +101,7 @@ class BlockManager
 		return false;
 	}
 
-	protected function getBlockContent(Block $block)
+	protected function renderBlock(Block $block)
 	{
 		$content = '';
 
