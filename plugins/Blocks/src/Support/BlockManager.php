@@ -43,11 +43,21 @@ class BlockManager
 		$result = '';
 
 		foreach ($blocks as $block) {
-			$result .= '<h4><strong>' .$block->title  .'</strong></h4><hr style="margin-top: 0;">';
-
-			$result .= '<p>' .$block->content  .'</p><br>';
+			$result .= $this->gatherBlockContent($block);
 		}
 
 		return $result;
+	}
+
+	protected function gatherBlockContent(Block $block)
+	{
+		$content = '';
+
+		//
+		$content .= '<h4><strong>' .$block->title  .'</strong></h4><hr style="margin-top: 0;">';
+
+		$content .= '<p>' .$block->content  .'</p><br>';
+
+		return $content;
 	}
 }
