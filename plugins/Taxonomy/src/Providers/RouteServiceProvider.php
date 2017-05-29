@@ -52,13 +52,13 @@ class RouteServiceProvider extends ServiceProvider
 		});
 
 		$wheres = array(
-			'vocabulary'	=> '(' .implode('|', $slugs) .')',
-			'slug'			=> '(.*)',
+			'group'	=> '(' .implode('|', $slugs) .')',
+			'slug'	=> '(.*)',
 		);
 
 		$router->group(array('middleware' => 'web', 'namespace' => $this->namespace), function($router) use ($wheres)
 		{
-			$router->get("{vocabulary}/{slug?}", array('uses' => 'Handler@handle', 'wheres' => $wheres));
+			$router->get("{group}/{slug?}", array('uses' => 'Handler@handle', 'wheres' => $wheres));
 		});
 	}
 }

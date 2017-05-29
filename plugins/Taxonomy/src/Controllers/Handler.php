@@ -16,10 +16,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class Handler extends BaseController
 {
 
-    public function handle($vocabulary, $slug = null)
+    public function handle($group, $slug = null)
     {
 		try {
-			$vocabulary = Vocabulary::where('slug', $vocabulary)->firstOrFail();
+			$vocabulary = Vocabulary::where('slug', $group)->firstOrFail();
 		}
 		catch (ModelNotFoundException $e) {
 			throw new NotFoundHttpException();
