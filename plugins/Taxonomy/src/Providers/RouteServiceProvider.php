@@ -2,6 +2,7 @@
 
 namespace Taxonomy\Providers;
 
+use Mini\Database\QueryException;
 use Mini\Routing\Router;
 use Mini\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Mini\Support\Facades\Cache;
@@ -46,10 +47,16 @@ class RouteServiceProvider extends ServiceProvider
 		//
 		// Setup the dynamic routes for Vocabularies.
 
-		$slugs = Cache::remember('taxonomy_routed_vocabularies', 1440, function()
-		{
-			return Vocabulary::lists('slug');
-		});
+		try {
+			$slugs = Cache::remember('taxonomy_routed_vocabularies', 1440, function()
+			{
+				return Vocabulary::lists('slug');
+			});
+
+		} catch (QueryException $e) {
+			// The database or table are not yet available?
+			return;
+		}
 
 		$wheres = array(
 			'group'	=> '(' .implode('|', $slugs) .')',
