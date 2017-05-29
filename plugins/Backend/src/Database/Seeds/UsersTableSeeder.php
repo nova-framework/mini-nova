@@ -82,27 +82,24 @@ class UsersTableSeeder extends Seeder
 		// Mock Data
 		//------------------------------------------------------------------------------
 
-		$faker = FakerFactory::create();
+		$faker = FakerFactory::create('en_US');
 
 		//
-		$id = 6;
-
 		for($i = 0; $i < 238; $i++) {
 			$username = $faker->unique()->userName;
 
+			$password = Hash::make($username);
+
 			User::create(array(
-				'id'				=> $id,
 				'role_id'			=> 5,
 				'username'			=> $username,
-				'password'			=> Hash::make($username),
+				'password'			=> $password,
 				'first_name'		=> $faker->firstName,
 				'last_name'			=> $faker->lastName,
 				'location'			=> $faker->city .', ' .$faker->country,
 				'email'				=> $faker->unique()->email,
 				'remember_token'	=> '',
 			));
-
-			$id++;
 		}
 	}
 }

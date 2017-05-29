@@ -24,7 +24,7 @@ Event::listen('backend.menu', function($user)
 			'title'		=> __d('blocks', 'Blocks'),
 			'label'		=> '',
 			'icon'		=> 'cubes',
-			'weight'	=> 3,
+			'weight'	=> 4,
 		),
 	);
 
