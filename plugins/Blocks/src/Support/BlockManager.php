@@ -129,8 +129,11 @@ class BlockManager
 	{
 		$content = '';
 
-		//
-		$content .= '<h4><strong>' .$block->title  .'</strong></h4><hr style="margin-top: 0;">';
+		if ($block->hide_title === 0) {
+			$content .= '<h4><strong>' .$block->title  .'</strong></h4>';
+		}
+
+		$content .= '<hr style="margin-top: 0;">';
 
 		$content .= '<p>' .$block->content  .'</p><br>';
 

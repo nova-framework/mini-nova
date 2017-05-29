@@ -28,6 +28,7 @@ class CreateBlocksTable extends Migration
 			$table->text('user_roles')->nullable();
 			$table->boolean('hide_title')->default(false);
 			$table->string('handler')->nullable();
+			$table->string('params')->nullable();
 			$table->timestamps();
 		});
 	}
