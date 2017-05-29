@@ -27,7 +27,6 @@ class Handler extends BaseController
 
 		if (is_null($slug)) {
 			return $this->handleVocabulary($vocabulary);
-
 		}
 
 		try {
