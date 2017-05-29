@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
 
 		//
 		//$this->call('Backend\Database\Seeds\FoobarTableSeeder');
-		$this->call('Backend\Database\Seeds\UsersTableSeeder');
 		$this->call('Backend\Database\Seeds\RolesTableSeeder');
+		$this->call('Backend\Database\Seeds\UsersTableSeeder');
 	}
 
 }

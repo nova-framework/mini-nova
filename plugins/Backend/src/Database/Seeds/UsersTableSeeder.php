@@ -88,7 +88,7 @@ class UsersTableSeeder extends Seeder
 		$id = 6;
 
 		for($i = 0; $i < 238; $i++) {
-			$username = $faker->userName;
+			$username = $faker->unique()->userName;
 
 			User::create(array(
 				'id'				=> $id,
@@ -98,7 +98,7 @@ class UsersTableSeeder extends Seeder
 				'first_name'		=> $faker->firstName,
 				'last_name'			=> $faker->lastName,
 				'location'			=> $faker->city .', ' .$faker->country,
-				'email'				=> $faker->email,
+				'email'				=> $faker->unique()->email,
 				'remember_token'	=> '',
 			));
 
