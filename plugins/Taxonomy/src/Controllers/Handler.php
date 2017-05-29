@@ -34,7 +34,10 @@ class Handler extends BaseController
 
 	protected function handleVocabulary(Vocabulary $vocabulary)
 	{
-		$terms = $vocabulary->terms()->with('children', 'relations')->where('parent_id', 0)->paginate(10);
+		$terms = $vocabulary->terms()
+			->with('children', 'relations')
+			->where('parent_id', 0)
+			->paginate(10);
 
 		return View::make('Taxonomy::Handler/Vocabulary')
 			->shares('title', $vocabulary->name)
@@ -45,16 +48,15 @@ class Handler extends BaseController
 	protected function handleTerm(Vocabulary $vocabulary, $slug)
 	{
 		try {
-			$term = Term::where('slug', $slug)->firstOrFail();
+			$term = Term::with('children', 'relations')->where('slug', $slug)->firstOrFail();
 		}
 		catch (ModelNotFoundException $e) {
 			throw new NotFoundHttpException();
 		}
 
-		$content = '<p>' .__d('taxonomy', 'Nothing here, yet!') .'</p>';
-
-		return View::make('Default')
+		return View::make('Taxonomy::Handler/Term')
 			->shares('title', $vocabulary->name .' : ' .$term->name)
-			->with('content', $content);
+			->with('vocabulary', $vocabulary)
+			->with('term', $term);
 	}
 }

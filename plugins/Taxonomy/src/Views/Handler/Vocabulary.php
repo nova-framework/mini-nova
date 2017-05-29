@@ -1,6 +1,9 @@
 <div class="row">
 	<h1><?= $title; ?></h1>
-	<hr>
+	<ol class="breadcrumb">
+		<li><a href="<?= site_url('/'); ?>"><?= __d('taxonomy', 'Homepage'); ?></a></li>
+		<li><a href="<?= site_url($vocabulary->slug); ?>"><?= $vocabulary->name; ?></a></li>
+	</ol>
 </div>
 
 <div class="row">
