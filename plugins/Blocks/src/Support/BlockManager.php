@@ -101,7 +101,7 @@ class BlockManager
 		}
 
 		// We are on the mode 'auth'
-		if ($block->auth_mode !== 'auth') {
+		else if ($block->auth_mode !== 'auth') {
 			return false;
 		} else if (empty($block->user_roles)) {
 			return true;
@@ -121,12 +121,12 @@ class BlockManager
 	{
 		$theme = $this->container['config']->get('app.theme');
 
-		$data = array(
+		$showTitle = ($block->hide_title === 0);
+
+		return View::fetch("$theme::Blocks/Default", array(
 			'title'		=> $block->title,
 			'content'	=> $block->content,
-			'showTitle' => ($block->hide_title === 0),
-		);
-
-		return View::fetch("$theme::Blocks/Default", $data);
+			'showTitle' => $showTitle,
+		));
 	}
 }
