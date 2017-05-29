@@ -166,7 +166,7 @@ return array(
 		'Mini\Cache\CacheServiceProvider',
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
-		'Mini\Plugin\PluginServiceProvider',
+		'Mini\Plugins\PluginServiceProvider',
 		'Mini\Bus\BusServiceProvider',
 
 		// The Console Support Providers.
@@ -175,7 +175,7 @@ return array(
 		'Mini\Database\SeedServiceProvider',
 		'Mini\Routing\ConsoleServiceProvider',
 		'Mini\Session\ConsoleServiceProvider',
-		'Mini\Plugin\ConsoleServiceProvider',
+		'Mini\Plugins\ConsoleServiceProvider',
 
 		// The Application Providers.
 		'App\Providers\AppServiceProvider',

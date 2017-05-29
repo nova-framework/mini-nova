@@ -3,7 +3,7 @@
 namespace Content\Providers;
 
 use Mini\Auth\Contracts\Access\GateInterface as Gate;
-use Mini\Plugin\Support\Providers\PluginServiceProvider as ServiceProvider;
+use Mini\Plugins\Support\Providers\PluginServiceProvider as ServiceProvider;
 use Mini\Routing\Router;
 
 

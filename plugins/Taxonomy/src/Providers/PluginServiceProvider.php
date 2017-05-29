@@ -4,7 +4,7 @@ namespace Taxonomy\Providers;
 
 use Mini\Auth\Contracts\Access\GateInterface as Gate;
 use Mini\Foundation\AliasLoader;
-use Mini\Plugin\Support\Providers\PluginServiceProvider as ServiceProvider;
+use Mini\Plugins\Support\Providers\PluginServiceProvider as ServiceProvider;
 use Mini\Routing\Router;
 
 use Taxonomy\Support\Taxonomy;
