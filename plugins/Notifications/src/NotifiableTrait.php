@@ -2,6 +2,9 @@
 
 namespace Notifications;
 
+use Mini\Support\Facades\App;
+use Mini\Support\Str;
+
 
 trait NotifiableTrait
 {
@@ -12,7 +15,6 @@ trait NotifiableTrait
 	{
 		return $this->morphMany('Notifications\Models\Notification', 'notifiable')->orderBy('created_at', 'desc');
 	}
-
 
 	/**
 	 * Get the entity's read notifications.
@@ -38,7 +40,9 @@ trait NotifiableTrait
 	 */
 	public function notify($instance)
 	{
-		app('Notifications\Contracts\Dispatcher')->send($this, $instance);
+		$dispatcher = App::make('Notifications\Contracts\DispatcherInterface');
+
+		return $dispatcher->send($this, $instance);
 	}
 
 	/**
@@ -56,6 +60,7 @@ trait NotifiableTrait
 		switch ($driver) {
 			case 'database':
 				return $this->notifications();
+
 			case 'mail':
 				return $this->email;
 		}
