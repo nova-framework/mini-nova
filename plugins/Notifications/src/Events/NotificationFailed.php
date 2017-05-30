@@ -20,23 +20,31 @@ class NotificationFailed
 	public $notification;
 
 	/**
+	 * The channel name.
+	 *
+	 * @var string
+	 */
+	public $channel;
+
+	/**
 	 * The data needed to process this failure.
 	 *
 	 * @var array
 	 */
-	public $data = array();
-
+	public $data = [];
 
 	/**
 	 * Create a new event instance.
 	 *
 	 * @param  mixed  $notifiable
 	 * @param  \Notifications\Notification  $notification
+	 * @param  string  $channel
 	 * @param  array  $data
 	 * @return void
 	 */
-	public function __construct($notifiable, $notification, $data = [])
+	public function __construct($notifiable, $notification, $channel, $data = [])
 	{
+		$this->channel = $channel;
 		$this->notifiable = $notifiable;
 		$this->notification = $notification;
 		$this->data = $data;

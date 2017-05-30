@@ -62,8 +62,8 @@ class PluginServiceProvider extends ServiceProvider
 		});
 
 		$this->app->singleton('command.notification.table', function ($app) {
-            return new NotificationTableCommand($app['files']);
-        });
+			return new NotificationTableCommand($app['files']);
+		});
 
 		$this->commands('command.notification.make', 'command.notification.table');
 	}

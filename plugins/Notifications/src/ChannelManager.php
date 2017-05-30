@@ -16,12 +16,12 @@ use InvalidArgumentException;
 
 class ChannelManager extends Manager implements DispatcherInterface
 {
-    /**
-     * The default channels used to deliver messages.
-     *
-     * @var array
-     */
-    protected $defaultChannels = array('mail', 'database');
+	/**
+	 * The default channels used to deliver messages.
+	 *
+	 * @var array
+	 */
+	protected $defaultChannels = array('mail', 'database');
 
 
 	/**
@@ -34,8 +34,8 @@ class ChannelManager extends Manager implements DispatcherInterface
 	public function send($notifiables, $notification)
 	{
 		if ((! $notifiables instanceof Collection) && ! is_array($notifiables)) {
-            $notifiables = array($notifiables);
-        }
+			$notifiables = array($notifiables);
+		}
 
 		$original = clone $notification;
 

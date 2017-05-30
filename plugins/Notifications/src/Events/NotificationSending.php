@@ -19,16 +19,24 @@ class NotificationSending
 	 */
 	public $notification;
 
+	/**
+	 * The channel name.
+	 *
+	 * @var string
+	 */
+	public $channel;
 
 	/**
 	 * Create a new event instance.
 	 *
 	 * @param  mixed  $notifiable
 	 * @param  \Notifications\Notification  $notification
+	 * @param  string  $channel
 	 * @return void
 	 */
-	public function __construct($notifiable, $notification)
+	public function __construct($notifiable, $notification, $channel)
 	{
+		$this->channel = $channel;
 		$this->notifiable = $notifiable;
 		$this->notification = $notification;
 	}

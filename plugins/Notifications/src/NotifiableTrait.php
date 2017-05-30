@@ -37,7 +37,7 @@ trait NotifiableTrait
 	{
 		$dispatcher = App::make('Notifications\Contracts\DispatcherInterface');
 
-		return $dispatcher->send($this, $instance);
+		return $dispatcher->send(array($this), $instance);
 	}
 
 	/**
