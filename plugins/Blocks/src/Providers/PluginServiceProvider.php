@@ -2,7 +2,6 @@
 
 namespace Blocks\Providers;
 
-use Mini\Auth\Contracts\Access\GateInterface as Gate;
 use Mini\Foundation\AliasLoader;
 use Mini\Plugins\Support\Providers\PluginServiceProvider as ServiceProvider;
 
@@ -17,27 +16,9 @@ class PluginServiceProvider extends ServiceProvider
 	 * @var array
 	 */
 	protected $providers = array(
+		//'Blocks\Providers\AuthServiceProvider',
+		//'Blocks\Providers\EventServiceProvider',
 		'Blocks\Providers\RouteServiceProvider'
-	);
-
-	/**
-	 * The event listener mappings for the plugin.
-	 *
-	 * @var array
-	 */
-	protected $listen = array(
-		'Blocks\Events\SomeEvent' => array(
-			'Blocks\Listeners\EventListener',
-		),
-	);
-
-	/**
-	 * The policy mappings for the plugin.
-	 *
-	 * @var array
-	 */
-	protected $policies = array(
-		'Blocks\Models\SomeModel' => 'Blocks\Policies\ModelPolicy',
 	);
 
 
@@ -54,17 +35,7 @@ class PluginServiceProvider extends ServiceProvider
 		$this->package('Blocks', 'blocks', $path);
 
 		// Bootstrap the Plugin.
-		$path = $path .DS .'Bootstrap.php';
-
-		$this->bootstrapFrom($path);
-
-		// Register the Plugin Policies.
-		$gate = $this->app->make(Gate::class);
-
-		$this->registerPolicies($gate);
-
-		//
-		parent::boot();
+		require $path .DS .'Bootstrap.php';
 	}
 
 	/**
@@ -76,9 +47,10 @@ class PluginServiceProvider extends ServiceProvider
 	{
 		parent::register();
 
-		$this->app->singleton('blocks', function($app)
+
+		$this->app->bindShared('blocks', function($app)
 		{
-			return new BlockManager($app, $app['request']);
+			return new BlockManager($app);
 		});
 
 		// Register the Facades.

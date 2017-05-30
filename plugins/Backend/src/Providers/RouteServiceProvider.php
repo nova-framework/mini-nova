@@ -3,7 +3,7 @@
 namespace Backend\Providers;
 
 use Mini\Routing\Router;
-use Mini\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Mini\Plugins\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 
 class RouteServiceProvider extends ServiceProvider

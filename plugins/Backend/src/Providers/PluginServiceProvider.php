@@ -2,9 +2,7 @@
 
 namespace Backend\Providers;
 
-use Mini\Auth\Contracts\Access\GateInterface as Gate;
 use Mini\Plugins\Support\Providers\PluginServiceProvider as ServiceProvider;
-use Mini\Routing\Router;
 
 
 class PluginServiceProvider extends ServiceProvider
@@ -15,27 +13,9 @@ class PluginServiceProvider extends ServiceProvider
 	 * @var array
 	 */
 	protected $providers = array(
+		//'Backend\Providers\AuthServiceProvider',
+		//'Backend\Providers\EventServiceProvider',
 		'Backend\Providers\RouteServiceProvider',
-	);
-
-	/**
-	 * The event listener mappings for the plugin.
-	 *
-	 * @var array
-	 */
-	protected $listen = array(
-		'Backend\Events\SomeEvent' => array(
-			'Backend\Listeners\EventListener',
-		),
-	);
-
-	/**
-	 * The policy mappings for the plugin.
-	 *
-	 * @var array
-	 */
-	protected $policies = array(
-		'Content\Models\SomeModel' => 'Content\Policies\ModelPolicy',
 	);
 
 
@@ -52,17 +32,7 @@ class PluginServiceProvider extends ServiceProvider
 		$this->package('Backend', 'backend', $path);
 
 		// Bootstrap the Plugin.
-		$path = $path .DS .'Bootstrap.php';
-
-		$this->bootstrapFrom($path);
-
-		// Register the Plugin Policies.
-		$gate = $this->app->make(Gate::class);
-
-		$this->registerPolicies($gate);
-
-		//
-		parent::boot();
+		require $path .DS .'Bootstrap.php';
 	}
 
 	/**

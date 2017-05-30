@@ -18,17 +18,10 @@ class BlockManager
 	 */
 	protected $container;
 
-	/**
-	 * @var Mini\Http\Request
-	 */
-	protected $request;
 
-
-	public function __construct(Container $container, Request $request)
+	public function __construct(Container $container)
 	{
 		$this->container = $container;
-
-		$this->request = $request;
 	}
 
 	public function render($area)
@@ -72,7 +65,7 @@ class BlockManager
 			return false;
 		}
 
-		$path = $this->request->path();
+		$path = $this->container['request']->path();
 
 		$paths = isset($block->paths) ? trim($block->paths) : '';
 

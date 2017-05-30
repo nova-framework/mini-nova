@@ -31,7 +31,7 @@ class PluginServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->singleton('widgets', function($app)
+		$this->app->bindShared('widgets', function($app)
 		{
 			return new WidgetManager($app);
 		});
