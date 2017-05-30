@@ -5,6 +5,7 @@ namespace Notifications\Providers;
 use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
+use Notifications\Console\NotificationMakeCommand;
 use Notifications\Contracts\DispatcherInterface;
 use Notifications\ChannelManager;
 
@@ -47,6 +48,18 @@ class PluginServiceProvider extends ServiceProvider
 		$loader = AliasLoader::getInstance();
 
 		$loader->alias('Notification', 'Notifications\Support\Facades\Notification');
+
+		// Register the Commands.
+		$this->registerCommands();
 	}
 
+	protected function registerCommands()
+	{
+		$this->app->singleton('command.notification.make', function ($app)
+		{
+			return new NotificationMakeCommand($app['files']);
+		});
+
+		$this->commands('command.notification.make');
+	}
 }
