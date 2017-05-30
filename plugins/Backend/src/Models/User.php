@@ -6,11 +6,12 @@ use Mini\Foundation\Auth\User as BaseModel;
 use Mini\Support\Str;
 
 use FileField\Database\ORM\FileFieldTrait;
+use Notifications\NotifiableTrait;
 
 
 class User extends BaseModel
 {
-	use FileFieldTrait;
+	use FileFieldTrait, NotifiableTrait;
 
 	//
 	protected $table = 'users';
@@ -43,11 +44,6 @@ class User extends BaseModel
 		return $this->hasMany('Backend\Models\Message', 'sender_id', 'id');
 	}
 
-	public function notifications()
-	{
-		return $this->hasMany('Backend\Models\Notification', 'user_id');
-	}
-
 	public function scopeActiveSince($query, $since)
 	{
 		return $query->with(array('activities' => function ($query)
@@ -58,15 +54,6 @@ class User extends BaseModel
 		{
 			return $query->where('last_activity', '>=', $since);
 		});
-	}
-
-	public function newNotification()
-	{
-		$notification = new Notification();
-
-		$notification->user()->associate($this);
-
-		return $notification;
 	}
 
 	public function hasRole($roles, $strict = false)

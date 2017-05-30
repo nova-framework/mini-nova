@@ -72,7 +72,7 @@ Event::listen('router.executing.controller', function(Controller $controller, Re
 	View::share('currentUser', $user);
 
 	// Prepare the notifications count.
-	$notifications = Notification::where('user_id', $user->id)->unread()->count();
+	$notifications = $user->unreadNotifications()->count();
 
 	View::share('notificationCount', $notifications);
 

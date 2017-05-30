@@ -47,7 +47,8 @@
             "Taxonomy\\": "plugins/Taxonomy/src/",
             "Backup\\": "plugins/Backup/src/",
             "FileManager\\": "plugins/FileManager/src/",
-            "Blocks\\": "plugins/Blocks/src/"
+            "Blocks\\": "plugins/Blocks/src/",
+            "Notifications\\": "plugins/Notifications/src/"
         }
     },
     "scripts": {
