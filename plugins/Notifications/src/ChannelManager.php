@@ -16,12 +16,13 @@ use InvalidArgumentException;
 
 class ChannelManager extends Manager implements DispatcherInterface
 {
-	/**
-	 * The default channel used to deliver messages.
-	 *
-	 * @var string
-	 */
-	protected $defaultChannel = 'mail';
+    /**
+     * The default channels used to deliver messages.
+     *
+     * @var array
+     */
+    protected $defaultChannels = array('mail', 'database');
+
 
 	/**
 	 * Send the given notification to the given notifiable entities.
@@ -32,40 +33,24 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	public function send($notifiables, $notification)
 	{
-		$notifiables = $this->formatNotifiables($notifiables);
-
-		return $this->sendNow($notifiables, $notification);
-	}
-
-	/**
-	 * Send the given notification immediately.
-	 *
-	 * @param  \Mini\Support\Collection|array|mixed  $notifiables
-	 * @param  mixed  $notification
-	 * @return void
-	 */
-	public function sendNow($notifiables, $notification, array $channels = null)
-	{
-		$notifiables = $this->formatNotifiables($notifiables);
+		if ((! $notifiables instanceof Collection) && ! is_array($notifiables)) {
+            $notifiables = array($notifiables);
+        }
 
 		$original = clone $notification;
 
 		foreach ($notifiables as $notifiable) {
-			$notificationId = Uuid::uuid4()->toString();
+			$notification = clone $original;
 
-			$viaChannels = $channels ?: $notification->via($notifiable);
+			$notification->id = (string) Uuid::uuid4();
 
-			if (empty($viaChannels)) {
+			$channels = $notification->via($notifiable);
+
+			if (empty($channels)) {
 				continue;
 			}
 
-			foreach ($viaChannels as $channel) {
-				$notification = clone $original;
-
-				if (! $notification->id) {
-					$notification->id = $notificationId;
-				}
-
+			foreach ($channels as $channel) {
 				if (! $this->shouldSendNotification($notifiable, $notification, $channel)) {
 					continue;
 				}
@@ -92,22 +77,6 @@ class ChannelManager extends Manager implements DispatcherInterface
 		return $this->app->make('events')->until(
 			new Events\NotificationSending($notifiable, $notification, $channel)
 		) !== false;
-	}
-
-	/**
-	 * Format the notifiables into a Collection / array if necessary.
-	 *
-	 * @param  mixed  $notifiables
-	 * @return ModelCollection|array
-	 */
-	protected function formatNotifiables($notifiables)
-	{
-		if (! $notifiables instanceof Collection && ! is_array($notifiables)) {
-			return ($notifiables instanceof Model)
-							? new ModelCollection([$notifiables]) : [$notifiables];
-		}
-
-		return $notifiables;
 	}
 
 	/**
@@ -153,7 +122,8 @@ class ChannelManager extends Manager implements DispatcherInterface
 	{
 		try {
 			return parent::createDriver($driver);
-		} catch (InvalidArgumentException $e) {
+		}
+		catch (InvalidArgumentException $e) {
 			if (class_exists($driver)) {
 				return $this->app->make($driver);
 			}
@@ -163,17 +133,17 @@ class ChannelManager extends Manager implements DispatcherInterface
 	}
 
 	/**
-	 * Get the default channel driver name.
+	 * Get the default channel driver names.
 	 *
 	 * @return string
 	 */
 	public function getDefaultDriver()
 	{
-		return $this->defaultChannel;
+		return $this->defaultChannels;
 	}
 
 	/**
-	 * Get the default channel driver name.
+	 * Get the default channel driver names.
 	 *
 	 * @return string
 	 */
@@ -185,11 +155,11 @@ class ChannelManager extends Manager implements DispatcherInterface
 	/**
 	 * Set the default channel driver name.
 	 *
-	 * @param  string  $channel
+	 * @param  array|string  $channel
 	 * @return void
 	 */
-	public function deliverVia($channel)
+	public function deliverVia($channels)
 	{
-		$this->defaultChannel = $channel;
+		$this->defaultChannel = (array) $channels;
 	}
 }
