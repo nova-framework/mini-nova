@@ -5,7 +5,7 @@ namespace Widgets\Providers;
 use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
-use Widgets\WidgetManager;
+use Widgets\Support\WidgetManager;
 
 
 class PluginServiceProvider extends ServiceProvider

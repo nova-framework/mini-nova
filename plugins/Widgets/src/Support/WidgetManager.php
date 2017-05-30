@@ -1,6 +1,6 @@
 <?php
 
-namespace Widgets;
+namespace Widgets\Support;
 
 use Mini\Container\Container;
 
