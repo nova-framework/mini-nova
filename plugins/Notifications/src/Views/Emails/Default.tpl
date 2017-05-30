@@ -91,7 +91,7 @@ $fontFamily = 'font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif;';
                                                 @if ($level == 'error')
                                                     {{ __d('notifications', 'Whoops!') }}
                                                 @else
-                                                    {{ __d('notifications', 'Hello! }}
+                                                    {{ __d('notifications', 'Hello!') }}
                                                 @endif
                                             @endif
                                         </h1>
@@ -150,7 +150,7 @@ $fontFamily = 'font-family: Arial, \'Helvetica Neue\', Helvetica, sans-serif;';
                                                 <tr>
                                                     <td style="{{ $fontFamily }}">
                                                         <p style="{{ $style['paragraph-sub'] }}">
-                                                            {{ __d('notifications', 'If you’re having trouble clicking the "{0}" button, copy and paste the URL below into your web browser:', $actionText) }}
+                                                            {{ __d('notifications', 'If you\'re having trouble clicking the "{0}" button, copy and paste the URL below into your web browser:', $actionText) }}
                                                         </p>
 
                                                         <p style="{{ $style['paragraph-sub'] }}">
