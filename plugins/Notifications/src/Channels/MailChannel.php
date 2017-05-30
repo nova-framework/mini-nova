@@ -17,8 +17,9 @@ class MailChannel
 	 */
 	protected $mailer;
 
+
 	/**
-	 * Create a new mail channel instance.
+	 * Create a new Mail Channel instance.
 	 *
 	 * @param  \Mini\Mail\Mailer  $mailer
 	 * @return void
