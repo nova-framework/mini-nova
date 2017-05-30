@@ -7,7 +7,11 @@ use Mini\Database\ORM\Model;
 use Mini\Support\Collection;
 use Mini\Support\Manager;
 
+use Notifications\Channels\DatabaseChannel;
+use Notifications\Channels\EmailChannel;
 use Notifications\Contracts\DispatcherInterface;
+use Notifications\Events\NotificationSending;
+use Notifications\Events\NotificationSent;
 
 use Ramsey\Uuid\Uuid;
 
@@ -58,7 +62,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 				$response = $this->driver($channel)->send($notifiable, $notification);
 
 				$this->app->make('events')->fire(
-					new Events\NotificationSent($notifiable, $notification, $channel, $response)
+					new NotificationSent($notifiable, $notification, $channel, $response)
 				);
 			}
 		}
@@ -75,7 +79,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	protected function shouldSendNotification($notifiable, $notification, $channel)
 	{
 		return $this->app->make('events')->until(
-			new Events\NotificationSending($notifiable, $notification, $channel)
+			new NotificationSending($notifiable, $notification, $channel)
 		) !== false;
 	}
 
@@ -97,7 +101,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	protected function createDatabaseDriver()
 	{
-		return $this->app->make(Channels\DatabaseChannel::class);
+		return $this->app->make(DatabaseChannel::class);
 	}
 
 	/**
@@ -107,7 +111,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	protected function createMailDriver()
 	{
-		return $this->app->make(Channels\MailChannel::class);
+		return $this->app->make(MailChannel::class);
 	}
 
 	/**
@@ -139,7 +143,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	public function getDefaultDriver()
 	{
-		return $this->defaultChannels;
+		return reset($this->defaultChannels);
 	}
 
 	/**
@@ -149,7 +153,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	public function deliversVia()
 	{
-		return $this->getDefaultDriver();
+		return $this->defaultChannels;
 	}
 
 	/**
@@ -160,6 +164,6 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	public function deliverVia($channels)
 	{
-		$this->defaultChannel = (array) $channels;
+		$this->defaultChannels = (array) $channels;
 	}
 }
