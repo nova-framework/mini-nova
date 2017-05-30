@@ -38,18 +38,18 @@ class MailChannel
 	 */
 	public function send($notifiable, Notification $notification)
 	{
-		if (is_null($recipients = $notifiable->routeNotificationFor('mail'))) {
+		if (is_null($recipient = $notifiable->routeNotificationFor('mail'))) {
 			return;
 		}
 
 		$mailMessage = $notification->toMail($notifiable);
 
-		$this->mailer->send($mailMessage->view, $mailMessage->data(), function ($message) use ($notification, $recipients, $mailMessage)
+		$this->mailer->send($mailMessage->view, $mailMessage->data(), function ($message) use ($notification, $recipient, $mailMessage)
 		{
-			if (is_array($recipients)) {
-				$message->bcc($recipients);
+			if (is_array($recipient)) {
+				$message->bcc($recipient);
 			} else {
-				$message->to($recipients);
+				$message->to($recipient);
 			}
 
 			$message->subject($mailMessage->subject ?: Str::title(
