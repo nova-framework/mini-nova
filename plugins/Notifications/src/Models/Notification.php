@@ -11,14 +11,32 @@ use Notifications\Support\Collection;
 
 class Notification extends BaseModel
 {
+	/**
+	 * Indicates if the IDs are auto-incrementing.
+	 *
+	 * @var bool
+	 */
+	public $incrementing = false;
+
+	/**
+	 * The table associated with the Model.
+	 *
+	 * @var string
+	 */
 	protected $table = 'notifications';
 
-	protected $primaryKey = 'id';
+	/**
+	 * The guarded attributes on the Model.
+	 *
+	 * @var array
+	 */
+	protected $guarded = array();
 
-	protected $fillable = array(
-		'type', 'notifiable_id', 'notifiable_type', 'data', 'read_at'
-	);
-
+	/**
+	 * The attributes that should be mutated to dates.
+	 *
+	 * @var array
+	 */
 	protected $dates = array('read_at');
 
 
@@ -30,11 +48,17 @@ class Notification extends BaseModel
 		return $this->morphTo();
 	}
 
+	/**
+	 * Get the data attribute.
+	 */
 	public function getDataAttribute($value)
 	{
 		return json_decode($value, true);
 	}
 
+	/**
+	 * Set the data attribute.
+	 */
 	public function setDataAttribute($value)
 	{
 		$this->attributes['data'] = jsone_encode($value);

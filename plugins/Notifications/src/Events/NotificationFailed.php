@@ -31,7 +31,7 @@ class NotificationFailed
 	 *
 	 * @var array
 	 */
-	public $data = [];
+	public $data = array();
 
 	/**
 	 * Create a new event instance.
@@ -42,7 +42,7 @@ class NotificationFailed
 	 * @param  array  $data
 	 * @return void
 	 */
-	public function __construct($notifiable, $notification, $channel, $data = [])
+	public function __construct($notifiable, $notification, $channel, $data = array())
 	{
 		$this->channel = $channel;
 		$this->notifiable = $notifiable;
