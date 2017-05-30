@@ -37,50 +37,30 @@ class MailChannel
 	 */
 	public function send($notifiable, Notification $notification)
 	{
-		$email = $notifiable->routeNotificationFor('mail');
-
-		if (is_null($email)) {
+		if (is_null($recipients = $notifiable->routeNotificationFor('mail'))) {
 			return;
 		}
 
-		$mailMessage = $notification->toMail($notifiable);
+		$mail = $notification->toMail($notifiable);
 
-		$this->mailer->send($mailMessage->view, $mailMessage->data(), function ($message) use ($notifiable, $notification, $email, $mailMessage)
+		$this->mailer->send($mail->view, $mail->data(), function ($message) use ($notification, $recipients, $mail)
 		{
-			$recipients = empty($mailMessage->to) ? $email : $mailMessage->to;
-
-			if (! empty($mailMessage->from)) {
-				$message->from($mailMessage->from[0], isset($mailMessage->from[1]) ? $mailMessage->from[1] : null);
-			}
-
 			if (is_array($recipients)) {
 				$message->bcc($recipients);
 			} else {
 				$message->to($recipients);
 			}
 
-			if ($mailMessage->cc) {
-				$message->cc($mailMessage->cc);
-			}
-
-			if (! empty($mailMessage->replyTo)) {
-				$message->replyTo($mailMessage->replyTo[0], isset($mailMessage->replyTo[1]) ? $mailMessage->replyTo[1] : null);
-			}
-
-			$message->subject($mailMessage->subject ?: Str::title(
+			$message->subject($mail->subject ?: Str::title(
 				Str::snake(class_basename($notification), ' ')
 			));
 
-			foreach ($mailMessage->attachments as $attachment) {
+			foreach ($mail->attachments as $attachment) {
 				$message->attach($attachment['file'], $attachment['options']);
 			}
 
-			foreach ($mailMessage->rawAttachments as $attachment) {
+			foreach ($mail->rawAttachments as $attachment) {
 				$message->attachData($attachment['data'], $attachment['name'], $attachment['options']);
-			}
-
-			if (! is_null($mailMessage->priority)) {
-				$message->setPriority($mailMessage->priority);
 			}
 		});
 	}

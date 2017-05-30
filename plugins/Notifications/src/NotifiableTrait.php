@@ -13,15 +13,8 @@ trait NotifiableTrait
 	 */
 	public function notifications()
 	{
-		return $this->morphMany('Notifications\Models\Notification', 'notifiable')->orderBy('created_at', 'desc');
-	}
-
-	/**
-	 * Get the entity's read notifications.
-	 */
-	public function readNotifications()
-	{
-		return $this->notifications()->whereNotNull('read_at');
+		return $this->morphMany('Notifications\Models\Notification', 'notifiable')
+			->orderBy('created_at', 'desc');
 	}
 
 	/**
@@ -29,7 +22,9 @@ trait NotifiableTrait
 	 */
 	public function unreadNotifications()
 	{
-		return $this->notifications()->whereNull('read_at');
+		return $this->morphMany('Notifications\Models\Notification', 'notifiable')
+			->whereNull('read_at')
+			->orderBy('created_at', 'desc');
 	}
 
 	/**
