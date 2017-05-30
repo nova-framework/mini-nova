@@ -43,14 +43,14 @@ class MailChannel
 			return;
 		}
 
-		$mail = $notification->toMail($notifiable);
+		$mailMessage = $notification->toMail($notifiable);
 
-		$this->mailer->send($mail->view, $mail->data(), function ($message) use ($notifiable, $notification, $email, $mail)
+		$this->mailer->send($mailMessage->view, $mailMessage->data(), function ($message) use ($notifiable, $notification, $email, $mailMessage)
 		{
-			$recipients = empty($mail->to) ? $email : $mail->to;
+			$recipients = empty($mailMessage->to) ? $email : $mailMessage->to;
 
-			if (! empty($mail->from)) {
-				$message->from($mail->from[0], isset($mail->from[1]) ? $mail->from[1] : null);
+			if (! empty($mailMessage->from)) {
+				$message->from($mailMessage->from[0], isset($mailMessage->from[1]) ? $mailMessage->from[1] : null);
 			}
 
 			if (is_array($recipients)) {
@@ -59,28 +59,28 @@ class MailChannel
 				$message->to($recipients);
 			}
 
-			if ($mail->cc) {
-				$message->cc($mail->cc);
+			if ($mailMessage->cc) {
+				$message->cc($mailMessage->cc);
 			}
 
-			if (! empty($mail->replyTo)) {
-				$message->replyTo($mail->replyTo[0], isset($mail->replyTo[1]) ? $mail->replyTo[1] : null);
+			if (! empty($mailMessage->replyTo)) {
+				$message->replyTo($mailMessage->replyTo[0], isset($mailMessage->replyTo[1]) ? $mailMessage->replyTo[1] : null);
 			}
 
-			$message->subject($mail->subject ?: Str::title(
+			$message->subject($mailMessage->subject ?: Str::title(
 				Str::snake(class_basename($notification), ' ')
 			));
 
-			foreach ($mail->attachments as $attachment) {
+			foreach ($mailMessage->attachments as $attachment) {
 				$message->attach($attachment['file'], $attachment['options']);
 			}
 
-			foreach ($mail->rawAttachments as $attachment) {
+			foreach ($mailMessage->rawAttachments as $attachment) {
 				$message->attachData($attachment['data'], $attachment['name'], $attachment['options']);
 			}
 
-			if (! is_null($mail->priority)) {
-				$message->setPriority($mail->priority);
+			if (! is_null($mailMessage->priority)) {
+				$message->setPriority($mailMessage->priority);
 			}
 		});
 	}
