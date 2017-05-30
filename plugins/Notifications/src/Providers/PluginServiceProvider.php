@@ -6,6 +6,7 @@ use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
 use Notifications\Console\NotificationMakeCommand;
+use Notifications\Console\NotificationTableCommand;
 use Notifications\Contracts\DispatcherInterface;
 use Notifications\ChannelManager;
 
@@ -60,6 +61,10 @@ class PluginServiceProvider extends ServiceProvider
 			return new NotificationMakeCommand($app['files']);
 		});
 
-		$this->commands('command.notification.make');
+		$this->app->singleton('command.notification.table', function ($app) {
+            return new NotificationTableCommand($app['files']);
+        });
+
+		$this->commands('command.notification.make', 'command.notification.table');
 	}
 }
