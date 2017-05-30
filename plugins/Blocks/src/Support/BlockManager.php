@@ -41,11 +41,7 @@ class BlockManager
 
 		})->get();
 
-		return $this->processBlocks($blocks, $mode);
-	}
-
-	protected function processBlocks($blocks, $mode)
-	{
+		// Render the Blocks found for this area.
 		$results = array();
 
 		foreach ($blocks as $block) {
@@ -55,6 +51,19 @@ class BlockManager
 		}
 
 		return implode(PHP_EOL, $results);
+	}
+
+	protected function renderBlock(Block $block)
+	{
+		$theme = $this->container['config']->get('app.theme');
+
+		$hideTitle = ($block->hide_title !== 0);
+
+		return View::fetch("$theme::Blocks/Default", array(
+			'title'		=> $block->title,
+			'content'	=> $block->content,
+			'hideTitle' => $hideTitle,
+		));
 	}
 
 	protected function canRenderBlock($block, $mode)
@@ -115,18 +124,5 @@ class BlockManager
 		});
 
 		return $user->hasRole($roles);
-	}
-
-	protected function renderBlock(Block $block)
-	{
-		$theme = $this->container['config']->get('app.theme');
-
-		$showTitle = ($block->hide_title === 0);
-
-		return View::fetch("$theme::Blocks/Default", array(
-			'title'		=> $block->title,
-			'content'	=> $block->content,
-			'showTitle' => $showTitle,
-		));
 	}
 }
