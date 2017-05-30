@@ -21,6 +21,7 @@ class Notification extends BaseModel
 
 	protected $dates = array('read_at');
 
+
 	/**
 	 * Get the notifiable entity that the notification belongs to.
 	 */
