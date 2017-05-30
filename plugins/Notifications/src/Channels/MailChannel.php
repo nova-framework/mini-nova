@@ -41,9 +41,9 @@ class MailChannel
 			return;
 		}
 
-		$mail = $notification->toMail($notifiable);
+		$mailMessage = $notification->toMail($notifiable);
 
-		$this->mailer->send($mail->view, $mail->data(), function ($message) use ($notification, $recipients, $mail)
+		$this->mailer->send($mailMessage->view, $mailMessage->data(), function ($message) use ($notification, $recipients, $mailMessage)
 		{
 			if (is_array($recipients)) {
 				$message->bcc($recipients);
@@ -51,15 +51,15 @@ class MailChannel
 				$message->to($recipients);
 			}
 
-			$message->subject($mail->subject ?: Str::title(
+			$message->subject($mailMessage->subject ?: Str::title(
 				Str::snake(class_basename($notification), ' ')
 			));
 
-			foreach ($mail->attachments as $attachment) {
+			foreach ($mailMessage->attachments as $attachment) {
 				$message->attach($attachment['file'], $attachment['options']);
 			}
 
-			foreach ($mail->rawAttachments as $attachment) {
+			foreach ($mailMessage->rawAttachments as $attachment) {
 				$message->attachData($attachment['data'], $attachment['name'], $attachment['options']);
 			}
 		});
