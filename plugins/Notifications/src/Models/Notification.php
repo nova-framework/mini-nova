@@ -6,7 +6,7 @@ use Mini\Database\ORM\Model as BaseModel;
 use Mini\Database\ORM\ModelNotFoundException;
 use Mini\Support\Contracts\ArrayableInterface;
 
-use Notifications\Database\ORM\Collection;
+use Notifications\Support\Collection;
 
 
 class Notification extends BaseModel

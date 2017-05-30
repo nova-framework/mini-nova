@@ -1,6 +1,6 @@
 <?php
 
-namespace Notifications\Database\ORM;
+namespace Notifications\Support;
 
 use Mini\Database\ORM\Collection as BaseCollection;
 
