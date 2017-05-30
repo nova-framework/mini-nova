@@ -5,7 +5,7 @@ namespace Notifications;
 use Mini\Database\ORM\Collection as ModelCollection;
 use Mini\Database\ORM\Model;
 use Mini\Foundation\Application;
-use Mini\Support\Collection as BaseCollection;
+use Mini\Support\Collection;
 
 use Notifications\Events\NotificationFailed;
 use Notifications\Events\NotificationSending;
@@ -114,9 +114,12 @@ class Dispatcher
 	 */
 	protected function formatNotifiables($notifiables)
 	{
-		if ((! $notifiables instanceof BaseCollection) && ! is_array($notifiables)) {
-			return ($notifiables instanceof Model)
-				? new ModelCollection(array($notifiables)) : array($notifiables);
+		if ((! $notifiables instanceof Collection) && ! is_array($notifiables)) {
+			if (! $notifiables instanceof Model) {
+				return array($notifiables);
+			}
+
+			return new ModelCollection(array($notifiables))
 		}
 
 		return $notifiables;

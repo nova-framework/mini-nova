@@ -36,10 +36,6 @@ class Notification extends BaseModel
 
 	public function setDataAttribute($value)
 	{
-		if ($value instanceof ArrayableInterface) {
-			$value = $value->toArray();
-		}
-
 		$this->attributes['data'] = jsone_encode($value);
 	}
 

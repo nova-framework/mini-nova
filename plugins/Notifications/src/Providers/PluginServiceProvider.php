@@ -4,7 +4,8 @@ namespace Notifications\Providers;
 
 use Mini\Support\ServiceProvider;
 
-use Notifications\Dispatcher;
+use Notifications\Contracts\DispatcherInterface;
+use Notifications\ChannelManager;
 
 
 class PluginServiceProvider extends ServiceProvider
@@ -32,10 +33,14 @@ class PluginServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->singleton('Notifications\Dispatcher', function ($app)
+		$this->app->singleton(ChannelManager::class, function ($app)
 		{
-			return new Dispatcher($app);
+			return new ChannelManager($app);
 		});
+
+		$this->app->alias(
+			ChannelManager::class, DispatcherInterface::class
+		);
 	}
 
 }

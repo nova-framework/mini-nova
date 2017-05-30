@@ -2,10 +2,8 @@
 
 namespace Notifications;
 
-use Mini\Support\Contracts\ArrayableInterface;
 
-
-class Notification implements ArrayableInterface
+class Notification
 {
 	/**
 	 * The unique identifier for the notification.
@@ -16,11 +14,11 @@ class Notification implements ArrayableInterface
 
 
 	/**
-	 * Get the instance as an array.
+	 * Get the channels the event should broadcast on.
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function broadcastOn()
 	{
 		return array();
 	}
