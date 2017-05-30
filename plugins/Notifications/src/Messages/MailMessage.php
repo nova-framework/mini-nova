@@ -74,6 +74,7 @@ class MailMessage extends SimpleMessage
 	 */
 	public $priority;
 
+
 	/**
 	 * Set the view for the mail message.
 	 *
@@ -84,6 +85,7 @@ class MailMessage extends SimpleMessage
 	public function view($view, array $data = array())
 	{
 		$this->view = $view;
+
 		$this->viewData = $data;
 
 		return $this;
@@ -98,7 +100,7 @@ class MailMessage extends SimpleMessage
 	 */
 	public function from($address, $name = null)
 	{
-		$this->from = [$address, $name];
+		$this->from = array($address, $name);
 
 		return $this;
 	}
@@ -138,7 +140,7 @@ class MailMessage extends SimpleMessage
 	 */
 	public function replyTo($address, $name = null)
 	{
-		$this->replyTo = [$address, $name];
+		$this->replyTo = array($address, $name);
 
 		return $this;
 	}

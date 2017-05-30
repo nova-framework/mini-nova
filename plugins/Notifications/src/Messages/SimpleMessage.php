@@ -140,7 +140,7 @@ class SimpleMessage
 	{
 		if ($line instanceof Action) {
 			$this->action($line->text, $line->url);
-		} elseif (! $this->actionText) {
+		} else if (is_null($this->actionText)) {
 			$this->introLines[] = $this->formatLine($line);
 		} else {
 			$this->outroLines[] = $this->formatLine($line);
@@ -174,6 +174,7 @@ class SimpleMessage
 	public function action($text, $url)
 	{
 		$this->actionText = $text;
+
 		$this->actionUrl = $url;
 
 		return $this;
@@ -186,14 +187,14 @@ class SimpleMessage
 	 */
 	public function toArray()
 	{
-		return [
-			'level' => $this->level,
-			'subject' => $this->subject,
-			'greeting' => $this->greeting,
-			'introLines' => $this->introLines,
-			'outroLines' => $this->outroLines,
-			'actionText' => $this->actionText,
-			'actionUrl' => $this->actionUrl,
-		];
+		return array(
+			'level'			=> $this->level,
+			'subject'		=> $this->subject,
+			'greeting'		=> $this->greeting,
+			'introLines'	=> $this->introLines,
+			'outroLines'	=> $this->outroLines,
+			'actionText'	=> $this->actionText,
+			'actionUrl'		=> $this->actionUrl,
+		);
 	}
 }

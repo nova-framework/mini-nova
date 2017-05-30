@@ -37,15 +37,17 @@ class MailChannel
 	 */
 	public function send($notifiable, Notification $notification)
 	{
-		if (! $notifiable->routeNotificationFor('mail')) {
+		$email = $notifiable->routeNotificationFor('mail');
+
+		if (is_null($email)) {
 			return;
 		}
 
 		$mail = $notification->toMail($notifiable);
 
-		$this->mailer->send($mail->view, $mail->data(), function ($message) use ($notifiable, $notification, $mail)
+		$this->mailer->send($mail->view, $mail->data(), function ($message) use ($notifiable, $notification, $email, $mail)
 		{
-			$recipients = empty($mail->to) ? $notifiable->routeNotificationFor('mail') : $mail->to;
+			$recipients = empty($mail->to) ? $email : $mail->to;
 
 			if (! empty($mail->from)) {
 				$message->from($mail->from[0], isset($mail->from[1]) ? $mail->from[1] : null);

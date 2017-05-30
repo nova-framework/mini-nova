@@ -2,6 +2,7 @@
 
 namespace Notifications\Providers;
 
+use Mini\Foundation\AliasLoader;
 use Mini\Support\ServiceProvider;
 
 use Notifications\Contracts\DispatcherInterface;
@@ -41,6 +42,11 @@ class PluginServiceProvider extends ServiceProvider
 		$this->app->alias(
 			ChannelManager::class, DispatcherInterface::class
 		);
+
+		// Register the Facades.
+		$loader = AliasLoader::getInstance();
+
+		$loader->alias('Notification', 'Notifications\Support\Facades\Notification');
 	}
 
 }
