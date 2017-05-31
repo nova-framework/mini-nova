@@ -12,18 +12,18 @@ use Notifications\Support\Collection;
 class Notification extends BaseModel
 {
 	/**
-	 * Indicates if the IDs are auto-incrementing.
-	 *
-	 * @var bool
-	 */
-	public $incrementing = false;
-
-	/**
 	 * The table associated with the Model.
 	 *
 	 * @var string
 	 */
 	protected $table = 'notifications';
+
+	/**
+	 * The primary key of the Model.
+	 *
+	 * @var string
+	 */
+	protected $primaryKey = 'id';
 
 	/**
 	 * The guarded attributes on the Model.
@@ -38,6 +38,13 @@ class Notification extends BaseModel
 	 * @var array
 	 */
 	protected $dates = array('read_at');
+
+	/**
+	 * Indicates if the IDs are auto-incrementing.
+	 *
+	 * @var bool
+	 */
+	public $incrementing = false;
 
 
 	/**
