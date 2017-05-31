@@ -37,6 +37,15 @@ class PluginServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
+		$this->registerChannelManager();
+
+		$this->registerFacades();
+
+		$this->registerCommands();
+	}
+
+	protected function registerChannelManager()
+	{
 		$this->app->singleton(ChannelManager::class, function ($app)
 		{
 			return new ChannelManager($app);
@@ -45,25 +54,24 @@ class PluginServiceProvider extends ServiceProvider
 		$this->app->alias(
 			ChannelManager::class, DispatcherInterface::class
 		);
+	}
 
-		// Register the Facades.
+	protected function registerFacades()
+	{
 		$loader = AliasLoader::getInstance();
 
 		$loader->alias('Notification', 'Notifications\Support\Facades\Notification');
-
-		// Register the Commands.
-		$this->registerCommands();
 	}
 
 	protected function registerCommands()
 	{
+		$this->app->singleton('command.notification.table', function ($app) {
+			return new NotificationTableCommand($app['files']);
+		});
+
 		$this->app->singleton('command.notification.make', function ($app)
 		{
 			return new NotificationMakeCommand($app['files']);
-		});
-
-		$this->app->singleton('command.notification.table', function ($app) {
-			return new NotificationTableCommand($app['files']);
 		});
 
 		$this->app->singleton('command.make.plugin.notification', function ($app)
