@@ -8,6 +8,13 @@ use Notifications\Messages\SimpleMessage;
 class MailMessage extends SimpleMessage
 {
 	/**
+	 * Indicate that the message should be queued.
+	 *
+	 * @var string
+	 */
+	public $queued = false;
+
+	/**
 	 * The view for the message.
 	 *
 	 * @var string
@@ -77,6 +84,20 @@ class MailMessage extends SimpleMessage
 	public function attachData($data, $name, array $options = array())
 	{
 		$this->rawAttachments[] = compact('data', 'name', 'options');
+
+		return $this;
+	}
+
+	/**
+	 * Mark the message as to be queued.
+	 *
+	 * @param  string  $file
+	 * @param  array  $options
+	 * @return $this
+	 */
+	public function queued()
+	{
+		$this->queued = true;
 
 		return $this;
 	}
