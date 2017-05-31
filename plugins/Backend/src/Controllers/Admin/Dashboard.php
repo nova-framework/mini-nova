@@ -90,6 +90,6 @@ class Dashboard extends BaseController
 		//
 		$authUser->notify(new SampleNotification());
 
-		return Redirect::to('admin/dashboard')->with('success', 'A sample notification was sent to yourself');
+		return Redirect::to('admin/dashboard')->with('success', 'A sample notification was sent to yourself.');
 	}
 }

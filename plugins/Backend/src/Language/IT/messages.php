@@ -130,6 +130,7 @@ return array (
   'The Username used to connect to the external SMTP Server.' => '',
   'The name of the external SMTP Server.' => '',
   'The outgoing E-mail address.' => '',
+  'Unread notifications' => '',
   'Updated At' => '',
   'Use the Cryptography' => '',
   'User Account : <b>{0}</b>' => '',
