@@ -42,7 +42,9 @@ class ChannelManager extends Manager implements DispatcherInterface
 		$original = clone $notification;
 
 		foreach ($notifiables as $notifiable) {
-			$notificationId = Uuid::uuid4()->toString();
+			$notification = clone $original;
+
+			$notification->id = Uuid::uuid4()->toString();
 
 			$channels = $notification->via($notifiable);
 
@@ -51,10 +53,6 @@ class ChannelManager extends Manager implements DispatcherInterface
 			}
 
 			foreach ($channels as $channel) {
-				$notification = clone $original;
-
-				$notification->id = $notificationId;
-
 				if (! $this->shouldSendNotification($notifiable, $notification, $channel)) {
 					continue;
 				}
@@ -78,7 +76,9 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	protected function shouldSendNotification($notifiable, $notification, $channel)
 	{
-		$result = $this->app->make('events')->until(
+		$events = $this->app->make('events');
+
+		$result = $events->until(
 			new NotificationSending($notifiable, $notification, $channel)
 		);
 

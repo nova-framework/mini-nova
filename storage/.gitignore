@@ -2,5 +2,6 @@
 !cache/
 !logs/
 !sessions/
+!spool/
 !views/
 !.gitignore

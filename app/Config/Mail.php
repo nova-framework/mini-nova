@@ -25,6 +25,19 @@ return array(
 
 	/*
 	|--------------------------------------------------------------------------
+	| Spool Files Location
+	|--------------------------------------------------------------------------
+	|
+	| When using the mailer's spool, we need a location where spool message
+	| files may be stored. A default has been set for you but a different
+	| location may be specified. This is only needed for spool driver.
+	|
+	*/
+
+	'files' => STORAGE_PATH .'spool',
+
+	/*
+	|--------------------------------------------------------------------------
 	| SMTP Host Address
 	|--------------------------------------------------------------------------
 	|
