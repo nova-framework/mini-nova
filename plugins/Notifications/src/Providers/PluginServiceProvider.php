@@ -7,6 +7,7 @@ use Mini\Support\ServiceProvider;
 
 use Notifications\Console\NotificationMakeCommand;
 use Notifications\Console\NotificationTableCommand;
+use Notifications\Console\PluginNotificationMakeCommand;
 use Notifications\Contracts\DispatcherInterface;
 use Notifications\ChannelManager;
 
@@ -65,6 +66,13 @@ class PluginServiceProvider extends ServiceProvider
 			return new NotificationTableCommand($app['files']);
 		});
 
-		$this->commands('command.notification.make', 'command.notification.table');
+		$this->app->singleton('command.make.plugin.notification', function ($app)
+		{
+			return new PluginNotificationMakeCommand($app['files'], $app['plugins']);
+		});
+
+		$this->commands(
+			'command.notification.make', 'command.notification.table', 'command.make.plugin.notification'
+		);
 	}
 }
