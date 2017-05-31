@@ -26,11 +26,13 @@ class Notification extends BaseModel
 	protected $primaryKey = 'id';
 
 	/**
-	 * The guarded attributes on the Model.
+	 * The fillable attributes on the Model.
 	 *
 	 * @var array
 	 */
-	protected $guarded = array();
+	protected $fillable = array(
+		'uuid', 'type', 'notifiable_id', 'notifiable_type', 'data', 'read_at'
+	);
 
 	/**
 	 * The attributes that should be mutated to dates.
@@ -38,13 +40,6 @@ class Notification extends BaseModel
 	 * @var array
 	 */
 	protected $dates = array('read_at');
-
-	/**
-	 * Indicates if the IDs are auto-incrementing.
-	 *
-	 * @var bool
-	 */
-	public $incrementing = false;
 
 
 	/**
