@@ -2,8 +2,6 @@
 
 namespace Mini\Notifications;
 
-use Mini\Database\ORM\Collection as ModelCollection;
-use Mini\Database\ORM\Model;
 use Mini\Support\Collection;
 use Mini\Support\Manager;
 
