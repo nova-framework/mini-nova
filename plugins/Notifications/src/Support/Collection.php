@@ -5,7 +5,7 @@ namespace Notifications\Support;
 use Mini\Database\ORM\Collection as BaseCollection;
 
 
-class Collection extendeds BaseCollection
+class Collection extends BaseCollection
 {
 	/**
 	 * Mark all notification as read.
@@ -14,7 +14,8 @@ class Collection extendeds BaseCollection
 	 */
 	public function markAsRead()
 	{
-		$this->each(function ($notification) {
+		$this->each(function ($notification)
+		{
 			$notification->markAsRead();
 		});
 	}

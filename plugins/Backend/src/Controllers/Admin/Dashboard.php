@@ -85,9 +85,10 @@ class Dashboard extends BaseController
 
 	public function notify()
 	{
-		$user = Auth::user();
+		$authUser = Auth::user();
 
-		$user->notify(new SampleNotification());
+		//
+		$authUser->notify(new SampleNotification());
 
 		return Redirect::to('admin/dashboard')->with('success', 'A sample notification was sent to yourself');
 	}
