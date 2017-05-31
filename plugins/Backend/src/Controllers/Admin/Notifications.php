@@ -31,7 +31,7 @@ class Notifications extends BaseController
 		// Mark all unread notifications as read.
 		$notifications->each(function ($notification)
 		{
-			//$notification->markAsRead();
+			$notification->markAsRead();
 		});
 
 		return $this->getView()
