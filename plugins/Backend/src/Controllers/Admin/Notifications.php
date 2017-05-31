@@ -19,17 +19,20 @@ class Notifications extends BaseController
 		$authUser = Auth::user();
 
 		// Retrieve the unread notifications for the current User.
-		$totalUnread = $authUser->unreadNotifications->count();
+		$totalUnread = $authUser->unreadNotifications()->count();
 
 		$notificationCount = ($totalUnread > $perPage)
 			? ($totalUnread - $perPage)
-			: $totalUnread;
+			: 0;
 
 		//
 		$notifications = $authUser->unreadNotifications()->paginate($perPage);
 
 		// Mark all unread notifications as read.
-		$notifications->markAsRead();
+		$notifications->each(function ($notification)
+		{
+			//$notification->markAsRead();
+		});
 
 		return $this->getView()
 			->shares('title', __d('backend', 'Notifications'))
