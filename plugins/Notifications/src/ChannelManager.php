@@ -25,7 +25,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 *
 	 * @var array
 	 */
-	protected $defaultChannels = array('mail', 'database');
+	protected $defaultChannel = 'mail';
 
 
 	/**
@@ -80,9 +80,11 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	protected function shouldSendNotification($notifiable, $notification, $channel)
 	{
-		return $this->app->make('events')->until(
+		$result = $this->app->make('events')->until(
 			new NotificationSending($notifiable, $notification, $channel)
-		) !== false;
+		);
+
+		return ($result !== false);
 	}
 
 	/**
@@ -139,33 +141,33 @@ class ChannelManager extends Manager implements DispatcherInterface
 	}
 
 	/**
-	 * Get the default channel driver names.
+	 * Get the default channel driver name.
 	 *
 	 * @return string
 	 */
 	public function getDefaultDriver()
 	{
-		return reset($this->defaultChannels);
+		return $this->defaultChannel;
 	}
 
 	/**
-	 * Get the default channel driver names.
+	 * Get the default channel driver name.
 	 *
 	 * @return string
 	 */
 	public function deliversVia()
 	{
-		return $this->defaultChannels;
+		return $this->defaultChannel;
 	}
 
 	/**
 	 * Set the default channel driver name.
 	 *
-	 * @param  array|string  $channel
+	 * @param  string  $channel
 	 * @return void
 	 */
-	public function deliverVia($channels)
+	public function deliverVia($channel)
 	{
-		$this->defaultChannels = (array) $channels;
+		$this->defaultChannel = $channel;
 	}
 }
