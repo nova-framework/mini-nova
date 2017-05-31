@@ -25,7 +25,7 @@ return array(
 
 	/*
 	|--------------------------------------------------------------------------
-	| Spool Files Location
+	| Spool Configuration
 	|--------------------------------------------------------------------------
 	|
 	| When using the mailer's spool, we need a location where spool message
@@ -34,7 +34,13 @@ return array(
 	|
 	*/
 
-	'files' => STORAGE_PATH .'spool',
+	'spool' => array(
+		'files' => STORAGE_PATH .'spool',
+
+		'messageLimit'	=> 10,
+		'timeLimit'		=> 100,
+		'retryLimit'	=> 10,
+	),
 
 	/*
 	|--------------------------------------------------------------------------
