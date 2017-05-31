@@ -39,10 +39,9 @@ class Sample extends Notification
     public function toMail($notifiable)
     {
         return with(new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', 'https://novaframework.com')
+            ->line('This is just a sample notification.')
+            ->action('View your Dashboard', site_url('admin/dashboard'))
             ->line('Thank you for using our application!')
-            ->action('Dashboard', site_url('admin/dashboard'))
             ->queued();
     }
 
