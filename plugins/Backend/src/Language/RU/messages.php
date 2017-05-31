@@ -130,7 +130,7 @@ return array (
   'The Username used to connect to the external SMTP Server.' => 'Имя пользователя, используемое для подключения к внешнему серверу SMTP.',
   'The name of the external SMTP Server.' => 'Имя внешнего SMTP сервера',
   'The outgoing E-mail address.' => 'Исходящий адрес E-mail.',
-  'Unread notifications' => '',
+  'Unread notifications' => 'Непрочитанные уведомления',
   'Updated At' => 'Обновлен',
   'Use the Cryptography' => 'Шифрование',
   'User Account : <b>{0}</b>' => ':Акаунт пользователя:  <b>{0}</b>',
