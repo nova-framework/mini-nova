@@ -32,14 +32,14 @@ class SimpleMessage
 	 *
 	 * @var array
 	 */
-	public $introLines == array();
+	public $introLines = array();
 
 	/**
 	 * The "outro" lines of the notification.
 	 *
 	 * @var array
 	 */
-	public $outroLines == array();
+	public $outroLines = array();
 
 	/**
 	 * The text / label for the action.

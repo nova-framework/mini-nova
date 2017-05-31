@@ -7,13 +7,16 @@
 
 namespace Backend\Controllers\Admin;
 
+use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Language;
+use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Response;
 
 use Backend\Controllers\BaseController;
 use Backend\Models\User;
+use Backend\Notifications\Sample as SampleNotification;
 
 use Carbon\Carbon;
 
@@ -80,4 +83,12 @@ class Dashboard extends BaseController
 			->with('debug', $content);
 	}
 
+	public function notify()
+	{
+		$user = Auth::user();
+
+		$user->notify(new SampleNotification());
+
+		return Redirect::to('admin/dashboard')->with('success', 'A sample notification was sent to yourself');
+	}
 }

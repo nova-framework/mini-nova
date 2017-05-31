@@ -12,6 +12,8 @@ $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' =>
 	$router->get('/',			'Dashboard@index');
 	$router->get('dashboard',	'Dashboard@index');
 
+	$router->get('dashboard/notify', 'Dashboard@notify');
+
 	// Server Side Processor for Dashboard's Online Users DataTable.
 	$router->post('dashboard/data', 'Dashboard@data');
 

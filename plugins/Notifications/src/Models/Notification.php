@@ -63,7 +63,7 @@ class Notification extends BaseModel
 	 */
 	public function setDataAttribute($value)
 	{
-		$this->attributes['data'] = jsone_encode($value);
+		$this->attributes['data'] = json_encode($value);
 	}
 
 	/**

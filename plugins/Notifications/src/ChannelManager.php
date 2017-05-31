@@ -1,12 +1,12 @@
 <?php
 
-namespace Mini\Notifications;
+namespace Notifications;
 
 use Mini\Support\Collection;
 use Mini\Support\Manager;
 
 use Notifications\Channels\DatabaseChannel;
-use Notifications\Channels\EmailChannel;
+use Notifications\Channels\MailChannel;
 use Notifications\Contracts\DispatcherInterface;
 use Notifications\Events\NotificationSending;
 use Notifications\Events\NotificationSent;
