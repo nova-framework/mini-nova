@@ -44,25 +44,8 @@ class MailChannel
 
 		$mailMessage = $notification->toMail($notifiable);
 
-		$messageBuilder = $this->getMessageBuilder($notification, $recipient, $mailMessage);
-
 		//
-		$method = $mailMessage->queued ? 'queue' : 'send';
-
-		call_user_func(array($this->mailer, $method), $mailMessage->view, $mailMessage->data(), $messageBuilder);
-	}
-
-	/**
-	 * Create a message builder callback.
-	 *
-	 * @param  \Notifications\Notification  $notification
-	 * @param  array|string  $recipient
-	 * @param  \Notifications\Messages\MailMessage  $mailMessage
-	 * @return void
-	 */
-	protected function getMessageBuilder($notification, $recipient, $mailMessage)
-	{
-		return function ($message) use ($notification, $recipient, $mailMessage)
+		$parameters = array($mailMessage->view, $mailMessage->data(), function ($message) use ($notification, $recipient, $mailMessage)
 		{
 			if (is_array($recipient)) {
 				$message->bcc($recipient);
@@ -81,7 +64,8 @@ class MailChannel
 			foreach ($mailMessage->rawAttachments as $attachment) {
 				$message->attachData($attachment['data'], $attachment['name'], $attachment['options']);
 			}
-		}
-	}
+		});
 
+		call_user_func_array(array($this->mailer, $mailMessage->queued ? 'queue' : 'send'), $parameters);
+	}
 }
