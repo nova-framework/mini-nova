@@ -1,5 +1,6 @@
 *
 !cache/
+!files/
 !logs/
 !sessions/
 !spool/
