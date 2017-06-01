@@ -3,6 +3,7 @@
 namespace Notifications;
 
 use Mini\Support\Facades\App;
+use Mini\Support\Facades\Config;
 use Mini\Support\Str;
 
 
@@ -57,6 +58,11 @@ trait NotifiableTrait
 				return $this->notifications();
 
 			case 'mail':
+				if (preg_match('/^\w+@\w+\.dev$/s', $this->email)) {
+					// We have a development email address; use the site email instead.
+					return Config::get('mail.from.address');
+				}
+
 				return $this->email;
 		}
 	}

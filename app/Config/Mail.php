@@ -81,8 +81,8 @@ return array(
 	*/
 
 	'from' => array(
-		'address' => 'admin@novaframework.dev',
-		'name'	=> 'The Nova Staff',
+		'address'	=> 'admin@novaframework.dev',
+		'name'		=> 'The Nova Staff',
 	),
 
 	/*

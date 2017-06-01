@@ -66,6 +66,8 @@ class MailChannel
 			}
 		});
 
-		call_user_func_array(array($this->mailer, $mailMessage->queued ? 'queue' : 'send'), $parameters);
+		$method = $mailMessage->queued ? 'queue' : 'send';
+
+		call_user_func_array(array($this->mailer, $method), $parameters);
 	}
 }
