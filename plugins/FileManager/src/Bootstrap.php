@@ -21,7 +21,7 @@ Event::listen('backend.menu', function($user)
 	$items = array(
 		array(
 			'uri'		=> 'admin/files',
-			'title'		=> __d('files', 'Files'),
+			'title'		=> __d('file_manager', 'Files'),
 			'label'		=> '',
 			'icon'		=> 'file',
 			'weight'	=> 4,
