@@ -16,7 +16,8 @@
 <link rel="stylesheet" type="text/css" href="<?= resource_url('css/theme.css', 'FileManager'); ?>">
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-<script type="text/javascript" src="<?= resource_url('js/elfinder.full.js', 'FileManager'); ?>"></script>
+<script type="text/javascript" src="<?= resource_url('js/elfinder.min.js', 'FileManager'); ?>"></script>
+<script type="text/javascript" src="<?= resource_url('js/i18n/elfinder.' .($language = Language::code()) .'.js', 'FileManager'); ?>"></script>
 
 <script type="text/javascript" charset="utf-8">
 	$(document).ready(function() {
@@ -26,7 +27,7 @@
 			url : '<?= site_url('admin/files/connector'); ?>',
 			dateFormat: 'M d, Y h:i A',
 			fancyDateFormat: '$1 H:m:i',
-			lang: '<?= Language::code(); ?>',
+			lang: '<?= $language; ?>',
 			height: 600,
 			cookie : {
 				expires: 30,

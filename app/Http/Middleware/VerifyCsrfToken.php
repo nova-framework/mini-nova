@@ -14,5 +14,6 @@ class VerifyCsrfToken extends BaseVerifier
 	 */
 	protected $except = array(
 		'auth/logout',
+		'admin/files/connector'
 	);
 }
