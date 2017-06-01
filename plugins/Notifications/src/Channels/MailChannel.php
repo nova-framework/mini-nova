@@ -42,10 +42,9 @@ class MailChannel
 			return;
 		}
 
-		$mailMessage = $notification->toMail($notifiable);
+		$mail = $notification->toMail($notifiable);
 
-		//
-		$parameters = array($mailMessage->view, $mailMessage->data(), function ($message) use ($notification, $recipient, $mailMessage)
+		$parameters = array($mail->view, $mail->data(), function ($message) use ($notification, $recipient, $mail)
 		{
 			if (is_array($recipient)) {
 				$message->bcc($recipient);
@@ -53,20 +52,20 @@ class MailChannel
 				$message->to($recipient);
 			}
 
-			$message->subject($mailMessage->subject ?: Str::title(
+			$message->subject($mail->subject ?: Str::title(
 				Str::snake(class_basename($notification), ' ')
 			));
 
-			foreach ($mailMessage->attachments as $attachment) {
+			foreach ($mail->attachments as $attachment) {
 				$message->attach($attachment['file'], $attachment['options']);
 			}
 
-			foreach ($mailMessage->rawAttachments as $attachment) {
+			foreach ($mail->rawAttachments as $attachment) {
 				$message->attachData($attachment['data'], $attachment['name'], $attachment['options']);
 			}
 		});
 
-		$method = $mailMessage->queued ? 'queue' : 'send';
+		$method = $mail->queued ? 'queue' : 'send';
 
 		call_user_func_array(array($this->mailer, $method), $parameters);
 	}

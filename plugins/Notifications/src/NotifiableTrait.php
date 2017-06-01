@@ -59,7 +59,6 @@ trait NotifiableTrait
 
 			case 'mail':
 				if (preg_match('/^\w+@\w+\.dev$/s', $this->email)) {
-					// We have a development email address; use the site email instead.
 					return Config::get('mail.from.address');
 				}
 
