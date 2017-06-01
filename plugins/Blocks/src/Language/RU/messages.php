@@ -1,6 +1,6 @@
 <?php
 
 return array (
-  'Blocks' => '',
-  'Nothing here, yet!' => '',
+  'Blocks' => 'Блоки',
+  'Nothing here, yet!' => 'Ничего нет',
 );
