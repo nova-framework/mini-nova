@@ -35,11 +35,12 @@ return array(
 	*/
 
 	'spool' => array(
-		'files' => STORAGE_PATH .'spool',
+		'files' => storage_path('spool'),  // Where the spool queue files are stored.
 
-		'messageLimit'	=> 10,
-		'timeLimit'		=> 100,
-		'retryLimit'	=> 10,
+		'messageLimit'		=> 10,  // The maximum number of messages to send per flush.
+		'timeLimit'			=> 100, // The time limit (in seconds) per flush.
+		'retryLimit'		=> 10,  // Allow to manage the enqueuing retry limit.
+		'recoveryTimeout'	=> 900, // in seconds - defaults is for very slow smtp responses.
 	),
 
 	/*
@@ -53,7 +54,7 @@ return array(
 	|
 	*/
 
-	'host'   => '',
+	'host' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -66,7 +67,7 @@ return array(
 	|
 	*/
 
-	'port'   => 587,
+	'port' => 587,
 
 	/*
 	|--------------------------------------------------------------------------
@@ -79,7 +80,7 @@ return array(
 	|
 	*/
 
-	'from'   => array(
+	'from' => array(
 		'address' => 'admin@novaframework.dev',
 		'name'	=> 'The Nova Staff',
 	),
@@ -108,7 +109,7 @@ return array(
 	|
 	*/
 
-	'username'   => '',
+	'username' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -121,7 +122,7 @@ return array(
 	|
 	*/
 
-	'password'   => '',
+	'password' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -134,7 +135,7 @@ return array(
 	|
 	*/
 
-	'sendmail'   => '/usr/sbin/sendmail -bs',
+	'sendmail' => '/usr/sbin/sendmail -bs',
 
 	/*
 	|--------------------------------------------------------------------------
