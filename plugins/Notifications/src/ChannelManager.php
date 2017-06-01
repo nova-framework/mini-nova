@@ -2,6 +2,8 @@
 
 namespace Notifications;
 
+use Mini\Events\Dispatcher;
+use Mini\Foundation\Application;
 use Mini\Support\Collection;
 use Mini\Support\Manager;
 
@@ -19,6 +21,13 @@ use InvalidArgumentException;
 class ChannelManager extends Manager implements DispatcherInterface
 {
 	/**
+	 * The events dispatcher instance.
+	 *
+	 * @var \Mini\Events\Dispatcher
+	 */
+	protected $events;
+
+	/**
 	 * The default channels used to deliver messages.
 	 *
 	 * @var array
@@ -27,13 +36,27 @@ class ChannelManager extends Manager implements DispatcherInterface
 
 
 	/**
+	 * Create a new manager instance.
+	 *
+	 * @param  \Mini\Foundation\Application  $app
+	 * @return void
+	 */
+	public function __construct(Application $app, Dispatcher $events)
+	{
+		$this->app = $app;
+
+		$this->events = $events;
+	}
+
+	/**
 	 * Send the given notification to the given notifiable entities.
 	 *
 	 * @param  \Mini\Support\Collection|array|mixed  $notifiables
 	 * @param  mixed  $notification
+	 * @param  array|null  $channels
 	 * @return void
 	 */
-	public function send($notifiables, $notification)
+	public function send($notifiables, $notification, array $channels = null)
 	{
 		if ((! $notifiables instanceof Collection) && ! is_array($notifiables)) {
 			$notifiables = array($notifiables);
@@ -42,24 +65,28 @@ class ChannelManager extends Manager implements DispatcherInterface
 		$original = clone $notification;
 
 		foreach ($notifiables as $notifiable) {
-			$notification = clone $original;
+			$notificationId = Uuid::uuid4()->toString();
 
-			$notification->id = Uuid::uuid4()->toString();
-
-			$channels = $notification->via($notifiable);
+			$channels = $channels ?: $notification->via($notifiable);
 
 			if (empty($channels)) {
 				continue;
 			}
 
 			foreach ($channels as $channel) {
+				$notification = clone $original;
+
+				if (is_null($notification->id)) {
+					$notification->id = $notificationId;
+				}
+
 				if (! $this->shouldSendNotification($notifiable, $notification, $channel)) {
 					continue;
 				}
 
 				$response = $this->driver($channel)->send($notifiable, $notification);
 
-				$this->app->make('events')->fire(
+				$this->events->fire(
 					new NotificationSent($notifiable, $notification, $channel, $response)
 				);
 			}
@@ -76,9 +103,7 @@ class ChannelManager extends Manager implements DispatcherInterface
 	 */
 	protected function shouldSendNotification($notifiable, $notification, $channel)
 	{
-		$events = $this->app->make('events');
-
-		$result = $events->until(
+		$result = $this->events->until(
 			new NotificationSending($notifiable, $notification, $channel)
 		);
 

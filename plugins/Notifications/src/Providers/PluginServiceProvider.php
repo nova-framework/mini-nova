@@ -48,7 +48,7 @@ class PluginServiceProvider extends ServiceProvider
 	{
 		$this->app->singleton(ChannelManager::class, function ($app)
 		{
-			return new ChannelManager($app);
+			return new ChannelManager($app, $app['events']);
 		});
 
 		$this->app->alias(

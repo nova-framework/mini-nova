@@ -2,6 +2,7 @@
 
 namespace Notifications\Messages;
 
+
 class DatabaseMessage
 {
 	/**

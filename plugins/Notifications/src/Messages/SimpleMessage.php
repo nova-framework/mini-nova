@@ -4,6 +4,7 @@ namespace Notifications\Messages;
 
 use Notifications\Action;
 
+
 class SimpleMessage
 {
 	/**
