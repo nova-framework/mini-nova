@@ -18,7 +18,7 @@ use Mini\Support\Facades\Validator;
 use Mini\Support\Facades\View;
 
 use Backend\Controllers\BaseController;
-use Backend\Models\Option;
+use App\Models\Option;
 
 
 class Settings extends BaseController
