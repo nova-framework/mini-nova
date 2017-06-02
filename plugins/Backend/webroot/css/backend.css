@@ -48,7 +48,7 @@ body {
 	color: #fff;
 }
 
-.navbar-default .nav > > .active > a,
+.navbar-default .nav > .active > a,
 .navbar-default .nav > li > a:focus,
 .navbar-default .nav > li > a:hover {
 	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
@@ -191,20 +191,23 @@ body {
 }
 
 .navbar-default .side-nav li > a {
+    border-left: 3px solid transparent;
     background: #222d32;
     color: #b8c7ce;
 }
 
-.navbar-default .side-nav li > a:hover {
-	color: #fff;
+.navbar-default .side-nav li > a:focus, .navbar-default .side-nav li > a:hover {
+    color: #fff;
 }
 
 .navbar-default .side-nav > .active > a, .navbar-default .side-nav > .active > a:focus, .navbar-default .side-nav > .active > a:hover {
-	background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;
+    border-left-color: #3c8dbc;
+    background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;
     color: #fff;
 }
 
 .navbar-default .side-nav > li > a:focus, .navbar-default .side-nav > li > a:hover {
+    border-left-color: #3c8dbc;
     color: #fff;
 }
 
@@ -216,12 +219,14 @@ body {
     display: block;
     padding: 10px 15px 10px 38px;
     text-decoration: none;
+    background: #2c3b41 none repeat scroll 0 0;
     color: #b8c7ce;
 }
 
-.navbar-default .side-nav > li > ul > li.active > a {
-   background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
-   color: #fff;
+.navbar-default .side-nav > li > ul > li.active > a,
+.navbar-default .side-nav > li > ul > li > a:hover {
+	background: #2c3b41 none repeat scroll 0 0;
+    color: #fff;
 }
 
 }
