@@ -40,7 +40,7 @@ body {
 /* Nav Navigation */
 
 .navbar-default .nav > li > a {
-	color: #b8c7ce;
+	color: #fff;
 }
 
 .navbar-default .nav > > .active > a,
@@ -97,12 +97,41 @@ body {
     box-shadow: none;
 }
 
+@media(max-width:768px) {
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #fff;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+    color: #fff;
+}
+
+.navbar .navbar-nav .open .dropdown-menu > .active > a,
+.navbar .navbar-nav .open .dropdown-menu > .active > a:focus,
+.navbar .navbar-nav .open .dropdown-menu > .active > a:hover {
+    background: rgba(0, 0, 0, 0.2) none repeat scroll 0 0;
+	color: #fff;
+}
+
+}
+
 @media(min-width:768px) {
 
 .navbar-default .navbar-right {
     margin-right: 10px;
 }
 
+}
+
+/* Nav Navigation */
+
+.navbar-default .nav > .active > a,
+.navbar-default .nav > li > a:focus,
+.navbar-default .nav > li > a:hover {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
 }
 
 /* Side Navigation */
@@ -184,14 +213,6 @@ body {
    color: #fff;
 }
 
-}
-
-/* Nav Navigation */
-
-.navbar-default .nav > .active > a,
-.navbar-default .nav > li > a:focus,
-.navbar-default .nav > li > a:hover {
-	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
 }
 
 /* Custom Colored Panels */
