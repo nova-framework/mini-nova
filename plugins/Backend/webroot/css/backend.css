@@ -34,9 +34,18 @@ body {
 
 #wrapper {
     padding-left: 225px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+#wrapper.toggled {
+    padding-left: 0;
 }
 
 }
+
 
 .breadcrumb {
     padding: 8px 15px 4px;
@@ -160,6 +169,27 @@ body {
 
 /* Side Navigation */
 
+@media(max-width:768px) {
+
+.navbar-default .sidebar-toggle {
+	display: none;
+}
+
+}
+
+.navbar-default .sidebar-toggle {
+	color: #fff;
+}
+
+.navbar-default .navbar-header .sidebar-toggle:hover,
+.navbar-default .navbar-header .sidebar-toggle:focus {
+    outline: none;
+}
+
+.navbar-default .navbar-header > .toggled {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+}
+
 .navbar-default .side-nav {
     border-top: 1px solid #b8c7ce;
 }
@@ -175,6 +205,10 @@ body {
 }
 
 @media(min-width:768px) {
+
+#side-menu.toggled {
+    display: none;
+}
 
 .side-nav {
     position: fixed;

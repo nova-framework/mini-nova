@@ -32,7 +32,10 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?= site_url('admin/dashboard'); ?>"> <strong><?= __d('backend', 'Control Panel'); ?></strong></a>
+			<a class="navbar-brand sidebar-toggle" href="#menu-toggle" id="menu-toggle">
+				<i class='fa fa-bars'></i>
+			</a>
+			<a class="navbar-brand" style="margin-top: 1px;" href="<?= site_url('admin/dashboard'); ?>"> <strong><?= __d('backend', 'Control Panel'); ?></strong></a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
@@ -120,7 +123,7 @@
 			<?= $content; ?>
 		<div>
 
-			<footer class="footer">
+			<footer id="footer" class="footer">
 				<div class="container-fluid">
 					<div class="row" style="margin: 15px 0 0;">
 						<div class="col-lg-4">
@@ -143,6 +146,19 @@
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.1.1/js/dataTables.responsive.min.js"></script>
+
+<!-- Menu Toggle Script -->
+<script>
+$("#menu-toggle").click(function(e) {
+	e.preventDefault();
+
+	$(this).toggleClass("toggled");
+
+	$("#wrapper").toggleClass("toggled");
+	$("#side-menu").toggleClass("toggled");
+	$("#footer").toggleClass("toggled");
+});
+</script>
 
 </body>
 </html>
