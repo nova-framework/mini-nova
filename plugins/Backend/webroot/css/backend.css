@@ -209,17 +209,13 @@ body {
 
 .navbar-default .side-nav > .active > a, .navbar-default .side-nav > .active > a:focus, .navbar-default .side-nav > .active > a:hover {
     border-left-color: #3c8dbc;
-    background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;
+	background: #1e282c none repeat scroll 0 0;
     color: #fff;
 }
 
 .navbar-default .side-nav > li > a:focus, .navbar-default .side-nav > li > a:hover {
     border-left-color: #3c8dbc;
     color: #fff;
-}
-
-.navbar-default .side-nav > li > ul {
-    padding: 0;
 }
 
 .navbar-default .side-nav > li > ul > li > a {
