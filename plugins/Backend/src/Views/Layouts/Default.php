@@ -85,6 +85,7 @@
 
 			<!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
 			<ul class="nav navbar-nav side-nav" id="side-menu">
+				<li class="header">ADMINISTRATION</li>
 			<?php foreach ($menuItems as $count => $item) { ?>
 				<?php $children = Arr::get($item, 'children', array()); ?>
 				<?php if (! empty($children)) { ?>

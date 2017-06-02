@@ -155,7 +155,17 @@ body {
 	color: #fff;
 }
 
+.navbar-default .side-nav > li.header {
+	padding: 10px;
+    background: #1a2226 none repeat scroll 0 0;
+    color: #4b646f;
+}
+
 @media(min-width:768px) {
+
+.navbar-default .side-nav > li.header {
+	width: 225px;
+}
 
 .side-nav {
     position: fixed;
