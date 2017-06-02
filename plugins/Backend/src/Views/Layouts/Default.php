@@ -65,7 +65,7 @@
 				<!-- Authentication Links -->
 				<li class="dropdown <?= ($baseUri == 'admin/profile') ? 'active' : ''; ?>">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" title="<?= $currentUser->fullName() ?>">
-						<i class='fa fa-user'></i> <?= $currentUser->username ?> <span class="caret"></span>
+						<img src="<?= $currentUser->picture(); ?>" class="user-image" alt="User Image"> <?= $currentUser->username ?> <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu" role="menu">
 						<li <?= ($baseUri == 'admin/profile') ? 'class="active"' : ''; ?>>
