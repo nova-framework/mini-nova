@@ -226,7 +226,8 @@ body {
     color: #b8c7ce;
 }
 
-.navbar-default .side-nav > li > ul > li.active > a,
+.navbar-default .side-nav > li > ul > .active > a,
+.navbar-default .side-nav > li > ul > li > a:focus,
 .navbar-default .side-nav > li > ul > li > a:hover {
 	background: #2c3b41 none repeat scroll 0 0;
     color: #fff;
