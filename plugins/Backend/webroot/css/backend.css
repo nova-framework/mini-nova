@@ -170,13 +170,13 @@ body {
     outline: none;
 }
 
-.side-nav .caret {
-    float: right;
-    margin-top: 7px;
-}
-
 .navbar-default .side-nav {
     border-top: 0;
+}
+
+.navbar-default .side-nav .caret {
+    float: right;
+    margin-top: 7px;
 }
 
 .navbar-default .side-nav li > a {
@@ -197,18 +197,18 @@ body {
     color: #fff;
 }
 
-.side-nav > li > ul {
+.navbar-default .side-nav > li > ul {
     padding: 0;
 }
 
-.side-nav > li > ul > li > a {
+.navbar-default .side-nav > li > ul > li > a {
     display: block;
     padding: 10px 15px 10px 38px;
     text-decoration: none;
     color: #b8c7ce;
 }
 
-.side-nav > li > ul > li.active > a {
+.navbar-default .side-nav > li > ul > li.active > a {
    background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
    color: #fff;
 }
