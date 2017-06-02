@@ -89,7 +89,7 @@ body {
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
-	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+    background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
     color: #fff;
 }
 
