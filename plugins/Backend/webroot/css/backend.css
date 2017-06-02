@@ -169,9 +169,10 @@ body {
 }
 
 .navbar-default .side-nav > li.header {
-	padding: 10px;
-    background: #1a2226 none repeat scroll 0 0;
-    color: #4b646f;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
+    color: #fff;
+    font-weight: 700;
 }
 
 @media(min-width:768px) {
@@ -194,6 +195,11 @@ body {
 .side-nav > li > a,
 .side-nav > li.header {
     width: 225px;
+}
+
+.navbar-default .side-nav > li.header {
+    background: #1a2226 none repeat scroll 0 0;
+    color: #4b646f;
 }
 
 .side-nav li a:hover,
