@@ -3,9 +3,11 @@ body {
 }
 
 @media(min-width:768px) {
-    body {
-        margin-top: 50px;
-    }
+
+body {
+    margin-top: 50px;
+}
+
 }
 
 #wrapper {
@@ -14,7 +16,7 @@ body {
 
 #page-wrapper {
     width: 100%;
-    padding: 0;
+    padding: 20px;
     background-color: #fff;
 }
 
@@ -28,46 +30,142 @@ body {
 }
 
 @media(min-width:768px) {
-    #wrapper {
-        padding-left: 225px;
-    }
 
-    #page-wrapper {
-        padding: 20px;
-    }
+#wrapper {
+    padding-left: 225px;
+}
+
+}
+
+/* Nav Navigation */
+
+.navbar-default .nav > li > a {
+	color: #b8c7ce;
+}
+
+.navbar-default .nav > > .active > a,
+.navbar-default .nav > li > a:focus,
+.navbar-default .nav > li > a:hover {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+    color: #fff;
+}
+
+.navbar-default {
+    background: #3c8dbc;
+	color: #fff;
+	box-shadow: none;
+	border-color: #222d32;
+}
+
+.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
+	color: #fff;
+    text-shadow: none;
+}
+
+.navbar-default .navbar-toggle {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+    border-color: #fff;
+}
+
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+	background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
+}
+
+.navbar-default .navbar-toggle > .icon-bar {
+	background: #fff;
+}
+
+.navbar-default .navbar-collapse, .navbar-default .navbar-form {
+    border-color: #222d32;
+}
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus,
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:focus,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > li > a:focus,
+.navbar-default .navbar-nav > li > a:hover {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
+    color: #fff;
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .open > a {
+    box-shadow: none;
+}
+
+@media(min-width:768px) {
+
+.navbar-default .navbar-right {
+    margin-right: 10px;
+}
+
 }
 
 /* Side Navigation */
 
+.navbar-default .side-nav {
+    border-top: 1px solid #b8c7ce;
+}
+
+.navbar-default .side-nav > li > a {
+	color: #fff;
+}
+
 @media(min-width:768px) {
-    .side-nav {
-        position: fixed;
-        top: 51px;
-        left: 225px;
-        width: 225px;
-        margin-left: -225px;
-        border: none;
-        border-radius: 0;
-        overflow-y: auto;
-        bottom: 0;
-        overflow-x: hidden;
-        padding-bottom: 40px;
-        background-color: #9d9d9d;
-    }
 
-    .side-nav > li > a {
-        width: 225px;
-    }
+.side-nav {
+    position: fixed;
+    top: 51px;
+    left: 225px;
+    width: 225px;
+    margin-left: -225px;
+    border: none;
+    border-radius: 0;
+    overflow-y: auto;
+    bottom: 0;
+    overflow-x: hidden;
+    padding-bottom: 40px;
+    background-color: #222d32;
+}
 
-    .side-nav li a:hover,
-    .side-nav li a:focus {
-        outline: none;
-    }
+.side-nav > li > a {
+    width: 225px;
+}
 
-    .side-nav .caret {
-        float: right;
-        margin-top: 7px;
-    }
+.side-nav li a:hover,
+.side-nav li a:focus {
+    outline: none;
+}
+
+.side-nav .caret {
+    float: right;
+    margin-top: 7px;
+}
+
+.navbar-default .side-nav {
+    border-top: 0;
+}
+
+.navbar-default .side-nav li > a {
+    background: #222d32;
+    color: #b8c7ce;
+}
+
+.navbar-default .side-nav li > a:hover {
+	color: #fff;
+}
+
+.navbar-default .side-nav > .active > a, .navbar-default .side-nav > .active > a:focus, .navbar-default .side-nav > .active > a:hover {
+	background: rgba(0, 0, 0, 0.5) none repeat scroll 0 0;
+    color: #fff;
+}
+
+.navbar-default .side-nav > li > a:focus, .navbar-default .side-nav > li > a:hover {
+    color: #fff;
 }
 
 .side-nav > li > ul {
@@ -78,22 +176,22 @@ body {
     display: block;
     padding: 10px 15px 10px 38px;
     text-decoration: none;
-    color: #999;
-}
-
-.side-nav > li > ul > li > a:hover {
-   background-color: transparent;
-   color: #fff;
+    color: #b8c7ce;
 }
 
 .side-nav > li > ul > li.active > a {
-   background-color: #222;
+   background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
    color: #fff;
 }
 
-.side-nav > li > ul > li.active > a:hover {
-    background-color: #080808;
-    color: #fff;
+}
+
+/* Nav Navigation */
+
+.navbar-default .nav > .active > a,
+.navbar-default .nav > li > a:focus,
+.navbar-default .nav > li > a:hover {
+	background: rgba(0, 0, 0, 0.1) none repeat scroll 0 0;
 }
 
 /* Custom Colored Panels */

@@ -24,7 +24,7 @@
 	<div class="container-fluid">
 
 	<!-- Navigation -->
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
 				<span class="sr-only">Toggle navigation</span>
@@ -37,7 +37,7 @@
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
-			<ul class="nav navbar-nav navbar-right" style="margin-right: 10px;">
+			<ul class="nav navbar-nav navbar-right">
 				<li <?php if($baseUri == 'admin/messages') echo 'class="active"'; ?>>
 					<a href="<?= site_url('admin/messages'); ?>" title="<?= __d('backend', 'Your Messages'); ?>">
 						<i class='fa fa-envelope'></i>
@@ -84,7 +84,7 @@
 			</ul>
 
 			<!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
-			<ul class="nav navbar-nav navbar-inverse side-nav" id="side-menu">
+			<ul class="nav navbar-nav side-nav" id="side-menu">
 			<?php foreach ($menuItems as $count => $item) { ?>
 				<?php $children = Arr::get($item, 'children', array()); ?>
 				<?php if (! empty($children)) { ?>
