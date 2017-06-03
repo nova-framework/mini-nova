@@ -25,7 +25,7 @@ body {
 @media(min-width:768px) {
 
 #wrapper {
-    padding-left: 225px;
+    padding-left: 230px;
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;
     -o-transition: all 0.2s ease;
@@ -206,7 +206,7 @@ body {
     position: fixed;
     top: 51px;
     left: 225px;
-    width: 225px;
+    width: 230px;
     margin-left: -225px;
     border: none;
     border-radius: 0;
