@@ -3,8 +3,9 @@
 	<li class="dd-item" data-id="<?= $term->id; ?>">
 		<!-- drag handle -->
 		<div class="handle dd-handle">
-			<?= $term->id; ?> <i class="fa fa-ellipsis-v"></i> <?= $term->slug; ?>
 			<i class="fa fa-ellipsis-v"></i>
+			<i class="fa fa-ellipsis-v"></i>
+			&nbsp;
 			<!-- checkbox -->
 			<!-- todo text -->
 			<span class="text"><?= $term->name; ?></span>
