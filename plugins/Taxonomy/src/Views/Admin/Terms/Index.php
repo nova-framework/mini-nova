@@ -31,7 +31,7 @@
 
 .dd-item,
 .dd-empty,
-.dd-placeholder { display: block; position: relative; margin: 0; padding: 0; min-height: 20px; font-size: /*13px; line-height: 25px;*/ }
+.dd-placeholder { display: block; position: relative; margin: 0; padding: 0; min-height: 20px; /*font-size: 13px; line-height: 25px;*/ }
 
 .dd-handle { display: block; height: 36px; margin: 5px 0; padding: 7px 5px 0 10px; color: #333; text-decoration: none; border: 1px solid #ccc;
 	background: #fafafa;
@@ -45,7 +45,6 @@
 .dd-handle:hover { color: #2ea8e5; background: #fff; }
 
 .dd-handle .btn-group { margin-top: -4px; }
-
 
 .dd-item > button { display: block; position: relative; cursor: pointer; float: left; width: 25px; height: 20px; margin: 5px 0; padding: 0; text-indent: 100%; white-space: nowrap; overflow: hidden; border: 0; background: transparent; font-size: 12px; line-height: 1; text-align: center; font-weight: bold; }
 .dd-item > button:before { content: '+'; display: block; position: absolute; width: 100%; text-align: center; text-indent: 0; }
