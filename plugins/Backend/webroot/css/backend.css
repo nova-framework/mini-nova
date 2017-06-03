@@ -1,5 +1,9 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
+
 body {
-	background-color: #fff;
+    font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    background-color: #fff;
     margin-top: 50px;
 }
 
@@ -103,11 +107,13 @@ body {
 }
 
 .navbar-default .navbar-nav .label {
-    position: absolute;
-    margin: -8px -1px;
-    padding: 0.18em 0.35em 0.1em;
-    font-size: 10px;
-    line-height: .9;
+   position: absolute;
+   top: 9px;
+   right: 7px;
+   text-align: center;
+   font-size: 9px;
+   padding: 2px 3px;
+   line-height: .9;
 }
 
 @media(max-width:768px) {
