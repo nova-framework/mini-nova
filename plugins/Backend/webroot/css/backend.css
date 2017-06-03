@@ -104,7 +104,7 @@ body {
 
 .navbar-default .navbar-nav .label {
     position: absolute;
-    margin: -8px 0;
+    margin: -8px -2px;
     padding: 0.18em 0.35em 0.1em;
 }
 
