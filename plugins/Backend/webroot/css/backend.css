@@ -106,6 +106,8 @@ body {
     position: absolute;
     margin: -8px -1px;
     padding: 0.18em 0.35em 0.1em;
+    font-size: 10px;
+    line-height: .9;
 }
 
 @media(max-width:768px) {
