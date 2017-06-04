@@ -3,7 +3,8 @@
 body {
     font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 400;
-    background-color: #fff;
+    overflow-x: hidden;
+    overflow-y: auto;
     margin-top: 50px;
 }
 

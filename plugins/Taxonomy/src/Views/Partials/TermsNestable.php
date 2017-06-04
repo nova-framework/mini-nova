@@ -8,7 +8,7 @@
 			&nbsp;
 			<!-- checkbox -->
 			<!-- todo text -->
-			<span class="text"><?= $term->name; ?></span>
+			<span class="text"><?= $term->id; ?> - <?= $term->name; ?></span>
 			<!-- Emphasis label -->
 			<!-- General tools such as edit or delete-->
 			<div class="pull-right">
