@@ -99,7 +99,7 @@
 							<i class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
-					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level <?= ! $active ? 'collapse' : ''; ?>">
+					<ul id="menu-children-<?= $count; ?>" class="nav nav-second-level collapse <?= $active ? 'in' : ''; ?>">
 					<?php foreach ($children as $child) { ?>
 						<li <?= ($currentUri == $child['uri']) ? 'class="active"' : ''; ?>>
 							<a href="<?= site_url($child['uri']); ?>"><i class="fa fa-circle-o"></i> <?= $child['title']; ?> <?= $child['label']; ?></a>
