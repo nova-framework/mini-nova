@@ -119,24 +119,21 @@
 	</div>
 
 	<div id="page-wrapper">
-		<div class="container-fluid">
+		<div class="container-fluid" style="padding: 30px;">
 			<?= $content; ?>
-		<div>
-
-		<footer id="footer" class="footer">
-			<div class="container-fluid">
-				<div class="row" style="margin: 15px 0 0;">
-					<div class="col-lg-4">
-						Mini MVC Framework <strong><?= VERSION; ?></strong> / Kernel <strong><?= App::version(); ?></strong>
-					</div>
-					<div class="col-lg-8">
-						<p class="text-muted pull-right">
-							<small><!-- DO NOT DELETE! - Profiler --></small>
-						</p>
-					</div>
-				</div>
+		</div>
+	</div>
+	<div id="footer" class="footer">
+		<div class="container-fluid">
+			<div class="col-lg-4">
+				Mini MVC Framework <strong><?= VERSION; ?></strong> / Kernel <strong><?= App::version(); ?></strong>
 			</div>
-		</footer>
+			<div class="col-lg-8">
+				<p class="text-muted pull-right">
+					<small><!-- DO NOT DELETE! - Profiler --></small>
+				</p>
+			</div>
+		</div>
 	</div>
 </div>
 
