@@ -67,5 +67,4 @@
 <div class="row">
 	<hr>
 	<a class='btn btn-primary col-sm-2' href='<?= site_url('admin/messages'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
-	<br>
 </div>

@@ -55,7 +55,6 @@
 <div class="row">
 	<hr>
 	<a class='btn btn-primary' href='<?= site_url('admin/taxonomy'); ?>'><?= __d('taxonomy', '<< Previous Page'); ?></a>
-	<br>
 </div>
 
 

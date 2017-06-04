@@ -69,5 +69,4 @@ $opt_desc = ! empty($opt_desc) ? $opt_desc : $role->description;
 <div class="row">
 	<hr>
 	<a class='btn btn-primary' href='<?= site_url('admin/roles'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
-	<br>
 </div>

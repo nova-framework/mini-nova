@@ -119,7 +119,7 @@
 	</div>
 
 	<div id="page-wrapper">
-		<div class="container-fluid" style="padding: 0 30px 0 30px;">
+		<div class="container-fluid" style="padding: 30px;">
 			<?= $content; ?>
 		</div>
 	</div>

@@ -90,5 +90,4 @@ $opt_role = Input::old('role', $user->role_id);
 <div class="row">
 	<hr>
 	<a class='btn btn-primary' href='<?= site_url('admin/users'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
-	<br>
 </div>

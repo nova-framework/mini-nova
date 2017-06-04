@@ -43,5 +43,4 @@
 
 <div class="row">
 	<a class='btn btn-primary' href='<?= site_url('admin/roles'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
-	<br>
 </div>

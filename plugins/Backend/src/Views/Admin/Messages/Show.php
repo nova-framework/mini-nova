@@ -71,5 +71,4 @@
 <div class="row">
 	<hr style="margin-top: 0;">
 	<a class='btn btn-primary' href='<?= site_url('admin/messages'); ?>'><?= __d('backend', '<< Previous Page'); ?></a>
-	<br>
 </div>

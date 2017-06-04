@@ -64,7 +64,6 @@
 		<?= $vocabularies->links(); ?>
 	</div>
 	<div class="clearfix"></div>
-	<br>
 </div>
 
 <?php if (! $vocabularies->isEmpty()) { ?>

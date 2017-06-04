@@ -69,7 +69,6 @@
 <div class="row">
 	<hr>
 	<a class='btn btn-primary' href='<?= site_url('admin/taxonomy/' .$vocabulary->id .'/terms'); ?>'><?= __d('taxonomy', '<< Previous Page'); ?></a>
-	<br>
 </div>
 
 

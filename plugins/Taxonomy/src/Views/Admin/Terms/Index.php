@@ -96,7 +96,6 @@
 <div class="row">
 	<hr>
 	<a class='btn btn-primary' href='<?= site_url('admin/taxonomy'); ?>'><?= __d('taxonomy', '<< Previous Page'); ?></a>
-	<br>
 </div>
 
 <div id="confirm-delete-dialog" class="modal modal-default fade" tabindex="-1" role="dialog" aria-labelledby="...">

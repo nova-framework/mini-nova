@@ -65,8 +65,6 @@ tfoot input {
 		<tbody>
 		</tbody>
 	</table>
-
-	<br>
 </div>
 
 <div class="modal modal-default" id="modal_delete_user">
