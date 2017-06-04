@@ -92,7 +92,7 @@
 					<?php if (! empty($children)) { ?>
 					<?php $active = in_array($currentUri, Arr::pluck($children, 'uri')); ?>
 					<li <?= $active ? 'class="active"' : ''; ?>>
-						<a href="#" class="collapse-toggle <?= ! $active ? 'collapsed' : ''; ?>" data-toggle="collapse" data-target="#menu-children-<?= $count; ?>" aria-expanded="false" role="button">
+						<a href="javascript:;" class="collapse-toggle <?= ! $active ? 'collapsed' : ''; ?>" data-toggle="collapse" data-target="#menu-children-<?= $count; ?>" aria-expanded="false" role="button">
 							<i class="fa fa-<?= $item['icon'] ?>"></i> <?= $item['title']; ?>
 							<span class="pull-right-container">
 								<i class="fa fa-angle-left pull-right"></i>
