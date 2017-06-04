@@ -67,13 +67,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .navbar-default {
     background: #3c8dbc;
-	color: #fff;
-	box-shadow: none;
-	border-color: #222d32;
+    color: #fff;
 }
 
 .navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
-	color: #fff;
+    color: #fff;
     text-shadow: none;
 }
 
@@ -120,6 +118,10 @@ h1, h2, h3, h4, h5, h6 {
    font-size: 9px;
    padding: 2px 3px;
    line-height: .9;
+}
+
+.navbar-default .navbar-nav > li > .dropdown-menu {
+    box-shadow: none;
 }
 
 @media(max-width:768px) {
