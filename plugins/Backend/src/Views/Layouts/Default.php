@@ -152,8 +152,8 @@ $("#menu-toggle").click(function(e) {
 	$(this).toggleClass("toggled");
 
 	$("#wrapper").toggleClass("toggled");
-	$("#side-menu").toggleClass("toggled");
 	$("#footer").toggleClass("toggled");
+	$("#side-menu").toggleClass("toggled");
 });
 </script>
 
