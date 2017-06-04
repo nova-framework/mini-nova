@@ -4,7 +4,9 @@ namespace App\Exceptions;
 
 use Mini\Http\Response;
 use Mini\Foundation\Exceptions\Handler as ExceptionHandler;
+use Mini\Session\TokenMismatchException;
 use Mini\Support\Facades\View;
+use Mini\Support\Facades\Redirect;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -45,7 +47,12 @@ class Handler extends ExceptionHandler
 	 */
 	public function render($request, Exception $e)
 	{
-		if ($e instanceof HttpException) {
+		if ($e instanceof TokenMismatchException) {
+			return Redirect::guest('auth/login');
+		}
+
+		// If we got a HttpException, we will render a themed error page.
+		else if ($e instanceof HttpException) {
 			$status = $e->getStatusCode();
 
 			if (View::exists("Errors/{$status}")) {
