@@ -74,8 +74,11 @@
 	</div>
 
 <?php } else { ?>
-	<p><strong><?= __d('backend', 'You have no messages sent or received.'); ?></strong></p>
-	<br>
+
+	<div class="alert alert-info">
+		<h4><?= __d('backend', 'No messages'); ?></h4>
+		<p><?= __d('backend', 'You have no messages sent or received.'); ?></p>
+	</div>
 
 <?php } ?>
 

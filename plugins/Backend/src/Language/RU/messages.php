@@ -66,6 +66,7 @@ return array (
   'Name' => 'Имя',
   'Name and Surname' => 'Имя и фамилия',
   'New Password' => 'Новый пароль',
+  'No messages' => '',
   'No unread notifications' => 'Нет непрочитанных уведомлений',
   'Notifications' => 'Уведомления',
   'Operations' => 'Действия',

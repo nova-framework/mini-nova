@@ -66,6 +66,7 @@ return array (
   'Name' => '',
   'Name and Surname' => '',
   'New Password' => '',
+  'No messages' => '',
   'No unread notifications' => '',
   'Notifications' => '',
   'Operations' => '',
