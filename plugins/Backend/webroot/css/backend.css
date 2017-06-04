@@ -211,6 +211,26 @@ h1, h2, h3, h4, h5, h6 {
     color: #fff;
 }
 
+.navbar-default .side-nav > li > a > .fa-angle-left,
+.navbar-default .side-nav > li > a > .pull-right-container > .fa-angle-left {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: auto;
+    height: auto;
+    margin-top: -7px;
+    margin-right: 10px;
+    padding: 0;
+}
+
+.navbar-default .side-nav > li > a:not(.collapsed) > .fa-angle-left,
+.navbar-default .side-nav > li > a:not(.collapsed) > .pull-right-container > .fa-angle-left {
+    -webkit-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
 @media(min-width:768px) {
 
 #side-menu.toggled {
