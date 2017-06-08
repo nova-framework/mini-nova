@@ -12,6 +12,8 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.dataTables.min.css">
 
 	<!-- Local customizations -->
+	<link rel="stylesheet" type="text/css" href="<?= resource_url('plugins/flags/flags.css', 'Backend'); ?>">
+
 	<link rel="stylesheet" type="text/css" href="<?= resource_url('css/backend.css', 'Backend'); ?>">
 	<link rel="stylesheet" type="text/css" href="<?= resource_url('css/style.css', 'Backend'); ?>">
 
@@ -58,7 +60,10 @@
 						<ul class="dropdown-menu">
 							<?php foreach (Config::get('languages') as $code => $info) { ?>
 							<li <?= ($code == Language::code()) ? 'class="active"' : ''; ?>>
-								<a href='<?= site_url('language/' .$code) ?>' title='<?= $info['info'] ?>'><i class='fa fa-circle-o'></i> <?= $info['name'] .' (' .$code .')' ?></a>
+								<a href='<?= site_url('language/' .$code) ?>' title='<?= $info['info'] ?>'>
+									<img src="<?= resource_url('plugins/flags/blank.png', 'Backend'); ?>" class="flag flag-<?= ($code !== 'en') ? $code : 'gb'; ?>" alt="<?= $info['name']; ?>" />
+									<?= $info['name']; ?>
+								</a>
 							</li>
 							<?php } ?>
 						</ul>
