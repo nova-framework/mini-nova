@@ -140,7 +140,7 @@ class BaseController extends Controller
 			return $this->renderWhithinLayout($view, $layout);
 		}
 
-		return $view;
+		return new Response($view);
 	}
 
 	/**
