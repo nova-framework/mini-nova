@@ -110,17 +110,13 @@ class BaseController extends Controller
 	{
 		if (! $this->autoRender()) {
 			return $response;
+		} else if (is_null($response)) {
+			$response = $this->createView();
+		} else if (! $response instanceof RenderableInterface) {
+			return $response;
 		}
 
-		if (is_null($response)) {
-			return $this->render();
-		} else if ($response instanceof RenderableInterface) {
-			return $this->renderWhithinLayout($response);
-		} else if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
-		}
-
-		return $response;
+		return $this->renderWhithinLayout($response);
 	}
 
 	/**
@@ -140,7 +136,11 @@ class BaseController extends Controller
 			$view = $this->createView();
 		}
 
-		return $this->renderWhithinLayout($view, $layout);
+		if (! is_null($layout)) {
+			return $this->renderWhithinLayout($view, $layout);
+		}
+
+		return $view;
 	}
 
 	/**
@@ -230,18 +230,20 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Sets/gets the auto-rendering mode.
+	 * Turns on or off Nova's conventional mode of applying layout files.
 	 *
-	 * @param bool|null  $mode
+	 * @param bool|null  $enable
 	 * @return bool
 	 */
-	public function autoRender($mode = null)
+	public function autoRender($enable = null)
 	{
-		if (is_null($mode)) {
-			return $this->autoRender;
+		if (! is_null($enable)) {
+			$this->autoRender = (bool) $enable;
+
+			return $this;
 		}
 
-		return $this->autoRender = (bool) $mode;
+		return $this->autoRender;
 	}
 
 	/**
