@@ -179,12 +179,13 @@ class BaseController extends Controller
 	 */
 	protected function createView(array $data = array(), $view = null)
 	{
-		$view = $action ?: $this->action;
+		$view = $view ?: ucfirst($this->action);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#s', str_replace('\\', '/', static::class), $matches)) {
 			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
 
-			$view = $namespace .$matches[2] .'/' .ucfirst($view);
+			// Compute the complete View name.
+			$view = $namespace .$matches[2] .'/' .$view;
 
 			return View::make($view, array_merge($this->viewVars, $data));
 		}
