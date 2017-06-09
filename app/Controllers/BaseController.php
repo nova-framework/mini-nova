@@ -173,19 +173,23 @@ class BaseController extends Controller
 	 * Create and return a default View instance.
 	 *
 	 * @param  array  $data
-	 * @param  string}null  $view
+	 * @param  string}null  $custom
 	 * @return \Nova\View\View
 	 * @throws \BadMethodCallException
 	 */
-	protected function createView(array $data = array(), $view = null)
+	protected function createView(array $data = array(), $custom = null)
 	{
-		$view = $view ?: ucfirst($this->action);
+		$action = $custom ?: $this->action;
 
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', str_replace('\\', '/', static::class), $matches)) {
+		//
+		$path = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
+			// Compute the View namespace.
 			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
 
 			// Compute the complete View name.
-			$view = $namespace .$matches[2] .'/' .$view;
+			$view = $namespace .$matches[2] .'/' .ucfirst($action);
 
 			return View::make($view, array_merge($this->viewVars, $data));
 		}
