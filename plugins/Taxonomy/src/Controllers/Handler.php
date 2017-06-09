@@ -47,17 +47,18 @@ class Handler extends BaseController
 			->paginate(10);
 
 		//
-		$title = $vocabulary->name;
+		$this->set('title', $vocabulary->name);
 
-		return $this->createView(compact('title'), 'Vocabulary')
-			->with(compact('vocabulary', 'terms'));
+		return $this->createView(compact('vocabulary', 'terms'), 'Vocabulary');
 	}
 
 	protected function handleTerm(Vocabulary $vocabulary, Term $term)
 	{
-		$title = $vocabulary->name .' : ' .$term->name;
+		$title = sprintf('%s : %s', $vocabulary->name, $term->name);
 
-		return $this->createView(compact('title'), 'Term')
-			->with(compact('vocabulary', 'term'));
+		//
+		$this->set('title', $title);
+
+		return $this->createView(compact( 'vocabulary', 'term'), 'Term');
 	}
 }
