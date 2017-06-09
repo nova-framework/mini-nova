@@ -149,9 +149,9 @@ class BaseController extends Controller
 	{
 		$this->action = $action;
 
-		$parameters = array_shift(func_get_args());
-
-		return call_user_func_array(array($this, $action), $parameters);
+		return call_user_func_array(
+			array($this, $action), array_slice(func_get_args(), 1)
+		);
 	}
 
 	/**
@@ -266,21 +266,6 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Prepare and returns a response.
-	 *
-	 * @param mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function prepareResponse($response)
-	{
-		if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
-		}
-
-		return $response;
-	}
-
-	/**
 	 * Turns on or off Nova's conventional mode of auto-rendering.
 	 *
 	 * @param bool|null  $enable
@@ -315,7 +300,22 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Gets the qualified View name for the current or specified action.
+	 * Prepare and returns a response.
+	 *
+	 * @param mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function prepareResponse($response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Gets the qualified View name for the current (or specified) action.
 	 *
 	 * @param  string|null  $action
 	 * @return string
@@ -323,7 +323,9 @@ class BaseController extends Controller
 	 */
 	protected function getView($action = null)
 	{
-		$action = $action ?: $this->action;
+		if (is_null($action)) {
+			$action = $this->action;
+		}
 
 		//
 		$path = str_replace('\\', '/', static::class);
