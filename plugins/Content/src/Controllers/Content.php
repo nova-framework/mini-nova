@@ -23,7 +23,7 @@ class Content extends BaseController
 		$this->set(compact('title', 'content'));
 
 		/*
-		return $this->getView()
+		return $this->createView()
 			->shares('title', __d('content', 'Welcome to the Content Plugin'))
 			->with('content', __d('content', 'Yep! It works.'));
 		*/
