@@ -32,7 +32,8 @@ class Files extends BaseController
 
 	public function index()
 	{
-		return $this->shares('title', __d('files', 'Files'));
+		return $this->createView()
+			->shares('title', __d('files', 'Files'));
 	}
 
 	public function connector()

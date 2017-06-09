@@ -101,13 +101,15 @@ class Roles extends BaseController
 	{
 		$langInfo = Language::info();
 
-		return $this->shares('title', __d('backend', 'Roles'))
+		return $this->createView()
+			->shares('title', __d('backend', 'Roles'))
 			->with('langInfo', $langInfo);
 	}
 
 	public function create()
 	{
-		return $this->shares('title', __d('backend', 'Create Role'));
+		return $this->createView()
+			->shares('title', __d('backend', 'Create Role'));
 	}
 
 	public function store()
@@ -143,7 +145,8 @@ class Roles extends BaseController
 			return Redirect::to('admin/roles')->with('warning', $status);
 		}
 
-		return $this->shares('title', __d('backend', 'Show Role'))
+		return $this->createView()
+			->shares('title', __d('backend', 'Show Role'))
 			->with('role', $role);
 	}
 
@@ -159,7 +162,8 @@ class Roles extends BaseController
 			return Redirect::to('admin/roles')->with('warning', $status);
 		}
 
-		return $this->shares('title', __d('backend', 'Edit Role'))
+		return $this->createView()
+			->shares('title', __d('backend', 'Edit Role'))
 			->with('role', $role);
 	}
 

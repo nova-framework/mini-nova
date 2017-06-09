@@ -67,13 +67,15 @@ class Vocabularies extends BaseController
 	{
 		$vocabularies = Vocabulary::with('terms')->paginate(10);
 
-		return $this->shares('title', __d('taxonomy', 'Taxonomy'))
+		return $this->createView()
+			->shares('title', __d('taxonomy', 'Taxonomy'))
 			->with('vocabularies', $vocabularies);
 	}
 
 	public function create()
 	{
-		return $this->shares('title', __d('taxonomy', 'Create Vocabulary'));
+		return $this->createView()
+			->shares('title', __d('taxonomy', 'Create Vocabulary'));
 	}
 
 	public function store()
@@ -125,7 +127,8 @@ class Vocabularies extends BaseController
 			return Redirect::to('admin/taxonomy')->with('warning', $status);
 		}
 
-		return $this->shares('title', __d('taxonomy', 'Edit Vocabulary'))
+		return $this->createView()
+			->shares('title', __d('taxonomy', 'Edit Vocabulary'))
 			->with('vocabulary', $vocabulary);
 	}
 
