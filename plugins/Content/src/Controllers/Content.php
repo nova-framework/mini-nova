@@ -15,9 +15,12 @@ class Content extends BaseController
 
 	public function index()
 	{
-		$this->set('title', __d('content', 'Welcome to the Content Plugin'));
+		$title = __d('content', 'Welcome to the Content Plugin');
 
-		$this->set('content', __d('content', 'Yep! It works.'));
+		$content = __d('content', 'Yep! It works.');
+
+		//
+		$this->set(compact('title', 'content'));
 
 		/*
 		return $this->getView()
