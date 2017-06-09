@@ -134,13 +134,13 @@ class BaseController extends Controller
 			return new Response($renderable);
 		}
 
-		// Convert the Theme to a View namespace.
+		// Convert the theme to a View namespace.
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the name of View used as layout.
 		$layout = sprintf('%sLayouts/%s', $namespace, $this->layout);
 
-		// Get the composite View data for layout.
+		// Get the composite View data.
 		$data = array_merge($this->viewVars, array(
 			'content' => $renderable
 		));
