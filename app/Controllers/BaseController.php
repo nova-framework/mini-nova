@@ -52,6 +52,13 @@ class BaseController extends Controller
 	protected $autoRender = true;
 
 	/**
+	 * True when the auto-layouting is active.
+	 *
+	 * @var bool
+	 */
+	protected $autoLayout = true;
+
+	/**
 	 * The View variables.
 	 *
 	 * @var array
@@ -109,60 +116,47 @@ class BaseController extends Controller
 	protected function after($response)
 	{
 		if (! $this->autoRender()) {
-			return $response;
+			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
 			$response = $this->createView();
-		} else if (! $response instanceof RenderableInterface) {
-			return $response;
 		}
 
-		return $this->renderWhithinLayout($response);
+		if (($response instanceof RenderableInterface) && $this->autoLayout()) {
+			return $this->renderWhithinLayout($response);
+
+		}
+
+		return $this->prepareResponse($response);
 	}
 
 	/**
-	 * Instantiates the correct View instance, hands it its data, and uses it to render the view output.
+	 * Prepare and returns a response.
 	 *
-	 * @param string|null $view View to use for rendering
-	 * @param string|null $layout Layout to use
-	 * @return \Mini\Http\Response A response object containing the rendered view.
+	 * @param mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	public function render($view = null, $layout = null)
+	protected function prepareResponse($response)
 	{
-		$this->autoRender = false;
-
-		if (! is_null($view)) {
-			$view = View::make($view, $this->viewVars);
-		} else {
-			$view = $this->createView();
+		if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
 		}
 
-		if (! is_null($layout)) {
-			return $this->renderWhithinLayout($view, $layout);
-		}
-
-		return new Response($view);
+		return $response;
 	}
 
 	/**
 	 * Handle a RenderableInterface implementation.
 	 *
 	 * @param \Mini\Support\Contracts\RenderableInterface  $view
-	 * @param string|null  $layout Layout to use
 	 * @return \Mini\Http\Response
 	 */
-	protected function renderWhithinLayout(RenderableInterface $renderable, $layout = null)
+	protected function renderWhithinLayout(RenderableInterface $renderable)
 	{
-		$layout = $layout ?: $this->layout;
-
-		if (empty($layout)) {
-			return new Response($renderable);
-		}
-
 		// Convert the used theme to a View namespace.
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the name of View used as layout.
-		$view = sprintf('%sLayouts/%s', $namespace, $layout);
+		$view = sprintf('%sLayouts/%s', $namespace, $this->layout);
 
 		// Compute the composite View data.
 		$data = array_merge($this->viewVars, array(
@@ -179,17 +173,18 @@ class BaseController extends Controller
 	 * Create and return a default View instance.
 	 *
 	 * @param  array  $data
+	 * @param  string}null  $view
 	 * @return \Nova\View\View
 	 * @throws \BadMethodCallException
 	 */
-	protected function createView(array $data = array())
+	protected function createView(array $data = array(), $view = null)
 	{
-		$classPath = str_replace('\\', '/', static::class);
+		$view = $action ?: $this->action;
 
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', str_replace('\\', '/', static::class), $matches)) {
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
 
-			$view = $namespace .$matches[2] .'/' .ucfirst($this->action);
+			$view = $namespace .$matches[2] .'/' .ucfirst($view);
 
 			return View::make($view, array_merge($this->viewVars, $data));
 		}
@@ -206,7 +201,25 @@ class BaseController extends Controller
 	 */
 	protected function getView(array $data = array())
 	{
-		return $this->createView($data);
+		list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+		$method = $caller['function'];
+
+		return $this->createView($data, $method);
+	}
+
+	/**
+	 * Add a piece of shared view data and returns the standard View instance.
+	 *
+	 * @param  string  $key
+	 * @param  mixed   $value
+	 * @return View
+	 */
+	protected function shares($key, $value = null)
+	{
+		View::share($key, $value);
+
+		return $this->createView();
 	}
 
 	/**
@@ -230,7 +243,7 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Turns on or off Nova's conventional mode of applying layout files.
+	 * Turns on or off Nova's conventional mode of auto-rendering.
 	 *
 	 * @param bool|null  $enable
 	 * @return bool
@@ -244,6 +257,23 @@ class BaseController extends Controller
 		}
 
 		return $this->autoRender;
+	}
+
+	/**
+	 * Turns on or off Nova's conventional mode of applying layout files.
+	 *
+	 * @param bool|null  $enable
+	 * @return bool
+	 */
+	public function autoLayout($enable = null)
+	{
+		if (! is_null($enable)) {
+			$this->autoLayout = (bool) $enable;
+
+			return $this;
+		}
+
+		return $this->autoLayout;
 	}
 
 	/**

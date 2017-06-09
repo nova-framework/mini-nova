@@ -74,19 +74,12 @@ class Dashboard extends BaseController
 	{
 		$content = '';
 
+		$langInfo = Language::info();
+
 		//
-		$this->set('title', __d('backend', 'Dashboard'));
-
-		$this->set('langInfo', Language::info());
-
-		$this->set('debug', $content);
-
-		/*
-		return $this->getView()
-			->shares('title', __d('backend', 'Dashboard'))
-			->with('langInfo', Language::info())
+		return $this->shares('title', __d('backend', 'Dashboard'))
+			->with('langInfo', $langInfo)
 			->with('debug', $content);
-		*/
 	}
 
 	public function notify()

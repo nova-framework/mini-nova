@@ -49,19 +49,15 @@ class Handler extends BaseController
 		//
 		$title = $vocabulary->name;
 
-		return View::make('Taxonomy::Handler/Vocabulary')
-			->shares('title', $title)
-			->with('vocabulary', $vocabulary)
-			->with('terms', $terms);
+		return $this->createView(compact('title'), 'Vocabulary')
+			->with(compact('vocabulary', 'terms'));
 	}
 
 	protected function handleTerm(Vocabulary $vocabulary, Term $term)
 	{
 		$title = $vocabulary->name .' : ' .$term->name;
 
-		return View::make('Taxonomy::Handler/Term')
-			->shares('title', $title)
-			->with('vocabulary', $vocabulary)
-			->with('term', $term);
+		return $this->createView(compact('title'), 'Term')
+			->with(compact('vocabulary', 'term'));
 	}
 }

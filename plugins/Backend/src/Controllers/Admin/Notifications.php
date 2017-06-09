@@ -16,6 +16,7 @@ class Notifications extends BaseController
 	{
 		$perPage = 15;
 
+		//
 		$authUser = Auth::user();
 
 		//Retrieve the unread notifications for the current User.
@@ -35,11 +36,9 @@ class Notifications extends BaseController
 			$notification->markAsRead();
 		});
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Notifications'))
-			->shares('notificationCount', $notificationCount)
-			->with('authUser', $authUser)
-			->with('notifications', $notifications);
+		return $this->shares('title', __d('backend', 'Notifications'))
+			->with(compact('authUser', 'notifications'))
+			->shares('notificationCount', $notificationCount);
 	}
 
 }

@@ -30,23 +30,21 @@ class Messages extends BaseController
 
 	public function index()
 	{
-		$user = Auth::user();
+		$authUser = Auth::user();
 
 		// Load the messages of the current logged in user and pass them to the view.
 		$messages = Message::with('sender', 'receiver', 'replies')
 			->notReply()
-			->where(function($query) use ($user)
+			->where(function($query) use ($authUser)
 			{
-				$query->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+				$query->where('sender_id', $authUser->id)->orWhere('receiver_id', $authUser->id);
 
 			})
 			->orderBy('created_at', 'desc')
 			->paginate(10);
 
-		return $this->getView()
-			->shares('title',  __d('backend', 'Messages'))
-			->withAuthUser($user)
-			->withMessages($messages);
+		return $this->shares('title',  __d('backend', 'Messages'))
+			->with(compact('authUser', 'messages'));
 	}
 
 	public function create()
@@ -56,10 +54,8 @@ class Messages extends BaseController
 		// Retrieve all other Users.
 		$users = User::where('id', '!=', $authUser->id)->get();
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Send Message'))
-			->withAuthUser($authUser)
-			->withUsers($users);
+		return $this->shares('title', __d('backend', 'Send Message'))
+			->with(compact('authUser', 'users'));
 	}
 
 	/**
@@ -135,11 +131,9 @@ class Messages extends BaseController
 		// Recalculate the number of unread messages.
 		$messageCount = Message::where('receiver_id', $authUser->id)->unread()->count();
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Show Message'))
-			->shares('privateMessageCount', $messageCount)
-			->withAuthUser($authUser)
-			->withMessage($message);
+		return $this->shares('title', __d('backend', 'Show Message'))
+			->with(compact('authUser', 'message'))
+			->shares('privateMessageCount', $messageCount);
 	}
 
 	/**

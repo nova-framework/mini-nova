@@ -148,8 +148,7 @@ class Users extends BaseController
 	{
 		$langInfo = Language::info();
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Users'))
+		return $this->shares('title', __d('backend', 'Users'))
 			->with('langInfo', $langInfo);
 	}
 
@@ -158,8 +157,7 @@ class Users extends BaseController
 		// Get all available User Roles.
 		$roles = Role::all();
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Create User'))
+		return $this->shares('title', __d('backend', 'Create User'))
 			->with('roles', $roles);
 	}
 
@@ -213,8 +211,7 @@ class Users extends BaseController
 			return Redirect::to('admin/users')->with('warning', $status);
 		}
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Show User'))
+		return $this->shares('title', __d('backend', 'Show User'))
 			->with('user', $user);
 	}
 
@@ -233,10 +230,8 @@ class Users extends BaseController
 		// Get all available User Roles.
 		$roles = Role::all();
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Edit User'))
-			->with('roles', $roles)
-			->with('user', $user);
+		return $this->shares('title', __d('backend', 'Edit User'))
+			->with(compact('roles', 'user'));
 	}
 
 	public function update($id)

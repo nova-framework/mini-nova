@@ -60,8 +60,7 @@ class Profile extends BaseController
 	{
 		$user = Auth::user();
 
-		return $this->getView()
-			->shares('title',  __d('backend', 'User Profile'))
+		return $this->shares('title',  __d('backend', 'User Profile'))
 			->with('user', $user);
 	}
 

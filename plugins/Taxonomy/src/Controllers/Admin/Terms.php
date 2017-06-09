@@ -70,8 +70,7 @@ class Terms extends BaseController
 
 		$terms = $vocabulary->terms()->where('parent_id', 0)->orderBy('weight', 'ASC')->get();
 
-		return $this->getView()
-			->shares('title', __d('taxonomy', 'View the Terms'))
+		return $this->shares('title', __d('taxonomy', 'View the Terms'))
 			->with('vocabulary', $vocabulary)
 			->with('terms', $terms);
 	}
@@ -90,8 +89,7 @@ class Terms extends BaseController
 
 		$options = Taxonomy::getVocabularyTermsAsOptionsArray($vocabulary);
 
-		return $this->getView()
-			->shares('title', __d('taxonomy', 'Create Term'))
+		return $this->shares('title', __d('taxonomy', 'Create Term'))
 			->with('vocabulary', $vocabulary)
 			->with('options', $options);
 	}
@@ -167,8 +165,7 @@ class Terms extends BaseController
 
 		$options = Taxonomy::getVocabularyTermsAsOptionsArray($vocabulary);
 
-		return $this->getView()
-			->shares('title', __d('taxonomy', 'Edit Term'))
+		return $this->shares('title', __d('taxonomy', 'Edit Term'))
 			->with('vocabulary', $vocabulary)
 			->with('options', $options)
 			->with('term', $term);

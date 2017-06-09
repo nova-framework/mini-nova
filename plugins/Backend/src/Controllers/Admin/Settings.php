@@ -97,9 +97,8 @@ class Settings extends BaseController
 			'mailPassword'		=> Input::old('mailPassword',		Config::get('mail.password')),
 		);
 
-		return $this->getView()
-			->shares('title', __d('backend', 'Settings'))
-			->withOptions($options);
+		return $this->shares('title', __d('backend', 'Settings'))
+			->with('options', $options);
 	}
 
 	public function store()
