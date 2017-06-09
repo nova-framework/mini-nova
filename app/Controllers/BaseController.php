@@ -236,9 +236,7 @@ class BaseController extends Controller
 	 */
 	protected function shares($key, $value = null)
 	{
-		View::share($key, $value);
-
-		return $this->createView();
+		return $this->createView()->shares($key, $value);
 	}
 
 	/**
