@@ -228,18 +228,6 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Add a piece of shared view data and returns the standard View instance.
-	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
-	 * @return View
-	 */
-	protected function shares($key, $value = null)
-	{
-		return $this->createView()->shares($key, $value);
-	}
-
-	/**
 	 * Add a key / value pair to the view data.
 	 *
 	 * Bound data will be available to the view as variables.
