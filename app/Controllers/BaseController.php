@@ -108,14 +108,16 @@ class BaseController extends Controller
 	 */
 	protected function after($response)
 	{
-		if ((! $response instanceof SymfonyResponse) && ! $this->autoRender()) {
-			return new Response($response);
+		if (! $this->autoRender()) {
+			return $response;
 		}
 
 		if (is_null($response)) {
 			return $this->render();
 		} else if ($response instanceof RenderableInterface) {
 			return $this->renderWhithinLayout($response);
+		} else if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
 		}
 
 		return $response;
