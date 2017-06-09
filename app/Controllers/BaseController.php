@@ -130,17 +130,16 @@ class BaseController extends Controller
 	protected function handleView(RenderableInterface $renderable)
 	{
 		if (empty($this->layout)) {
-			// Create a Response instance from renderable.
 			return new Response($renderable);
 		}
 
-		// Convert the theme to a View namespace.
+		// Convert the used theme to a View namespace.
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the name of View used as layout.
 		$layout = sprintf('%sLayouts/%s', $namespace, $this->layout);
 
-		// Get the composite View data.
+		// Compute the composite View data.
 		$data = array_merge($this->viewVars, array(
 			'content' => $renderable
 		));
