@@ -166,14 +166,16 @@ class BaseController extends Controller
 		$this->autoRender = false;
 
 		if (is_null($view)) {
-			$view = $this->getView();
+			$view = $this->createView();
 		} else if (Str::startsWith($view, '/')) {
 			$view = ltrim($view, '/');
 		} else if (! Str::contains($view, '::')) {
 			$view = $this->getView($view);
 		}
 
-		$view = View::make($view, $this->viewVars);
+		if (is_string($view)) {
+			$view = View::make($view, $this->viewVars);
+		}
 
 		if ($this->autoLayout()) {
 			$response = $this->renderWhithinLayout($view, $layout);
