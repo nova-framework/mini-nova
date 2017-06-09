@@ -109,7 +109,7 @@ class BaseController extends Controller
 	protected function after($response)
 	{
 		if (is_null($response) && $this->autoRender()) {
-			$response = $this->createView();
+			return $this->render();
 		}
 
 		if ($response instanceof RenderableInterface) {
@@ -122,46 +122,23 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Handle a RenderableInterface implementation.
+	 * Instantiates the correct View instance, hands it its data, and uses it to render the view output.
 	 *
-	 * @param \Mini\Support\Contracts\RenderableInterface  $view
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @param string|null $view View to use for rendering
+	 * @param string|null $layout Layout to use
+	 * @return \Mini\Http\Response A response object containing the rendered view.
 	 */
-	protected function handleView(RenderableInterface $renderable)
-	{
-		if (empty($this->layout)) {
-			return new Response($renderable);
-		}
-
-		// Convert the used theme to a View namespace.
-		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
-
-		// Compute the name of View used as layout.
-		$layout = sprintf('%sLayouts/%s', $namespace, $this->layout);
-
-		// Compute the composite View data.
-		$data = array_merge($this->viewVars, array(
-			'content' => $renderable
-		));
-
-		// Create the layout's View instance.
-		$view = View::make($layout, $data);
-
-		return new Response($view);
-	}
-
-	/**
-	 * Create and return a default View instance.
-	 *
-	 * @param  array  $data
-	 * @return \Nova\View\View
-	 * @throws \BadMethodCallException
-	 */
-	protected function getView(array $data = array())
+	public function render($view = null, $layout = null)
 	{
 		$this->autoRender = false;
 
-		return $this->createView($data);
+		if (! is_null($view)) {
+			$view = View::make($view, $this->viewVars);
+		} else {
+			$view = $this->createView();
+		}
+
+		return $this->handleView($view, $layout);
 	}
 
 	/**
@@ -184,6 +161,52 @@ class BaseController extends Controller
 		}
 
 		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+	}
+
+	/**
+	 * Handle a RenderableInterface implementation.
+	 *
+	 * @param \Mini\Support\Contracts\RenderableInterface  $view
+	 * @param string|null  $layout Layout to use
+	 * @return \Mini\Http\Response
+	 */
+	protected function handleView(RenderableInterface $renderable, $layout = null)
+	{
+		$layout = $layout ?: $this->layout;
+
+		if (empty($layout)) {
+			return new Response($renderable);
+		}
+
+		// Convert the used theme to a View namespace.
+		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
+
+		// Compute the name of View used as layout.
+		$view = sprintf('%sLayouts/%s', $namespace, $layout);
+
+		// Compute the composite View data.
+		$data = array_merge($this->viewVars, array(
+			'content' => $renderable
+		));
+
+		// Create and render the layout's View.
+		$content = View::make($view, $data)->render();
+
+		return new Response($content);
+	}
+
+	/**
+	 * Create and return a default View instance.
+	 *
+	 * @param  array  $data
+	 * @return \Nova\View\View
+	 * @throws \BadMethodCallException
+	 */
+	protected function getView(array $data = array())
+	{
+		$this->autoRender = false;
+
+		return $this->createView($data);
 	}
 
 	/**
