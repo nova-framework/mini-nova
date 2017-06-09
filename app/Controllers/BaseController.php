@@ -108,14 +108,14 @@ class BaseController extends Controller
 	 */
 	protected function after($response)
 	{
-		if (is_null($response) && $this->autoRender()) {
-			return $this->render();
+		if ((! $response instanceof SymfonyResponse) && ! $this->autoRender()) {
+			return new Response($response);
 		}
 
-		if ($response instanceof RenderableInterface) {
-			return $this->handleView($response);
-		} else if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
+		if (is_null($response)) {
+			return $this->render();
+		} else if ($response instanceof RenderableInterface) {
+			return $this->renderWhithinLayout($response);
 		}
 
 		return $response;
@@ -138,29 +138,7 @@ class BaseController extends Controller
 			$view = $this->createView();
 		}
 
-		return $this->handleView($view, $layout);
-	}
-
-	/**
-	 * Create and return a default View instance.
-	 *
-	 * @param  array  $data
-	 * @return \Nova\View\View
-	 * @throws \BadMethodCallException
-	 */
-	protected function createView(array $data = array())
-	{
-		$classPath = str_replace('\\', '/', static::class);
-
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
-
-			$view = $namespace .$matches[2] .'/' .ucfirst($this->action);
-
-			return View::make($view, array_merge($this->viewVars, $data));
-		}
-
-		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+		return $this->renderWhithinLayout($view, $layout);
 	}
 
 	/**
@@ -170,7 +148,7 @@ class BaseController extends Controller
 	 * @param string|null  $layout Layout to use
 	 * @return \Mini\Http\Response
 	 */
-	protected function handleView(RenderableInterface $renderable, $layout = null)
+	protected function renderWhithinLayout(RenderableInterface $renderable, $layout = null)
 	{
 		$layout = $layout ?: $this->layout;
 
@@ -202,10 +180,30 @@ class BaseController extends Controller
 	 * @return \Nova\View\View
 	 * @throws \BadMethodCallException
 	 */
+	protected function createView(array $data = array())
+	{
+		$classPath = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches)) {
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : null;
+
+			$view = $namespace .$matches[2] .'/' .ucfirst($this->action);
+
+			return View::make($view, array_merge($this->viewVars, $data));
+		}
+
+		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+	}
+
+	/**
+	 * Create and return a default View instance.
+	 *
+	 * @param  array  $data
+	 * @return \Nova\View\View
+	 * @throws \BadMethodCallException
+	 */
 	protected function getView(array $data = array())
 	{
-		$this->autoRender = false;
-
 		return $this->createView($data);
 	}
 
