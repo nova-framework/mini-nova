@@ -3,6 +3,7 @@
 namespace Backend\Controllers\Admin;
 
 use Mini\Support\Facades\Auth;
+use Mini\Support\Facades\View;
 
 use Backend\Controllers\BaseController;
 
@@ -36,9 +37,10 @@ class Notifications extends BaseController
 			$notification->markAsRead();
 		});
 
+		View::share('notificationCount', $notificationCount);
+
 		return $this->shares('title', __d('backend', 'Notifications'))
-			->with(compact('authUser', 'notifications'))
-			->shares('notificationCount', $notificationCount);
+			->with(compact('authUser', 'notifications'));
 	}
 
 }

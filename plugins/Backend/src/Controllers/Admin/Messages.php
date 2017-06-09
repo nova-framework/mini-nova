@@ -7,6 +7,7 @@ use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\Input;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Validator;
+use Mini\Support\Facades\View;
 use Mini\Validation\ValidationException;
 
 use Backend\Controllers\BaseController;
@@ -131,9 +132,10 @@ class Messages extends BaseController
 		// Recalculate the number of unread messages.
 		$messageCount = Message::where('receiver_id', $authUser->id)->unread()->count();
 
+		View::share('privateMessageCount', $messageCount);
+
 		return $this->shares('title', __d('backend', 'Show Message'))
-			->with(compact('authUser', 'message'))
-			->shares('privateMessageCount', $messageCount);
+			->with(compact('authUser', 'message'));
 	}
 
 	/**

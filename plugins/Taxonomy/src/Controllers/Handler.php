@@ -54,10 +54,7 @@ class Handler extends BaseController
 
 	protected function handleTerm(Vocabulary $vocabulary, Term $term)
 	{
-		$title = sprintf('%s : %s', $vocabulary->name, $term->name);
-
-		//
-		$this->set('title', $title);
+		$this->set('title', $term->name);
 
 		return $this->createView(compact( 'vocabulary', 'term'), 'Term');
 	}

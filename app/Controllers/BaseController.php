@@ -12,6 +12,7 @@ use Mini\Support\Facades\Config;
 use Mini\Support\Facades\Redirect;
 use Mini\Support\Facades\Request;
 use Mini\Support\Facades\View;
+use Mini\Support\Str;
 use Mini\Validation\ValidationException;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -65,6 +66,13 @@ class BaseController extends Controller
 	 */
 	protected $viewVars = array();
 
+	/**
+	 * The (alternative) Response instance.
+	 *
+	 * @var \Mini\Http\Response|null
+	 */
+	protected $response;
+
 
 	/**
 	 * Create a new Controller instance.
@@ -115,6 +123,8 @@ class BaseController extends Controller
 	 */
 	protected function after($response)
 	{
+		$response = $response ?: $this->response;
+
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
@@ -130,18 +140,48 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Prepare and returns a response.
+	 * Internally redirects one action to another.
 	 *
-	 * @param mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function prepareResponse($response)
+	 * @param string $action The new action to be 'redirected' to.
+	 * @return mixed Returns the return value of the called action
+	*/
+	public function setAction($action)
 	{
-		if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
+		$this->action = $action;
+
+		$parameters = array_shift(func_get_args());
+
+		return call_user_func_array(array($this, $action), $parameters);
+	}
+
+	/**
+	 * Instantiates the correct View, hands it its data, and uses it to render the view output.
+	 *
+	 * @param string $view View to use for rendering
+	 * @param string $layout Layout to use
+	 * @return \Mini\Http\Response A response object containing the rendered view.
+	 */
+	public function render($view = null, $layout = null)
+	{
+		$this->autoRender = false;
+
+		if (is_null($view)) {
+			$view = $this->getView();
+		} else if (Str::startsWith($view, '/')) {
+			$view = ltrim($view, '/');
+		} else if (! Str::contains($view, '::')) {
+			$view = $this->getView($view);
 		}
 
-		return $response;
+		$view = View::make($view, $this->viewVars);
+
+		if ($this->autoLayout()) {
+			$response = $this->renderWhithinLayout($view, $layout);
+		} else {
+			$response = new Response($view);
+		}
+
+		return $this->response = $response;
 	}
 
 	/**
@@ -150,13 +190,15 @@ class BaseController extends Controller
 	 * @param \Mini\Support\Contracts\RenderableInterface  $view
 	 * @return \Mini\Http\Response
 	 */
-	protected function renderWhithinLayout(RenderableInterface $renderable)
+	protected function renderWhithinLayout(RenderableInterface $renderable, $layout = null)
 	{
+		$layout = $layout ?: $this->layout;
+
 		// Convert the used theme to a View namespace.
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the name of View used as layout.
-		$view = sprintf('%sLayouts/%s', $namespace, $this->layout);
+		$view = sprintf('%sLayouts/%s', $namespace, $layout);
 
 		// Compute the composite View data.
 		$data = array_merge($this->viewVars, array(
@@ -170,47 +212,17 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Create and return a default View instance.
+	 * Create and return a (default) View instance.
 	 *
 	 * @param  array  $data
 	 * @param  string}null  $custom
 	 * @return \Nova\View\View
-	 * @throws \BadMethodCallException
 	 */
-	protected function createView(array $data = array(), $custom = null)
+	protected function createView(array $data = array(), $view = null)
 	{
-		$action = $custom ?: $this->action;
+		$view = $this->getView($view);
 
-		//
-		$path = str_replace('\\', '/', static::class);
-
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
-			// Compute the View namespace.
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
-
-			// Compute the complete View name.
-			$view = $namespace .$matches[2] .'/' .ucfirst($action);
-
-			return View::make($view, array_merge($this->viewVars, $data));
-		}
-
-		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
-	}
-
-	/**
-	 * Create and return a default View instance.
-	 *
-	 * @param  array  $data
-	 * @return \Nova\View\View
-	 * @throws \BadMethodCallException
-	 */
-	protected function getView(array $data = array())
-	{
-		list(, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-
-		$method = $caller['function'];
-
-		return $this->createView($data, $method);
+		return View::make($view, array_merge($this->viewVars, $data));
 	}
 
 	/**
@@ -232,19 +244,40 @@ class BaseController extends Controller
 	 *
 	 * Bound data will be available to the view as variables.
 	 *
-	 * @param  string  $key
-	 * @param  mixed   $value
+	 * @param  string|array  $one
+	 * @param  string|array  $two
 	 * @return View
 	 */
-	protected function set($key, $value = null)
+	protected function set($one, $two = null)
 	{
-		if (is_array($key)) {
-			$this->viewVars = array_merge($this->viewVars, $key);
+		if (is_array($one)) {
+			if (is_array($two)) {
+				$data = array_combine($one, $two);
+			} else {
+				$data = $one;
+			}
 		} else {
-			$this->viewVars[$key] = $value;
+			$data = array($one => $two);
 		}
 
+		$this->viewVars = $data + $this->viewVars;
+
 		return $this;
+	}
+
+	/**
+	 * Prepare and returns a response.
+	 *
+	 * @param mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function prepareResponse($response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
+		}
+
+		return $response;
 	}
 
 	/**
@@ -279,6 +312,31 @@ class BaseController extends Controller
 		}
 
 		return $this->autoLayout;
+	}
+
+	/**
+	 * Gets the qualified View name for the current or specified action.
+	 *
+	 * @param  string|null  $action
+	 * @return string
+	 * @throws \BadMethodCallException
+	 */
+	protected function getView($action = null)
+	{
+		$action = $action ?: $this->action;
+
+		//
+		$path = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
+			// Compute the View namespace.
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
+
+			// Compute and return the complete View name.
+			return $namespace .$matches[2] .'/' .ucfirst($action);
+		}
+
+		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
 	}
 
 	/**
