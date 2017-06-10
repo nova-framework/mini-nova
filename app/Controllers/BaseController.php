@@ -165,8 +165,10 @@ class BaseController extends Controller
 	{
 		$this->autoRender = false;
 
-		//
-		$view = $this->createView($this->viewVars, $view, false);
+		// Create the quelified View instance.
+		$view = $this->createView(
+			array(), $view
+		);
 
 		if ($this->autoLayout()) {
 			$response = $this->renderWhithinLayout($view, $layout);
@@ -209,31 +211,25 @@ class BaseController extends Controller
 	 *
 	 * @param  array  $data
 	 * @param  string|null  $view
-	 * @param  bool  $mergeVars
 	 * @return \Nova\View\View
 	 */
-	protected function createView(array $data = array(), $view = null, $mergeVars = true)
+	protected function createView(array $data = array(), $view = null)
 	{
 		if (is_null($view)) {
-			// We have a default View request.
 			$view = $this->getView();
 		}
 
-		// If we have an "absolute" view name, it point to app's Views.
+		// If we have an "absolute" view name, it points to app's Views.
 		else if (Str::startsWith($view, '/')) {
 			$view = ltrim($view, '/');
 		}
 
-		// If we have a non namespaced View name, we get the local one.
+		// If we have a non namespaced View name, it has an alternate naming.
 		else if (! Str::contains($view, '::')) {
 			$view = $this->getView($view);
 		}
 
-		if ($mergeVars) {
-			$data = array_merge($this->viewVars, $data);
-		}
-
-		return View::make($view, $data);
+		return View::make($view, array_merge($this->viewVars, $data));
 	}
 
 	/**
