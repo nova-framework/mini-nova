@@ -108,11 +108,16 @@ class BaseController extends Controller
 		// Process the response returned from action.
 
 		if ($this->autoRender()) {
+			// Create an implicit View instance when no response is returned.
 			$response = $response ?: $this->createView();
 
 			if (($response instanceof RenderableInterface) && $this->autoLayout()) {
-				return $this->renderWhithinLayout($response);
+				$response = $this->renderWhithinLayout($response);
 			}
+		}
+
+		if (! $response instanceof SymfonyResponse) {
+			$response = new Response($response);
 		}
 
 		return $response;
