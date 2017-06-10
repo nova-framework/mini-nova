@@ -113,7 +113,7 @@ class BaseController extends Controller
 	 * Process a response returned by the action execution.
 	 *
 	 * @param mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return mixed
 	 */
 	protected function processResponse($response)
 	{
