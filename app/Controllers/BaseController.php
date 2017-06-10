@@ -153,7 +153,7 @@ class BaseController extends Controller
 			$view = $this->action;
 		}
 
-		// Compute the fully qualified View name.
+		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
 		$view = $this->getViewPath() .'/' .ucfirst($view);
 
 		return View::make($view, array_merge($this->viewVars, $data));
