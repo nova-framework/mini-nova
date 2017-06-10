@@ -149,35 +149,52 @@ class BaseController extends Controller
 	 */
 	protected function createView($data = array(), $view = null)
 	{
-		$view = $this->getView($view);
+		$path = $this->getViewPath();
+
+		if (is_null($view)) {
+			// An implicit View for this Controller and its current action.
+			$view = $path .'/' .ucfirst($this->action);		// 'index' -> 'Backend::Admin/Users/Index'
+		} else if (Str::startsWith($view, '/')) {
+			// An "absolute" and full View name, within the App's Views folder.
+			$view = ltrim($view, '/');						// '/Blog/Index' -> 'Blog/Index'
+		} else if (! Str::contains($view, '::')) {
+			// An implicit View for this Controller, but with a custom naming.
+			$view = $path .'/' .ucfirst($view);				// 'otherIndex' -> 'Backend::Admin/Users/OtherIndex'
+		}
 
 		return View::make($view, array_merge($this->viewVars, $data));
 	}
 
 	/**
-	 * Gets the qualified View name for the current (or specified) action.
+	 * Gets the View path for views of this Controller.
 	 *
-	 * @param  string|null  $custom
 	 * @return string
 	 * @throws \BadMethodCallException
 	 */
-	protected function getView($custom = null)
+	protected function getViewPath()
 	{
-		$action = $custom ?: $this->action;
+		// Returns the fully qualified path for this Controller, inside the Views folder from App or a Plugin.
+		//
+		// 'App\Controllers\Pages' -> 'Pages'
+		// 'Backend\Controllers\Admin\Users' -> 'Backend::Admin/Users'
 
-		if (! isset($this->viewPath)) {
-			$path = str_replace('\\', '/', static::class);
-
-			if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
-				$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
-
-				$this->viewPath = $namespace .$matches[2];
-			} else {
-				throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
-			}
+		if (isset($this->viewPath)) {
+			return $this->viewPath;
 		}
 
-		return $this->viewPath .'/' .ucfirst($action);
+		$classPath = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
+			$namespace = '';
+
+			if ($matches[1] !== 'App') {
+				$namespace = $matches[1] .'::';
+			}
+
+			return $this->viewPath = $namespace .$matches[2];
+		}
+
+		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
 	}
 
 	/**
