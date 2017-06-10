@@ -108,10 +108,8 @@ class BaseController extends Controller
 		// Process the response returned from action.
 
 		if ($this->autoRender()) {
-			// If the response is null, create a implicit View instance.
-			if (is_null($response)) {
-				$response = $this->createView();
-			}
+			// If the response is null, tranform it in a implicit View instance.
+			$response = $response ?: $this->createView();
 
 			if (($response instanceof RenderableInterface) && $this->autoLayout()) {
 				return $this->renderWhithinLayout($response);
@@ -172,15 +170,13 @@ class BaseController extends Controller
 	/**
 	 * Gets the qualified View name for the current (or specified) action.
 	 *
-	 * @param  string|null  $action
+	 * @param  string|null  $custom
 	 * @return string
 	 * @throws \BadMethodCallException
 	 */
-	protected function getView($action = null)
+	protected function getView($custom = null)
 	{
-		if (is_null($action)) {
-			$action = $this->action;
-		}
+		$action = $custom ?: $this->action;
 
 		//
 		$path = str_replace('\\', '/', static::class);
