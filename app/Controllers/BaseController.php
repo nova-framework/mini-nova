@@ -166,9 +166,7 @@ class BaseController extends Controller
 		$this->autoRender = false;
 
 		//
-		$data = array();
-
-		$view = $this->createView($data, $view);
+		$view = $this->createView($this->viewVars, $view, false);
 
 		if ($this->autoLayout()) {
 			$response = $this->renderWhithinLayout($view, $layout);
@@ -206,15 +204,15 @@ class BaseController extends Controller
 		return new Response($content);
 	}
 
-
 	/**
 	 * Create and return a (default) View instance.
 	 *
-	 * @param  array|string  $data
+	 * @param  array  $data
 	 * @param  string|null  $view
+	 * @param  bool  $mergeVars
 	 * @return \Nova\View\View
 	 */
-	protected function createView(array $data = array(), $view = null)
+	protected function createView(array $data = array(), $view = null, $mergeVars = true)
 	{
 		if (is_null($view)) {
 			// We have a default View request.
@@ -226,12 +224,16 @@ class BaseController extends Controller
 			$view = ltrim($view, '/');
 		}
 
-		// IF we have a non namespaced View name, we get the local one.
+		// If we have a non namespaced View name, we get the local one.
 		else if (! Str::contains($view, '::')) {
 			$view = $this->getView($view);
 		}
 
-		return View::make($view, array_merge($this->viewVars, $data));
+		if ($mergeVars) {
+			$data = array_merge($this->viewVars, $data);
+		}
+
+		return View::make($view, $data);
 	}
 
 	/**
