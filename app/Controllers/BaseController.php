@@ -97,20 +97,21 @@ class BaseController extends Controller
 	{
 		$this->action = $method;
 
-		//
+		// Execute the BEFORE stage.
 		$this->before();
 
+		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
 
 		//
-		// Process the response returned from action.
+		// Process the response and optionally execute the auto-rendering.
 
 		if ($this->autoRender()) {
-			// Create an implicit View instance when no response is returned.
+			// Create an implicit View instance when the response is null.
 			$response = $response ?: $this->createView();
 
-			if (($response instanceof RenderableInterface) && $this->autoLayout()) {
-				$response = $this->renderWhithinLayout($response);
+			if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
+				$response = $this->createLayoutView()->with('content', $response);
 			}
 		}
 
@@ -122,29 +123,28 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Create a View instance for a layout and which embed the given View.
+	 * Create a View instance for a Layout, from the implicit (or specified) Theme.
 	 *
-	 * @param  \Mini\Support\Contracts\RenderableInterface  $renderable
-	 * @return \Mini\Http\Response
+	 * @param  string|null  $layout
+	 * @param  string|null  $theme
+	 * @return \Mini\View\View
 	 */
-	protected function renderWhithinLayout(RenderableInterface $renderable)
+	protected function createLayoutView($layout = null, $theme = null)
 	{
-		// Convert the current theme (plugin) name to a View namespace.
-		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
+		$layout = $layout ?: $this->layout;
+		$theme  = $theme  ?: $this->theme;
+
+		// Convert the used theme (plugin name) to a View namespace.
+		$namespace = ! empty($theme) ? $theme .'::' : '';
 
 		// Compute the full name of View used as layout.
-		$view = $namespace .'Layouts/' .$this->layout;
+		$view = $namespace .'Layouts/' .$layout;
 
-		// Get the composite View data.
-		$data = array_merge($this->viewVars, array(
-			'content' => $renderable
-		));
-
-		return View::make($view, $data);
+		return View::make($view, $this->viewVars);
 	}
 
 	/**
-	 * Create and return a (default) View instance.
+	 * Create a View instance for the implicit (or specified) View name.
 	 *
 	 * @param  array  $data
 	 * @param  string|null  $view
