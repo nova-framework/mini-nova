@@ -161,7 +161,7 @@ class BaseController extends Controller
 			if ($matches[1] === $appPath) {
 				$this->viewPath = $matches[2];
 			} else {
-				// A Controller within a Plugin, then we should use a View namespace.
+				// This Controller lives within a Plugin.
 				$this->viewPath = $matches[1] .'::' .$matches[2];
 			}
 		}
