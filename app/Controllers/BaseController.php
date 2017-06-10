@@ -166,9 +166,7 @@ class BaseController extends Controller
 		$this->autoRender = false;
 
 		// Create the quelified View instance.
-		$view = $this->createView(
-			array(), $view
-		);
+		$view = $this->createView(array(), $view);
 
 		if ($this->autoLayout()) {
 			$response = $this->renderWhithinLayout($view, $layout);
