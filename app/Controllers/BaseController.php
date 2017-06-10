@@ -79,6 +79,16 @@ class BaseController extends Controller
 	}
 
 	/**
+	 * Method executed before any action.
+	 *
+	 * @return void
+	 */
+	protected function before()
+	{
+		//
+	}
+
+	/**
 	 * Execute an action on the controller.
 	 *
 	 * @param string  $method
@@ -94,28 +104,9 @@ class BaseController extends Controller
 
 		$response = call_user_func_array(array($this, $method), $parameters);
 
-		return $this->processResponse($response);
-	}
-
-	/**
-	 * Method executed before any action.
-	 *
-	 * @return void
-	 */
-	protected function before()
-	{
 		//
-	}
+		// Process the response returned from action.
 
-	/**
-	 * Method executed after any action.
-	 *
-	 * @param mixed $response
-	 *
-	 * @return mixed
-	 */
-	protected function processResponse($response)
-	{
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
@@ -216,6 +207,21 @@ class BaseController extends Controller
 	}
 
 	/**
+	 * Prepare and returns a response.
+	 *
+	 * @param mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function prepareResponse($response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Turns on or off Nova's conventional mode of auto-rendering.
 	 *
 	 * @param bool|null  $enable
@@ -247,21 +253,6 @@ class BaseController extends Controller
 		}
 
 		return $this->autoLayout;
-	}
-
-	/**
-	 * Prepare and returns a response.
-	 *
-	 * @param mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function prepareResponse($response)
-	{
-		if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
-		}
-
-		return $response;
 	}
 
 	/**
