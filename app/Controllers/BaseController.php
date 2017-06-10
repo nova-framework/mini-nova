@@ -68,7 +68,7 @@ class BaseController extends Controller
 	 *
 	 * @var array
 	 */
-	protected $viewVars = array();
+	protected $viewData = array();
 
 
 	/**
@@ -134,7 +134,7 @@ class BaseController extends Controller
 			// Compute the full name of View used as Layout.
 			$view = $namespace .'Layouts/' .$this->layout;
 
-			return View::make($view, $this->viewVars)->with('content', $response);
+			return View::make($view, $this->viewData)->with('content', $response);
 		}
 
 		return $response;
@@ -174,7 +174,7 @@ class BaseController extends Controller
 		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
 		$view = $this->viewPath .'/' .ucfirst($view);
 
-		return View::make($view, array_merge($this->viewVars, $data));
+		return View::make($view, array_merge($this->viewData, $data));
 	}
 
 	/**
@@ -194,7 +194,7 @@ class BaseController extends Controller
 			$data = array($one => $two);
 		}
 
-		$this->viewVars = $data + $this->viewVars;
+		$this->viewData = $data + $this->viewData;
 
 		return $this;
 	}
@@ -251,5 +251,15 @@ class BaseController extends Controller
 	public function getLayout()
 	{
 		return $this->layout;
+	}
+
+	/**
+	 * Return the current View data.
+	 *
+	 * @return string
+	 */
+	public function getViewData()
+	{
+		return $this->viewData;
 	}
 }
