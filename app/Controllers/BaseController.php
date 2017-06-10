@@ -108,7 +108,6 @@ class BaseController extends Controller
 		// Process the response returned from action.
 
 		if ($this->autoRender()) {
-			// If the response is null, tranform it in a implicit View instance.
 			$response = $response ?: $this->createView();
 
 			if (($response instanceof RenderableInterface) && $this->autoLayout()) {
