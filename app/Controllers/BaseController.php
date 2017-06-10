@@ -146,6 +146,7 @@ class BaseController extends Controller
 	 * @param  array  $data
 	 * @param  string|null  $view
 	 * @return \Nova\View\View
+	 * @throws \BadMethodCallException
 	 */
 	protected function createView($data = array(), $view = null)
 	{
@@ -153,42 +154,27 @@ class BaseController extends Controller
 			$view = $this->action;
 		}
 
-		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
-		$view = $this->getViewPath() .'/' .ucfirst($view);
+		if (! isset($this->viewPath)) {
+			// Compute a qualified path inside the Views folder from App or a Plugin, i.e.
+			//
+			// 'App\Controllers\Pages' -> 'Pages'
+			// 'Backend\Controllers\Admin\Users' -> 'Backend::Admin/Users'
 
-		return View::make($view, array_merge($this->viewVars, $data));
-	}
+			$classPath = str_replace('\\', '/', static::class);
 
-	/**
-	 * Gets the View path for views of this Controller.
-	 *
-	 * @return string
-	 * @throws \BadMethodCallException
-	 */
-	protected function getViewPath()
-	{
-		// Returns the fully qualified path inside the Views folder from App or a Plugin.
-		//
-		// 'App\Controllers\Pages' -> 'Pages'
-		// 'Backend\Controllers\Admin\Users' -> 'Backend::Admin/Users'
-
-		if (isset($this->viewPath)) {
-			return $this->viewPath;
-		}
-
-		$classPath = str_replace('\\', '/', static::class);
-
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
-			$namespace = '';
-
-			if ($matches[1] !== 'App') {
-				$namespace = $matches[1] .'::';
+			if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
+				throw new BadMethodCallException('Invalid Controller namespace');
 			}
 
-			return $this->viewPath = $namespace .$matches[2];
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
+
+			$this->viewPath = $namespace .$matches[2];
 		}
 
-		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
+		$view = $this->viewPath .'/' .ucfirst($view);
+
+		return View::make($view, array_merge($this->viewVars, $data));
 	}
 
 	/**
