@@ -167,7 +167,7 @@ class BaseController extends Controller
 	 */
 	protected function getViewPath()
 	{
-		// Returns the fully qualified path for this Controller, inside the Views folder from App or a Plugin.
+		// Returns the fully qualified path inside the Views folder from App or a Plugin.
 		//
 		// 'App\Controllers\Pages' -> 'Pages'
 		// 'Backend\Controllers\Admin\Users' -> 'Backend::Admin/Users'
