@@ -99,12 +99,7 @@ class BaseController extends Controller
 		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
 
-		// When the auto-rendering is active, we should process the response.
-		if ($this->autoRender()) {
-			return $this->processResponse($response);
-		}
-
-		return $response;
+		return $this->processResponse($response);
 	}
 
 	/**
@@ -122,8 +117,9 @@ class BaseController extends Controller
 	 */
 	protected function processResponse($response)
 	{
-		// If the response is null, we will create an implicit View instance.
-		if (is_null($response)) {
+		if (! $this->autoRender()) {
+			return $response;
+		} else if (is_null($response)) {
 			$response = $this->createView();
 		}
 
