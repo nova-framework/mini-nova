@@ -166,22 +166,22 @@ class BaseController extends Controller
 			return $this->viewPath;
 		}
 
-		$appPath = str_replace('\\', '/', App::getNamespace());
-
 		$classPath = str_replace('\\', '/', static::class);
 
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
-			throw new BadMethodCallException('Invalid class namespace');
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
+			$appPath = str_replace('\\', '/', App::getNamespace());
+
+			if ($matches[1] === $appPath) {
+				$viewPath = $matches[2];
+			} else {
+				// This Controller lives within a Plugin.
+				$viewPath = $matches[1] .'::' .$matches[2];
+			}
+
+			return $this->viewPath = $viewPath;
 		}
 
-		if ($matches[1] === $appPath) {
-			$viewPath = $matches[2];
-		} else {
-			// This Controller lives within a Plugin.
-			$viewPath = $matches[1] .'::' .$matches[2];
-		}
-
-		return $this->viewPath = $viewPath;
+		throw new BadMethodCallException('Invalid controller namespace');
 	}
 
 	/**
