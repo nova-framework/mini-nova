@@ -121,7 +121,7 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Render a View within a Layout and return the result in a Response instance.
+	 * Create a View instance for a layout and which embed the given View.
 	 *
 	 * @param  \Mini\Support\Contracts\RenderableInterface  $renderable
 	 * @return \Mini\Http\Response
