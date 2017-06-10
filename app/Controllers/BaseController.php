@@ -126,7 +126,7 @@ class BaseController extends Controller
 	 */
 	protected function renderWhithinLayout(RenderableInterface $renderable)
 	{
-		// Convert the theme (plugin) name to a View namespace.
+		// Convert the current theme (plugin) name to a View namespace.
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the full name of View used as layout.
@@ -184,7 +184,6 @@ class BaseController extends Controller
 			// Compute the View namespace.
 			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
 
-			// Compute and return the complete View name.
 			return $namespace .$matches[2] .'/' .ucfirst($action);
 		}
 
