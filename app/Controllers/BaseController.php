@@ -143,35 +143,45 @@ class BaseController extends Controller
 	 * @param  array  $data
 	 * @param  string|null  $custom
 	 * @return \Nova\View\View
-	 * @throws \BadMethodCallException
 	 */
 	protected function createView($data = array(), $custom = null)
 	{
 		$action = $custom ?: $this->action;
 
-		if (! isset($this->viewPath)) {
-			$appPath = str_replace('\\', '/', App::getNamespace());
-
-			$classPath = str_replace('\\', '/', static::class);
-
-			if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
-				throw new BadMethodCallException('Invalid class namespace');
-			}
-
-			if ($matches[1] === $appPath) {
-				$viewPath = $matches[2];
-			} else {
-				// This Controller lives within a Plugin.
-				$viewPath = $matches[1] .'::' .$matches[2];
-			}
-
-			$this->viewPath = $viewPath;
-		}
-
-		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
-		$view = $this->viewPath .'/' .ucfirst($action);
+		// Compute the full View name.
+		$view = $this->getViewPath() .'/' .ucfirst($action);
 
 		return View::make($view, array_merge($this->viewData, $data));
+	}
+
+	/**
+	 * Gets the View path for views of this Controller.
+	 *
+	 * @return string
+	 * @throws \BadMethodCallException
+	 */
+	protected function getViewPath()
+	{
+		if (isset($this->viewPath)) {
+			return $this->viewPath;
+		}
+
+		$appPath = str_replace('\\', '/', App::getNamespace());
+
+		$classPath = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
+			throw new BadMethodCallException('Invalid class namespace');
+		}
+
+		if ($matches[1] === $appPath) {
+			$viewPath = $matches[2];
+		} else {
+			// This Controller lives within a Plugin.
+			$viewPath = $matches[1] .'::' .$matches[2];
+		}
+
+		return $this->viewPath = $viewPath;
 	}
 
 	/**
