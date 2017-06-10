@@ -219,7 +219,7 @@ class BaseController extends Controller
 			$view = $this->getView();
 		}
 
-		// If we have an "absolute" view name, it points to app's Views.
+		// If we have an "absolute" view name, it points to the app's Views.
 		else if (Str::startsWith($view, '/')) {
 			$view = ltrim($view, '/');
 		}
