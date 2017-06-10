@@ -44,6 +44,6 @@ class Kernel extends HttpKernel
 	protected $routeMiddleware = array(
 		'auth'		=> 'Mini\Auth\Middleware\Authenticate',
 		'guest'		=> 'App\Http\Middleware\RedirectIfAuthenticated',
-		'throttle'	=> 'Mini\Routing\Middleware\ThrottleRequests.php',
+		'throttle'	=> 'Mini\Routing\Middleware\ThrottleRequests',
 	);
 }
