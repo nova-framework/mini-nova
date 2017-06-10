@@ -8,6 +8,7 @@ use Mini\Foundation\Validation\ValidatesRequestsTrait;
 use Mini\Http\Response;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
+use Mini\Support\Facades\App;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
@@ -140,35 +141,33 @@ class BaseController extends Controller
 	 * Create a View instance for the implicit (or specified) View name.
 	 *
 	 * @param  array  $data
-	 * @param  string|null  $view
+	 * @param  string|null  $custom
 	 * @return \Nova\View\View
 	 * @throws \BadMethodCallException
 	 */
-	protected function createView($data = array(), $view = null)
+	protected function createView($data = array(), $custom = null)
 	{
-		if (is_null($view)) {
-			$view = $this->action;
-		}
+		$action = $custom ?: $this->action;
 
 		if (! isset($this->viewPath)) {
-			// Compute a qualified path inside the Views folder from App or a Plugin, i.e.
-			//
-			// 'App\Controllers\Pages' -> 'Pages'
-			// 'Backend\Controllers\Admin\Users' -> 'Backend::Admin/Users'
+			$appPath = str_replace('\\', '/', App::getNamespace());
 
 			$classPath = str_replace('\\', '/', static::class);
 
 			if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
-				throw new BadMethodCallException('Invalid Controller namespace');
+				throw new BadMethodCallException('Invalid class namespace');
 			}
 
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
-
-			$this->viewPath = $namespace .$matches[2];
+			if ($matches[1] === $appPath) {
+				$this->viewPath = $matches[2];
+			} else {
+				// A Controller within a Plugin, then we should use a View namespace.
+				$this->viewPath = $matches[1] .'::' .$matches[2];
+			}
 		}
 
 		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
-		$view = $this->viewPath .'/' .ucfirst($view);
+		$view = $this->viewPath .'/' .ucfirst($action);
 
 		return View::make($view, array_merge($this->viewData, $data));
 	}
