@@ -199,7 +199,7 @@ class BaseController extends Controller
 	 * @param  string|array  $two
 	 * @return View
 	 */
-	protected function set($one, $two = null)
+	public function set($one, $two = null)
 	{
 		if (is_array($one)) {
 			$data = is_array($two) ? array_combine($one, $two) : $one;
