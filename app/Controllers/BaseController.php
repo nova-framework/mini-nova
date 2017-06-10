@@ -132,7 +132,7 @@ class BaseController extends Controller
 		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
 		// Compute the full name of View used as layout.
-		$view = sprintf('%sLayouts/%s', $namespace, $this->layout);
+		$view = $namespace .'Layouts/' .$this->layout;
 
 		// Get the composite View data.
 		$data = array_merge($this->viewVars, array(
