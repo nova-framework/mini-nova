@@ -149,18 +149,12 @@ class BaseController extends Controller
 	 */
 	protected function createView($data = array(), $view = null)
 	{
-		$path = $this->getViewPath();
-
 		if (is_null($view)) {
-			// An implicit View for this Controller and its current action.
-			$view = $path .'/' .ucfirst($this->action);		// 'index' -> 'Backend::Admin/Users/Index'
-		} else if (Str::startsWith($view, '/')) {
-			// An "absolute" and full View name, within the App's Views folder.
-			$view = ltrim($view, '/');						// '/Blog/Index' -> 'Blog/Index'
-		} else if (! Str::contains($view, '::')) {
-			// An implicit View for this Controller, but with a custom naming.
-			$view = $path .'/' .ucfirst($view);				// 'otherIndex' -> 'Backend::Admin/Users/OtherIndex'
+			$view = $this->action;
 		}
+
+		// Compute the fully qualified View name.
+		$view = $this->getViewPath() .'/' .ucfirst($view);
 
 		return View::make($view, array_merge($this->viewVars, $data));
 	}
