@@ -159,11 +159,13 @@ class BaseController extends Controller
 			}
 
 			if ($matches[1] === $appPath) {
-				$this->viewPath = $matches[2];
+				$viewPath = $matches[2];
 			} else {
 				// This Controller lives within a Plugin.
-				$this->viewPath = $matches[1] .'::' .$matches[2];
+				$viewPath = $matches[1] .'::' .$matches[2];
 			}
+
+			$this->viewPath = $viewPath;
 		}
 
 		// Compute the fully qualified View name, i.e. 'Backend::Admin/Users/Index'
