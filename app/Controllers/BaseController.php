@@ -9,8 +9,6 @@ use Mini\Http\Response;
 use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\Config;
-use Mini\Support\Facades\Redirect;
-use Mini\Support\Facades\Request;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
 use Mini\Validation\ValidationException;
