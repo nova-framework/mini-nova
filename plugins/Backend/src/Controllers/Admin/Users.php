@@ -148,7 +148,8 @@ class Users extends BaseController
 	{
 		$langInfo = Language::info();
 
-		return $this->shares('title', __d('backend', 'Users'))
+		return $this->createView()
+			->shares('title', __d('backend', 'Users'))
 			->with('langInfo', $langInfo);
 	}
 

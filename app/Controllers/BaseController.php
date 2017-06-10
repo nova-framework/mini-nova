@@ -165,17 +165,10 @@ class BaseController extends Controller
 	{
 		$this->autoRender = false;
 
-		if (is_null($view)) {
-			$view = $this->createView();
-		} else if (Str::startsWith($view, '/')) {
-			$view = ltrim($view, '/');
-		} else if (! Str::contains($view, '::')) {
-			$view = $this->getView($view);
-		}
+		//
+		$data = array();
 
-		if (is_string($view)) {
-			$view = View::make($view, $this->viewVars);
-		}
+		$view = $this->createView($data, $view);
 
 		if ($this->autoLayout()) {
 			$response = $this->renderWhithinLayout($view, $layout);
@@ -213,16 +206,30 @@ class BaseController extends Controller
 		return new Response($content);
 	}
 
+
 	/**
 	 * Create and return a (default) View instance.
 	 *
-	 * @param  array  $data
-	 * @param  string}null  $custom
+	 * @param  array|string  $data
+	 * @param  string|null  $view
 	 * @return \Nova\View\View
 	 */
 	protected function createView(array $data = array(), $view = null)
 	{
-		$view = $this->getView($view);
+		if (is_null($view)) {
+			// We have a default View request.
+			$view = $this->getView();
+		}
+
+		// If we have an "absolute" view name, it point to app's Views.
+		else if (Str::startsWith($view, '/')) {
+			$view = ltrim($view, '/');
+		}
+
+		// IF we have a non namespaced View name, we get the local one.
+		else if (! Str::contains($view, '::')) {
+			$view = $this->getView($view);
+		}
 
 		return View::make($view, array_merge($this->viewVars, $data));
 	}
