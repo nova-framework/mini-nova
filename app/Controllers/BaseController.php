@@ -233,6 +233,33 @@ class BaseController extends Controller
 	}
 
 	/**
+	 * Gets the qualified View name for the current (or specified) action.
+	 *
+	 * @param  string|null  $action
+	 * @return string
+	 * @throws \BadMethodCallException
+	 */
+	protected function getView($action = null)
+	{
+		if (is_null($action)) {
+			$action = $this->action;
+		}
+
+		//
+		$path = str_replace('\\', '/', static::class);
+
+		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
+			// Compute the View namespace.
+			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
+
+			// Compute and return the complete View name.
+			return $namespace .$matches[2] .'/' .ucfirst($action);
+		}
+
+		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+	}
+
+	/**
 	 * Add a key / value pair to the view data.
 	 *
 	 * Bound data will be available to the view as variables.
@@ -305,33 +332,6 @@ class BaseController extends Controller
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Gets the qualified View name for the current (or specified) action.
-	 *
-	 * @param  string|null  $action
-	 * @return string
-	 * @throws \BadMethodCallException
-	 */
-	protected function getView($action = null)
-	{
-		if (is_null($action)) {
-			$action = $this->action;
-		}
-
-		//
-		$path = str_replace('\\', '/', static::class);
-
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
-			// Compute the View namespace.
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
-
-			// Compute and return the complete View name.
-			return $namespace .$matches[2] .'/' .ucfirst($action);
-		}
-
-		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
 	}
 
 	/**
