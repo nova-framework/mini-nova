@@ -108,27 +108,38 @@ class BaseController extends Controller
 		// Process the response returned from action.
 
 		if (! $this->autoRender()) {
-			return $this->prepareResponse($response);
+			return $response;
 		} else if (is_null($response)) {
 			$response = $this->createView();
 		}
 
 		if (($response instanceof RenderableInterface) && $this->autoLayout()) {
-			// Convert the used theme to a View namespace.
-			$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
-
-			// Compute the full name of View used as layout.
-			$view = sprintf('%sLayouts/%s', $namespace, $this->layout);
-
-			// Create a View instance.
-			$layout = View::make($view, array_merge($this->viewVars, array(
-				'content' => $response
-			)));
-
-			return new Response($layout);
+			return $this->renderWhithinLayout($response);
 		}
 
-		return $this->prepareResponse($response);
+		return $response;
+	}
+
+	/**
+	 * Render a View within a Layout and return the result in a Response instance.
+	 *
+	 * @param  \Mini\Support\Contracts\RenderableInterface  $renderable
+	 * @return \Mini\Http\Response
+	 */
+	protected function renderWhithinLayout(RenderableInterface $renderable)
+	{
+		// Convert the used theme to a View namespace.
+		$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
+
+		// Compute the full name of View used as layout.
+		$view = sprintf('%sLayouts/%s', $namespace, $this->layout);
+
+		// Get the composite View data.
+		$data = array_merge($this->viewVars, array(
+			'content' => $renderable
+		));
+
+		return View::make($view, $data);
 	}
 
 	/**
@@ -204,21 +215,6 @@ class BaseController extends Controller
 		$this->viewVars = $data + $this->viewVars;
 
 		return $this;
-	}
-
-	/**
-	 * Prepare and returns a response.
-	 *
-	 * @param mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function prepareResponse($response)
-	{
-		if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
-		}
-
-		return $response;
 	}
 
 	/**
