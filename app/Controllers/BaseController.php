@@ -11,7 +11,6 @@ use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
-use Mini\Validation\ValidationException;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -58,6 +57,13 @@ class BaseController extends Controller
 	protected $autoLayout = true;
 
 	/**
+	 * The View path for views of this Controller.
+	 *
+	 * @var array
+	 */
+	protected $viewPath;
+
+	/**
 	 * The View variables.
 	 *
 	 * @var array
@@ -77,16 +83,6 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Method executed before any action.
-	 *
-	 * @return void
-	 */
-	protected function before()
-	{
-		//
-	}
-
-	/**
 	 * Execute an action on the controller.
 	 *
 	 * @param string  $method
@@ -97,50 +93,51 @@ class BaseController extends Controller
 	{
 		$this->action = $method;
 
-		// Execute the BEFORE stage.
+		//
 		$this->before();
 
 		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
 
-		//
-		// Process the response and optionally execute the auto-rendering.
-
+		// When the auto-rendering is active, we should process the response.
 		if ($this->autoRender()) {
-			// Create an implicit View instance when the response is null.
-			$response = $response ?: $this->createView();
-
-			if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
-				$response = $this->createLayoutView()->with('content', $response);
-			}
-		}
-
-		if (! $response instanceof SymfonyResponse) {
-			$response = new Response($response);
+			return $this->processResponse($response);
 		}
 
 		return $response;
 	}
 
 	/**
-	 * Create a View instance for a Layout, from the implicit (or specified) Theme.
+	 * Method executed before any action.
 	 *
-	 * @param  string|null  $layout
-	 * @param  string|null  $theme
-	 * @return \Mini\View\View
+	 * @return void
 	 */
-	protected function createLayoutView($layout = null, $theme = null)
+	protected function before() {}
+
+	/**
+	 * Process a response returned by the action execution.
+	 *
+	 * @param mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function processResponse($response)
 	{
-		$layout = $layout ?: $this->layout;
-		$theme  = $theme  ?: $this->theme;
+		// If the response is null, we will create an implicit View instance.
+		if (is_null($response)) {
+			$response = $this->createView();
+		}
 
-		// Convert the used theme (plugin name) to a View namespace.
-		$namespace = ! empty($theme) ? $theme .'::' : '';
+		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
+			// Convert the used Theme (plugin name) to a View namespace.
+			$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
 
-		// Compute the full name of View used as layout.
-		$view = $namespace .'Layouts/' .$layout;
+			// Compute the full name of View used as Layout.
+			$view = $namespace .'Layouts/' .$this->layout;
 
-		return View::make($view, $this->viewVars);
+			return View::make($view, $this->viewVars)->with('content', $response);
+		}
+
+		return $response;
 	}
 
 	/**
@@ -150,21 +147,9 @@ class BaseController extends Controller
 	 * @param  string|null  $view
 	 * @return \Nova\View\View
 	 */
-	protected function createView(array $data = array(), $view = null)
+	protected function createView($data = array(), $view = null)
 	{
-		if (is_null($view)) {
-			$view = $this->getView();
-		}
-
-		// If we have an "absolute" view name, it points to the app's Views.
-		else if (Str::startsWith($view, '/')) {
-			$view = ltrim($view, '/');
-		}
-
-		// If we have a non namespaced View name, it has an alternate naming.
-		else if (! Str::contains($view, '::')) {
-			$view = $this->getView($view);
-		}
+		$view = $this->getView($view);
 
 		return View::make($view, array_merge($this->viewVars, $data));
 	}
@@ -180,17 +165,19 @@ class BaseController extends Controller
 	{
 		$action = $custom ?: $this->action;
 
-		//
-		$path = str_replace('\\', '/', static::class);
+		if (! isset($this->viewPath)) {
+			$path = str_replace('\\', '/', static::class);
 
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
-			// Compute the View namespace.
-			$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
+			if (preg_match('#^(.+)/Controllers/(.*)$#s', $path, $matches) === 1) {
+				$namespace = ($matches[1] !== 'App') ? $matches[1] .'::' : '';
 
-			return $namespace .$matches[2] .'/' .ucfirst($action);
+				$this->viewPath = $namespace .$matches[2];
+			} else {
+				throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+			}
 		}
 
-		throw new BadMethodCallException('Invalid Controller namespace: ' .static::class);
+		return $this->viewPath .'/' .ucfirst($action);
 	}
 
 	/**
