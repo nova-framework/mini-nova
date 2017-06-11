@@ -148,8 +148,11 @@ class BaseController extends Controller
 	{
 		$action = $custom ?: $this->action;
 
-		// Compute the full View name.
-		$view = $this->getViewPath() .'/' .ucfirst($action);
+		if (! isset($this->viewPath)) {
+			$this->viewPath = $this->getViewPath();
+		}
+
+		$view = $this->viewPath .'/' .ucfirst($action);
 
 		return View::make($view, array_merge($this->viewData, $data));
 	}
@@ -162,23 +165,20 @@ class BaseController extends Controller
 	 */
 	protected function getViewPath()
 	{
-		if (isset($this->viewPath)) {
-			return $this->viewPath;
-		}
-
 		$classPath = str_replace('\\', '/', static::class);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
+			$viewPath = $matches[2];
+
+			//
 			$appPath = str_replace('\\', '/', App::getNamespace());
 
-			if ($matches[1] === $appPath) {
-				$viewPath = $matches[2];
-			} else {
-				// This Controller lives within a Plugin.
-				$viewPath = $matches[1] .'::' .$matches[2];
+			if ($matches[1] !== $appPath) {
+				// This Controller is within a Plugin.
+				return $matches[1] .'::' .$viewPath;
 			}
 
-			return $this->viewPath = $viewPath;
+			return $viewPath;
 		}
 
 		throw new BadMethodCallException('Invalid controller namespace');
