@@ -169,11 +169,11 @@ class BaseController extends Controller
 		$classPath = str_replace('\\', '/', static::class);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
-			list (, $package, $viewPath) = $matches;
-
-			if ($package !== 'App') {
+			if ($matches[1] !== 'App') {
 				// A Controller within a Plugin namespace.
-				$viewPath = $package .'::' .$viewPath;
+				$viewPath = $matches[1] .'::' .$matches[2];
+			} else {
+				$viewPath = $matches[2];
 			}
 
 			return $this->viewPath = $viewPath;
