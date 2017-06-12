@@ -137,11 +137,11 @@ class BaseController extends Controller
 	/**
 	 * Create a Response instance which contains the rendered information.
 	 *
+	 * @param  string|null  $view
 	 * @param  string|null  $layout
-	 * @param  string|null  $theme
 	 * @return \Nova\View\View
 	 */
-	protected function render($view = null, $layout = null, $theme = null)
+	protected function render($view = null, $layout = null)
 	{
 		$this->autoRender = false;
 
@@ -156,34 +156,18 @@ class BaseController extends Controller
 		$content = View::make($view, $this->viewData);
 
 		if ($this->autoLayout()) {
-			$content = $this->createLayoutView($layout, $theme)
-				->with('content', $content);
+			if (is_null($layout)) {
+				$view = $this->getLayoutName($this->layout);
+			} else if (Str::startsWith($layout, '/')) {
+				$view = ltrim($layout, '/');
+			} else if (! Str::contains($layout, '::')) {
+				$view = $this->getLayoutName($layout);
+			}
+
+			$content = $this->createLayoutView($view)->with('content', $content);
 		}
 
 		return $this->response = new Response($content);
-	}
-
-	/**
-	 * Create a View instance for the implicit (or specified) Layout and Theme.
-	 *
-	 * @param  string|null  $layout
-	 * @param  string|null  $theme
-	 * @return \Nova\View\View
-	 */
-	protected function createLayoutView($layout = null, $theme = null)
-	{
-		$layout = $layout ?: $this->layout;
-
-		$theme = $theme ?: $this->theme;
-
-		// Compute the full name of View used as Layout.
-		if (! empty($theme)) {
-			$view =  "{$theme}::Layouts/{$layout}";
-		} else {
-			$view = "Layouts/{$layout}";
-		}
-
-		return View::make($view, $this->viewData);
 	}
 
 	/**
@@ -203,7 +187,7 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Gets the View path for views of this Controller.
+	 * Gets a qualified View name.
 	 *
 	 * @return string
 	 * @throws \BadMethodCallException
@@ -228,6 +212,40 @@ class BaseController extends Controller
 		}
 
 		return $this->viewPath .'/' .ucfirst($view);
+	}
+
+	/**
+	 * Create a View instance for the implicit (or specified) layout View name.
+	 *
+	 * @param  string|null  $view
+	 * @return \Nova\View\View
+	 */
+	protected function createLayoutView($view = null)
+	{
+		if (is_null($view)) {
+			$view = $this->getLayoutName($this->layout);
+		}
+
+		return View::make($view, $this->viewData);
+	}
+
+	/**
+	 * Gets a qualified View name for a Layout.
+	 *
+	 * @return string
+	 * @throws \BadMethodCallException
+	 */
+	protected function getLayoutName($layout)
+	{
+		if (! Str::startsWith($layout, 'Layouts/')) {
+			$layout = 'Layouts/' .$layout;
+		}
+
+		if (! empty($this->theme)) {
+			return $this->theme .'::' .$layout;
+		}
+
+		return $layout;
 	}
 
 	/**
