@@ -54,7 +54,7 @@ class Pages extends BaseController
 		}
 
 		if (is_null($slug)) {
-			$title = 'Welcome to ' .Config::get('app.name');
+			$title = 'Welcome';
 		} else {
 			$title = Str::title(
 				str_replace(array('-', '_'), ' ', $subpage ?: $page)
