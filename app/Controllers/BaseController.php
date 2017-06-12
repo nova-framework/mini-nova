@@ -12,8 +12,6 @@ use Mini\Support\Facades\App;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
 
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
-
 use BadMethodCallException;
 
 
@@ -87,7 +85,7 @@ class BaseController extends Controller
 	 *
 	 * @param string  $method
 	 * @param array   $params
-	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @return mixed
 	 */
 	public function callAction($method, array $parameters)
 	{
@@ -103,7 +101,7 @@ class BaseController extends Controller
 		// Process the response returned from action.
 
 		if (! $this->autoRender()) {
-			return $this->prepareResponse($response);
+			return $response;
 		} else if (is_null($response)) {
 			$response = $this->createView();
 		}
@@ -114,7 +112,7 @@ class BaseController extends Controller
 			$response = View::make($view, $this->viewData)->with('content', $response);
 		}
 
-		return $this->prepareResponse($response);
+		return $response;
 	}
 
 	/**
@@ -239,21 +237,6 @@ class BaseController extends Controller
 		}
 
 		return $this->autoLayout;
-	}
-
-	/**
-	 * Returns a prepared Response instance.
-	 *
-	 * @param  mixed  $response
-	 * @return \Symfony\Component\HttpFoundation\Response
-	 */
-	protected function prepareResponse($response)
-	{
-		if (! $response instanceof SymfonyResponse) {
-			return new Response($response);
-		}
-
-		return $response;
 	}
 
 	/**
