@@ -40,7 +40,7 @@ class Pages extends BaseController
 			str_replace(array('-', '_'), ' ', $subpage ?: $page)
 		);
 
-		// Compute the full View name, i.e. 'Pages/AboutUs'
+		// Compute the full View name, i.e. 'about-us' -> 'Pages/AboutUs'
 		array_unshift($path, 'pages');
 
 		$view = implode('/', array_map(function ($value)
