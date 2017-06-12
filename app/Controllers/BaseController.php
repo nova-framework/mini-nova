@@ -153,7 +153,7 @@ class BaseController extends Controller
 			$view = $this->getViewName($view);
 		}
 
-		$content = View::make($this->getViewName($view), $this->viewData);
+		$content = View::make($view, $this->viewData);
 
 		if ($this->autoLayout()) {
 			$content = $this->createLayoutView($layout, $theme)->with('content', $content);
