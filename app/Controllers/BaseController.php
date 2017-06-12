@@ -111,24 +111,9 @@ class BaseController extends Controller
 			$response = $this->response;
 		}
 
-		return $this->processResponse($response);
-	}
+		//
+		// Process the response.
 
-	/**
-	 * Method executed before any action.
-	 *
-	 * @return void
-	 */
-	protected function before() {}
-
-	/**
-	 * Process a response returned by the action execution.
-	 *
-	 * @param mixed  $response
-	 * @return mixed
-	 */
-	protected function processResponse($response)
-	{
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
@@ -141,6 +126,13 @@ class BaseController extends Controller
 
 		return $this->prepareResponse($response);
 	}
+
+	/**
+	 * Method executed before any action.
+	 *
+	 * @return void
+	 */
+	protected function before() {}
 
 	/**
 	 * Create a Response instance which contains the rendered information.
