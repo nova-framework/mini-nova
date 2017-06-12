@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use Mini\Support\Facades\Redirect;
-use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
 
@@ -31,27 +29,29 @@ class Pages extends BaseController
 
 	public function display($slug = null)
 	{
-		$segments = explode('/', $slug ?: 'home');
+		$path = explode('/', $slug ?: 'home');
 
-		// Compute the page and subpage variables.
-		$page = $segments[0];
+		//
+		$page = $path[0];
 
-		$subpage = isset($segments[1]) ? $segments[1] : null;
-
-		// Calculate the current view.
-		$view = implode('/', array_map(function ($value)
-		{
-			return Str::studly($value);
-
-		}, $segments));
-
-		if (! View::exists($view = $this->getViewName($view))) {
-			throw new NotFoundHttpException();
-		}
+		$subpage = isset($path[1]) ? $path[1] : null;
 
 		$title = Str::title(
 			str_replace(array('-', '_'), ' ', $subpage ?: $page)
 		);
+
+		// Calculate the current View name.
+		array_unshift($path, 'pages');
+
+		$view = implode('/', array_map(function ($value)
+		{
+			return Str::studly($value);
+
+		}, $path));
+
+		if (! View::exists($view)) {
+			throw new NotFoundHttpException();
+		}
 
 		return View::make($view, compact('page', 'subpage'))
 			->shares('title', $title);
