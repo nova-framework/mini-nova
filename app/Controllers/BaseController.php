@@ -11,6 +11,7 @@ use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\App;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
+use Mini\Support\Str;
 
 use BadMethodCallException;
 
@@ -68,6 +69,13 @@ class BaseController extends Controller
 	 */
 	protected $viewData = array();
 
+	/**
+	 * The Response instance used alternatively.
+	 *
+	 * @var \Mini\Http\Response
+	 */
+	protected $response;
+
 
 	/**
 	 * Create a new Controller instance.
@@ -100,6 +108,10 @@ class BaseController extends Controller
 		//
 		// Process the response returned from action.
 
+		if (is_null($response) && isset($this->response)) {
+			$response = $this->response;
+		}
+
 		if (! $this->autoRender()) {
 			return $response;
 		} else if (is_null($response)) {
@@ -121,6 +133,36 @@ class BaseController extends Controller
 	 * @return void
 	 */
 	protected function before() {}
+
+	/**
+	 * Create the correct View instance, hands it its data, and uses it to render in a Layout.
+	 *
+	 * @param string $action Action name to render
+	 * @param string $layout Layout to use
+	 * @return string Full output string of view contents
+	 */
+	public function render($view = null, $layout = null)
+	{
+		$this->autoRender = false;
+
+		if (is_null($view)) {
+			$view = $this->getViewName($this->action);
+		} else if (Str::startsWith($view, '/')) {
+			$view = ltrim($view, '/');
+		} else if (! Str::contains($view, '::')) {
+			$view = $this->getViewName($view);
+		}
+
+		$view = View::make($view, $this->viewData);
+
+		if ($this->autoLayout()) {
+			$layout = $this->getLayoutName($layout);
+
+			$view = View::make($layout, $this->viewData)->with('content', $view);
+		}
+
+		return $this->response = new Response($view);
+	}
 
 	/**
 	 * Create a View instance for the implicit (or specified) View name.
@@ -169,18 +211,21 @@ class BaseController extends Controller
 	/**
 	 * Gets a qualified View name for a Layout.
 	 *
+	 * @param  string|null  $layout
 	 * @return string
 	 * @throws \BadMethodCallException
 	 */
-	protected function getLayoutName()
+	protected function getLayoutName($layout = null)
 	{
-		$layout = 'Layouts/' .$this->layout;
-
-		if (! empty($this->theme)) {
-			return $this->theme .'::' .$layout;
+		if (is_null($layout)) {
+			$layout = $this->layout;
 		}
 
-		return $layout;
+		if (! empty($this->theme)) {
+			return $this->theme .'::Layouts/' .$layout;
+		}
+
+		return 'Layouts/' .$layout;
 	}
 
 	/**

@@ -22,10 +22,12 @@ class Content extends BaseController
 		//
 		$this->set(compact('title', 'content'));
 
+		// Render the alternate View.
+		$this->render('OtherIndex');
+
 		/*
-		return $this->createView()
-			->shares('title', __d('content', 'Welcome to the Content Plugin'))
-			->with('content', __d('content', 'Yep! It works.'));
+		return $this->createView(compact('content'), 'OtherIndex')
+			->shares('title', __d('content', 'Welcome to the Content Plugin'));
 		*/
 	}
 
