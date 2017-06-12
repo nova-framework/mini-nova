@@ -45,10 +45,7 @@ class Pages extends BaseController
 
 		}, $segments));
 
-		// Compute the full View name.
-		$view = $this->getViewName($view);
-
-		if (! View::exists($view)) {
+		if (! View::exists($view = $this->getViewName($view))) {
 			throw new NotFoundHttpException();
 		}
 
