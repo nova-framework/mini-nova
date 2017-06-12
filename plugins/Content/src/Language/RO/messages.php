@@ -3,7 +3,7 @@
 return array (
   'Content' => '',
   'Homepage' => '',
-  'This is the alternate View.' => '',
+  'Using the custom View: <b>OtherIndex</b>' => '',
   'Welcome to the Content Plugin' => '',
   'Yep! It works.' => '',
 );

@@ -27,7 +27,7 @@
 	<div class="alert alert-info alert-dismissable">
 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true"><span aria-hidden="true">&times;</span></button>
 
-		<p>{{ __d('content', 'This is the alternate View.') }}</p>
+		<p>{{ __d('content', 'Using the custom View: <b>OtherIndex</b>') }}</p>
 	</div>
 </div>
 

@@ -99,16 +99,15 @@ class BaseController extends Controller
 	 */
 	public function callAction($method, array $parameters)
 	{
-		$this->action = $method;
-
-		//
 		$this->initialize();
 
-		// Call the requested method and store its returned value.
+		// Call the requested action and store its returned value.
+		$this->action = $method;
+
 		$response = call_user_func_array(array($this, $method), $parameters);
 
 		//
-		// Process the response returned from action.
+		// Process the returned response.
 
 		if (is_null($response) && isset($this->response)) {
 			$response = $this->response;
