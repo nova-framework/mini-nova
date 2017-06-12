@@ -148,14 +148,11 @@ class BaseController extends Controller
 		$this->autoRender = false;
 
 		//
-		$view = $this->parseView($view);
-
-		$content = View::make($view, $this->viewData);
+		$content = View::make($this->parseView($view), $this->viewData);
 
 		if ($this->autoLayout()) {
-			$layout = $this->parseLayout($layout);
-
-			$content = View::make($layout, $this->viewData)->with('content', $content);
+			$content = View::make($this->parseLayout($layout), $this->viewData)
+				->with('content', $content);
 		}
 
 		return $this->response = new Response($content);
