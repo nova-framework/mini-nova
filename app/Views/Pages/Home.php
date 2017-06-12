@@ -9,13 +9,13 @@ endif;
 ?>
 
 <div class="row">
+	<h2 class="text-center" style="margin-bottom: 25px;">Welcome to Mini Nova <?= VERSION; ?></h2>
+
 	<div class="alert alert-warning text-center">
 		<p>Please be aware that this page will not be shown if you turn off debug mode unless you replace <code>app/Views/Pages/Home.php</code> with your own version.</p>
 	</div>
 	<div id="url-rewriting-warning" class="alert alert-danger url-rewriting">
-		<ul class="list-unstyled">
-			<li><i class='fa fa-close'></i> URL rewriting is NOT properly configured on your server.</li>
-		<ul>
+		<p><i class='fa fa-close'></i> URL rewriting is NOT properly configured on your server.</p>
 	</div>
 </div>
 

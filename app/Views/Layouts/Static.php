@@ -17,6 +17,7 @@
 	<div class="row">
 		<a style="outline: none;" href="<?= site_url(); ?>"><img src="<?= resource_url('images/nova.png') ?>" alt="<?= Config::get('app.name') ?>"></a>
 		<h1><?= $title ?></h1>
+		<hr style="margin-top: 0;">
 	</div>
 	<?= $content; ?>
 </div>
