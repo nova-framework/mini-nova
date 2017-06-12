@@ -121,7 +121,9 @@ class BaseController extends Controller
 		}
 
 		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
-			$response = $this->createLayoutView()->with('content', $response);
+			$view = $this->getLayoutName($this->layout);
+
+			$response = View::make($view, $this->viewData)->with('content', $response);
 		}
 
 		return $this->prepareResponse($response);
@@ -157,14 +159,14 @@ class BaseController extends Controller
 
 		if ($this->autoLayout()) {
 			if (is_null($layout)) {
-				$view = $this->getLayoutName($this->layout);
+				$layout = $this->getLayoutName($this->layout);
 			} else if (Str::startsWith($layout, '/')) {
-				$view = 'Layouts/' .ltrim($layout, '/');
+				$layout = 'Layouts/' .ltrim($layout, '/');
 			} else if (! Str::contains($layout, '::')) {
-				$view = $this->getLayoutName($layout);
+				$layout = $this->getLayoutName($layout);
 			}
 
-			$content = $this->createLayoutView($view)->with('content', $content);
+			$content = View::make($layout, $this->viewData)->with('content', $content);
 		}
 
 		return $this->response = new Response($content);
@@ -212,21 +214,6 @@ class BaseController extends Controller
 		}
 
 		return $this->viewPath .'/' .ucfirst($view);
-	}
-
-	/**
-	 * Create a View instance for the implicit (or specified) layout View name.
-	 *
-	 * @param  string|null  $view
-	 * @return \Nova\View\View
-	 */
-	protected function createLayoutView($view = null)
-	{
-		if (is_null($view)) {
-			$view = $this->getLayoutName($this->layout);
-		}
-
-		return View::make($view, $this->viewData);
 	}
 
 	/**
