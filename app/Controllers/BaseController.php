@@ -11,7 +11,6 @@ use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\App;
 use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
-use Mini\Support\Str;
 
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -71,13 +70,6 @@ class BaseController extends Controller
 	 */
 	protected $viewData = array();
 
-	/**
-	 * The Response instance used by the rendering.
-	 *
-	 * @var \Mini\Http\Response
-	 */
-	protected $response;
-
 
 	/**
 	 * Create a new Controller instance.
@@ -110,10 +102,6 @@ class BaseController extends Controller
 		//
 		// Process the response returned from action.
 
-		if (is_null($response) && isset($this->response)) {
-			$response = $this->response;
-		}
-
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
@@ -135,54 +123,6 @@ class BaseController extends Controller
 	 * @return void
 	 */
 	protected function before() {}
-
-	/**
-	 * Create a Response instance which contains the rendered information.
-	 *
-	 * @param  string|null  $view
-	 * @param  string|null  $layout
-	 * @return \Nova\View\View
-	 */
-	protected function render($view = null, $layout = null)
-	{
-		$this->autoRender = false;
-
-		//
-		$content = View::make($this->parseView($view), $this->viewData);
-
-		if ($this->autoLayout()) {
-			$content = View::make($this->parseLayout($layout), $this->viewData)
-				->with('content', $content);
-		}
-
-		return $this->response = new Response($content);
-	}
-
-	protected function parseView($view)
-	{
-		if (is_null($view)) {
-			return $this->getViewName($this->action);
-		} else if (Str::startsWith($view, '/')) {
-			return ltrim($view, '/');
-		} else if (! Str::contains($view, '::')) {
-			return $this->getViewName($view);
-		}
-
-		return $view;
-	}
-
-	protected function parseLayout($layout)
-	{
-		if (is_null($layout)) {
-			return $this->getLayoutName($this->layout);
-		} else if (Str::startsWith($layout, '/')) {
-			return 'Layouts/' .ltrim($layout, '/');
-		} else if (! Str::contains($layout, '::')) {
-			return $this->getLayoutName($layout);
-		}
-
-		return $layout;
-	}
 
 	/**
 	 * Create a View instance for the implicit (or specified) View name.
@@ -236,9 +176,7 @@ class BaseController extends Controller
 	 */
 	protected function getLayoutName($layout)
 	{
-		if (! Str::startsWith($layout, 'Layouts/')) {
-			$layout = 'Layouts/' .$layout;
-		}
+		$layout = 'Layouts/' .$layout;
 
 		if (! empty($this->theme)) {
 			return $this->theme .'::' .$layout;
