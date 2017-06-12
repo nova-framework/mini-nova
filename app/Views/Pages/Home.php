@@ -21,6 +21,7 @@ endif;
 		<ul class="list-unstyled">
 			<li><i class='fa fa-close'></i> URL rewriting is NOT properly configured on your server.</li>
 		<ul>
+	</div>
 </div>
 
 <div class="row">

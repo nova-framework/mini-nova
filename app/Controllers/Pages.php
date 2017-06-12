@@ -45,7 +45,9 @@ class Pages extends BaseController
 			throw new NotFoundHttpException();
 		}
 
-		$title = Str::studly($subpage ?: $page, ' ');
+		$title = Str::title(
+			str_replace(array('-', '_'), ' ', $subpage ?: $page)
+		);
 
 		return View::make($view, compact('page', 'subpage'))
 			->shares('title', $title);
