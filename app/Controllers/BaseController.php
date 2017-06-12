@@ -147,29 +147,44 @@ class BaseController extends Controller
 	{
 		$this->autoRender = false;
 
-		if (is_null($view)) {
-			$view = $this->getViewName($this->action);
-		} else if (Str::startsWith($view, '/')) {
-			$view = ltrim($view, '/');
-		} else if (! Str::contains($view, '::')) {
-			$view = $this->getViewName($view);
-		}
+		//
+		$view = $this->parseView($view);
 
 		$content = View::make($view, $this->viewData);
 
 		if ($this->autoLayout()) {
-			if (is_null($layout)) {
-				$layout = $this->getLayoutName($this->layout);
-			} else if (Str::startsWith($layout, '/')) {
-				$layout = 'Layouts/' .ltrim($layout, '/');
-			} else if (! Str::contains($layout, '::')) {
-				$layout = $this->getLayoutName($layout);
-			}
+			$layout = $this->parseLayout($layout);
 
 			$content = View::make($layout, $this->viewData)->with('content', $content);
 		}
 
 		return $this->response = new Response($content);
+	}
+
+	protected function parseView($view)
+	{
+		if (is_null($view)) {
+			return $this->getViewName($this->action);
+		} else if (Str::startsWith($view, '/')) {
+			return ltrim($view, '/');
+		} else if (! Str::contains($view, '::')) {
+			return $this->getViewName($view);
+		}
+
+		return $view;
+	}
+
+	protected function parseLayout($layout)
+	{
+		if (is_null($layout)) {
+			return $this->getLayoutName($this->layout);
+		} else if (Str::startsWith($layout, '/')) {
+			return 'Layouts/' .ltrim($layout, '/');
+		} else if (! Str::contains($layout, '::')) {
+			return $this->getLayoutName($layout);
+		}
+
+		return $layout;
 	}
 
 	/**
