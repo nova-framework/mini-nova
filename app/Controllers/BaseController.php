@@ -71,6 +71,13 @@ class BaseController extends Controller
 	 */
 	protected $viewData = array();
 
+	/**
+	 * The Response instance used by the rendering.
+	 *
+	 * @var \Mini\Http\Response
+	 */
+	protected $response;
+
 
 	/**
 	 * Create a new Controller instance.
@@ -100,6 +107,10 @@ class BaseController extends Controller
 		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
 
+		if (is_null($response) && isset($this->response)) {
+			$response = $this->response;
+		}
+
 		return $this->processResponse($response);
 	}
 
@@ -119,22 +130,62 @@ class BaseController extends Controller
 	protected function processResponse($response)
 	{
 		if (! $this->autoRender()) {
-			return $response;
+			return $this->prepareResponse($response);
 		} else if (is_null($response)) {
 			$response = $this->createView();
 		}
 
 		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
-			// Convert the used Theme (plugin name) to a View namespace.
-			$namespace = ! empty($this->theme) ? $this->theme .'::' : '';
-
-			// Compute the full name of View used as Layout.
-			$view = $namespace .'Layouts/' .$this->layout;
-
-			return View::make($view, $this->viewData)->with('content', $response);
+			$response = $this->createLayoutView()->with('content', $response);
 		}
 
-		return $response;
+		return $this->prepareResponse($response);
+	}
+
+	/**
+	 * Create a Response instance which contains the rendered information.
+	 *
+	 * @param  string|null  $layout
+	 * @param  string|null  $theme
+	 * @return \Nova\View\View
+	 */
+	protected function render($view = null, $layout = null, $theme = null)
+	{
+		$this->autoRender = false;
+
+		// Create an implicit View instance.
+		$view = $view ?: ucfirst($this->action);
+
+		$content = View::make($this->getViewName($view), $this->viewData);
+
+		if ($this->autoLayout()) {
+			$content = $this->createLayoutView($layout, $theme)->with('content', $content);
+		}
+
+		return $this->response = new Response($content);
+	}
+
+	/**
+	 * Create a View instance for the implicit (or specified) Layout and Theme.
+	 *
+	 * @param  string|null  $layout
+	 * @param  string|null  $theme
+	 * @return \Nova\View\View
+	 */
+	protected function createLayoutView($layout = null, $theme = null)
+	{
+		$layout = $layout ?: $this->layout;
+
+		$theme = $theme ?: $this->theme;
+
+		// Compute the full name of View used as Layout.
+		if (! empty($theme)) {
+			$view =  "{$theme}::Layouts/{$layout}";
+		} else {
+			$view = "Layouts/{$layout}";
+		}
+
+		return View::make($view, $this->viewData);
 	}
 
 	/**
@@ -146,12 +197,11 @@ class BaseController extends Controller
 	 */
 	protected function createView($data = array(), $custom = null)
 	{
-		$action = $custom ?: $this->action;
+		$view = $custom ?: ucfirst($this->action);
 
-		//
-		$view = $this->getViewPath() .'/' .ucfirst($action);
-
-		return View::make($view, array_merge($this->viewData, $data));
+		return View::make(
+			$this->getViewName($view), array_merge($this->viewData, $data)
+		);
 	}
 
 	/**
@@ -160,15 +210,15 @@ class BaseController extends Controller
 	 * @return string
 	 * @throws \BadMethodCallException
 	 */
-	protected function getViewPath()
+	protected function getViewName($view)
 	{
-		if (isset($this->viewPath)) {
-			return $this->viewPath;
-		}
+		if (! isset($this->viewPath)) {
+			$classPath = str_replace('\\', '/', static::class);
 
-		$classPath = str_replace('\\', '/', static::class);
+			if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) !== 1) {
+				throw new BadMethodCallException('Invalid controller namespace');
+			}
 
-		if (preg_match('#^(.+)/Controllers/(.*)$#s', $classPath, $matches) === 1) {
 			if ($matches[1] !== 'App') {
 				// A Controller within a Plugin namespace.
 				$viewPath = $matches[1] .'::' .$matches[2];
@@ -176,10 +226,10 @@ class BaseController extends Controller
 				$viewPath = $matches[2];
 			}
 
-			return $this->viewPath = $viewPath;
+			$this->viewPath = $viewPath;
 		}
 
-		throw new BadMethodCallException('Invalid controller namespace');
+		return $this->viewPath .'/' .ucfirst($view);
 	}
 
 	/**
@@ -236,6 +286,21 @@ class BaseController extends Controller
 		}
 
 		return $this->autoLayout;
+	}
+
+	/**
+	 * Returns a prepared Response instance.
+	 *
+	 * @param  mixed  $response
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 */
+	protected function prepareResponse($response)
+	{
+		if (! $response instanceof SymfonyResponse) {
+			return new Response($response);
+		}
+
+		return $response;
 	}
 
 	/**
