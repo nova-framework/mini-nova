@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use Mini\Support\Facades\Redirect;
+use Mini\Support\Facades\Config;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
 
@@ -53,7 +54,7 @@ class Pages extends BaseController
 		}
 
 		if (is_null($slug)) {
-			$title = 'Welcome to Mini Nova ' .VERSION;
+			$title = 'Welcome to ' .Config::get('app.name');
 		} else {
 			$title = Str::title(
 				str_replace(array('-', '_'), ' ', $subpage ?: $page)
