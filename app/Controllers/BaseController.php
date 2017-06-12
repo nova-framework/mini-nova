@@ -107,12 +107,12 @@ class BaseController extends Controller
 		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
 
+		//
+		// Process the response returned from action.
+
 		if (is_null($response) && isset($this->response)) {
 			$response = $this->response;
 		}
-
-		//
-		// Process the response returned from action.
 
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
