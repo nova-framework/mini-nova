@@ -112,7 +112,7 @@ class BaseController extends Controller
 		}
 
 		//
-		// Process the response.
+		// Process the response returned from action.
 
 		if (! $this->autoRender()) {
 			return $this->prepareResponse($response);
