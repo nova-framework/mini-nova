@@ -26,9 +26,6 @@ class Settings extends BaseController
 
 	public function __construct()
 	{
-		parent::__construct();
-
-		// Setup the Middleware.
 		$this->middleware('role:administrator');
 	}
 

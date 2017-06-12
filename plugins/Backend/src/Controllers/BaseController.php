@@ -33,8 +33,10 @@ class BaseController extends Controller
 	 *
 	 * @return void
 	 */
-	protected function before()
+	protected function initialize()
 	{
+		parent::initialize();
+
 		// Get the current User instance.
 		if (is_null($user = Auth::user())) {
 			return;

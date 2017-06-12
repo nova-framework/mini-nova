@@ -78,9 +78,11 @@ class BaseController extends Controller
 
 
 	/**
-	 * Create a new Controller instance.
+	 * Method executed before any action.
+	 *
+	 * @return void
 	 */
-	public function __construct()
+	protected function initialize()
 	{
 		// Setup the used Theme to default, if it is not already defined.
 		if (is_null($this->theme)) {
@@ -100,7 +102,7 @@ class BaseController extends Controller
 		$this->action = $method;
 
 		//
-		$this->before();
+		$this->initialize();
 
 		// Call the requested method and store its returned value.
 		$response = call_user_func_array(array($this, $method), $parameters);
@@ -128,18 +130,28 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Method executed before any action.
+	 * Internally redirects one action to another, without a HTTP redirection.
 	 *
-	 * @return void
+	 * @param string  $action The new action to be 'redirected' to.
+	 * @param mixed   Any other parameters passed to this method will be passed as parameters to the new action.
+	 * @return mixed  Returns the return value of the called action.
 	 */
-	protected function before() {}
+	function setAction($action)
+	{
+		$this->action = $action;
+
+		//
+		$parameters = array_slice(func_get_args(), 1);
+
+		return call_user_func_array(array($this, $action), $parameters);
+	}
 
 	/**
 	 * Create the correct View instance, hands it its data, and uses it to render in a Layout.
 	 *
-	 * @param string $action Action name to render
-	 * @param string $layout Layout to use
-	 * @return string Full output string of view contents
+	 * @param string $action Action name to render.
+	 * @param string $layout Layout to use.
+	 * @return string Full output string of view contents.
 	 */
 	public function render($view = null, $layout = null)
 	{
