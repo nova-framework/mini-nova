@@ -129,23 +129,6 @@ class BaseController extends Controller
 	}
 
 	/**
-	 * Internally redirects one action to another, without a HTTP redirection.
-	 *
-	 * @param string  $action The new action to be 'redirected' to.
-	 * @param mixed   Any other parameters passed to this method will be passed as parameters to the new action.
-	 * @return mixed  Returns the return value of the called action.
-	 */
-	function setAction($action)
-	{
-		$this->action = $action;
-
-		//
-		$parameters = array_slice(func_get_args(), 1);
-
-		return call_user_func_array(array($this, $action), $parameters);
-	}
-
-	/**
 	 * Create the correct View instance, hands it its data, and uses it to render in a Layout.
 	 *
 	 * @param string $action Action name to render.
