@@ -31,7 +31,7 @@ class Pages extends BaseController
 	{
 		$path = explode('/', $slug ?: 'home');
 
-		//
+		// Compute the used variables.
 		$page = $path[0];
 
 		$subpage = isset($path[1]) ? $path[1] : null;
@@ -40,7 +40,7 @@ class Pages extends BaseController
 			str_replace(array('-', '_'), ' ', $subpage ?: $page)
 		);
 
-		// Calculate the current View name.
+		// Compute the full View name, i.e. 'Pages/AboutUs'
 		array_unshift($path, 'pages');
 
 		$view = implode('/', array_map(function ($value)
