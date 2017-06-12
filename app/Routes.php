@@ -8,14 +8,10 @@ $router->pattern('slug', '.*');
 //
 // The routes definition.
 
-$router->get('/', function()
-{
-	$view = View::make('Default')
-		->shares('title', __('Welcome'))
-		->with('content', __('Yep! It works.'));
+// The Pages.
+$router->get('/', 'Pages@display');
 
-	return View::make('Layouts/Default')->with('content', $view);
-});
+$router->get('pages/{slug}', 'Pages@display')->where('slug', '(.*)');
 
 // The Language Changer.
 $router->get('language/{language}', array('middleware' => 'referer', function($language)
