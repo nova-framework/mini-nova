@@ -8,7 +8,7 @@ $router->pattern('slug', '.*');
 //
 // The routes definition.
 
-// The Pages.
+// The static Pages.
 $router->get('/', 'Pages@display');
 
 $router->get('pages/{slug}', 'Pages@display')->where('slug', '(.*)');
