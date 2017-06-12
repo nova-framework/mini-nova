@@ -21,6 +21,13 @@ class Pages extends BaseController
 	 */
 	protected $theme = false; // Disable the usage of a Theme.
 
+	/**
+	 * The currently used Layout.
+	 *
+	 * @var string
+	 */
+	protected $layout = 'Static';
+
 
 	public function display($slug = null)
 	{
@@ -45,9 +52,13 @@ class Pages extends BaseController
 			throw new NotFoundHttpException();
 		}
 
-		$title = Str::title(
-			str_replace(array('-', '_'), ' ', $subpage ?: $page)
-		);
+		if (is_null($slug)) {
+			$title = 'Welcome to Mini Nova ' .VERSION;
+		} else {
+			$title = Str::title(
+				str_replace(array('-', '_'), ' ', $subpage ?: $page)
+			);
+		}
 
 		return View::make($view, compact('page', 'subpage'))
 			->shares('title', $title);

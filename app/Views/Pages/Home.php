@@ -9,11 +9,6 @@ endif;
 ?>
 
 <div class="row">
-	<img src="<?= resource_url('images/nova.png') ?>" alt="<?= Config::get('app.name') ?>">
-	<h1>Welcome to Mini Nova <?= VERSION; ?></h1>
-</div>
-
-<div class="row">
 	<div class="alert alert-warning text-center">
 		<p>Please be aware that this page will not be shown if you turn off debug mode unless you replace <code>app/Views/Pages/Home.php</code> with your own version.</p>
 	</div>
