@@ -159,7 +159,7 @@ class BaseController extends Controller
 			if (is_null($layout)) {
 				$view = $this->getLayoutName($this->layout);
 			} else if (Str::startsWith($layout, '/')) {
-				$view = ltrim($layout, '/');
+				$view = 'Layouts/' .ltrim($layout, '/');
 			} else if (! Str::contains($layout, '::')) {
 				$view = $this->getLayoutName($layout);
 			}
