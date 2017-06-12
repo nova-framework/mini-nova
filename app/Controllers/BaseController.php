@@ -109,7 +109,7 @@ class BaseController extends Controller
 		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
 			$view = $this->getLayoutName($this->layout);
 
-			$response = View::make($view, $this->viewData)->with('content', $response);
+			return View::make($view, $this->viewData)->with('content', $response);
 		}
 
 		return $response;
