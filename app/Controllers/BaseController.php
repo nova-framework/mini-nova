@@ -145,8 +145,13 @@ class BaseController extends Controller
 	{
 		$this->autoRender = false;
 
-		// Create an implicit View instance.
-		$view = $view ?: ucfirst($this->action);
+		if (is_null($view)) {
+			$view = $this->getViewName($this->action);
+		} else if (Str::startsWith($view, '/')) {
+			$view = ltrim($view, '/');
+		} else if (! Str::contains($view, '::')) {
+			$view = $this->getViewName($view);
+		}
 
 		$content = View::make($this->getViewName($view), $this->viewData);
 
