@@ -9,7 +9,6 @@ use Mini\Support\Str;
 
 use App\Controllers\BaseController;
 
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
