@@ -53,13 +53,9 @@ class Pages extends BaseController
 			throw new NotFoundHttpException();
 		}
 
-		if (is_null($slug)) {
-			$title = 'Welcome to Mini Nova';
-		} else {
-			$title = Str::title(
-				str_replace(array('-', '_'), ' ', $subpage ?: $page)
-			);
-		}
+		$title = Str::title(
+			str_replace(array('-', '_'), ' ', $subpage ?: $page)
+		);
 
 		return View::make($view, compact('page', 'subpage'))
 			->shares('title', $title);
