@@ -107,7 +107,7 @@ class BaseController extends Controller
 		}
 
 		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
-			$view = $this->getLayoutName($this->layout);
+			$view = $this->getLayoutName();
 
 			return View::make($view, $this->viewData)->with('content', $response);
 		}
@@ -172,9 +172,9 @@ class BaseController extends Controller
 	 * @return string
 	 * @throws \BadMethodCallException
 	 */
-	protected function getLayoutName($layout)
+	protected function getLayoutName()
 	{
-		$layout = 'Layouts/' .$layout;
+		$layout = 'Layouts/' .$this->layout;
 
 		if (! empty($this->theme)) {
 			return $this->theme .'::' .$layout;
