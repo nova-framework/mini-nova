@@ -32,7 +32,7 @@ class Kernel extends HttpKernel
 			'App\Http\Middleware\VerifyCsrfToken',
 		),
 		'api' => array(
-			'throttle: 60, 1',
+			'throttle:60,1',
 		)
 	);
 
