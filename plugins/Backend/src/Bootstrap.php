@@ -1,12 +1,9 @@
 <?php
 
 use Mini\Http\Request;
-use Mini\Routing\Controller;
 
 use Backend\Controllers\BaseController as BackendController;
 use Backend\Models\Activity;
-use Backend\Models\Notification;
-use Backend\Models\Message;
 
 
 /**
@@ -34,52 +31,11 @@ Route::middleware('role', function(Request $request, Closure $next, $role)
 
 
 /**
- * Listener Closure to the Event 'router.executing.controller'.
+ * Listener Closure to the Event 'router.matched'.
  */
-Event::listen('router.executing.controller', function(Controller $controller, Request $request)
+Event::listen('router.matched', function($route, Request $request)
 {
 	Activity::updateCurrent($request);
-
-	if (! $controller instanceof BackendController) {
-		return;
-	}
-
-	// Share the Views the Backend's base URI.
-	$segments = $request->segments();
-
-	$path = '';
-
-	if(! empty($segments)) {
-		// Make the path equal with the first part if it exists, i.e. 'admin'
-		$path = array_shift($segments);
-
-		$segment = ! empty($segments) ? array_shift($segments) : '';
-
-		if (($path == 'admin') && empty($segment)) {
-			$path = 'admin/dashboard';
-		} else if (! empty($segment)) {
-			$path .= '/' .$segment;
-		}
-	}
-
-	View::share('baseUri', $path);
-
-	// Get the current User instance.
-	if (is_null($user = Auth::user())) {
-		return;
-	}
-
-	View::share('currentUser', $user);
-
-	// Prepare the notifications count.
-	$notifications = $user->unreadNotifications()->count();
-
-	View::share('notificationCount', $notifications);
-
-	// Prepare the messages count.
-	$messages = Message::where('receiver_id', $user->id)->unread()->count();
-
-	View::share('privateMessageCount', $messages);
 });
 
 /**

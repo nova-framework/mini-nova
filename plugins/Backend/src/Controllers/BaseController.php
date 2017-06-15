@@ -5,10 +5,13 @@ namespace Backend\Controllers;
 use Mini\Database\ORM\Builder as ModelBuilder;
 use Mini\Support\Facades\Auth;
 use Mini\Support\Facades\Event;
+use Mini\Support\Facades\Request;
 use Mini\Support\Facades\View;
 use Mini\Support\Arr;
 
 use App\Controllers\BaseController as Controller;
+
+use Backend\Models\Message;
 
 
 class BaseController extends Controller
@@ -42,6 +45,8 @@ class BaseController extends Controller
 			return;
 		}
 
+		View::share('currentUser', $user);
+
 		// Prepare the Backend Menu.
 		$items = array();
 
@@ -66,6 +71,36 @@ class BaseController extends Controller
 		usort($items, array($this, 'itemCompare'));
 
 		View::share('menuItems', $items);
+
+		// Share the Views the Backend's base URI.
+		$segments = Request::segments();
+
+		$path = '';
+
+		if(! empty($segments)) {
+			// Make the path equal with the first part if it exists, i.e. 'admin'
+			$path = array_shift($segments);
+
+			$segment = ! empty($segments) ? array_shift($segments) : '';
+
+			if (($path == 'admin') && empty($segment)) {
+				$path = 'admin/dashboard';
+			} else if (! empty($segment)) {
+				$path .= '/' .$segment;
+			}
+		}
+
+		View::share('baseUri', $path);
+
+		// Prepare the notifications count.
+		$notifications = $user->unreadNotifications()->count();
+
+		View::share('notificationCount', $notifications);
+
+		// Prepare the messages count.
+		$messages = Message::where('receiver_id', $user->id)->unread()->count();
+
+		View::share('privateMessageCount', $messages);
 	}
 
 	/**

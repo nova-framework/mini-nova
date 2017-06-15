@@ -1,7 +1,6 @@
 <?php
 
 use Mini\Http\Request;
-use Mini\Routing\Controller;
 
 
 /**
@@ -20,9 +19,9 @@ Route::middleware('referer', function(Request $request, Closure $next)
 
 
 /**
- * Listener Closure to the Event 'router.executing.controller'.
+ * Listener Closure to the Event 'router.matched'.
  */
-Event::listen('router.executing.controller', function(Controller $controller, Request $request)
+Event::listen('router.matched', function($route, Request $request)
 {
 	// Share the Views the current URI.
 	View::share('currentUri', $request->path());
