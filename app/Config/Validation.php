@@ -14,11 +14,11 @@ return array(
 	*/
 
 	'accepted'			=> __('The :attribute must be accepted.'),
-	'active_url'		=> __('The :attribute is not a valid URL.'),
+	'activeUrl'			=> __('The :attribute is not a valid URL.'),
 	'after'				=> __('The :attribute must be a date after :date.'),
 	'alpha'				=> __('The :attribute may only contain letters.'),
-	'alpha_dash'		=> __('The :attribute may only contain letters, numbers, and dashes.'),
-	'alpha_num'			=> __('The :attribute may only contain letters and numbers.'),
+	'alphaDash'			=> __('The :attribute may only contain letters, numbers, and dashes.'),
+	'alphaNum'			=> __('The :attribute may only contain letters and numbers.'),
 	'array'				=> __('The :attribute must be an array.'),
 	'before'			=> __('The :attribute must be a date before :date.'),
 
@@ -32,10 +32,10 @@ return array(
 	'boolean'			=> __('The :attribute field must be true or false'),
 	'confirmed'			=> __('The :attribute confirmation does not match.'),
 	'date'				=> __('The :attribute is not a valid date.'),
-	'date_format'		=> __('The :attribute does not match the format :format.'),
+	'dateFormat'		=> __('The :attribute does not match the format :format.'),
 	'different'			=> __('The :attribute and :other must be different.'),
 	'digits'			=> __('The :attribute must be :digits digits.'),
-	'digits_between'	=> __('The :attribute must be between :min and :max digits.'),
+	'digitsBetween'		=> __('The :attribute must be between :min and :max digits.'),
 	'email'				=> __('The :attribute format is invalid.'),
 	'exists'			=> __('The selected :attribute is invalid.'),
 	'image'				=> __('The :attribute must be an image.'),
@@ -62,9 +62,9 @@ return array(
 	'numeric'			=> __('The :attribute must be a number.'),
 	'regex'				=> __('The :attribute format is invalid.'),
 	'required'			=> __('The :attribute field is required.'),
-	'required_if'		=> __('The :attribute field is required when :other is :value.'),
-	'required_with'		=> __('The :attribute field is required when :values is present.'),
-	'required_without'	=> __('The :attribute field is required when :values is not present.'),
+	'requiredIf'		=> __('The :attribute field is required when :other is :value.'),
+	'requiredWith'		=> __('The :attribute field is required when :values is present.'),
+	'requiredWithout'	=> __('The :attribute field is required when :values is not present.'),
 	'same'				=> __('The :attribute and :other must match.'),
 
 	'size' => array(
