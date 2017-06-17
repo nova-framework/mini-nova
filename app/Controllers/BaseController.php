@@ -99,20 +99,28 @@ class BaseController extends Controller
 	 */
 	public function callAction($method, array $parameters)
 	{
-		$this->initialize();
-
-		// Call the requested action and store its returned value.
 		$this->action = $method;
 
-		$response = call_user_func_array(array($this, $method), $parameters);
-
 		//
-		// Process the returned response.
+		$this->initialize();
+
+		$response = call_user_func_array(array($this, $method), $parameters);
 
 		if (is_null($response) && isset($this->response)) {
 			$response = $this->response;
 		}
 
+		return $this->processResponse($response);
+	}
+
+	/**
+	 * Process a Controller action response.
+	 *
+	 * @param  mixed   $response
+	 * @return mixed
+	 */
+	protected function processResponse($response)
+	{
 		if (! $this->autoRender()) {
 			return $response;
 		} else if (is_null($response)) {
