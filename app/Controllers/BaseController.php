@@ -10,6 +10,7 @@ use Mini\Routing\Controller;
 use Mini\Support\Contracts\RenderableInterface;
 use Mini\Support\Facades\App;
 use Mini\Support\Facades\Config;
+use Mini\Support\Facades\Language;
 use Mini\Support\Facades\View;
 use Mini\Support\Str;
 
@@ -128,7 +129,17 @@ class BaseController extends Controller
 		}
 
 		if ($this->autoLayout() && ($response instanceof RenderableInterface)) {
-			$view = $this->getLayoutName();
+			$direction = Language::direction();
+
+			if ($direction === 'ltr') {
+				$view = $this->getLayoutName();
+			} else {
+				$layout = 'RTL/' .$this->layout;
+
+				if (! View::exists($view = $this->getLayoutName($layout))) {
+					$view = $this->getLayoutName();
+				}
+			}
 
 			return View::make($view, $this->viewData)->with('content', $response);
 		}

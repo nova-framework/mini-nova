@@ -44,12 +44,32 @@ class BaseController extends Controller
 		//
 		$request = Request::instance();
 
-		Activity::updateCurrent($request);
+		// Share the Views the Backend's base URI.
+		$segments = Request::segments();
+
+		$path = '';
+
+		if(! empty($segments)) {
+			// Make the path equal with the first part if it exists, i.e. 'admin'
+			$path = array_shift($segments);
+
+			$segment = ! empty($segments) ? array_shift($segments) : '';
+
+			if (($path == 'admin') && empty($segment)) {
+				$path = 'admin/dashboard';
+			} else if (! empty($segment)) {
+				$path .= '/' .$segment;
+			}
+		}
+
+		View::share('baseUri', $path);
 
 		// Get the current User instance.
 		if (is_null($user = Auth::user())) {
 			return;
 		}
+
+		Activity::updateCurrent($request);
 
 		View::share('currentUser', $user);
 
@@ -77,26 +97,6 @@ class BaseController extends Controller
 		usort($items, array($this, 'itemCompare'));
 
 		View::share('menuItems', $items);
-
-		// Share the Views the Backend's base URI.
-		$segments = Request::segments();
-
-		$path = '';
-
-		if(! empty($segments)) {
-			// Make the path equal with the first part if it exists, i.e. 'admin'
-			$path = array_shift($segments);
-
-			$segment = ! empty($segments) ? array_shift($segments) : '';
-
-			if (($path == 'admin') && empty($segment)) {
-				$path = 'admin/dashboard';
-			} else if (! empty($segment)) {
-				$path .= '/' .$segment;
-			}
-		}
-
-		View::share('baseUri', $path);
 
 		// Prepare the notifications count.
 		$notifications = $user->unreadNotifications()->count();
