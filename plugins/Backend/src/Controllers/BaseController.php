@@ -10,6 +10,7 @@ use Mini\Support\Facades\View;
 use Mini\Support\Arr;
 
 use App\Controllers\BaseController as Controller;
+use Backend\Models\Activity;
 
 use Backend\Models\Message;
 
@@ -39,6 +40,11 @@ class BaseController extends Controller
 	protected function initialize()
 	{
 		parent::initialize();
+
+		//
+		$request = Request::instance();
+
+		Activity::updateCurrent($request);
 
 		// Get the current User instance.
 		if (is_null($user = Auth::user())) {

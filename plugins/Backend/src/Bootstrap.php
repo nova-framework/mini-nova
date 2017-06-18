@@ -3,7 +3,6 @@
 use Mini\Http\Request;
 
 use Backend\Controllers\BaseController as BackendController;
-use Backend\Models\Activity;
 
 
 /**
@@ -29,14 +28,6 @@ Route::middleware('role', function(Request $request, Closure $next, $role)
 	return $next($request);
 });
 
-
-/**
- * Listener Closure to the Event 'router.matched'.
- */
-Event::listen('router.matched', function($route, Request $request)
-{
-	Activity::updateCurrent($request);
-});
 
 /**
  * Listener Closure to the Event 'backend.menu'.
