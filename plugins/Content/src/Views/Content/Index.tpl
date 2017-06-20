@@ -2,7 +2,6 @@
 
 <div class="row">
     <img src="{{ resource_url('images/nova.png', 'Bootstrap') }}" alt="{{ Config::get('app.name') }}">
-    <hr>
 </div>
 
 <div class="row">
