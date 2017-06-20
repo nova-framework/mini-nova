@@ -176,6 +176,7 @@ return array(
 		'Mini\Routing\ConsoleServiceProvider',
 		'Mini\Session\ConsoleServiceProvider',
 		'Mini\Plugins\ConsoleServiceProvider',
+		'Mini\Log\ConsoleServiceProvider',
 
 		// The Application Providers.
 		'App\Providers\AppServiceProvider',
