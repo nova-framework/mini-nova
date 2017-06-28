@@ -191,10 +191,12 @@ class BaseController extends Controller
 			$layout = $this->layout;
 		}
 
-		if ('ltr' === Language::direction()) {
+		$direction = Language::direction();
+
+		if ($direction == 'ltr') {
 			$view = $this->getLayoutName($layout);
 		} else {
-			$view = $this->getLayoutName('RTL/' .$layout);
+			$view = $this->getLayoutName($layout, true);
 
 			if (! View::exists($view)) {
 				$view = $this->getLayoutName($layout);
@@ -219,19 +221,22 @@ class BaseController extends Controller
 	 * Gets a qualified View name for a Layout.
 	 *
 	 * @param  string|null  $layout
+	 * @param  bool  $rtl
 	 * @return string
 	 */
-	protected function getLayoutName($layout = null)
+	protected function getLayoutName($layout = null, $rtl = false)
 	{
 		if (is_null($layout)) {
 			$layout = $this->layout;
 		}
 
+		$view = sprintf('Layouts/%s%s', $rtl ? 'RTL/' : '', $layout);
+
 		if (! empty($this->theme)) {
-			return $this->theme .'::Layouts/' .$layout;
+			return $this->theme .'::' .$view;
 		}
 
-		return 'Layouts/' .$layout;
+		return $view;
 	}
 
 	/**
