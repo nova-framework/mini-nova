@@ -246,16 +246,19 @@ class BaseController extends Controller
 			return $this->viewPath;
 		}
 
+		$basePath = trim(str_replace('\\', '/', App::getNamespace()), '/');
+
 		$classPath = str_replace('\\', '/', static::class);
 
 		if (preg_match('#^(.+)/Controllers/(.*)$#', $classPath, $matches) === 1) {
-			$package = $matches[1];
+			$viewPath = $matches[2];
 
-			if ($package !== 'App') {
+			//
+			$namespace = $matches[1];
+
+			if ($namespace !== $basePath) {
 				// A Controller within a Plugin namespace.
-				$viewPath = $package .'::' .$matches[2];
-			} else {
-				$viewPath = $matches[2];
+				$viewPath = $namespace .'::' .$viewPath;
 			}
 
 			return $this->viewPath = $viewPath;
