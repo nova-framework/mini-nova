@@ -152,7 +152,6 @@ return array(
 
 	'providers' => array(
 		// The Framework Providers.
-		'Mini\Routing\RoutingServiceProvider',
 		'Mini\Cookie\CookieServiceProvider',
 		'Mini\Session\SessionServiceProvider',
 		'Mini\Auth\AuthServiceProvider',
@@ -167,7 +166,6 @@ return array(
 		'Mini\Language\LanguageServiceProvider',
 		'Mini\Validation\ValidationServiceProvider',
 		'Mini\Plugins\PluginServiceProvider',
-		'Mini\Bus\BusServiceProvider',
 
 		// The Console Support Providers.
 		'Mini\Foundation\Providers\ConsoleServiceProvider',
