@@ -174,12 +174,11 @@ return array(
 		'Mini\Routing\ConsoleServiceProvider',
 		'Mini\Session\ConsoleServiceProvider',
 		'Mini\Plugins\ConsoleServiceProvider',
-		'Mini\Log\ConsoleServiceProvider',
 
 		// The Application Providers.
 		'App\Providers\AppServiceProvider',
-		//'App\Providers\AuthServiceProvider',
-		//'App\Providers\EventServiceProvider',
+		'App\Providers\AuthServiceProvider',
+		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
 	),
 
