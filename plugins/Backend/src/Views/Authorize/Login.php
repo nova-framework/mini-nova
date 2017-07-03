@@ -25,13 +25,8 @@
 					<p><label><input name="remember" type="checkbox"> <?= __d('backend', 'Remember me'); ?></label></p>
 				</div>
 				<hr>
-				<div class="form-group" style="margin-top: 22px;">
-					<div class="col-xs-6 col-sm-6 col-md-6">
-						<input type="submit" name="submit" class="btn btn-success col-sm-8" value="<?= __d('backend', 'Login'); ?>">
-					</div>
-					<div class="col-xs-6 col-sm-6 col-md-6">
-						<a href="<?= site_url('password/remind'); ?>" class="btn btn-link pull-right"><?= __d('backend', 'Forgot Password?'); ?></a>
-					</div>
+				<div class="form-group">
+					<input type="submit" name="submit" class="btn btn-success col-sm-4 pull-right" value="<?= __d('backend', 'Login'); ?>">
 				</div>
 
 				<input type="hidden" name="_token" value="<?= csrf_token(); ?>" />
