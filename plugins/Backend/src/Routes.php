@@ -1,9 +1,9 @@
 <?php
 
 // The default Auth Routes.
-$router->get( 'auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@login'));
-$router->post('auth/login',  array('middleware' => 'guest', 'uses' => 'Authorize@postLogin'));
-$router->post('auth/logout', array('middleware' => 'auth',  'uses' => 'Authorize@logout'));
+$router->get( 'login',  array('middleware' => 'guest', 'uses' => 'Authorize@login'));
+$router->post('login',  array('middleware' => 'guest', 'uses' => 'Authorize@postLogin'));
+$router->post('logout', array('middleware' => 'auth',  'uses' => 'Authorize@logout'));
 
 // The Adminstration Routes.
 $router->group(array('prefix' => 'admin', 'middleware' => 'auth', 'namespace' => 'Admin'), function($router)

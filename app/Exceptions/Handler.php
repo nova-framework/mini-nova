@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Mini\Auth\AuthenticationException;
 use Mini\Http\Response;
 use Mini\Foundation\Exceptions\Handler as ExceptionHandler;
 use Mini\Session\TokenMismatchException;
@@ -19,9 +20,11 @@ class Handler extends ExceptionHandler
 	 * @var array
 	 */
 	protected $dontReport = array(
+		'Mini\Auth\AuthenticationException',
 		'Symfony\Component\HttpKernel\Exception\HttpException',
 		'Mini\Database\ORM\ModelNotFoundException',
 		'Mini\Session\TokenMismatchException',
+		'Mini\Validation\ValidationException',
 	);
 
 
@@ -46,7 +49,7 @@ class Handler extends ExceptionHandler
 	public function render($request, Exception $e)
 	{
 		if ($e instanceof TokenMismatchException) {
-			return Redirect::guest('auth/login');
+			return Redirect::guest('login');
 		}
 
 		// If we got a HttpException, we will render a themed error page.
@@ -68,4 +71,19 @@ class Handler extends ExceptionHandler
 		return parent::render($request, $e);
 	}
 
+	/**
+	 * Convert an authentication exception into an unauthenticated response.
+	 *
+	 * @param  \Mini\Http\Request  $request
+	 * @param  \Mini\Auth\AuthenticationException  $exception
+	 * @return \Mini\Http\Response
+	 */
+	protected function unauthenticated($request, AuthenticationException $exception)
+	{
+		if ($request->expectsJson()) {
+			return Response::json(array('error' => 'Unauthenticated.'), 401);
+		}
+
+		return Redirect::guest('login');
+	}
 }

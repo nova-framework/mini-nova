@@ -46,8 +46,8 @@
 					</ul>
 				</li>
 				<!-- Authentication Links -->
-				<li <?= ($baseUri == 'auth/login') ? 'class="active"' : ''; ?>>
-					<a href="<?= site_url('auth/login'); ?>"><?= __d('backend', 'User Login'); ?></a>
+				<li <?= ($baseUri == 'login') ? 'class="active"' : ''; ?>>
+					<a href="<?= site_url('login'); ?>"><?= __d('backend', 'User Login'); ?></a>
 				</li>
 			</ul>
 		</div>
