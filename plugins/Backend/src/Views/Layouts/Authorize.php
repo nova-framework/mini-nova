@@ -60,9 +60,9 @@
 	<?= $content; ?>
 </div>
 
-<footer class="footer">
+<footer id="footer" class="footer">
 	<div class="container-fluid">
-		<div class="row" style="margin: 15px 0 0;">
+		<div class="row">
 			<div class="col-lg-4">
 				Mini MVC Framework <strong><?= VERSION; ?></strong> / Kernel <strong><?= App::version(); ?></strong>
 			</div>
