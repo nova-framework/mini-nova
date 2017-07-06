@@ -29,7 +29,7 @@ $app = require_once APPPATH .'Boot' .DS .'Start.php';
 // Run The Forge Application
 //--------------------------------------------------------------------------
 
-$kernel = $app->make('Nova\Console\Contracts\KernelInterface');
+$kernel = $app->make('Mini\Console\Contracts\KernelInterface');
 
 $status = $kernel->handle(
     $input = new Symfony\Component\Console\Input\ArgvInput,
