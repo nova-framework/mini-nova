@@ -1,6 +1,5 @@
 <?php
 
-use Mini\Config\EnvironmentVariables;
 use Mini\Foundation\Application;
 
 //--------------------------------------------------------------------------
