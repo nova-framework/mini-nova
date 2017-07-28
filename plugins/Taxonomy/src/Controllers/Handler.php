@@ -16,45 +16,45 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class Handler extends BaseController
 {
 
-	public function handle($group, $slug = null)
-	{
-		try {
-			$vocabulary = Vocabulary::where('slug', $group)->firstOrFail();
-		}
-		catch (ModelNotFoundException $e) {
-			throw new NotFoundHttpException();
-		}
+    public function handle($group, $slug = null)
+    {
+        try {
+            $vocabulary = Vocabulary::where('slug', $group)->firstOrFail();
+        }
+        catch (ModelNotFoundException $e) {
+            throw new NotFoundHttpException();
+        }
 
-		if (is_null($slug)) {
-			return $this->handleVocabulary($vocabulary);
-		}
+        if (is_null($slug)) {
+            return $this->handleVocabulary($vocabulary);
+        }
 
-		try {
-			$term = Term::with('children', 'relations')->where('slug', $slug)->firstOrFail();
-		}
-		catch (ModelNotFoundException $e) {
-			throw new NotFoundHttpException();
-		}
+        try {
+            $term = Term::with('children', 'relations')->where('slug', $slug)->firstOrFail();
+        }
+        catch (ModelNotFoundException $e) {
+            throw new NotFoundHttpException();
+        }
 
-		return $this->handleTerm($vocabulary, $term);
-	}
+        return $this->handleTerm($vocabulary, $term);
+    }
 
-	protected function handleVocabulary(Vocabulary $vocabulary)
-	{
-		$terms = $vocabulary->terms()
-			->with('children', 'relations')
-			->where('parent_id', 0)
-			->paginate(10);
+    protected function handleVocabulary(Vocabulary $vocabulary)
+    {
+        $terms = $vocabulary->terms()
+            ->with('children', 'relations')
+            ->where('parent_id', 0)
+            ->paginate(10);
 
-		return $this->createView(compact('vocabulary', 'terms'), 'Vocabulary')
-			->shares('title', $vocabulary->name);
-	}
+        return $this->createView(compact('vocabulary', 'terms'), 'Vocabulary')
+            ->shares('title', $vocabulary->name);
+    }
 
-	protected function handleTerm(Vocabulary $vocabulary, Term $term)
-	{
-		$title = $term->name;
+    protected function handleTerm(Vocabulary $vocabulary, Term $term)
+    {
+        $title = $term->name;
 
-		return $this->createView(compact('title', 'vocabulary', 'term'), 'Term')
-			->shares('pageTitle', $vocabulary->name .' : ' .$term->name);
-	}
+        return $this->createView(compact('title', 'vocabulary', 'term'), 'Term')
+            ->shares('pageTitle', $vocabulary->name .' : ' .$term->name);
+    }
 }

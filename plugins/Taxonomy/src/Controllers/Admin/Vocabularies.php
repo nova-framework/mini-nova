@@ -19,190 +19,190 @@ use Taxonomy\Support\Facades\Taxonomy;
 class Vocabularies extends BaseController
 {
 
-	public function __construct()
-	{
-		$this->middleware('role:administrator');
-	}
+    public function __construct()
+    {
+        $this->middleware('role:administrator');
+    }
 
-	protected function validator(array $data, $id = null)
-	{
-		if (! is_null($id)) {
-			$ignore = ',' .intval($id);
-		} else {
-			$ignore = '';
-		}
+    protected function validator(array $data, $id = null)
+    {
+        if (! is_null($id)) {
+            $ignore = ',' .intval($id);
+        } else {
+            $ignore = '';
+        }
 
-		// The Validation rules.
-		$rules = array(
-			'name'			=> 'required|min:3|max:100|valid_name',
-			'slug'			=> 'max:100',
-			'description'	=> 'max:1000',
-		);
+        // The Validation rules.
+        $rules = array(
+            'name'            => 'required|min:3|max:100|valid_name',
+            'slug'            => 'max:100',
+            'description'    => 'max:1000',
+        );
 
-		$messages = array(
-			'valid_name'	=> __d('taxonomy', 'The :attribute field is not a valid name.'),
-		);
+        $messages = array(
+            'valid_name'    => __d('taxonomy', 'The :attribute field is not a valid name.'),
+        );
 
-		$attributes = array(
-			'name'			=> __d('taxonomy', 'Name'),
-			'slug'			=> __d('taxonomy', 'Slug'),
-			'description'	=> __d('taxonomy', 'Description'),
-		);
+        $attributes = array(
+            'name'            => __d('taxonomy', 'Name'),
+            'slug'            => __d('taxonomy', 'Slug'),
+            'description'    => __d('taxonomy', 'Description'),
+        );
 
-		// Add the custom Validation Rule commands.
-		Validator::extend('valid_name', function($attribute, $value, $parameters)
-		{
-			$pattern = '~^(?:[\p{L}\p{Mn}\p{Pd}\'\x{2019}]+(?:$|\s+)){1,}$~u';
+        // Add the custom Validation Rule commands.
+        Validator::extend('valid_name', function($attribute, $value, $parameters)
+        {
+            $pattern = '~^(?:[\p{L}\p{Mn}\p{Pd}\'\x{2019}]+(?:$|\s+)){1,}$~u';
 
-			return (preg_match($pattern, $value) === 1);
-		});
+            return (preg_match($pattern, $value) === 1);
+        });
 
-		return Validator::make($data, $rules, $messages, $attributes);
-	}
+        return Validator::make($data, $rules, $messages, $attributes);
+    }
 
-	public function index()
-	{
-		$vocabularies = Vocabulary::with('terms')->paginate(10);
+    public function index()
+    {
+        $vocabularies = Vocabulary::with('terms')->paginate(10);
 
-		return $this->createView()
-			->shares('title', __d('taxonomy', 'Taxonomy'))
-			->with('vocabularies', $vocabularies);
-	}
+        return $this->createView()
+            ->shares('title', __d('taxonomy', 'Taxonomy'))
+            ->with('vocabularies', $vocabularies);
+    }
 
-	public function create()
-	{
-		return $this->createView()
-			->shares('title', __d('taxonomy', 'Create Vocabulary'));
-	}
+    public function create()
+    {
+        return $this->createView()
+            ->shares('title', __d('taxonomy', 'Create Vocabulary'));
+    }
 
-	public function store()
-	{
-		// Validate the Input data.
-		$input = Input::only('name', 'slug', 'description');
+    public function store()
+    {
+        // Validate the Input data.
+        $input = Input::only('name', 'slug', 'description');
 
-		//
-		$validator = $this->validator($input);
+        //
+        $validator = $this->validator($input);
 
-		if($validator->passes()) {
-			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+        if($validator->passes()) {
+            $slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
 
-			$slug = Vocabulary::uniqueSlug($slug);
+            $slug = Vocabulary::uniqueSlug($slug);
 
-			// Create a Vocabulary Model instance.
-			$vocabulary = new Vocabulary();
+            // Create a Vocabulary Model instance.
+            $vocabulary = new Vocabulary();
 
-			//
-			$vocabulary->name			= $input['name'];
-			$vocabulary->slug			= $slug;
-			$vocabulary->description	= $input['description'];
+            //
+            $vocabulary->name            = $input['name'];
+            $vocabulary->slug            = $slug;
+            $vocabulary->description    = $input['description'];
 
-			// Save the User information.
-			$vocabulary->save();
+            // Save the User information.
+            $vocabulary->save();
 
-			// Invalidate the cached information.
-			Cache::forget('taxonomy_routed_vocabularies');
+            // Invalidate the cached information.
+            Cache::forget('taxonomy_routed_vocabularies');
 
-			// Prepare the flash message.
-			$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully created.', $input['name']);
+            // Prepare the flash message.
+            $status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully created.', $input['name']);
 
-			return Redirect::to('admin/taxonomy')->with('success', $status);
-		}
+            return Redirect::to('admin/taxonomy')->with('success', $status);
+        }
 
-		// Errors occurred on Validation.
-		return Redirect::back()->withInput()->withErrors($validator->errors());
-	}
+        // Errors occurred on Validation.
+        return Redirect::back()->withInput()->withErrors($validator->errors());
+    }
 
-	public function edit($id)
-	{
-		// Get the Vocabulary Model instance.
-		try {
-			$vocabulary = Vocabulary::findOrFail($id);
-		}
-		catch (ModelNotFoundException $e) {
-			$status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
+    public function edit($id)
+    {
+        // Get the Vocabulary Model instance.
+        try {
+            $vocabulary = Vocabulary::findOrFail($id);
+        }
+        catch (ModelNotFoundException $e) {
+            $status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
 
-			return Redirect::to('admin/taxonomy')->with('warning', $status);
-		}
+            return Redirect::to('admin/taxonomy')->with('warning', $status);
+        }
 
-		return $this->createView()
-			->shares('title', __d('taxonomy', 'Edit Vocabulary'))
-			->with('vocabulary', $vocabulary);
-	}
+        return $this->createView()
+            ->shares('title', __d('taxonomy', 'Edit Vocabulary'))
+            ->with('vocabulary', $vocabulary);
+    }
 
-	public function update($id)
-	{
-		// Get the Vocabulary Model instance.
-		try {
-			$vocabulary = Vocabulary::findOrFail($id);
-		}
-		catch (ModelNotFoundException $e) {
-			$status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
+    public function update($id)
+    {
+        // Get the Vocabulary Model instance.
+        try {
+            $vocabulary = Vocabulary::findOrFail($id);
+        }
+        catch (ModelNotFoundException $e) {
+            $status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
 
-			return Redirect::to('admin/taxonomy')->with('warning', $status);
-		}
+            return Redirect::to('admin/taxonomy')->with('warning', $status);
+        }
 
-		// Validate the Input data.
-		$input = Input::only('name', 'slug', 'description');
+        // Validate the Input data.
+        $input = Input::only('name', 'slug', 'description');
 
-		//
-		$validator = $this->validator($input);
+        //
+        $validator = $this->validator($input);
 
-		if($validator->passes()) {
-			$name = $vocabulary->name;
+        if($validator->passes()) {
+            $name = $vocabulary->name;
 
-			$slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
+            $slug = ! empty($input['slug']) ? $input['slug'] : $input['name'];
 
-			$slug = Vocabulary::uniqueSlug($slug, $vocabulary->id);
+            $slug = Vocabulary::uniqueSlug($slug, $vocabulary->id);
 
-			//
-			$vocabulary->name			= $input['name'];
-			$vocabulary->slug			= $slug;
-			$vocabulary->description	= $input['description'];
+            //
+            $vocabulary->name            = $input['name'];
+            $vocabulary->slug            = $slug;
+            $vocabulary->description    = $input['description'];
 
-			// Save the User information.
-			$vocabulary->save();
+            // Save the User information.
+            $vocabulary->save();
 
-			// Invalidate the cached information.
-			Cache::forget('taxonomy_routed_vocabularies');
+            // Invalidate the cached information.
+            Cache::forget('taxonomy_routed_vocabularies');
 
-			// Prepare the flash message.
-			$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully updated.', $name);
+            // Prepare the flash message.
+            $status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully updated.', $name);
 
-			return Redirect::to('admin/taxonomy')->with('success', $status);
-		}
+            return Redirect::to('admin/taxonomy')->with('success', $status);
+        }
 
-		// Errors occurred on Validation.
-		return Redirect::back()->withInput()->withErrors($validator->errors());
-	}
+        // Errors occurred on Validation.
+        return Redirect::back()->withInput()->withErrors($validator->errors());
+    }
 
-	public function destroy($id)
-	{
-		// Get the Vocabulary Model instance.
-		try {
-			$vocabulary = Vocabulary::findOrFail($id);
-		}
-		catch (ModelNotFoundException $e) {
-			$status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
+    public function destroy($id)
+    {
+        // Get the Vocabulary Model instance.
+        try {
+            $vocabulary = Vocabulary::findOrFail($id);
+        }
+        catch (ModelNotFoundException $e) {
+            $status = __d('taxonomy', 'The Vocabulary with ID: {0} was not found.', $id);
 
-			return Redirect::to('admin/taxonomy')->with('warning', $status);
-		}
+            return Redirect::to('admin/taxonomy')->with('warning', $status);
+        }
 
-		// Recursivelly delete the associated Terms.
-		$terms = $vocabulary->terms()->get();
+        // Recursivelly delete the associated Terms.
+        $terms = $vocabulary->terms()->get();
 
-		foreach ($terms as $term) {
-			Term::deleteTermAndChildren($term);
-		}
+        foreach ($terms as $term) {
+            Term::deleteTermAndChildren($term);
+        }
 
-		// Delete the requested Vocabulary record.
-		$vocabulary->delete();
+        // Delete the requested Vocabulary record.
+        $vocabulary->delete();
 
-		// Invalidate the cached information.
-		Cache::forget('taxonomy_routed_vocabularies');
+        // Invalidate the cached information.
+        Cache::forget('taxonomy_routed_vocabularies');
 
-		// Prepare the flash message.
-		$status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully deleted.', $vocabulary->name);
+        // Prepare the flash message.
+        $status = __d('taxonomy', 'The Vocabulary <b>{0}</b> was successfully deleted.', $vocabulary->name);
 
-		return Redirect::to('admin/taxonomy')->with('success', $status);
-	}
+        return Redirect::to('admin/taxonomy')->with('success', $status);
+    }
 }

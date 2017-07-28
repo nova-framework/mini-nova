@@ -40,7 +40,7 @@ use Mini\Http\Request;
 $kernel = $app->make('Mini\Http\Contracts\KernelInterface');
 
 $response = $kernel->handle(
-	$request = Request::capture()
+    $request = Request::capture()
 );
 
 $response->send();

@@ -9,37 +9,37 @@
 
 return array(
 
-	/*
-	|--------------------------------------------------------------------------
-	| Authentication Defaults
-	|--------------------------------------------------------------------------
-	|
-	| The default authentication "guard" used by your application.
-	|
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Defaults
+    |--------------------------------------------------------------------------
+    |
+    | The default authentication "guard" used by your application.
+    |
+    */
 
-	'default' => 'web',
+    'default' => 'web',
 
-	/*
-	|--------------------------------------------------------------------------
-	| Authentication Guards
-	|--------------------------------------------------------------------------
-	|
-	| There you may define every authentication guard for your application.
-	|
-	| Supported: "session", "token"
-	|
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Guards
+    |--------------------------------------------------------------------------
+    |
+    | There you may define every authentication guard for your application.
+    |
+    | Supported: "session", "token"
+    |
+    */
 
-	'guards' => array(
-		'web' => array(
-			'driver' => 'session',
-			'model'  => 'Backend\Models\User',
-		),
-		'api' => array(
-			'driver' => 'token',
-			'model'  => 'App\Models\User',
-		),
-	),
+    'guards' => array(
+        'web' => array(
+            'driver' => 'session',
+            'model'  => 'Backend\Models\User',
+        ),
+        'api' => array(
+            'driver' => 'token',
+            'model'  => 'App\Models\User',
+        ),
+    ),
 
 );

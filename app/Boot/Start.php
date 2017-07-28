@@ -31,10 +31,10 @@ $app = new Application();
 //--------------------------------------------------------------------------
 
 $app->bindInstallPaths(array(
-	'base'		=> BASEPATH,
-	'app'		=> APPPATH,
-	'public'	=> WEBPATH,
-	'storage'	=> STORAGE_PATH,
+    'base'        => BASEPATH,
+    'app'        => APPPATH,
+    'public'    => WEBPATH,
+    'storage'    => STORAGE_PATH,
 ));
 
 //--------------------------------------------------------------------------
@@ -42,18 +42,18 @@ $app->bindInstallPaths(array(
 //--------------------------------------------------------------------------
 
 $app->singleton(
-	'Mini\Http\Contracts\KernelInterface',
-	'App\Http\Kernel'
+    'Mini\Http\Contracts\KernelInterface',
+    'App\Http\Kernel'
 );
 
 $app->singleton(
-	'Mini\Console\Contracts\KernelInterface',
-	'App\Console\Kernel'
+    'Mini\Console\Contracts\KernelInterface',
+    'App\Console\Kernel'
 );
 
 $app->singleton(
-	'Mini\Foundation\Contracts\ExceptionHandlerInterface',
-	'App\Exceptions\Handler'
+    'Mini\Foundation\Contracts\ExceptionHandlerInterface',
+    'App\Exceptions\Handler'
 );
 
 //--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ $app->singleton(
 //--------------------------------------------------------------------------
 
 $env = $app->detectEnvironment(array(
-	'local' => array('darkstar'),
+    'local' => array('darkstar'),
 ));
 
 //--------------------------------------------------------------------------
@@ -69,7 +69,7 @@ $env = $app->detectEnvironment(array(
 //--------------------------------------------------------------------------
 
 if (isset($unitTesting)) {
-	$app['env'] = $env = $testEnvironment;
+    $app['env'] = $env = $testEnvironment;
 }
 
 //--------------------------------------------------------------------------

@@ -15,10 +15,10 @@ use Backend\Controllers\BaseController;
 
 class Authorize extends BaseController
 {
-	use AuthenticatesUsersTrait;
+    use AuthenticatesUsersTrait;
 
-	//
-	protected $layout = 'Authorize';
+    //
+    protected $layout = 'Authorize';
 
-	protected $redirectTo = 'admin/dashboard';
+    protected $redirectTo = 'admin/dashboard';
 }

@@ -13,109 +13,109 @@ use Blocks\Models\Block;
 
 class BlockManager
 {
-	/**
-	 * @var Mini\Container\Container
-	 */
-	protected $container;
+    /**
+     * @var Mini\Container\Container
+     */
+    protected $container;
 
 
-	public function __construct(Container $container)
-	{
-		$this->container = $container;
-	}
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
 
-	public function render($area)
-	{
-		$mode = Auth::check() ? 'auth' : 'guest';
+    public function render($area)
+    {
+        $mode = Auth::check() ? 'auth' : 'guest';
 
-		$blocks = Block::where('area', $area)->where(function ($query) use ($mode)
-		{
-			return $query->whereNull('auth_mode')->orWhere('auth_mode', $mode);
+        $blocks = Block::where('area', $area)->where(function ($query) use ($mode)
+        {
+            return $query->whereNull('auth_mode')->orWhere('auth_mode', $mode);
 
-		})->get();
+        })->get();
 
-		// Render the Blocks found for this area.
-		$results = array();
+        // Render the Blocks found for this area.
+        $results = array();
 
-		foreach ($blocks as $block) {
-			if ($this->canRenderBlock($block, $mode)) {
-				$results[] = $this->renderBlock($block);
-			}
-		}
+        foreach ($blocks as $block) {
+            if ($this->canRenderBlock($block, $mode)) {
+                $results[] = $this->renderBlock($block);
+            }
+        }
 
-		return implode(PHP_EOL, $results);
-	}
+        return implode(PHP_EOL, $results);
+    }
 
-	protected function renderBlock(Block $block)
-	{
-		$theme = $this->container['config']->get('app.theme');
+    protected function renderBlock(Block $block)
+    {
+        $theme = $this->container['config']->get('app.theme');
 
-		$hideTitle = ($block->hide_title !== 0);
+        $hideTitle = ($block->hide_title !== 0);
 
-		return View::fetch("$theme::Blocks/Default", array(
-			'title'		=> $block->title,
-			'content'	=> $block->content,
-			'hideTitle' => $hideTitle,
-		));
-	}
+        return View::fetch("$theme::Blocks/Default", array(
+            'title'        => $block->title,
+            'content'    => $block->content,
+            'hideTitle' => $hideTitle,
+        ));
+    }
 
-	protected function canRenderBlock($block, $mode)
-	{
-		if (! $this->visibleForCurrentUser($block, $mode)) {
-			return false;
-		}
+    protected function canRenderBlock($block, $mode)
+    {
+        if (! $this->visibleForCurrentUser($block, $mode)) {
+            return false;
+        }
 
-		$path = $this->container['request']->path();
+        $path = $this->container['request']->path();
 
-		$paths = isset($block->paths) ? trim($block->paths) : '';
+        $paths = isset($block->paths) ? trim($block->paths) : '';
 
-		if (empty($paths)) {
-			return true;
-		}
+        if (empty($paths)) {
+            return true;
+        }
 
-		$paths = array_map('trim', explode(PHP_EOL, $paths));
+        $paths = array_map('trim', explode(PHP_EOL, $paths));
 
-		$patterns = array_filter($paths, function ($value)
-		{
-			return ! empty($value);
-		});
+        $patterns = array_filter($paths, function ($value)
+        {
+            return ! empty($value);
+        });
 
-		$inverse = ($block->paths_mode === 1);
+        $inverse = ($block->paths_mode === 1);
 
-		foreach ($patterns as $pattern) {
-			if (Str::is($pattern, $path)) {
-				return $inverse ? false : true;
-			}
-		}
+        foreach ($patterns as $pattern) {
+            if (Str::is($pattern, $path)) {
+                return $inverse ? false : true;
+            }
+        }
 
-		return $inverse ? true : false;
-	}
+        return $inverse ? true : false;
+    }
 
-	protected function visibleForCurrentUser($block, $mode)
-	{
-		if (is_null($block->auth_mode)) {
-			return true;
-		}
+    protected function visibleForCurrentUser($block, $mode)
+    {
+        if (is_null($block->auth_mode)) {
+            return true;
+        }
 
-		// If we are on the mode 'guest' the checking is simple.
-		else if ($mode === 'guest') {
-			return ($block->auth_mode === 'guest');
-		}
+        // If we are on the mode 'guest' the checking is simple.
+        else if ($mode === 'guest') {
+            return ($block->auth_mode === 'guest');
+        }
 
-		// We are on the mode 'auth'
-		else if ($block->auth_mode !== 'auth') {
-			return false;
-		} else if (empty($block->user_roles)) {
-			return true;
-		}
+        // We are on the mode 'auth'
+        else if ($block->auth_mode !== 'auth') {
+            return false;
+        } else if (empty($block->user_roles)) {
+            return true;
+        }
 
-		$user = Auth::user();
+        $user = Auth::user();
 
-		$roles = array_filter(explode(',', $block->user_roles), function ($value)
-		{
-			return ! empty($value);
-		});
+        $roles = array_filter(explode(',', $block->user_roles), function ($value)
+        {
+            return ! empty($value);
+        });
 
-		return $user->hasRole($roles);
-	}
+        return $user->hasRole($roles);
+    }
 }

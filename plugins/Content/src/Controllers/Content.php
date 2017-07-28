@@ -13,19 +13,19 @@ use App\Controllers\BaseController;
 class Content extends BaseController
 {
 
-	public function index()
-	{
-		$title = __d('content', 'Welcome to the Content Plugin');
+    public function index()
+    {
+        $title = __d('content', 'Welcome to the Content Plugin');
 
-		$content = __d('content', 'Yep! It works.');
+        $content = __d('content', 'Yep! It works.');
 
-		//
-		$this->set(compact('title', 'content'));
+        //
+        $this->set(compact('title', 'content'));
 
-		/*
-		return $this->createView(compact('content'), 'OtherIndex')
-			->shares('title', __d('content', 'Welcome to the Content Plugin'));
-		*/
-	}
+        /*
+        return $this->createView(compact('content'), 'OtherIndex')
+            ->shares('title', __d('content', 'Welcome to the Content Plugin'));
+        */
+    }
 
 }
