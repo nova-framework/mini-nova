@@ -18,14 +18,14 @@
     <div class="col-sm-12">
         <?php Section::start('page-top'); ?>
 
-        <?= Section::get(); ?>
+        <?php Section::show(); ?>
     </div>
     <div class="col-sm-9">
         <?= Blocks::render('content-top'); ?>
 
         <?php Section::start('content'); ?>
 
-        <?= Section::get(); ?>
+        <?php Section::show(); ?>
 
         <?= Blocks::render('content-bottom'); ?>
     </div>
