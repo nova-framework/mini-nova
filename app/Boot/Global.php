@@ -15,13 +15,9 @@ if (CONFIG_STORE === 'database') {
     });
 
     foreach ($options as $option) {
-        $key = $option->group;
+        list ($key, $value) = $option->getConfigItem();
 
-        if (! empty($option->item)) {
-            $key .= '.' .$option->item;
-        }
-
-        Config::set($key, $option->value);
+        Config::set($key, $value);
     }
 }
 
