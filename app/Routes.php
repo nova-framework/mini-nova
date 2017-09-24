@@ -1,6 +1,6 @@
 <?php
 
-use Nova\Http\Request;
+use Mini\Http\Request;
 
 
 //
