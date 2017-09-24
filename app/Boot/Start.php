@@ -3,16 +3,16 @@
 use Mini\Foundation\Application;
 
 //--------------------------------------------------------------------------
+// Setup The Application Version
+//--------------------------------------------------------------------------
+
+define('VERSION', '1.0.0');
+
+//--------------------------------------------------------------------------
 // Use Internally The UTF-8 Encoding
 //--------------------------------------------------------------------------
 
 mb_internal_encoding('UTF-8');
-
-//--------------------------------------------------------------------------
-// Setup The Application Version
-//--------------------------------------------------------------------------
-
-define('VERSION', trim(file_get_contents(BASEPATH .'VERSION.txt')));
 
 //--------------------------------------------------------------------------
 // Load The Global Configuration
@@ -31,10 +31,10 @@ $app = new Application();
 //--------------------------------------------------------------------------
 
 $app->bindInstallPaths(array(
-    'base'        => BASEPATH,
-    'app'        => APPPATH,
-    'public'    => WEBPATH,
-    'storage'    => STORAGE_PATH,
+    'base'    => BASEPATH,
+    'app'     => APPPATH,
+    'public'  => WEBPATH,
+    'storage' => STORAGE_PATH,
 ));
 
 //--------------------------------------------------------------------------

@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use Mini\Database\ORM\Model as BaseModel;
+use Mini\Database\QueryException;
+use Mini\Support\NamespacedItemResolver;
+
+use PDOException;
 
 
 class Option extends BaseModel
@@ -11,9 +15,12 @@ class Option extends BaseModel
 
     protected $primaryKey = 'id';
 
-    protected $fillable = array('group', 'item', 'value');
+    protected $fillable = array('namespace', 'group', 'item', 'value');
 
     public $timestamps = false;
+
+    //
+    protected static $itemResolver;
 
 
     public function getValueAttribute($value)
@@ -26,75 +33,56 @@ class Option extends BaseModel
         $this->attributes['value'] = $this->maybeEncode($value);
     }
 
+    public function getConfigItem()
+    {
+        if (! empty($namespace = $this->getAttribute('namespace'))) {
+            $key = $namespace .'::';
+        } else {
+            $key = '';
+        }
+
+        $key .= $this->getAttribute('group');
+
+        if (! empty($item = $this->getAttribute('item'))) {
+            $key .= '.' .$item;
+        }
+
+        return array($key, $this->getAttribute('value'));
+    }
+
+    public static function getResults()
+    {
+        $instance = new static;
+
+        try {
+            return $instance->newQuery()->get();
+        }
+        catch (QueryException $e) {
+            //
+        }
+        catch (PDOException $e) {
+            //
+        }
+
+        return $instance->newCollection();
+    }
+
     public static function set($key, $value)
     {
-        list($namespace, $group, $item) = static::parseKey($key);
+        list($namespace, $group, $item) = static::getItemResolver()->parseKey($key);
 
-        // Prepare the record variables.
-        $attributes = array(
-            'namespace' => $namespace,
-            'group'     => $group,
-            'item'      => $item
+        return static::updateOrCreate(
+            compact('namespace', 'group', 'item'), compact('value')
         );
-
-        $values = array(
-            'value' => $value
-        );
-
-        return static::updateOrCreate($attributes, $values);
     }
 
-    /**
-     * Parse a key into namespace, group, and item.
-     *
-     * @param  string  $key
-     * @return array
-     */
-    protected static function parseKey($key)
+    protected static function getItemResolver()
     {
-        if (strpos($key, '::') === false) {
-            $segments = explode('.', $key);
-
-            return static::parseBasicSegments($segments);
+        if (! isset(static::$itemResolver)) {
+            return static::$itemResolver = new NamespacedItemResolver();
         }
 
-        $parsed = static::parseNamespacedSegments($key);
-    }
-
-    /**
-     * Parse an array of basic segments.
-     *
-     * @param  array  $segments
-     * @return array
-     */
-    protected static function parseBasicSegments(array $segments)
-    {
-        $group = $segments[0];
-
-        if (count($segments) == 1) {
-            return array(null, $group, null);
-        }
-
-        $item = implode('.', array_slice($segments, 1));
-
-        return array(null, $group, $item);
-    }
-
-    /**
-     * Parse an array of namespaced segments.
-     *
-     * @param  string  $key
-     * @return array
-     */
-    protected static function parseNamespacedSegments($key)
-    {
-        list($namespace, $item) = explode('::', $key);
-
-        $itemSegments = explode('.', $item);
-
-        $groupAndItem = array_slice(static::parseBasicSegments($itemSegments), 1);
-
-        return array_merge(array($namespace), $groupAndItem);
+        return static::$itemResolver;
     }
 
     /**
