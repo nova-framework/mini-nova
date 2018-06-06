@@ -18,7 +18,7 @@
 </div>
 
 <style type="text/css">
-*/
+
 /**
  * Nestable
  */
